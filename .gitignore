@@ -1,0 +1,12 @@
+*.exe
+*.dll
+*.lib
+*.exp
+*.gch
+*.layout
+*.depend
+*.cscope_file_list
+
+obj/
+bin/
+doc/

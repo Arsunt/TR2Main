@@ -1,0 +1,1474 @@
+x function is unused / included in another function
++ function is reimplemented in DLL
+* function used by DLL from EXE
+
+// ======================================
+// 3D SYSTEM
+// ======================================
+
+	3dsystem/3d_gen.cpp
+0x00401000:	+	phd_GenerateW2V
+0x004011D0:	+	phd_LookAt
+0x00401250:	+	phd_GetVectorAngles
+0x004012D0:	+	phd_RotX
+0x00401380:	+	phd_RotY
+0x00401430:	+	phd_RotZ
+0x004014E0:	+	phd_RotYXZ
+0x004016C0:	+	phd_RotYXZpack
+0x004018B0:	+	phd_TranslateRel
+0x00401960:	+	phd_TranslateAbs
+0x004019E0:	+	phd_PutPolygons
+0x00401AE0:	+	S_InsertRoom
+0x00401BD0:	+	calc_background_light
+0x00401C10:	+	S_InsertBackground
+----------:	+	S_InsertInvBgnd
+0x00401D50:	+	calc_object_vertices
+0x00401F30:	+	calc_vertice_light
+0x004020A0:	+	calc_roomvert
+0x00402320:	+	phd_RotateLight
+0x004023F0:	+	phd_InitPolyList
+0x00402420:	+	phd_SortPolyList
+0x00402460:	+	do_quickysorty
+0x00402530:	+	phd_PrintPolyList
+0x00402570:	+	AlterFOV
+0x00402680:	+	phd_SetNearZ
+0x004026D0:	+	phd_SetFarZ
+0x004026F0:	+	phd_InitWindow
+----------:	+	phd_PopMatrix
+---asm----:	+	phd_PushMatrix
+---asm----:	+	phd_PushUnitMatrix
+
+	3dsystem/3d_out.cpp
+0x00402960:	 *	draw_poly_line
+0x00402B00:	 *	draw_poly_flat
+0x00402B40:	 *	draw_poly_trans
+0x00402B80:	 *	draw_poly_gouraud
+0x00402BC0:	 *	draw_poly_gtmap
+0x00402C00:	 *	draw_poly_wgtmap
+0x00402C40:		xgen_x
+0x00402D20:		xgen_xg
+0x00402E70:		xgen_xguv
+0x00403090:		xgen_xguvpersp_fp
+0x00403320:		gtmap_persp32_fp
+0x004042F0:		wgtmap_persp16_fp
+0x004057C0:	 *	draw_poly_gtmap_persp
+0x00405800:	 *	draw_poly_wgtmap_persp
+---asm----:		flatA
+---asm----:		transA
+---asm----:		gourA
+---asm----:		gtmapA
+---asm----:		wgtmapA
+
+	3dsystem/3dinsert.cpp
+0x00405840:	+	visible_zclip
+0x004058B0:	+	ZedClipper
+0x004059F0:	 *	XYGUVClipper
+0x00405F10:	 *	InsertObjectGT4
+0x00406970:	 *	InsertObjectGT3
+0x004071F0:		XYGClipper
+0x00407620:	 *	InsertObjectG4
+0x00407A00:	 *	InsertObjectG3
+0x00407D20:	 *	XYClipper
+0x00407FF0:	+	InsertTrans8
+0x004084A0:	+	InsertTransQuad
+0x00408580:	+	InsertFlatRect
+0x00408650:	+	InsertLine
+0x00408710:	+	InsertGT3_ZBuffered
+0x00408D60:	+	DrawClippedPoly_Textured
+0x00408EA0:	+	InsertGT4_ZBuffered
+0x004092E0:	 *	InsertObjectGT4_ZBuffered
+0x00409380:	 *	InsertObjectGT3_ZBuffered
+0x00409430:	 *	InsertObjectG4_ZBuffered
+0x004097D0:	+	DrawPoly_Gouraud
+0x004098D0:	 *	InsertObjectG3_ZBuffered
+0x00409BB0:	+	InsertFlatRect_ZBuffered
+0x00409D80:	+	InsertLine_ZBuffered
+0x00409EC0:		InsertGT3_Sorted
+0x0040A5D0:	 *	InsertClippedPoly_Textured
+0x0040A780:		InsertGT4_Sorted
+0x0040AC60:	 *	InsertObjectGT4_Sorted
+0x0040ACF0:	 *	InsertObjectGT3_Sorted
+0x0040AD90:	 *	InsertObjectG4_Sorted
+0x0040B1D0:	 *	InsertPoly_Gouraud
+0x0040B350:	 *	InsertObjectG3_Sorted
+0x0040B6A0:	+	InsertSprite_Sorted
+0x0040B9F0:	+	InsertFlatRect_Sorted
+0x0040BB70:	+	InsertLine_Sorted
+0x0040BCA0:	+	InsertTrans8_Sorted
+0x0040BE40:	+	InsertTransQuad_Sorted
+0x0040BF80:	+	InsertSprite
+
+	3dsystem/phd_math.cpp
+---asm----:	+	phd_atan
+---asm----:	+	phd_cos
+---asm----:	+	phd_sin
+---asm----:	+	phd_sqrt
+
+	3dsystem/scalespr.cpp
+0x0040C030:		S_DrawSprite
+0x0040C300:	+	S_DrawPickup
+0x0040C390:	 *	ins_room_sprite
+0x0040C4F0:		S_DrawScreenSprite2d
+0x0040C590:		S_DrawScreenSprite
+0x0040C630:	 *	draw_scaled_spriteC
+
+// ======================================
+// GAME
+// ======================================
+
+	game/bird.cpp
+0x0040C860:		InitialiseEagle
+0x0040C8F0:		EagleControl
+
+	game/boat.cpp
+0x0040CB10:		InitialiseBoat
+0x0040CB50:		BoatCheckGeton
+0x0040CCC0:		BoatCollision
+0x0040CE20:		Boat_SomeFunc
+0x0040CF20:		DoBoatShift
+0x0040D0F0:		DoWakeEffect
+0x0040D270:		BoatControl_SubFunc
+0x0040D2C0:		BoatDynamics
+0x0040D7A0:		BoatUserControl
+0x0040D930:		BoatAnimation
+0x0040DAA0:		BoatControl
+0x0040E0D0:		GondolaControl
+
+	game/box.cpp
+0x0040E190:		InitialiseCreature
+0x0040E1C0:		CreatureActive
+0x0040E210:		CreatureAIInfo
+0x0040E470:		SearchLOT_SubFunc
+0x0040E670:		SearchLOT
+0x0040E6E0:		TargetBox
+0x0040E780:		StalkBox
+0x0040E880:		EscapeBox
+0x0040E930:		ValidBox
+0x0040E9E0:		CreatureMood
+0x0040EE50:		CalculateTarget
+0x0040F2B0:		CreatureCreature
+0x0040F3B0:		BadFloor
+0x0040F440:		CreatureDie
+0x0040F500:		CreatureAnimation
+0x0040FDD0:		CreatureTurn
+0x0040FEB0:		CreatureTilt
+0x0040FEF0:		CreatureHead
+0x0040FF40:		CreatureNeck
+0x0040FF90:		CreatureFloat
+0x00410040:		CreatureUnderwater
+0x00410090:		CreatureEffect
+0x004100F0:		CreatureVault
+0x00410230:		CreatureKill
+0x004103A0:		GetBaddieTarget
+
+	game/camera.cpp
+0x00410580:	 *	InitialiseCamera
+0x00410630:		MoveCamera
+0x004109B0:		ClipCamera
+0x00410A90:		ShiftCamera
+0x00410BF0:		BadPosition
+0x00410C40:		SmartShift
+0x004113D0:		ChaseCamera
+0x004114C0:		ShiftClamp
+0x00411660:		CombatCamera
+0x004117F0:		LookCamera
+0x004119E0:		FixedCamera
+0x00411A80:		CalculateCamera
+
+	game/cinema.cpp
+0x00411F30:		SetCutsceneTrack
+0x00411F40:	 *	StartCinematic
+0x00412060:		InitCinematicRooms
+0x00412100:		DoCinematic
+0x00412270:		CalculateCinematicCamera
+0x004123B0:		GetCinematicRoom
+0x00412430:		ControlCinematicPlayer
+0x00412510:		LaraControlCinematic
+0x004125B0:		InitialisePlayer1
+0x00412640:		InitialiseGenPlayer
+0x00412680:		InGameCinematicCamera
+
+	game/collide.cpp
+0x004128D0:		GetCollisionInfo
+0x00412F90:		FindGridShift
+0x00412FC0:		CollideStaticObjects
+0x004133B0:		GetNearByRooms
+0x00413480:		GetNewRoom
+0x004134E0:		ShiftItem
+0x00413520:		UpdateLaraRoom
+0x00413580:		GetTiltType
+0x00413620:		LaraBaddieCollision
+0x004137C0:		EffectSpaz
+0x00413840:		CreatureCollision
+0x004138C0:		ObjectCollision
+0x00413920:		DoorCollision
+0x004139A0:		TrapCollision
+0x00413A10:		ItemPushLara
+0x00413D20:		TestBoundsCollide
+0x00413DF0:		TestLaraPosition
+0x00413F30:		AlignLaraPosition
+0x00414070:		MoveLaraPosition
+0x00414200:		Move3DPosTo3DPos
+
+	game/control.cpp
+0x00414370:	 *	ControlPhase
+0x004146C0:		AnimateItem
+0x00414A30:		GetChange
+0x00414AE0:		TranslateItem
+0x00414B40:		GetFloor
+0x00414CE0:		GetWaterHeight
+0x00414E50:		GetHeight
+0x004150D0:		RefreshCamera
+0x004151C0:		TestTriggers
+0x004158A0:		TriggerActive
+0x00415900:		GetCeiling
+0x00415B60:		GetDoor
+0x00415BB0:		LOS
+0x00415C50:		zLOS
+0x00415F40:		xLOS
+0x00416230:		ClipTarget
+0x00416310:		ObjectOnLOS
+0x00416610:		FlipMap
+0x004166D0:		RemoveRoomFlipItems
+0x00416770:		AddRoomFlipItems
+0x004167D0:		TriggerCDTrack
+0x00416800:		TriggerNormalCDTrack
+
+	game/demo.cpp
+0x004168E0:	 *	DoDemoSequence
+0x00416940:		StartDemo
+0x00416AF0:		LoadLaraDemoPos
+0x00416BC0:		GetDemoInput
+
+	game/diver.cpp
+0x00416BF0:		Harpoon
+0x00416C70:		GetWaterSurface
+0x00416D80:		DiverControl
+
+	game/dog.cpp
+0x00417130:		DogControl
+0x004174E0:		TigerControl
+
+	game/dragon.cpp
+0x00417780:		ControlTwinkle
+0x00417900:		DragonBartoliControl_SubFunc
+0x004179E0:		DragonFire
+0x00417A90:		DragonCollision
+0x00417D80:		DragonBones
+0x00417E60:		DragonControl
+0x004183B0:		InitialiseBartoli
+0x004184D0:		BartoliControl
+0x00418670:		DinoControl
+
+	game/draw.cpp
+0x00418920:		DrawPhaseCinematic
+0x00418960:	 *	DrawPhaseGame
+0x004189A0:		DrawRooms
+0x00418C50:		GetRoomBounds
+0x00418E20:		SetRoomBounds
+0x004191A0:		ClipRoom
+0x00419580:		PrintRooms
+0x00419640:		PrintObjects
+0x00419870:		DrawEffect
+0x004199C0:		DrawSpriteItem
+----------:		DrawDummyItem
+0x00419A50:	 *	DrawAnimatingItem
+0x00419DD0:		DrawLara
+0x0041AB00:		DrawLaraInt
+0x0041B6F0:		InitInterpolate
+0x0041B730:		phd_PopMatrix_I
+0x0041B760:		phd_PushMatrix_I
+0x0041B790:		phd_RotY_I
+0x0041B7D0:		phd_RotX_I
+0x0041B810:		phd_RotZ_I
+0x0041B850:		phd_TranslateRel_I
+0x0041B8A0:		phd_TranslateRel_ID
+0x0041B8F0:		phd_RotYXZ_I
+0x0041B940:		phd_RotYXZsuperpack_I
+0x0041B980:	+	phd_RotYXZsuperpack
+0x0041BA30:		phd_PutPolygons_I
+0x0041BA60:		InterpolateMatrix
+0x0041BC10:		InterpolateArmMatrix
+0x0041BD10:		DrawGunFlash
+0x0041BE80:		CalculateObjectLighting
+0x0041BF70:		GetFrames
+0x0041C010:		GetBoundsAccurate
+0x0041C090:		GetBestFrame
+0x0041C0D0:		AddDynamicLight
+
+	game/eel.cpp
+0x0041C120:		BigEelControl
+0x0041C2C0:		EelControl
+
+	game/effects.cpp
+0x0041C4B0:		ItemNearLara
+0x0041C540:		SoundEffects
+0x0041C5B0:		DoBloodSplat
+0x0041C610:		DoLotsOfBlood
+0x0041C6C0:		ControlBlood1
+0x0041C750:		ControlExplosion1
+0x0041C7D0:		Richochet
+0x0041C850:		ControlRichochet1
+0x0041C880:		CreateBubble
+0x0041C8F0:		LaraBubbles
+0x0041C970:		ControlBubble1
+0x0041CA70:		Splash
+----------:		WadeSplash
+0x0041CB40:		ControlSplash1
+0x0041CBC0:		ControlWaterSprite
+0x0041CC70:		ControlSnowSprite
+0x0041CD00:		ControlHotLiquid
+0x0041CDE0:		WaterFall
+0x0041CF20:		finish_level_effect
+0x0041CF30:		turn180_effect
+0x0041CF50:		floor_shake_effect
+0x0041CFF0:		lara_normal_effect
+0x0041D030:		BoilerFX
+0x0041D050:		FloodFX
+0x0041D0E0:		RubbleFX
+0x0041D110:		ChandelierFX
+0x0041D140:		ExplosionFX
+0x0041D170:		PistonFX
+0x0041D190:		CurtainFX
+0x0041D1B0:		StatueFX
+0x0041D1D0:		SetChangeFX
+0x0041D1F0:		ControlDingDong
+0x0041D230:		ControlLaraAlarm
+0x0041D270:		ControlAlarmSound
+0x0041D2E0:		ControlBirdTweeter
+0x0041D340:		ControlClockChimes_SubFunc
+0x0041D3A0:		ControlClockChimes
+0x0041D410:		SphereOfDoomCollision
+0x0041D540:		SphereOfDoom
+0x0041D630:		DrawSphereOfDoom
+0x0041D760:		lara_hands_free
+0x0041D770:		flip_map_effect
+0x0041D780:		draw_right_gun
+0x0041D7D0:		draw_left_gun
+----------:		shoot_right_gun
+----------:		shoot_left_gun
+0x0041D820:		swap_meshes_with_meshswap1
+0x0041D890:		swap_meshes_with_meshswap2
+0x0041D900:		swap_meshes_with_meshswap3
+0x0041D9A0:		invisibility_on
+0x0041D9B0:		invisibility_off
+0x0041D9D0:		dynamic_light_on
+0x0041D9E0:		dynamic_light_off
+0x0041D9F0:		reset_hair
+0x0041DA00:		AssaultStart
+0x0041DA30:		AssaultStop
+0x0041DA50:		AssaultReset
+0x0041DA70:		AssaultFinished
+
+	game/enemies.cpp
+0x0041DB30:		Knife
+0x0041DBB0:		Cult2Control
+0x0041DFE0:		MonkControl
+0x0041E4B0:		Worker3Control
+0x0041EAC0:		DrawXianLord
+0x0041EEC0:		XianLordControl_SubFunc
+0x0041EF70:		InitialiseXianLord
+0x0041EFD0:		XianLordControl
+0x0041F5B0:		WarriorControl_SubFunc
+0x0041F650:		WarriorControl
+
+	game/gameflow.cpp
+0x0041FA40:	+	GF_LoadScriptFile
+0x0041FC30:	+	GF_DoFrontEndSequence
+0x0041FC50:	+	GF_DoLevelSequence
+0x0041FCC0:	 *	GF_InterpretSequence
+0x004201A0:	 *	GF_ModifyInventory
+
+	game/hair.cpp
+0x00420E80:	 *	InitialiseHair
+0x00420F00:		HairControl
+0x00421900:		DrawHair
+
+	game/health.cpp
+0x00421980:		FlashIt
+0x004219B0:		DrawAssaultTimer
+0x00421B00:		DrawGameInfo
+0x00421B50:		DrawHealthBar
+0x00421C00:		DrawAirBar
+0x00421CA0:		MakeAmmoString
+0x00421CD0:		DrawAmmoInfo
+0x00421E20:		InitialisePickUpDisplay
+0x00421E40:		DrawPickups
+0x00421F40:		AddDisplayPickup
+0x00421FB0:	+	DisplayModeInfo
+0x00422030:		DrawModeInfo
+
+	game/inventory.cpp
+0x00422060:	 *	Display_Inventory
+0x004232F0:		Construct_Inventory
+0x00423450:		SelectMeshes
+0x004234E0:		AnimateInventoryItem
+0x00423570:		DrawInventoryItem
+0x004239A0:	+	GetDebouncedInput
+0x004239C0:		DoInventoryPicture
+0x004239D0:	+	DoInventoryBackground
+
+	game/invfunc.cpp
+0x00423B10:	+	InitColours
+0x00423C20:		RingIsOpen
+0x00423D90:		RingIsNotOpen
+0x00423E20:		RingNotActive
+0x00424290:		RingActive
+0x004242D0:	+	Inv_AddItem
+0x00424AE0:	+	Inv_InsertItem
+0x00424C10:	+	Inv_RequestItem
+0x00424C90:	+	Inv_RemoveAllItems
+0x00424CB0:	+	Inv_RemoveItem
+0x00424DC0:	+	Inv_GetItemOption
+0x00424FB0:		RemoveInventoryText
+0x00424FE0:		Inv_RingInit
+0x004250F0:		Inv_RingGetView
+0x00425150:		Inv_RingLight
+0x00425190:		Inv_RingCalcAdders
+0x004251C0:		Inv_RingDoMotions
+0x00425300:		Inv_RingRotateLeft
+0x00425330:		Inv_RingRotateRight
+0x00425360:		Inv_RingMotionInit
+0x004253D0:		Inv_RingMotionSetup
+0x00425400:		Inv_RingMotionRadius
+0x00425430:		Inv_RingMotionRotation
+0x00425460:		Inv_RingMotionCameraPos
+0x00425490:		Inv_RingMotionCameraPitch
+0x004254B0:		Inv_RingMotionItemSelect
+0x00425510:		Inv_RingMotionItemDeselect
+
+	game/invtext.cpp
+0x00425580:	+	Init_Requester
+0x00425610:		Remove_Requester
+0x004256C0:		ResetTextParams
+0x004256E0:		GetTextParams1
+0x00425740:		GetTextParams2
+0x004257A0:		Display_Requester
+0x00426010:	+	SetRequesterHeading
+0x004260C0:	+	RemoveAllReqItems
+0x004260E0:	+	ChangeRequesterItem
+0x004261A0:	+	AddRequesterItem
+0x00426250:	+	SetPCRequesterSize
+0x00426290:		AddAssaultTime
+0x00426320:		ShowGymStatsText
+0x00426500:	 *	ShowStatsText
+0x004268A0:	 *	ShowEndStatsText
+
+	game/items.cpp
+0x00426CD0:	+	InitialiseItemArray
+0x00426D30:		KillItem
+0x00426E50:		CreateItem
+0x00426E90:	+	InitialiseItem
+0x00427050:		RemoveActiveItem
+0x004270E0:		RemoveDrawnItem
+0x00427150:	+	AddActiveItem
+0x004271B0:		ItemNewRoom
+0x00427250:	+	GlobalItemReplace
+0x004272D0:		InitialiseFXArray
+0x00427300:		CreateEffect
+0x00427370:		KillEffect
+0x00427460:		EffectNewRoom
+0x00427500:		ClearBodyBag
+
+	game/lara.cpp
+0x00427560:		LaraAboveWater
+0x00427700:		LookUpDown
+0x00427770:		LookLeftRight
+0x004277F0:		ResetLook
+0x00427880:		lara_as_walk
+0x00427910:		lara_as_run
+0x00427A60:		lara_as_stop
+0x00427BB0:		lara_as_forwardjump
+----------:		lara_as_pose
+0x00427C90:		lara_as_fastback
+0x00427CF0:		lara_as_turn_r
+0x00427D80:		lara_as_turn_l
+0x00427E10:		lara_as_death
+0x00427E30:		lara_as_fastfall
+0x00427E70:		lara_as_hang
+0x00427ED0:		lara_as_reach
+0x00427EF0:		lara_as_splat
+----------:		lara_as_land
+0x00427F00:		lara_as_compress
+0x00428010:		lara_as_back
+0x004280A0:		lara_as_null
+0x004280B0:		lara_as_fastturn
+0x00428100:		lara_as_stepright
+0x00428180:		lara_as_stepleft
+0x00428200:		lara_as_slide
+0x00428230:		lara_as_backjump
+0x00428280:		lara_as_rightjump
+0x004282C0:		lara_as_leftjump
+0x00428300:		lara_as_upjump
+0x00428320:		lara_as_fallback
+0x00428350:		lara_as_hangleft
+0x00428390:		lara_as_hangright
+0x004283D0:		lara_as_slideback
+0x004283F0:		lara_as_pushblock
+----------:		lara_as_pullblock
+0x00428420:		lara_as_ppready
+0x00428450:		lara_as_pickup
+0x00428480:		lara_as_pickupflare
+0x004284E0:		lara_as_switchon
+----------:		lara_as_switchoff
+0x00428520:		lara_as_usekey
+----------:		lara_as_usepuzzle
+----------:		lara_as_roll
+----------:		lara_as_roll2
+0x00428550:		lara_as_special
+----------:		lara_as_usemidas
+----------:		lara_as_diemidas
+0x00428570:		lara_as_swandive
+0x004285A0:		lara_as_fastdive
+----------:		lara_as_gymnast
+0x00428600:		lara_as_waterout
+----------:		lara_as_laratest1
+----------:		lara_as_laratest2
+----------:		lara_as_laratest3
+0x00428620:		lara_as_wade
+----------:		lara_as_twist
+----------:		lara_as_kick
+0x004286F0:		lara_as_deathslide
+0x00428790:		extra_as_breath
+----------:		extra_as_plunger
+0x004287E0:		extra_as_yetikill
+0x00428830:		extra_as_sharkkill
+0x004288D0:		extra_as_airlock
+0x004288F0:		extra_as_gongbong
+0x00428910:		extra_as_dinokill
+0x00428970:		extra_as_pulldagger
+0x00428A30:		extra_as_startanim
+0x00428A80:		extra_as_starthouse
+0x00428B30:		extra_as_finalanim
+0x00428BE0:		LaraCollideIsFloorFallen
+0x00428C40:		LaraCollideStop
+0x00428D00:		lara_col_walk
+0x00428EA0:		lara_col_run
+0x00429020:		lara_col_stop
+0x004290B0:		lara_col_forwardjump
+----------:		lara_col_pose
+0x00429190:		lara_col_fastback
+0x00429250:		lara_col_turn_r
+0x004292F0:		lara_col_turn_l
+0x00429310:		lara_col_death
+0x00429380:		lara_col_fastfall
+0x00429420:		lara_col_hang
+0x00429550:		lara_col_reach
+0x004295E0:		lara_col_splat
+----------:		lara_col_land
+0x00429640:		lara_col_compress
+0x004296E0:		lara_col_back
+----------:		lara_col_null
+0x004297E0:		lara_col_fastturn
+0x00429800:		lara_col_stepright
+0x004298C0:		lara_col_stepleft
+0x004298E0:		lara_col_slide
+0x00429900:		lara_col_backjump
+0x00429930:		lara_col_rightjump
+0x00429960:		lara_col_leftjump
+0x00429990:		lara_col_upjump
+0x00429AD0:		lara_col_fallback
+0x00429B60:		lara_col_hangleft
+0x00429BA0:		lara_col_hangright
+0x00429BE0:		lara_col_slideback
+----------:		lara_col_pushblock
+----------:		lara_col_pullblock
+----------:		lara_col_ppready
+----------:		lara_col_pickup
+----------:		lara_col_switchon
+----------:		lara_col_switchoff
+----------:		lara_col_usekey
+----------:		lara_col_usepuzzle
+0x00429C10:		lara_col_roll
+0x00429CB0:		lara_col_roll2
+0x00429D80:		lara_col_null
+----------:		lara_col_special
+----------:		lara_col_usemidas
+----------:		lara_col_diemidas
+0x00429DA0:		lara_col_swandive
+0x00429E10:		lara_col_fastdive
+----------:		lara_col_gymnast
+----------:		lara_col_waterout
+----------:		lara_col_laratest1
+----------:		lara_col_laratest2
+----------:		lara_col_laratest3
+0x00429E90:		lara_col_wade
+----------:		lara_col_twist
+0x0042A000:		lara_default_col
+0x0042A040:	+	lara_col_jumper
+0x0042A120:		nullsub
+----------:		lara_col_kick
+----------:		lara_col_deathslide
+0x0042A130:	 *	GetLaraCollisionInfo
+0x0042A170:		lara_slide_slope
+0x0042A260:		LaraHitCeiling
+0x0042A2D0:		LaraDeflectEdge
+0x0042A350:	 *	LaraDeflectEdgeJump
+0x0042A4D0:		LaraSlideEdgeJump
+0x0042A5C0:		TestWall
+0x0042A6D0:		LaraTestHangOnClimbWall
+0x0042A7E0:		LaraTestClimbStance
+0x0042A8A0:		LaraHangTest
+0x0042AC00:		LaraTestEdgeCatch
+0x0042ACB0:		LaraTestHangJumpUp
+0x0042AE20:		LaraTestHangJump
+0x0042AFC0:		TestHangSwingIn
+0x0042B080:		TestLaraVault
+0x0042B370:		TestLaraSlide
+0x0042B4A0:		LaraFloorFront
+0x0042B520:	 *	LaraLandedBad
+0x0042B5E0:		GetLaraJointAbsPosition
+0x0042B970:		GetLJAInt
+
+	game/lara1gun.cpp
+0x0042BC90:		draw_shotgun_meshes
+0x0042BCD0:		undraw_shotgun_meshes
+0x0042BD00:		ready_shotgun
+0x0042BD70:		RifleHandler
+0x0042BE70:		FireShotgun
+0x0042BF70:		AnimateShotgun_SubFunc
+0x0042BFF0:		FireHarpoon
+0x0042C180:		ControlHarpoonBolt
+0x0042C4D0:		FireRocket
+0x0042C5C0:		ControlRocket
+0x0042C9D0:		draw_shotgun
+0x0042CB40:		undraw_shotgun
+0x0042CC50:		AnimateShotgun
+
+	game/lara2gun.cpp
+0x0042D000:		set_pistol_arm
+0x0042D050:		draw_pistols
+0x0042D0D0:		undraw_pistols
+0x0042D300:		ready_pistols
+0x0042D360:		draw_pistol_meshes
+0x0042D3B0:		undraw_pistol_mesh_left
+0x0042D3F0:		undraw_pistol_mesh_right
+0x0042D430:		PistolHandler
+0x0042D5C0:		AnimatePistols
+
+	game/laraclimb.cpp
+0x0042D8F0:		lara_as_climbleft
+0x0042D930:		lara_as_climbright
+0x0042D970:		lara_as_climbstnc
+0x0042D9F0:		lara_as_climbing
+0x0042DA10:		lara_as_climbend
+0x0042DA30:		lara_as_climbdown
+0x0042DA50:		lara_col_climbleft
+0x0042DAB0:		lara_col_climbright
+0x0042DB10:		lara_col_climbstnc
+0x0042DD20:		lara_col_climbing
+----------:		lara_col_climbend
+0x0042DE70:		lara_col_climbdown
+0x0042E010:		LaraCheckForLetGo
+0x0042E0C0:		LaraTestClimb
+0x0042E330:		LaraTestClimbPos
+0x0042E400:		LaraDoClimbLeftRight
+0x0042E4F0:		LaraTestClimbUpPos
+
+	game/larafire.cpp
+0x0042E740:		LaraGun
+0x0042ECB0:		CheckForHoldingState
+0x0042ECF0:		InitialiseNewWeapon
+0x0042EE30:		LaraTargetInfo
+0x0042EFD0:		LaraGetNewTarget
+0x0042F1F0:		find_target_point
+0x0042F2A0:		AimWeapon
+0x0042F370:		FireWeapon
+0x0042F6E0:		HitTarget
+0x0042F780:		SmashItem
+0x0042F7E0:		WeaponObject
+
+	game/laraflare.cpp
+0x0042F840:		DoFlareLight
+0x0042F8E0:		DoFlareInHand
+0x0042F9C0:		DrawFlareInAir
+0x0042FAC0:		CreateFlare
+0x0042FCA0:		set_flare_arm
+0x0042FCF0:		draw_flare
+0x0042FE60:		undraw_flare
+0x00430090:		draw_flare_meshes
+0x004300B0:		undraw_flare_meshes
+0x004300D0:		ready_flare
+0x00430110:		FlareControl
+
+	game/laramisc.cpp
+0x00430380:		LaraControl
+0x00430A10:		AnimateLara
+0x00430D10:	+	UseItem
+0x00430ED0:		LaraCheatGetStuff
+0x00430F90:		ControlLaraExtra
+0x00430FB0:		InitialiseLaraLoad
+0x00430FE0:		InitialiseLara
+0x004312A0:		InitialiseLaraInventory
+0x00431610:		LaraInitialiseMeshes
+
+	game/larasurf.cpp
+0x00431710:		LaraSurface
+0x00431870:		lara_as_surfswim
+0x004318E0:		lara_as_surfback
+0x00431940:		lara_as_surfleft
+0x004319A0:		lara_as_surfright
+0x00431A00:		lara_as_surftread
+0x00431AC0:		lara_col_surfswim
+0x00431B00:		lara_col_surfback
+0x00431B30:		lara_col_surfleft
+0x00431B60:		lara_col_surfright
+0x00431B90:		lara_col_surftread
+0x00431BF0:		LaraSurfaceCollision
+0x00431CF0:		LaraTestWaterStepOut
+0x00431DE0:		LaraTestWaterClimbOut
+
+	game/laraswim.cpp
+0x00432000:		LaraUnderWater
+0x00432230:		SwimTurn
+0x004322C0:		lara_as_swim
+0x00432330:		lara_as_glide
+0x004323B0:		lara_as_tread
+0x00432440:		lara_as_dive
+0x00432460:		lara_as_uwdeath
+0x004324C0:		lara_as_waterroll
+0x004324D0:		lara_col_swim
+----------:		lara_col_glide
+----------:		lara_col_tread
+----------:		lara_col_dive
+0x004324F0:		lara_col_uwdeath
+----------:		lara_col_waterroll
+0x00432550:		GetWaterDepth
+0x004326F0:		LaraTestWaterDepth
+0x004327C0:		LaraSwimCollision
+0x00432920:		LaraWaterCurrent
+
+	game/lot.cpp
+0x00432B10:		InitialiseLOTarray
+0x00432B70:		DisableBaddieAI
+0x00432BC0:		EnableBaddieAI
+0x00432D70:		InitialiseSlot
+0x00432F80:		CreateZone
+0x00433040:		ClearLOT
+
+	game/missile.cpp
+0x00433090:		ControlMissile
+0x00433360:		ShootAtLara
+0x00433410:	 *	ExplodingDeath
+0x004337A0:		ControlBodyPart
+
+	game/moveblock.cpp
+0x004339A0:		InitialiseMovingBlock
+0x004339D0:		MovableBlock
+0x00433B20:		MovableBlockCollision
+0x00433D80:		TestBlockMovable
+0x00433DD0:		TestBlockPush
+0x00433F20:		TestBlockPull
+0x00434160:		AlterFloorHeight
+0x00434220:		DrawMovableBlock
+0x00434250:		DrawUnclippedItem
+
+	game/objects.cpp
+0x004342C0:		EarthQuake
+0x004343A0:		ControlCutShotgun
+0x004343E0:		InitialiseFinalLevel
+0x004344B0:		FinalLevelCounter
+0x004346C0:		MiniCopterControl
+0x004347A0:		InitialiseDyingMonk
+0x00434820:		DyingMonk
+0x004348B0:		ControlGongBonger
+0x00434970:		DeathSlideCollision
+0x00434A30:		ControlDeathSlide
+0x00434CC0:		BigBowlControl
+0x00434DB0:		BellControl
+0x00434E30:		InitialiseWindow
+0x00434EB0:		SmashWindow
+0x00434F80:		WindowControl
+0x00435020:		SmashIceControl
+0x00435100:		ShutThatDoor
+0x00435150:		OpenThatDoor
+0x00435190:		InitialiseDoor
+0x00435570:		DoorControl
+0x00435640:		OnDrawBridge
+0x00435700:		DrawBridgeFloor
+0x00435740:		DrawBridgeCeiling
+0x00435780:		DrawBridgeCollision
+0x004357B0:		InitialiseLift
+0x004357F0:		LiftControl
+0x004358D0:		LiftFloorCeiling
+0x00435A50:		LiftFloor
+0x00435A90:		LiftCeiling
+0x00435AD0:		BridgeFlatFloor
+0x00435AF0:		BridgeFlatCeiling
+0x00435B10:		GetOffset
+0x00435B50:		BridgeTilt1Floor
+0x00435B80:		BridgeTilt1Ceiling
+0x00435BC0:		BridgeTilt2Floor
+0x00435BF0:		BridgeTilt2Ceiling
+0x00435C30:		CopterControl
+0x00435D40:		GeneralControl
+0x00435E20:		DetonatorControl
+
+	game/people.cpp
+0x00435EB0:		Targetable
+0x00435F40:		ControlGlow
+0x00435F80:		ControlGunShot
+0x00435FD0:		GunShot
+0x00436040:		GunHit
+0x00436100:		GunMiss
+0x004361B0:		ShotLara
+0x00436380:		InitialiseCult1
+0x004363D0:		Cult1Control
+0x00436800:		InitialiseCult3
+0x00436850:		Cult3Control
+0x00436DC0:		Worker1Control
+0x004371C0:		Worker2Control
+0x00437620:		BanditControl
+0x00437960:		Bandit2Control
+0x00437DA0:		WinstonControl
+
+	game/pickup.cpp
+0x00437F20:		PickUpCollision
+0x004383A0:		SwitchCollision
+0x004385B0:		SwitchCollision2
+0x004386B0:		DetonatorCollision
+0x004388F0:		KeyHoleCollision
+0x00438B30:		PuzzleHoleCollision
+0x00438DF0:		SwitchControl
+0x00438E30:		SwitchTrigger
+0x00438EF0:		KeyTrigger
+0x00438F30:		PickupTrigger
+0x00438F70:		SecretControl
+
+	game/rat.cpp
+0x00438FA0:		MouseControl
+
+	game/savegame.cpp
+0x00439190:		InitialiseStartInfo
+0x00439200:	+	ModifyStartInfo
+0x004392E0:	 *	CreateStartInfo
+0x004394F0:		CreateSaveGameInfo
+0x00439A20:		ExtractSaveGameInfo
+0x0043A280:		ResetSG
+0x0043A2A0:		WriteSG
+0x0043A2F0:		ReadSG
+
+	game/setup.cpp
+0x0043A330:	 *	InitialiseLevel
+0x0043A490:		InitialiseGameFlags
+0x0043A500:	+	InitialiseLevelFlags
+0x0043A530:	 *	BaddyObjects
+0x0043B570:	 *	TrapObjects
+0x0043BB70:	 *	ObjectObjects
+0x0043C7C0:	+	InitialiseObjects
+0x0043C830:		GetCarriedItems
+
+	game/shark.cpp
+0x0043C900:		JellyControl
+0x0043CA20:		BaracuddaControl
+0x0043CC50:		SharkControl
+
+	game/skidoo.cpp
+0x0043CEE0:		InitialiseSkidoo
+0x0043CF20:		SkidooCheckGeton
+0x0043D010:		SkidooCollision
+0x0043D110:		SkidooBaddieCollision
+0x0043D310:		Skidoo_SomeFunc
+0x0043D3D0:		DoShift
+0x0043D650:		SkidooControl_SubFunc
+0x0043D6B0:		GetCollisionAnim
+0x0043D740:		DoSnowEffect
+0x0043D880:		SkidooDynamics
+0x0043DD20:		SkidooUserControl
+0x0043DEE0:		SkidooCheckGetOffOK
+0x0043DFF0:		SkidooAnimation
+0x0043E2D0:		SkidooExplodingDeath
+0x0043E350:		SkidooCheckGetOff
+0x0043E590:		SkidooFireWeapon
+0x0043E6B0:		SkidooControl
+0x0043EB10:		DrawSkidoo
+0x0043EDF0:		InitialiseSkidman
+0x0043EE80:		SkidManControl
+0x0043F280:		SkidmanPush
+0x0043F3A0:		SkidmanCollision
+
+	game/sound.cpp
+0x0043F430:	+	GetRealTrack
+0x0043F470:	 *	PlaySoundEffect
+0x0043F910:		StopSoundEffect
+0x0043F970:		SOUND_EndScene
+0x0043FA00:		SOUND_Stop
+0x0043FA30:	+	SOUND_Init
+
+	game/sphere.cpp
+0x0043FA60:		TestCollision
+0x0043FB90:		GetSpheres
+0x0043FE70:		GetJointAbsPosition
+0x00440010:		BaddieBiteEffect
+
+	game/spider.cpp
+0x00440070:		SpiderLeap
+0x00440120:		SpiderControl
+0x00440340:		BigSpiderControl
+
+	game/text.cpp
+0x00440500:	+	T_InitPrint
+0x00440530:	+	T_Print
+0x00440640:	+	T_ChangeText
+0x00440680:		T_SetScale
+0x004406A0:		T_FlashText
+0x004406D0:		T_AddBackground
+0x00440760:		T_RemoveBackground
+0x00440770:		T_AddOutline
+0x004407A0:		T_RemoveOutline
+0x004407B0:		T_CentreH
+0x004407D0:		T_CentreV
+0x004407F0:	+	T_RightAlign
+0x00440810:	+	T_BottomAlign
+0x00440830:		T_GetTextWidth
+0x00440940:	+	T_RemovePrint
+0x00440970:	+	T_GetStringLen
+----------:		DisplayFPS
+0x004409A0:	+	T_DrawText
+0x004409D0:		T_DrawTextBox
+0x00440B60:	 *	T_DrawThisText
+0x00440F40:	+	GetTextScaleH
+0x00440F80:	+	GetTextScaleV
+
+	game/traps.cpp
+0x00440FC0:		MineControl
+0x004411C0:		ControlSpikeWall
+0x00441300:		ControlCeilingSpikes
+0x00441420:		HookControl
+0x004414B0:		PropellerControl
+0x00441640:		SpinningBlade
+0x004417C0:		IcicleControl
+0x004418C0:		InitialiseBlade
+0x00441900:		BladeControl
+0x004419A0:		InitialiseKillerStatue
+0x004419F0:		KillerStatueControl
+0x00441B00:		SpringBoardControl
+0x00441BE0:		InitialiseRollingBall
+0x00441C20:		RollingBallControl
+0x00441F70:		RollingBallCollision
+0x004421C0:		SpikeCollision
+0x00442320:		TrapDoorControl
+0x00442370:		TrapDoorFloor
+0x004423B0:		TrapDoorCeiling
+0x004423F0:		OnTrapDoor
+0x004424A0:		Pendulum
+0x004425B0:		FallingBlock
+0x004426C0:		FallingBlockFloor
+0x00442700:		FallingBlockCeiling
+0x00442750:		TeethTrap
+0x00442810:		FallingCeiling
+0x004428F0:		DartEmitterControl
+0x00442A30:		DartsControl
+0x00442B90:		DartEffectControl
+0x00442BE0:		FlameEmitterControl
+0x00442C70:		FlameControl
+0x00442DE0:		LaraBurn
+0x00442E30:		LavaBurn
+0x00442F20:		LavaSpray
+0x00442FF0:		ControlLavaBlob
+
+	game/yeti.cpp
+0x00443100:		GiantYetiControl
+0x00443400:		YetiControl
+
+// ======================================
+// SPECIFIC
+// ======================================
+
+	specific/background.cpp
+0x00443A40:	+	BGND_Make640x480
+0x00443C00:	+	BGND_AddTexture
+0x00443CC0:	+	BGND_GetPageHandles
+0x00443D00:	+	BGND_DrawInGameBlack
+0x00443D60:	+	DrawQuad
+0x00443E40:	+	BGND_DrawInGameBackground
+0x00444060:	+	DrawTextureTile
+0x004442C0:	+	BGND_CenterLighting
+0x00444570:	+	BGND_Free
+0x004445C0:	+	BGND_Init
+
+	specific/init_3d.cpp
+0x004445F0:	+	Enumerate3DDevices
+0x00444620:	+	Direct3D2Create
+0x00444640:	+	Direct3D2Release
+0x00444660:	+	Enum3DDevicesCallback
+0x00444720:	+	D3DIsSupported
+0x00444760:	+	D3DSetViewport
+0x00444820:	+	D3DDeviceCreate
+0x004449E0:	+	Direct3DRelease
+0x00444A30:	+	Direct3dInit
+0x00444A40:	  x	unused
+0x00444A50:	  x	unused
+0x00444A80:	  x	unused
+0x00444B50:	  x	unused
+0x00444B60:	  x	unused
+0x00444BC0:	  x	unused
+0x00444BD0:	  x	unused
+0x00444C60:	  x	unused
+0x00444C70:	  x	unused
+
+	specific/winvid.cpp
+0x00444C80:	+	DDrawCreate
+0x00444CE0:	+	DDrawRelease
+0x00444D20:	+	GameWindowCalculateSizeFromClient
+0x00444DA0:	+	GameWindowCalculateSizeFromClientByZero
+0x00444E10:	+	WinVidSetMinWindowSize
+0x00444E60:	+	WinVidClearMinWindowSize
+0x00444E70:	+	WinVidSetMaxWindowSize
+0x00444EC0:	+	WinVidClearMaxWindowSize
+0x00444ED0:	+	CalculateWindowWidth
+0x00444F20:	+	CalculateWindowHeight
+0x00444F50:	+	WinVidGetMinMaxInfo
+0x00445060:	+	WinVidFindGameWindow
+0x00445080:	+	WinVidSpinMessageLoop
+0x00445170:	+	WinVidShowGameWindow
+0x004451C0:	+	WinVidHideGameWindow
+0x00445200:	+	WinVidSetGameWindowSize
+0x00445240:	+	ShowDDrawGameWindow
+0x004452F0:	+	HideDDrawGameWindow
+0x00445380:	+	DDrawSurfaceCreate
+0x004453D0:	+	DDrawSurfaceRestoreLost
+0x00445420:	+	WinVidClearBuffer
+0x00445470:	+	WinVidBufferLock
+0x004454B0:	+	WinVidBufferUnlock
+0x004454E0:	+	WinVidCopyBitmapToBuffer
+0x00445570:	+	GetRenderBitDepth
+0x00445600:	+	WinVidGetColorBitMasks
+0x00445680:	+	BitMaskGetNumberOfBits
+0x004456D0:	+	CalculateCompatibleColor
+0x00445740:	+	WinVidGetDisplayMode
+0x004457D0:	+	WinVidGoFullScreen
+0x00445860:	+	WinVidGoWindowed
+0x00445970:	+	WinVidSetDisplayAdapter
+0x00445A50:	+	CompareVideoModes
+0x00445AA0:	+	WinVidGetDisplayModes
+0x00445B00:	+	EnumDisplayModesCallback
+0x00445EC0:	+	WinVidInit
+0x00445F00:	+	WinVidGetDisplayAdapters
+0x00445FB0:	+	FlaggedStringDelete
+0x00445FD0:	+	EnumerateDisplayAdapters
+0x00445FF0:	+	EnumDisplayAdaptersCallback
+0x004461B0:	+	FlaggedStringsCreate
+0x004461F0:	+	WinVidRegisterGameWindowClass
+0x00446260:	+	WinVidGameWindowProc
+0x00446870:	+	WinVidResizeGameWindow
+0x00446A50:	+	WinVidCheckGameWindowPalette
+0x00446B10:	+	WinVidCreateGameWindow
+0x00446BE0:	+	WinVidFreeWindow
+0x00446C10:	+	WinVidExitMessage
+0x00446C60:	+	WinVidGetDisplayAdapter
+0x00446CB0:	+	WinVidStart
+0x00447030:	+	WinVidFinish
+0x00447050:	+	DisplayModeListInit
+0x00447060:	+	DisplayModeListDelete
+0x004470A0:	+	InsertDisplayMode
+0x004470C0:	+	InsertDisplayModeInListHead
+0x00447110:	+	InsertDisplayModeInListTail
+0x00447160:	  x	unused
+0x00447170:	  x	unused
+0x00447190:	  x	unused
+0x004471A0:	  x	unused
+0x00447210:	  x	unused
+0x00447220:	  x	unused
+0x00447260:	  x	unused
+0x00447270:	  x	unused
+
+	specific/init_input.cpp
+0x004472A0:	+	DInputCreate
+0x004472D0:	+	DInputRelease
+0x004472F0:	+	WinInReadKeyboard
+0x00447350:	+	WinInReadJoystick
+0x00447450:	  x	j_WinInputInit
+0x00447460:	+	WinInputInit
+0x004474E0:	+	DInputEnumDevices
+0x00447510:	+	DInputEnumDevicesCallback
+0x00447600:	+	FlaggedStringCreate
+0x00447620:	+	GetJoystick
+0x00447670:	+	DInputKeyboardCreate
+0x00447740:	+	DInputKeyboardRelease
+0x00447770:	+	DInputJoystickSelect
+0x00447860:	+	WinInStart
+0x00447890:	+	WinInFinish
+0x004478A0:	+	WinInRunControlPanel
+
+	specific/display.cpp
+0x004478C0:	+	IncreaseScreenSize
+0x00447930:	+	DecreaseScreenSize
+0x004479A0:	+	setup_screen_size
+0x00447A40:	+	TempVideoAdjust
+0x00447A80:	+	TempVideoRemove
+0x00447AC0:	+	S_FadeInInventory
+0x00447B00:	+	S_FadeOutInventory
+0x00447B30:	  x	unused
+0x00447B40:	  x	unused
+0x00447B60:	  x	unused
+0x00447B70:	  x	unused
+0x00447BE0:	  x	unused
+0x00447BF0:	  x	unused
+0x00447C30:	  x	unused
+0x00447C40:	  x	unused
+
+	specific/init_sound.cpp
+0x00447C70:	+	GetSoundAdapter
+0x00447CC0:	+	WinSndFreeAllSamples
+0x00447CF0:	+	WinSndMakeSample
+0x00447E00:	+	WinSndIsChannelPlaying
+0x00447E50:	+	WinSndPlaySample
+0x00447F40:	+	WinSndGetFreeChannelIndex
+0x00447F80:	+	WinSndAdjustVolumeAndPan
+0x00447FB0:	+	WinSndAdjustPitch
+0x00447FF0:	+	WinSndStopSample
+0x00448050:	  x	j_WinSndInit
+0x00448060:	+	WinSndInit
+0x00448100:	+	DSoundEnumerate
+0x00448120:	+	DSoundEnumCallback
+0x00448210:	+	WinSndStart
+0x00448390:	+	DSoundCreate
+0x004483B0:	+	DSoundBufferTest
+0x00448480:	+	WinSndFinish
+0x004484B0:	+	WinSndIsSoundEnabled
+0x004484C0:	  x	j_nullsub_3
+0x004484D0:	  x	nullsub_3
+
+	specific/init_display.cpp
+0x004484E0:	+	CreateScreenBuffers
+0x00448620:	+	CreatePrimarySurface
+0x004486C0:	+	CreateBackBuffer
+0x00448760:	+	CreateClipper
+0x00448800:	+	CreateWindowPalette
+0x004488E0:	+	CreateZBuffer
+0x004489A0:	+	GetZBufferDepth
+0x004489D0:	+	CreateRenderBuffer
+0x00448A80:	+	CreatePictureBuffer
+0x00448AF0:	+	ClearBuffers
+0x00448CA0:	+	RestoreLostBuffers
+0x00448DE0:	+	UpdateFrame
+0x00448EB0:	+	WaitPrimaryBufferFlip
+0x00448EF0:	+	RenderInit
+0x00448F00:	+	RenderStart
+0x004492B0:	+	RenderFinish
+0x004493A0:	+	ApplySettings
+0x004495B0:	+	FmvBackToGame
+0x004496C0:	+	GameApplySettings
+0x00449900:	+	UpdateGameResolution
+0x00449970:	+	DecodeErrorMessage
+
+	specific/file.cpp
+0x00449980:	+	ReadFileSync
+0x004499D0:	+	LoadTexturePages
+0x00449B60:	+	LoadRooms
+0x00449F00:	+	AdjustTextureUVs
+0x00449FA0:	+	LoadObjects
+0x0044A520:	+	LoadSprites
+0x0044A660:	+	LoadItems
+0x0044A840:	+	LoadDepthQ
+0x0044A9D0:	+	LoadPalettes
+0x0044AA50:	+	LoadCameras
+0x0044AAB0:	+	LoadSoundEffects
+0x0044AB10:	+	LoadBoxes
+0x0044AD40:	+	LoadAnimatedTextures
+0x0044ADA0:	+	LoadCinematic
+0x0044AE20:	+	LoadDemo
+0x0044AEB0:	+	LoadDemoExternal
+0x0044AF50:		LoadSamples
+0x0044B1C0:	+	ChangeFileNameExtension
+0x0044B200:	+	GetFullPath
+0x0044B230:	+	SelectDrive
+0x0044B310:	+	LoadLevel
+0x0044B560:	+	S_LoadLevelFile
+0x0044B580:	+	S_UnloadLevelFile
+0x0044B5B0:	+	S_AdjustTexelCoordinates
+0x0044B5D0:	+	S_ReloadLevelGraphics
+0x0044B6A0:	+	Read_Strings
+0x0044B770:	+	S_LoadGameFlow
+
+	specific/fmv.cpp
+0x0044BE50:	+	PlayFMV
+0x0044BED0:	+	WinPlayFMV
+0x0044C1B0:	+	WinStopFMV
+0x0044C200:	+	IntroFMV
+
+	specific/frontend.cpp
+0x0044C2A0:	+	S_COLOUR
+0x0044C2D0:	+	S_DrawScreenLine
+0x0044C310:	+	S_DrawScreenBox
+0x0044C430:	+	S_DrawScreenFBox
+0x0044C460:	+	S_FinishInventory
+0x0044C470:	+	S_FadeToBlack
+0x0044C4C0:	+	S_Wait
+0x0044C520:	+	S_PlayFMV
+0x0044C530:	+	S_IntroFMV
+0x0044C550:	+	StartGame
+0x0044C6A0:	+	GameLoop
+0x0044C740:	+	LevelCompleteSequence
+0x0044C750:	+	LevelStats
+0x0044C920:	+	GameStats
+0x0044CA40:	+	GetRandomControl
+0x0044CA60:	+	SeedRandomControl
+0x0044CA70:	+	GetRandomDraw
+0x0044CA90:	+	SeedRandomDraw
+0x0044CAA0:	+	GetValidLevelsList
+0x0044CAF0:	+	GetSavedGamesList
+0x0044CB40:	+	DisplayCredits
+0x0044CD80:	+	S_FrontEndCheck
+0x0044CEF0:	+	S_SaveGame
+0x0044D010:	+	S_LoadGame
+
+	specific/hwr.cpp
+0x0044D0B0:	+	HWR_InitState
+0x0044D1E0:	+	HWR_ResetTexSource
+0x0044D210:	+	HWR_ResetColorKey
+0x0044D240:	+	HWR_ResetZBuffer
+0x0044D2A0:	+	HWR_TexSource
+0x0044D2D0:	+	HWR_EnableColorKey
+0x0044D320:	+	HWR_EnableZBuffer
+0x0044D3B0:	+	HWR_BeginScene
+0x0044D3E0:	+	HWR_DrawPolyList
+0x0044D560:	+	HWR_LoadTexturePages
+0x0044D5F0:	+	HWR_FreeTexturePages
+0x0044D640:	+	HWR_GetPageHandles
+0x0044D680:	+	HWR_VertexBufferFull
+0x0044D6B0:	+	HWR_Init
+
+	specific/init.cpp
+0x0044D6E0:	+	S_InitialiseSystem
+0x0044D730:	+	ShutdownGame
+0x0044D750:	+	init_game_malloc
+0x0044D780:	+	game_malloc
+0x0044D800:	+	game_free
+0x0044D840:	+	CalculateWibbleTable
+0x0044D930:	+	S_SeedRandom
+
+	specific/input.cpp
+0x0044D9B0:	+	Key
+0x0044DAD0:	+	S_UpdateInput
+
+	specific/winmain.cpp
+0x0044E5A0:	+	RenderErrorBox
+0x0044E5E0:	+	WinMain
+0x0044E7A0:	  x	nullsub_4
+0x0044E7B0:	+	Init
+0x0044E830:	+	WinCleanup
+0x0044E860:	+	WinGameStart
+0x0044E8E0:	+	WinGameFinish
+0x0044E920:	  x	ThrowException
+0x0044E940:	  x	type_info::operator=(type_infoconst&)
+0x0044E950:	+	S_ExitSystem
+
+	specific/screenshot.cpp
+0x0044E9A0:	+	ScreenShotPCX
+0x0044EAB0:	+	CompPCX
+0x0044EB60:	+	EncodeLinePCX
+0x0044EC40:	+	EncodePutPCX
+0x0044EC80:	+	ScreenShot
+
+	specific/option.cpp
+0x0044EE80:		do_inventory_options
+0x0044EF90:		do_passport_option
+----------:		do_gamma_option
+0x0044F5E0:		do_detail_option
+0x0044F8C0:		do_sound_option
+0x0044FD60:		do_compass_option
+0x0044FE20:		FlashConflicts
+0x0044FEA0:		DefaultConflict
+0x0044FEE0:		do_control_option
+0x004505F0:		S_ShowControls
+0x00450AC0:		S_ChangeCtrlText
+0x00450B60:		S_RemoveCtrlText
+
+	specific/output.cpp
+0x00450BA0:	+	GetRenderHeight
+0x00450BB0:	+	GetRenderWidth
+0x00450BC0:	+	S_InitialisePolyList
+0x00450CB0:	+	S_DumpScreen
+0x00450CF0:	+	S_ClearScreen
+0x00450D00:	+	S_InitialiseScreen
+0x00450D40:	+	S_OutputPolyList
+0x00450D80:	+	S_GetObjectBounds
+0x00450FF0:	+	S_InsertBackPolygon
+0x00451040:	+	S_PrintShadow
+0x00451240:	+	S_CalculateLight
+0x00451540:	+	S_CalculateStaticLight
+0x00451580:	+	S_CalculateStaticMeshLight
+0x004516B0:	+	S_LightRoom
+0x004518C0:	+	S_DrawHealthBar
+0x00451A90:	+	S_DrawAirBar
+0x00451C90:	+	AnimateTextures
+0x00451D50:	+	S_SetupBelowWater
+0x00451DB0:	+	S_SetupAboveWater
+0x00451DE0:	+	S_AnimateTextures
+0x00451EA0:	+	S_DisplayPicture
+0x00451FB0:	+	S_SyncPictureBufferPalette
+0x00452030:	+	S_DontDisplayPicture
+0x00452040:	+	ScreenDump
+0x00452050:	+	ScreenPartialDump
+0x00452060:	+	FadeToPal
+0x00452230:	+	ScreenClear
+0x00452260:	+	S_CopyScreenToBuffer
+0x00452310:	+	S_CopyBufferToScreen
+0x00452360:	+	DecompPCX
+0x00452460:	  x	j_nullsub_6
+0x00452470:	  x	nullsub_6
+
+	specific/setupdlg.cpp
+0x00452480:	+	OpenGameRegistryKey
+0x004524D0:	+	CloseGameRegistryKey
+0x004524E0:	+	SE_WriteAppSettings
+0x00452760:	+	SE_ReadAppSettings
+0x00452AC0:	+	SE_GraphicsTestStart
+0x00452B90:	+	SE_GraphicsTestFinish
+0x00452BB0:	+	SE_GraphicsTestExecute
+0x00452BC0:	+	SE_GraphicsTest
+0x00452C20:	+	SE_DefaultGraphicsSettings
+0x00452D70:	+	SE_SoundTestStart
+0x00452E30:	+	SE_SoundTestFinish
+0x00452E40:	+	SE_SoundTestExecute
+0x00452E80:	+	SE_SoundTest
+0x00452EE0:	+	SE_PropSheetCallback
+0x00452F20:	+	SE_NewPropSheetWndProc
+0x00452F80:	+	SE_ShowSetupDialog
+0x00453150:	+	SE_GraphicsDlgProc
+0x00453560:	+	SE_GraphicsDlgFullScreenModesUpdate
+0x00453750:	+	SE_GraphicsAdapterSet
+0x00453770:	+	SE_GraphicsDlgUpdate
+0x00453EB0:	+	SE_GraphicsDlgInit
+0x00454030:	+	SE_SoundDlgProc
+0x004541C0:	+	SE_SoundAdapterSet
+0x004541D0:	+	SE_SoundDlgUpdate
+0x004542F0:	+	SE_SoundDlgInit
+0x004543B0:	+	SE_ControlsDlgProc
+0x004544C0:	+	SE_ControlsJoystickSet
+0x004544D0:	+	SE_ControlsDlgUpdate
+0x00454540:	+	SE_ControlsDlgInit
+0x00454600:	+	SE_OptionsDlgProc
+0x00454690:	+	SE_OptionsDlgUpdate
+0x004548D0:	+	SE_OptionsStrCat
+0x00454920:	+	SE_AdvancedDlgProc
+0x00454A30:	+	SE_AdvancedDlgUpdate
+0x00454AE0:	+	SE_AdvancedDlgInit
+0x00454AF0:	+	SE_FindSetupDialog
+
+	specific/smain.cpp
+0x00454B10:	+	GameMain
+0x00454DE0:	+	TitleSequence
+0x00454EF0:	+	CheckCheatMode
+0x00455250:	+	S_SaveSettings
+0x004552D0:	+	S_LoadSettings
+
+	specific/sndpc.cpp
+0x004553B0:	+	S_SoundPlaySample
+0x00455400:	+	S_Sound_CalculateSampleVolume
+0x00455430:	+	S_Sound_CalculateSamplePan
+0x00455460:	+	S_SoundPlaySampleLooped
+0x004554B0:	+	S_SoundSetPanAndVolume
+0x004554F0:	+	S_SoundSetPitch
+0x00455510:	+	S_SoundSetMasterVolume
+0x00455520:	+	S_SoundStopSample
+0x00455540:	+	S_SoundStopAllSamples
+0x00455550:	+	S_SoundSampleIsPlaying
+0x00455570:	+	CD_Init
+0x00455600:	+	CD_Cleanup
+0x00455640:	+	S_CDLoop
+0x004556E0:	+	S_CDPlay
+0x00455760:	+	S_CDStop
+0x004557A0:	+	StartSyncedAudio
+0x00455830:	+	S_CDGetLoc
+0x004558A0:	+	S_CDVolume
+
+	specific/texture.cpp
+0x00455990:	+	CopyBitmapPalette
+0x00455AD0:	+	FindNearestPaletteEntry
+0x00455BA0:	+	SyncSurfacePalettes
+0x00455C50:	+	CreateTexturePalette
+0x00455CE0:	+	GetFreePaletteIndex
+0x00455D00:	+	FreePalette
+0x00455D30:	+	SafeFreePalette
+0x00455D80:	+	CreateTexturePage
+0x00455DF0:	+	GetFreeTexturePageIndex
+0x00455E10:	+	CreateTexturePageSurface
+0x00455EB0:	+	TexturePageInit
+0x00456030:	+	Create3DTexture
+0x00456060:	+	SafeFreeTexturePage
+0x00456080:	+	FreeTexturePage
+0x004560C0:	+	TexturePageReleaseVidMemSurface
+0x00456100:	+	FreeTexturePages
+0x00456130:	+	LoadTexturePage
+0x004561E0:	+	ReloadTextures
+0x00456220:	+	GetTexturePageHandle
+0x00456260:	+	AddTexturePage8
+0x00456360:	+	AddTexturePage16
+0x00456500:	+	EnumTextureFormatsCallback
+0x00456620:	+	EnumerateTextureFormats
+0x00456650:	+	CleanupTextures
+0x00456660:	+	InitTextures
+
+	specific/utils.cpp
+0x00456680:	+	Ticks
+0x004566C0:	+	TIME_Init
+0x00456720:	+	Sync
+0x00456780:	+	LoadResource
+0x004567C0:	+	UT_InitAccurateTimer
+0x00456820:	+	UT_Microseconds
+0x00456870:	+	UT_CenterWindow
+0x004568E0:	+	UT_FindArg
+0x00456910:	+	UT_MessageBox
+0x00456930:	+	UT_ErrorBox
+0x00456980:	+	CD_NoteAlert
+0x004569B0:	+	DialogBoxProc
+
+	specific/registry.cpp
+0x00456A20:	+	GuidBinaryToString
+0x00456A80:	+	GuidStringToBinary
+0x00456B30:	+	OpenRegistryKey
+0x00456B60:	+	IsNewRegistryKeyCreated
+0x00456B70:	+	CloseRegistryKey
+0x00456B80:	+	SetRegistryDwordValue
+0x00456BA0:	+	SetRegistryBoolValue
+0x00456BD0:	+	SetRegistryFloatValue
+0x00456C10:	+	SetRegistryBinaryValue
+0x00456C50:	+	SetRegistryStringValue
+0x00456CA0:	+	DeleteRegistryValue
+0x00456CC0:	+	GetRegistryDwordValue
+0x00456D20:	+	GetRegistryBoolValue
+0x00456DA0:	+	GetRegistryFloatValue
+0x00456E00:	+	GetRegistryBinaryValue
+0x00456E80:	+	GetRegistryStringValue
+0x00456F20:	+	GetRegistryGuidValue
+
+	specific/setupwnd.cpp
+0x00456FC0:	+	SE_ReleaseBitmapResource
+0x00457000:	+	SE_LoadBitmapResource
+0x004570D0:	+	SE_DrawBitmap
+0x00457140:	+	SE_UpdateBitmapPalette
+0x00457160:	+	SE_ChangeBitmapPalette
+0x004571C0:	+	SE_RegisterSetupWindowClass
+0x00457230:	+	SE_SetupWindowProc
+0x00457470:	+	SE_PassMessageToImage
+
+	specific/utils.cpp
+0x004574A0:	+	UT_MemBlt
+
+// ======================================
+// ASM
+// ======================================
+
+	asm/3d_gen_a.s -> 3dsystem/3d_gen.cpp
+----------:	+	phd_PopMatrix
+0x00457510:	+	phd_PushMatrix
+0x0045752E:	+	phd_PushUnitMatrix
+
+	asm/3d_xouta.s -> 3dsystem/3d_out.cpp
+0x00457564:		flatA
+0x004575C5:		transA
+0x004576FF:		gourA
+0x0045785F:		gtmapA
+0x00457B5C:		wgtmapA
+
+	asm/phd_math.s -> 3dsystem/3dinsert.cpp
+0x00457EA0:	+	phd_atan
+0x00457EE8:	+	phd_cos
+0x00457EEE:	+	phd_sin
+0x00457F09:	  x	phd_sin_quadrant1
+0x00457F23:	+	phd_sqrt
+
+0x00457F50:
