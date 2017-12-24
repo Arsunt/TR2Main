@@ -26,7 +26,7 @@ This project is licensed under the GNU General Public License - see the [COPYING
 
 If you are inspired by my project and decided to borrow some of the ideas found in the code, do not forget to credit my name. It took me years to decompile and understand the details necessary for this project. Thank you for understanding!
 
-## Copyrignt
+## Copyright
 (c) 2017 Michael Chaban. All rights reserved.
 Original game is written by Core Design Ltd. in 1997.
 Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
