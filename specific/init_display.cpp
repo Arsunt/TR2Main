@@ -211,10 +211,9 @@ void __cdecl CreateZBuffer() {
 
 DWORD __cdecl GetZBufferDepth() {
 	DWORD bitDepthMask = CurrentDisplayAdapter.D3DHWDeviceDesc.dwDeviceZBufferBitDepth;
-	// NOTE: ZBuffers priority is from 32 to 16 now. In the original code priority was from 16 to 32
-	if( bitDepthMask & DDBD_32 ) return 32;
-	if( bitDepthMask & DDBD_24 ) return 24;
-	if( bitDepthMask & DDBD_16 ) return 16;
+	if( (bitDepthMask & DDBD_16) != 0 ) return 16;
+	if( (bitDepthMask & DDBD_24) != 0 ) return 24;
+	if( (bitDepthMask & DDBD_32) != 0 ) return 32;
 	return 8;
 }
 
