@@ -35,6 +35,7 @@
 #include "specific/frontend.h"
 #include "specific/init.h"
 #include "specific/input.h"
+#include "specific/option.h"
 #include "specific/output.h"
 #include "specific/registry.h"
 #include "specific/setupdlg.h"
@@ -368,7 +369,9 @@ void __cdecl S_LoadSettings() {
 	GetRegistryFloatValue(REG_GAME_SIZER, &GameSizer, 1.0);
 	GetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)CustomLayout, sizeof(UINT16)*14, NULL);
 	CloseGameRegistryKey();
-
+#ifdef FEATURE_INPUT_CONFLICTS_FIX
+	DefaultConflict();
+#endif // FEATURE_INPUT_CONFLICTS_FIX
 	SoundVolume = soundVol;
 	MusicVolume = musicVol;
 	S_SoundSetMasterVolume(6 * SoundVolume + 4);	// 4,  10,  16,  22,  28,  34,  40,  46,  52,  58,  64

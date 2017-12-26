@@ -23,9 +23,22 @@
 #include "specific/option.h"
 #include "global/vars.h"
 
+void __cdecl DefaultConflict() {
+	for( int i=0; i<14; ++i ) {
+		ConflictLayout[i] = 0;
+
+		for( int j=0; j<14; ++j ) {
+			if( CustomLayout[j] == DefaultLayout[i] ) {
+				ConflictLayout[i] = 1;
+				break;
+			}
+		}
+	}
+}
+
 /*
  * Inject function
  */
 void Inject_Option() {
-	// None yet
+	INJECT(0x0044FEA0, DefaultConflict);
 }

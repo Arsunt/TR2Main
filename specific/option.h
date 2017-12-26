@@ -34,7 +34,9 @@
 // 0x0044F8C0:		do_sound_option
 // 0x0044FD60:		do_compass_option
 // 0x0044FE20:		FlashConflicts
-// 0x0044FEA0:		DefaultConflict
+
+void __cdecl DefaultConflict(); // 0x0044FEA0
+
 // 0x0044FEE0:		do_control_option
 // 0x004505F0:		S_ShowControls
 // 0x00450AC0:		S_ChangeCtrlText
