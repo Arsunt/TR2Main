@@ -220,7 +220,7 @@ bool __cdecl S_UpdateInput() {
 
 	// Screenshot
 #if defined FEATURE_SCREENSHOT_KEY
-	if( KEY_DOWN(DIK_SYSRQ) ) { // PrintScreen Key instead of S
+	if( KEY_DOWN(DIK_BACK) ) { // BackSpace Key instead of S
 #else // !FEATURE_SCREENSHOT_KEY
 	if( KEY_DOWN(DIK_S) ) {
 #endif // FEATURE_SCREENSHOT_KEY
