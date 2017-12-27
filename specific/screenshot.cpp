@@ -43,6 +43,7 @@ static TGA_HEADER ScreenShotTgaHeader = {
 // NOTE: This function is not presented in the original code
 // but the code is taken away form ScreenShot() and extended
 // to be compatible with 24/32 bit
+// Alas, DDraw windowed mode screenshots restricted on Windows7 or above
 static void __cdecl ScreenShotTGA(LPDIRECTDRAWSURFACE3 screen, BYTE tgaBpp) {
 	DWORD i, j;
 	BYTE *src, *dst;
@@ -51,22 +52,53 @@ static void __cdecl ScreenShotTGA(LPDIRECTDRAWSURFACE3 screen, BYTE tgaBpp) {
 	HANDLE hFile = INVALID_HANDLE_VALUE;
 	DWORD bytesWritten;
 	char fileName[128];
+	DWORD width = 0;
+	DWORD height = 0;
 
 	if( tgaBpp != 16 && tgaBpp != 24 )
 		return;
 
 	memset(&desc, 0, sizeof(DDSURFACEDESC));
 	desc.dwSize = sizeof(DDSURFACEDESC);
-	if FAILED(WinVidBufferLock(screen, &desc, DDLOCK_WRITEONLY|DDLOCK_WAIT))
-		return;
 
 #if defined(FEATURE_SCREENSHOT_FIX)
+	HRESULT rc;
+	RECT rect = {0,0,0,0};
+
+	// do game window screenshot, not the whole screen
+	if( GetClientRect(HGameWindow, &rect) ) {
+		MapWindowPoints(HGameWindow, GetParent(HGameWindow), (LPPOINT)&rect, 2);
+		width = ABS(rect.right - rect.left);
+		height = ABS(rect.bottom - rect.top);
+	}
+
+	do {
+		rc = screen->Lock(&rect, &desc, DDLOCK_READONLY|DDLOCK_WAIT, NULL);
+	} while( rc == DDERR_WASSTILLDRAWING );
+
+	if( rc == DDERR_SURFACELOST )
+		rc = screen->Restore();
+	if FAILED(rc)
+		return;
+
+	if( width == 0 || width > desc.dwWidth )
+		width = desc.dwWidth;
+	if( height == 0 || height > desc.dwHeight )
+		height = desc.dwHeight;
+
 	do { // search first free screenshot slot
 		if( ++screenShotTgaNumber > 9999 ) goto CLEANUP;
 		wsprintf(fileName, "screenshots\\tomb%04d.tga", screenShotTgaNumber);
 	} while( INVALID_FILE_ATTRIBUTES != GetFileAttributes(fileName) );
 	CreateDirectory("screenshots", NULL); // just in case if it is not created yet
+
 #else // !FEATURE_SCREENSHOT_FIX
+	if FAILED(WinVidBufferLock(screen, &desc, DDLOCK_WRITEONLY|DDLOCK_WAIT))
+		return;
+
+	width = desc.dwWidth;
+	height = desc.dwHeight;
+
 	wsprintf(fileName, "tomb%04d.tga", screenShotTgaNumber++);
 #endif // FEATURE_SCREENSHOT_FIX
 
@@ -74,15 +106,15 @@ static void __cdecl ScreenShotTGA(LPDIRECTDRAWSURFACE3 screen, BYTE tgaBpp) {
 	if( hFile == INVALID_HANDLE_VALUE )
 		goto CLEANUP;
 
-	ScreenShotTgaHeader.width = desc.dwWidth;
-	ScreenShotTgaHeader.height = desc.dwHeight;
+	ScreenShotTgaHeader.width = width;
+	ScreenShotTgaHeader.height = height;
 	ScreenShotTgaHeader.bpp = tgaBpp;
 	WriteFile(hFile, &ScreenShotTgaHeader, sizeof(TGA_HEADER), &bytesWritten, NULL);
 
 #if defined(FEATURE_SCREENSHOT_FIX)
 	// NOTE: There was unsafe memory usage in the original code. The game just used GameAllocMemPointer buffer!
 	// No new memory allocations. On higher resolutions there was critical data overwriting and game crashed
-	tgaPic = (BYTE *)GlobalAlloc(GMEM_FIXED, desc.dwWidth*desc.dwHeight*(tgaBpp/8));
+	tgaPic = (BYTE *)GlobalAlloc(GMEM_FIXED, width*height*(tgaBpp/8));
 #else // !FEATURE_SCREENSHOT_FIX
 	tgaPic = (BYTE *)GameAllocMemPointer;
 #endif // FEATURE_SCREENSHOT_FIX
@@ -94,42 +126,42 @@ static void __cdecl ScreenShotTGA(LPDIRECTDRAWSURFACE3 screen, BYTE tgaBpp) {
 #if defined(FEATURE_SCREENSHOT_FIX)
 	// NOTE: There was bug in the original formula: src = lpSurface + lPitch * dwHeight
 	// Height must be subtracted by 1 in this formula
-	src = (BYTE *)desc.lpSurface + desc.lPitch*(desc.dwHeight - 1);
+	src = (BYTE *)desc.lpSurface + desc.lPitch*(height - 1);
 #else // !FEATURE_SCREENSHOT_FIX
-	src = (BYTE *)desc.lpSurface + desc.lPitch*desc.dwHeight;
+	src = (BYTE *)desc.lpSurface + desc.lPitch*height;
 #endif // FEATURE_SCREENSHOT_FIX
 
 	dst = tgaPic;
 	if( tgaBpp == 16 ) {
-		for( i=0; i < desc.dwHeight; ++i ) {
+		for( i=0; i < height; ++i ) {
 			// R5G6B5 - not TGA compatible
 			if( desc.ddpfPixelFormat.dwRBitMask == 0xF800 ) {
 				// right shift highest 10 bits (R+G) over lowest G bit
-				for( j=0; j < desc.dwWidth; ++j ) {
+				for( j=0; j < width; ++j ) {
 					UINT16 sample = ((UINT16 *)src)[j];
 					((UINT16 *)dst)[j] = ((sample & 0xFFC0) >> 1) | (sample & 0x001F);
 				}
 			} else {
 				// X1R5G5B5 - already TGA compatible
-				memcpy(dst, src, sizeof(UINT16)*desc.dwWidth);
+				memcpy(dst, src, sizeof(UINT16)*width);
 			}
 			src -= desc.lPitch;
-			dst += sizeof(UINT16)*desc.dwWidth;
+			dst += sizeof(UINT16)*width;
 		}
 	} else {
-		for( i=0; i < desc.dwHeight; ++i ) {
+		for( i=0; i < height; ++i ) {
 			if( desc.ddpfPixelFormat.dwRGBBitCount == 24 ) {
-				memcpy(dst, src, sizeof(RGB)*desc.dwWidth);
+				memcpy(dst, src, sizeof(RGB)*width);
 			} else {
-				for( j=0; j < desc.dwWidth; ++j ) {
+				for( j=0; j < width; ++j ) {
 					((RGB *)dst)[j] = *(RGB*)(src + j * (desc.ddpfPixelFormat.dwRGBBitCount / 8));
 				}
 			}
 			src -= desc.lPitch;
-			dst += sizeof(RGB)*desc.dwWidth;
+			dst += sizeof(RGB)*width;
 		}
 	}
-	WriteFile(hFile, tgaPic, desc.dwWidth*desc.dwHeight*(tgaBpp/8), &bytesWritten, NULL);
+	WriteFile(hFile, tgaPic, width*height*(tgaBpp/8), &bytesWritten, NULL);
 
 CLEANUP :
 #if defined(FEATURE_SCREENSHOT_FIX)
