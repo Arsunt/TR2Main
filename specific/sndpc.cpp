@@ -124,7 +124,7 @@ void __cdecl S_CDLoop() {
 	MCI_PLAY_PARMS playParams;
 	MCI_STATUS_PARMS statusParams;
 
-	if( CD_LoopID == 0 || ++CD_LoopCounter >= 150 )
+	if( CD_LoopID == 0 || ++CD_LoopCounter < 150 )
 		return;
 
 	CD_LoopCounter = 0;
