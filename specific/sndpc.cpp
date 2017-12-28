@@ -93,17 +93,15 @@ bool __cdecl CD_Init() {
 	MCI_OPEN_PARMS openParams;
 	MCI_SET_PARMS setParams;
 
+#ifndef FEATURE_NOCD_DATA
 	while( !SelectDrive() ) {
-#if defined FEATURE_NOCD_DATA
-		return true;
-#else // !FEATURE_NOCD_DATA
 		if( !CD_NoteAlert(MAKEINTRESOURCE(IDD_CD_PROMPT), HGameWindow) )
 			return false;
-#endif // FEATURE_NOCD_DATA
 	}
+#endif // !FEATURE_NOCD_DATA
 
 	openParams.lpstrDeviceType = "cdaudio";
-	if( !mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE, (DWORD_PTR)&openParams) ) {
+	if( 0 == mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE, (DWORD_PTR)&openParams) ) {
 		MciDeviceID = openParams.wDeviceID;
 		setParams.dwTimeFormat = MCI_FORMAT_TMSF;
 		mciSendCommand(MciDeviceID, MCI_SET, MCI_SET_TIME_FORMAT, (DWORD_PTR)&setParams);
@@ -141,7 +139,7 @@ void __cdecl S_CDPlay(__int16 trackID, BOOL isLooped) {
 	__int16 track;
 	MCI_PLAY_PARMS playParams;
 
-	if( !MusicVolume )
+	if( MusicVolume == 0 )
 		return;
 
 	CD_TrackID = trackID;
@@ -189,11 +187,12 @@ DWORD __cdecl S_CDGetLoc() {
 	MCI_STATUS_PARMS statusParams;
 
 	statusParams.dwItem = MCI_STATUS_POSITION;
-	if( mciSendCommand(MciDeviceID, MCI_STATUS, MCI_STATUS_ITEM, (DWORD_PTR)&statusParams) )
+	if( 0 != mciSendCommand(MciDeviceID, MCI_STATUS, MCI_STATUS_ITEM, (DWORD_PTR)&statusParams) )
 		return 0;
 
 	pos = statusParams.dwReturn;
-	return MCI_TMSF_FRAME(pos) + 60*MCI_TMSF_MINUTE(pos) + 75*MCI_TMSF_SECOND(pos);
+	// calculate audio frames position (75 audio frames per second)
+	return (MCI_TMSF_MINUTE(pos)*60 + MCI_TMSF_SECOND(pos))*75 + MCI_TMSF_FRAME(pos);
 }
 
 void __cdecl S_CDVolume(DWORD volume) {
@@ -205,12 +204,14 @@ void __cdecl S_CDVolume(DWORD volume) {
 	if( auxDevCount == 0)
 		return;
 
+	volume *= 0x100; // 0 .. 255 -> 0..65280
+
 	for( UINT i=0; i<auxDevCount; ++i ) {
 		auxGetDevCaps(i, &caps, sizeof(AUXCAPS));
 
 		switch( caps.wTechnology ) {
 			case AUXCAPS_CDAUDIO :
-				auxSetVolume(i, 0x01000100 * volume); // (0x0100 << 0x10) * rightVol + (0x0100) * leftVol
+				auxSetVolume(i, MAKELONG(volume, volume));
 				isVolumeSet = true;
 				break;
 
@@ -221,7 +222,7 @@ void __cdecl S_CDVolume(DWORD volume) {
 	}
 
 	if( !isVolumeSet && deviceID != (UINT)(-1) )
-		auxSetVolume(deviceID, 0x01000100 * volume); // (0x0100 << 0x10) * rightVol + (0x0100) * leftVol
+		auxSetVolume(deviceID, MAKELONG(volume, volume));
 }
 
 /*
