@@ -28,6 +28,10 @@
 #include "global/resource.h"
 #include "global/vars.h"
 
+// NOTE: There is no such flag in the original game.
+// It is added to provide additional protection against crashes
+static bool isCDAudioEnabled = false;
+
 int __cdecl S_SoundPlaySample(int channel, UINT16 volume, int pitch, int pan) {
 	if( !SoundIsActive )
 		return -3;
@@ -100,21 +104,28 @@ bool __cdecl CD_Init() {
 	}
 #endif // !FEATURE_NOCD_DATA
 
+	if( isCDAudioEnabled )
+		return true;
+
 	openParams.lpstrDeviceType = "cdaudio";
 	if( 0 == mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE, (DWORD_PTR)&openParams) ) {
 		MciDeviceID = openParams.wDeviceID;
 		setParams.dwTimeFormat = MCI_FORMAT_TMSF;
 		mciSendCommand(MciDeviceID, MCI_SET, MCI_SET_TIME_FORMAT, (DWORD_PTR)&setParams);
+		isCDAudioEnabled = true;
 	}
 	return true;
 }
 
 void __cdecl CD_Cleanup() {
-	MCI_GENERIC_PARMS stop;
-	stop.dwCallback = 0;
+	MCI_GENERIC_PARMS params;
 
-	mciSendCommand(MciDeviceID, MCI_STOP,  0, (DWORD_PTR)&stop);
-	mciSendCommand(MciDeviceID, MCI_CLOSE, 0, 0);
+	if( !isCDAudioEnabled )
+		return;
+
+	mciSendCommand(MciDeviceID, MCI_STOP, 0, (DWORD_PTR)&params);
+	mciSendCommand(MciDeviceID, MCI_CLOSE, 0, (DWORD_PTR)&params);
+	isCDAudioEnabled = false;
 }
 
 void __cdecl S_CDLoop() {
@@ -122,15 +133,15 @@ void __cdecl S_CDLoop() {
 	MCI_PLAY_PARMS playParams;
 	MCI_STATUS_PARMS statusParams;
 
-	if( CD_LoopID == 0 || ++CD_LoopCounter < 150 )
+	if( CD_LoopTrack == 0 || ++CD_LoopCounter < 150 )
 		return;
 
 	CD_LoopCounter = 0;
 	statusParams.dwItem = MCI_STATUS_MODE;
 	rc = mciSendCommand(MciDeviceID, MCI_STATUS, MCI_STATUS_ITEM, (DWORD_PTR)&statusParams);
 	if( (rc == 0) && (statusParams.dwReturn == MCI_MODE_STOP) ) {
-		playParams.dwFrom = CD_LoopID;
-		playParams.dwTo = CD_LoopID + 1;
+		playParams.dwFrom = CD_LoopTrack;
+		playParams.dwTo = CD_LoopTrack + 1;
 		mciSendCommand(MciDeviceID, MCI_PLAY, MCI_NOTIFY_FAILURE|MCI_NOTIFY_ABORTED, (DWORD_PTR)&playParams);
 	}
 }
@@ -149,19 +160,18 @@ void __cdecl S_CDPlay(__int16 trackID, BOOL isLooped) {
 	mciSendCommand(MciDeviceID, MCI_PLAY, MCI_NOTIFY_FAILURE|MCI_NOTIFY_ABORTED, (DWORD_PTR)&playParams);
 
 	if( isLooped ) {
-		CD_LoopID = track;
+		CD_LoopTrack = track;
 		CD_LoopCounter = 120;
 	}
 }
 
 void __cdecl S_CDStop() {
-	MCI_GENERIC_PARMS stop;
+	MCI_GENERIC_PARMS params;
 
-	stop.dwCallback = 0;
 	if( CD_TrackID > 0 ) {
-		mciSendCommand(MciDeviceID, MCI_STOP, 0, (DWORD_PTR)&stop);
+		mciSendCommand(MciDeviceID, MCI_STOP, 0, (DWORD_PTR)&params);
 		CD_TrackID = 0;
-		CD_LoopID = 0;
+		CD_LoopTrack = 0;
 	}
 }
 
