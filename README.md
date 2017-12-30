@@ -6,7 +6,7 @@ The goal of this project is to maximally recreate the code of the original game,
 
 ## Getting Started
 
-You may download patched Tomb2.exe, TR2Main.dll from here, put them in your game folder and just launch. Also you may build TR2Main.dll yourself and use it with patched Tomb2.exe. You will need DirectX SDK 5/7 to build the DLL.
+You may download patched Tomb2.exe, TR2Main.dll [from here](binaries/), put them in your game folder and just launch. Also you may build TR2Main.dll yourself and use it with patched Tomb2.exe. You will need DirectX SDK 5/7 to build the DLL.
 
 ## Built With
 
@@ -17,6 +17,7 @@ You may download patched Tomb2.exe, TR2Main.dll from here, put them in your game
 ## Authors
 
 * **Michael Chaban** \([Arsunt](https://github.com/Arsunt)\). E-mail: (arsunt@gmail.com)
+* **PaulD**. Author of [CD audio solution](modding/cd_pauld.cpp) used now by Steam.
 
 ## License
 

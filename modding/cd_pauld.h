@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * CD Audio solution in this file was designed by PaulD.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -19,20 +20,21 @@
  * along with TR2Main.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FEATURES_H_INCLUDED
-#define FEATURES_H_INCLUDED
+#ifndef CD_PAULD_H_INCLUDED
+#define CD_PAULD_H_INCLUDED
 
-#define FEATURE_NOCD_DATA
-#define FEATURE_WINDOW_STYLE_FIX
-#define FEATURE_VIDMODESORT
-#define FEATURE_FOV_FIX
-#define FEATURE_JUMP_COLLISION_FIX
-#define FEATURE_INPUT_KB_RECOVER_FIX
-#define FEATURE_INPUT_CONFLICTS_FIX
-#define FEATURE_SCREENSHOT_FIX
-#define FEATURE_SCREENSHOT_KEY
-#define FEATURE_SPRITE_SCALE_FIX
-#define FEATURE_HEALTHBAR_IMPROVED
-#define FEATURE_PAULD_CDAUDIO
+#include "global/types.h"
 
-#endif // FEATURES_H_INCLUDED
+/*
+ * Function list
+ */
+bool __cdecl PaulD_CD_Init();
+void __cdecl PaulD_CD_Cleanup();
+void __cdecl PaulD_CDLoop();
+void __cdecl PaulD_CDPlay(__int16 trackID, BOOL isLooped);
+void __cdecl PaulD_CDStop();
+BOOL __cdecl PaulD_StartSyncedAudio(int trackID);
+DWORD __cdecl PaulD_CDGetLoc();
+void __cdecl PaulD_CDVolume(DWORD volume);
+
+#endif // CD_PAULD_H_INCLUDED

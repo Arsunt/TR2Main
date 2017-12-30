@@ -28,6 +28,11 @@
 #include "global/resource.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_PAULD_CDAUDIO
+#include "modding/cd_pauld.h"
+static bool PaulD_isActive = false;
+#endif // FEATURE_PAULD_CDAUDIO
+
 // NOTE: There is no such flag in the original game.
 // It is added to provide additional protection against crashes
 static bool isCDAudioEnabled = false;
@@ -104,6 +109,11 @@ bool __cdecl CD_Init() {
 	}
 #endif // !FEATURE_NOCD_DATA
 
+#ifdef FEATURE_PAULD_CDAUDIO
+	PaulD_isActive = PaulD_CD_Init();
+	if( PaulD_isActive ) return true;
+#endif // FEATURE_PAULD_CDAUDIO
+
 	if( isCDAudioEnabled )
 		return true;
 
@@ -120,6 +130,13 @@ bool __cdecl CD_Init() {
 void __cdecl CD_Cleanup() {
 	MCI_GENERIC_PARMS params;
 
+#ifdef FEATURE_PAULD_CDAUDIO
+	if( PaulD_isActive ) {
+		PaulD_CD_Cleanup();
+		return;
+	}
+#endif // FEATURE_PAULD_CDAUDIO
+
 	if( !isCDAudioEnabled )
 		return;
 
@@ -132,6 +149,13 @@ void __cdecl S_CDLoop() {
 	int rc;
 	MCI_PLAY_PARMS playParams;
 	MCI_STATUS_PARMS statusParams;
+
+#ifdef FEATURE_PAULD_CDAUDIO
+	if( PaulD_isActive ) {
+		PaulD_CDLoop();
+		return;
+	}
+#endif // FEATURE_PAULD_CDAUDIO
 
 	if( CD_LoopTrack == 0 || ++CD_LoopCounter < 150 )
 		return;
@@ -149,6 +173,13 @@ void __cdecl S_CDLoop() {
 void __cdecl S_CDPlay(__int16 trackID, BOOL isLooped) {
 	__int16 track;
 	MCI_PLAY_PARMS playParams;
+
+#ifdef FEATURE_PAULD_CDAUDIO
+	if( PaulD_isActive ) {
+		PaulD_CDPlay(trackID, isLooped);
+		return;
+	}
+#endif // FEATURE_PAULD_CDAUDIO
 
 	if( MusicVolume == 0 )
 		return;
@@ -168,6 +199,13 @@ void __cdecl S_CDPlay(__int16 trackID, BOOL isLooped) {
 void __cdecl S_CDStop() {
 	MCI_GENERIC_PARMS params;
 
+#ifdef FEATURE_PAULD_CDAUDIO
+	if( PaulD_isActive ) {
+		PaulD_CDStop();
+		return;
+	}
+#endif // FEATURE_PAULD_CDAUDIO
+
 	if( CD_TrackID > 0 ) {
 		mciSendCommand(MciDeviceID, MCI_STOP, 0, (DWORD_PTR)&params);
 		CD_TrackID = 0;
@@ -179,6 +217,11 @@ BOOL __cdecl StartSyncedAudio(int trackID) {
 	__int16 track;
 	MCI_PLAY_PARMS playParams;
 	MCI_SET_PARMS setParams;
+
+#ifdef FEATURE_PAULD_CDAUDIO
+	if( PaulD_isActive )
+		return PaulD_StartSyncedAudio(trackID);
+#endif // FEATURE_PAULD_CDAUDIO
 
 	CD_TrackID = trackID;
 	track = GetRealTrack(trackID);
@@ -196,6 +239,11 @@ DWORD __cdecl S_CDGetLoc() {
 	DWORD pos;
 	MCI_STATUS_PARMS statusParams;
 
+#ifdef FEATURE_PAULD_CDAUDIO
+	if( PaulD_isActive )
+		return PaulD_CDGetLoc();
+#endif // FEATURE_PAULD_CDAUDIO
+
 	statusParams.dwItem = MCI_STATUS_POSITION;
 	if( 0 != mciSendCommand(MciDeviceID, MCI_STATUS, MCI_STATUS_ITEM, (DWORD_PTR)&statusParams) )
 		return 0;
@@ -210,6 +258,13 @@ void __cdecl S_CDVolume(DWORD volume) {
 	bool isVolumeSet = false;
 	UINT deviceID = (UINT)(-1);
 	UINT auxDevCount = auxGetNumDevs();
+
+#ifdef FEATURE_PAULD_CDAUDIO
+	if( PaulD_isActive ) {
+		PaulD_CDVolume(volume);
+		return;
+	}
+#endif // FEATURE_PAULD_CDAUDIO
 
 	if( auxDevCount == 0)
 		return;
