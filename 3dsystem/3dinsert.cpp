@@ -351,7 +351,7 @@ void __cdecl InsertGT4_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2,
 	if( clipAND != 0 )
 		return;
 
-	if( clipOR == 0 ) {
+	if( clipOR == 0 && VBUF_VISIBLE(*vtx0, *vtx1, *vtx2) ) {
 		VertexZBuffered[0].sx = vtx0->xs;
 		VertexZBuffered[0].sy = vtx0->ys;
 		VertexZBuffered[0].sz = FltResZBuf - FltResZORhw * vtx0->rhw;
