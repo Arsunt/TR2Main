@@ -106,6 +106,7 @@ PARSE_END :
 	rc = mciSendString(cmdString, NULL, 0, 0);
 	if( rc == 0 ) {
 		mciSendString("set "CD_ALIAS" time format ms", NULL, 0, 0);
+		isCDAudioEnabled = true;
 	}
 	return true;
 }
@@ -129,10 +130,9 @@ void __cdecl PaulD_CDLoop() {
 	CD_LoopCounter = 0;
 	rc = mciSendString("status "CD_ALIAS" mode", statusString, sizeof(statusString), 0);
 
-	if( (rc == 0) && !strncmp(statusString, "stop", sizeof(statusString)) ) {
+	if( (rc == 0) && !strncmp(statusString, "stopped", sizeof(statusString)) ) {
 		wsprintf(cmdString, "play "CD_ALIAS" from %lu to %lu", Tracks[CD_LoopTrack-1].from, Tracks[CD_LoopTrack-1].to);
 		mciSendString(cmdString, NULL, 0, 0);
-		isCDAudioEnabled = true;
 	}
 }
 
