@@ -65,7 +65,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 	if( gameWindow != NULL ) {
 		setupDialog = SE_FindSetupDialog();
 		SetForegroundWindow(setupDialog ? setupDialog : gameWindow);
-		return 0;
+		exit(0); // NOTE: there may be bugs on some systems if we just return here
 	}
 
 //	TODO: remove log stuff at release
@@ -121,7 +121,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 	}
 EXIT :
 	WinCleanup();
-	return AppResultCode;
+	exit(AppResultCode); // NOTE: there may be bugs on some systems if we just return here
 }
 
 int __cdecl Init(bool skipCDInit) {
