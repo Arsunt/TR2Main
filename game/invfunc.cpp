@@ -40,7 +40,7 @@ void __cdecl InitColours() {
 }
 
 BOOL __cdecl Inv_AddItem(GAME_OBJECT_ID itemID) {
-	int i, items;
+	int i, j, items;
 	int found = 0;
 	GAME_OBJECT_ID optionID = Inv_GetItemOption(itemID);
 
@@ -51,8 +51,8 @@ BOOL __cdecl Inv_AddItem(GAME_OBJECT_ID itemID) {
 		}
 	}
 
-	for( i = 0; i < InvKeyObjectsCount; ++i ) {
-		if( InvKeysList[i]->objectID == optionID ) {
+	for( j = 0; j < InvKeyObjectsCount; ++j ) {
+		if( InvKeysList[j]->objectID == optionID ) {
 			found = 2;
 			break;
 		}
@@ -68,7 +68,7 @@ BOOL __cdecl Inv_AddItem(GAME_OBJECT_ID itemID) {
 	}
 
 	if( found == 2 ) {
-		++InvKeysQtys[i];
+		++InvKeysQtys[j];
 		return TRUE;
 	}
 
