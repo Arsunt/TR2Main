@@ -515,7 +515,7 @@ void __cdecl S_DrawHealthBar(int percent) {
 	int bar = barWidth * percent / 100;
 
 	// Disable underwater shading
-	IsShadeEffect = 0;
+	IsShadeEffect = false;
 
 	// Frame
 	ins_flat_rect(x0-pixel*2, y0-pixel*2, x1+pixel*2, y1+pixel*2, PhdNearZ + 50, InvColours.white);
@@ -578,7 +578,7 @@ void __cdecl S_DrawAirBar(int percent) {
 	int bar = barWidth * percent / 100;
 
 	// Disable underwater shading
-	IsShadeEffect = 0;
+	IsShadeEffect = false;
 
 	// Frame
 	ins_flat_rect(x0-pixel*2, y0-pixel*2, x1+pixel*2, y1+pixel*2, PhdNearZ + 50, InvColours.white);
@@ -604,7 +604,7 @@ void __cdecl S_DrawAirBar(int percent) {
 	int bar = barWidth * percent / 100;
 
 	// Disable underwater shading
-	IsShadeEffect = 0;
+	IsShadeEffect = false;
 
 	// Black background
 	for( i = 0; i < (barHeight+2); ++i )
