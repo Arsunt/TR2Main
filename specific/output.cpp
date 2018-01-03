@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -34,6 +34,12 @@
 #include "specific/utils.h"
 #include "specific/winvid.h"
 #include "global/vars.h"
+
+#ifdef FEATURE_HEALTHBAR_IMPROVED
+#include "modding/psx_bar.h"
+
+bool PsxBarsEnabled;
+#endif // FEATURE_HEALTHBAR_IMPROVED
 
 int __cdecl GetRenderScale(int unit) {
 	int scaleX = (PhdWinWidth > 640) ? MulDiv(PhdWinWidth, unit, 640) : unit;
@@ -517,6 +523,11 @@ void __cdecl S_DrawHealthBar(int percent) {
 	// Disable underwater shading
 	IsShadeEffect = false;
 
+	if( PsxBarsEnabled && SavedAppSettings.RenderMode == RM_Hardware && SavedAppSettings.ZBuffer ) {
+		PSX_DrawHealthBar(x0, y0, x1, y1, bar, pixel);
+		return;
+	}
+
 	// Frame
 	ins_flat_rect(x0-pixel*2, y0-pixel*2, x1+pixel*2, y1+pixel*2, PhdNearZ + 50, InvColours.white);
 	ins_flat_rect(x0-pixel*1, y0-pixel*1, x1+pixel*2, y1+pixel*2, PhdNearZ + 40, InvColours.gray);
@@ -579,6 +590,11 @@ void __cdecl S_DrawAirBar(int percent) {
 
 	// Disable underwater shading
 	IsShadeEffect = false;
+
+	if( PsxBarsEnabled && SavedAppSettings.RenderMode == RM_Hardware && SavedAppSettings.ZBuffer ) {
+		PSX_DrawAirBar(x0, y0, x1, y1, bar, pixel);
+		return;
+	}
 
 	// Frame
 	ins_flat_rect(x0-pixel*2, y0-pixel*2, x1+pixel*2, y1+pixel*2, PhdNearZ + 50, InvColours.white);

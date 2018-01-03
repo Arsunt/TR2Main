@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -42,6 +42,10 @@
 #include "specific/sndpc.h"
 #include "specific/winmain.h"
 #include "global/vars.h"
+
+#ifdef FEATURE_HEALTHBAR_IMPROVED
+extern bool PsxBarsEnabled;
+#endif // FEATURE_HEALTHBAR_IMPROVED
 
 BOOL __cdecl GameMain() {
 	__int16 gfOption, gfDirection, gfParameter;
@@ -368,10 +372,17 @@ void __cdecl S_LoadSettings() {
 	GetRegistryDwordValue(REG_DETAIL_LEVEL, &DetailLevel, 1);
 	GetRegistryFloatValue(REG_GAME_SIZER, &GameSizer, 1.0);
 	GetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)CustomLayout, sizeof(UINT16)*14, NULL);
+
+#ifdef FEATURE_HEALTHBAR_IMPROVED
+	GetRegistryBoolValue(REG_PSXBAR_ENABLE, &PsxBarsEnabled, false);
+#endif // FEATURE_HEALTHBAR_IMPROVED
+
 	CloseGameRegistryKey();
+
 #ifdef FEATURE_INPUT_CONFLICTS_FIX
 	DefaultConflict();
 #endif // FEATURE_INPUT_CONFLICTS_FIX
+
 	SoundVolume = soundVol;
 	MusicVolume = musicVol;
 	S_SoundSetMasterVolume(6 * SoundVolume + 4);	// 4,  10,  16,  22,  28,  34,  40,  46,  52,  58,  64

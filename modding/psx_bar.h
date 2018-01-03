@@ -19,18 +19,16 @@
  * along with TR2Main.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SMAIN_H_INCLUDED
-#define SMAIN_H_INCLUDED
+#ifndef PSX_BAR_H_INCLUDED
+#define PSX_BAR_H_INCLUDED
 
 #include "global/types.h"
 
 /*
  * Function list
  */
-BOOL __cdecl GameMain(); // 0x00454B10
-__int16 __cdecl TitleSequence(); // 0x00454DE0
-void __cdecl CheckCheatMode(); // 0x00454EF0
-void __cdecl S_SaveSettings(); // 0x00455250
-void __cdecl S_LoadSettings(); // 0x004552D0
 
-#endif // SMAIN_H_INCLUDED
+void __cdecl PSX_DrawHealthBar(int x0, int y0, int x1, int y1, int bar, int pixel);
+void __cdecl PSX_DrawAirBar(int x0, int y0, int x1, int y1, int bar, int pixel);
+
+#endif // PSX_BAR_H_INCLUDED
