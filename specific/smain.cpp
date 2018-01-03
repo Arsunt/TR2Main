@@ -46,6 +46,9 @@
 #ifdef FEATURE_HEALTHBAR_IMPROVED
 extern bool PsxBarsEnabled;
 #endif // FEATURE_HEALTHBAR_IMPROVED
+#ifdef FEATURE_BACKGROUND_IMPROVED
+extern DWORD InvBackgroundMode;
+#endif // FEATURE_BACKGROUND_IMPROVED
 
 BOOL __cdecl GameMain() {
 	__int16 gfOption, gfDirection, gfParameter;
@@ -376,6 +379,9 @@ void __cdecl S_LoadSettings() {
 #ifdef FEATURE_HEALTHBAR_IMPROVED
 	GetRegistryBoolValue(REG_PSXBAR_ENABLE, &PsxBarsEnabled, false);
 #endif // FEATURE_HEALTHBAR_IMPROVED
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	GetRegistryDwordValue(REG_INVBGND_MODE, &InvBackgroundMode, 1);
+#endif // FEATURE_BACKGROUND_IMPROVED
 
 	CloseGameRegistryKey();
 

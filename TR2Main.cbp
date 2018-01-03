@@ -217,6 +217,9 @@
 		<Unit filename="modding/cd_pauld.cpp" />
 		<Unit filename="modding/cd_pauld.h" />
 
+		<Unit filename="modding/psx_background.cpp" />
+		<Unit filename="modding/psx_background.h" />
+
 		<Unit filename="modding/psx_bar.cpp" />
 		<Unit filename="modding/psx_bar.h" />
 

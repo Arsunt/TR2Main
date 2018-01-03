@@ -19,21 +19,15 @@
  * along with TR2Main.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FEATURES_H_INCLUDED
-#define FEATURES_H_INCLUDED
+#ifndef PSX_BACKGROUND_H_INCLUDED
+#define PSX_BACKGROUND_H_INCLUDED
 
-#define FEATURE_NOCD_DATA
-#define FEATURE_WINDOW_STYLE_FIX
-#define FEATURE_VIDMODESORT
-#define FEATURE_FOV_FIX
-#define FEATURE_JUMP_COLLISION_FIX
-#define FEATURE_INPUT_KB_RECOVER_FIX
-#define FEATURE_INPUT_CONFLICTS_FIX
-#define FEATURE_SCREENSHOT_FIX
-#define FEATURE_SCREENSHOT_KEY
-#define FEATURE_SPRITE_SCALE_FIX
-#define FEATURE_HEALTHBAR_IMPROVED
-#define FEATURE_BACKGROUND_IMPROVED
-#define FEATURE_PAULD_CDAUDIO
+#include "global/types.h"
 
-#endif // FEATURES_H_INCLUDED
+/*
+ * Function list
+ */
+void PSX_Background(D3DTEXTUREHANDLE texSource, int tu, int tv, int t_width, int t_height, int halfRowCount,
+					__int16 amplitude, __int16 deformWavePhase, __int16 shortWavePhase, __int16 longWavePhase);
+
+#endif // PSX_BACKGROUND_H_INCLUDED

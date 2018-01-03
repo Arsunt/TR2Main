@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -27,6 +27,12 @@
 #include "specific/utils.h"
 #include "global/vars.h"
 #include <math.h>
+
+#ifdef FEATURE_BACKGROUND_IMPROVED
+#include "modding/psx_background.h"
+
+DWORD InvBackgroundMode;
+#endif // FEATURE_BACKGROUND_IMPROVED
 
 void __cdecl BGND_Make640x480(BYTE *bitmap, RGB *palette) {
 	// NOTE: 8 bit bitmap may be converted to 16 bit right in the tmpBuffer
@@ -132,9 +138,10 @@ void __cdecl BGND_DrawInGameBackground() {
 	__int16 *meshPtr;
 	int numVertices, numNormals, numQuads;
 	DWORD textureIndex;
-	PHD_TEXTURE *textureInfo; // eax@5
+	PHD_TEXTURE *textureInfo;
 	int x0, y0, x1, y1;
 	int x_current, y_current, x_next, y_next;
+	int x_count, y_count;
 	int y0_pos, y1_pos;
 	int tu, tv, twidth, theight;
 	D3DTEXTUREHANDLE texSource;
@@ -145,6 +152,11 @@ BLACK : // NOTE: some additional checks are absent in the original code, so I've
 		BGND_DrawInGameBlack();
 		return;
 	}
+
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	if( InvBackgroundMode == 0 || InvBackgroundMode > 2 )
+		goto BLACK;
+#endif // FEATURE_BACKGROUND_IMPROVED
 
 	meshPtr = MeshPtr[Objects[ID_INV_BACKGROUND].meshIndex];
 	meshPtr += 3+2; // skip mesh coords (3*INT16) and radius (1*INT32)
@@ -172,20 +184,45 @@ BLACK : // NOTE: some additional checks are absent in the original code, so I've
 	theight = textureInfo->uv[2].v / PHD_HALF - tv + 1;
 
 	HWR_EnableZBuffer(false, false);
+
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	if( InvBackgroundMode == 2 ) {
+		static const int shortWaveStep = -0x0267; // minus 3.92 degrees
+		static const int longWaveStep  = -0x0200; // minus 2.81 degrees
+
+		static UINT16 deformWavePhase = 0x0000; // 0 degrees
+		static UINT16 shortWavePhase = 0x4000; // 90 degrees
+		static UINT16 longWavePhase = 0xA000; // 225 degrees
+
+		PSX_Background(texSource, tu, tv, twidth, theight, 3, 10, deformWavePhase, shortWavePhase, longWavePhase);
+
+		deformWavePhase += shortWaveStep;
+		shortWavePhase  += shortWaveStep;
+		longWavePhase   += longWaveStep;
+		return;
+	}
+
+	y_count = 6;
+	x_count = MulDiv(y_count, PhdWinWidth, PhdWinHeight);
+#else // !FEATURE_BACKGROUND_IMPROVED
+	x_count = 8;
+	y_count = 6;
+#endif // FEATURE_BACKGROUND_IMPROVED
+
 	y_current = 0;
-	for( int i=0; i<6; ++i ) {
+	for( int i=0; i<y_count; ++i ) {
 		y_next = y_current + PhdWinHeight;
 
-		y0_pos = y_current / 6;
-		y1_pos = y_next / 6;
+		y0_pos = y_current / y_count;
+		y1_pos = y_next / y_count;
 
 		x_current = 0;
-		for( int j=0; j<8; ++j ) {
+		for( int j=0; j<x_count; ++j ) {
 			x_next = x_current + PhdWinWidth;
 
-			x0 = PhdWinMinX + x_current / 8;
+			x0 = PhdWinMinX + x_current / x_count;
 			y0 = y0_pos + PhdWinMinY;
-			x1 = PhdWinMinX + x_next / 8;
+			x1 = PhdWinMinX + x_next / x_count;
 			y1 = y1_pos + PhdWinMinY;
 
 			color[0] = BGND_CenterLighting(x0, y0, PhdWinWidth, PhdWinHeight);
@@ -209,7 +246,7 @@ void __cdecl DrawTextureTile(int sx, int sy, int width, int height, D3DTEXTUREHA
 {
 	float sx0, sy0, sx1, sy1;
 	float tu0, tv0, tu1, tv1;
-	float uvAdjust;
+	double uvAdjust;
 	D3DTLVERTEX vertex[4];
 
 	sx0 = (double)sx;

@@ -48,6 +48,7 @@
 #define REG_MUSIC_VOLUME		"MusicVolume"
 #define REG_SOUND_VOLUME		"SoundFXVolume"
 #define REG_DETAIL_LEVEL		"DetailLevel"
+#define REG_INVBGND_MODE		"InvBackgroundMode"
 
 // BOOL value names
 #define REG_PERSPECTIVE			"PerspectiveCorrect"
