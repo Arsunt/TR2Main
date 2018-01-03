@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -27,6 +27,10 @@
 #include "3dsystem/scalespr.h"
 #include "specific/hwr.h"
 #include "global/vars.h"
+
+#ifdef FEATURE_FOV_FIX
+bool PsxFovEnabled;
+#endif // FEATURE_FOV_FIX
 
 // TODO: add enums for this
 static void (__cdecl *PolyDrawRoutines[])(__int16 *) = {
@@ -650,8 +654,9 @@ void __cdecl AlterFOV(__int16 fov) {
 	fov /= 2; // half fov angle
 
 #ifdef FEATURE_FOV_FIX
+	int fovWidth = PhdWinHeight*320/(PsxFovEnabled ? 200 : 240);
 	FltViewAspect = 1.0; // must always be 1.0 for unstretched view
-	PhdPersp = (PhdWinHeight*4/3 / 2) * phd_cos(fov) / phd_sin(fov);
+	PhdPersp = (fovWidth / 2) * phd_cos(fov) / phd_sin(fov);
 #else // !FEATURE_FOV_FIX
 	PhdPersp = (PhdWinWidth / 2) * phd_cos(fov) / phd_sin(fov);
 #endif // FEATURE_FOV_FIX

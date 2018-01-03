@@ -65,6 +65,7 @@
 #define REG_FLIP_BROKEN			"FlipBroken"
 #define REG_FMV_DISABLE			"DisableFMV"
 #define REG_PSXBAR_ENABLE		"EnablePsxBars"
+#define REG_PSXFOV_ENABLE		"EnablePsxFov"
 
 // FLOAT value names
 #define REG_GAME_SIZER		"Sizer"
