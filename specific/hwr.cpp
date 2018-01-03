@@ -38,7 +38,7 @@ void __cdecl HWR_InitState() {
 	blend = (CurrentDisplayAdapter.D3DHWDeviceDesc.dpcTriCaps.dwTextureBlendCaps & D3DPTBLENDCAPS_MODULATEALPHA) ? D3DTBLEND_MODULATEALPHA : D3DTBLEND_MODULATE;
 
 	_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_TEXTUREMAG, filter);
-	_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_TEXTUREMAG, filter);
+	_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_TEXTUREMIN, filter);
 	_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_TEXTUREMAPBLEND, blend);
 	_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE, SavedAppSettings.PerspectiveCorrect ? TRUE : FALSE);
 	_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_DITHERENABLE, SavedAppSettings.Dither ? TRUE : FALSE);
