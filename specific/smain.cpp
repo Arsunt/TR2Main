@@ -395,8 +395,9 @@ void __cdecl S_LoadSettings() {
 	DefaultConflict();
 #endif // FEATURE_INPUT_CONFLICTS_FIX
 
-	SoundVolume = soundVol;
-	MusicVolume = musicVol;
+// NOTE: There was no such volume range check in the original game
+	SoundVolume = (soundVol > 10) ? 10 : soundVol;
+	MusicVolume = (musicVol > 10) ? 10 : musicVol;
 	S_SoundSetMasterVolume(6 * SoundVolume + 4);	// 4,  10,  16,  22,  28,  34,  40,  46,  52,  58,  64
 	S_CDVolume(MusicVolume ? MusicVolume*25+5 : 0);	// 0,  30,  55,  80, 105, 130, 155, 180, 205, 230, 255
 }
