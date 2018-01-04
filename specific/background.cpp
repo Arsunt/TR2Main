@@ -199,6 +199,8 @@ BLACK : // NOTE: some additional checks are absent in the original code, so I've
 		deformWavePhase += shortWaveStep;
 		shortWavePhase  += shortWaveStep;
 		longWavePhase   += longWaveStep;
+
+		HWR_EnableZBuffer(true, true);
 		return;
 	}
 
