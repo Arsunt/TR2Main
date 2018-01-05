@@ -49,7 +49,7 @@ void __cdecl phd_RotateLight(__int16 pitch, __int16 yaw); // 0x00402320
 void __cdecl phd_InitPolyList(); // 0x004023F0
 void __cdecl phd_SortPolyList(); // 0x00402420
 void __cdecl do_quickysorty(int left, int right); // 0x00402460
-void __cdecl phd_PrintPolyList(LPVOID surfacePtr); // 0x00402530
+void __cdecl phd_PrintPolyList(BYTE *surfacePtr); // 0x00402530
 void __cdecl AlterFOV(__int16 fov); // 0x00402570
 void __cdecl phd_SetNearZ(int nearZ); // 0x00402680
 void __cdecl phd_SetFarZ(int farZ); // 0x004026D0

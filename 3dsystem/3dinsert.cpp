@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -94,7 +94,7 @@ int __cdecl ZedClipper(int vtxCount, POINT_INFO *pts, VERTEX_INFO *vtx) {
 	return ( j < 3 ) ? 0 : j;
 }
 
-void __cdecl InsertTrans8(PHD_VBUF *vbuf, int shade) {
+void __cdecl InsertTrans8(PHD_VBUF *vbuf, __int16 shade) {
 	int i, nPoints, polyZ;
 	char clipOR = 0x00;
 	char clipAND = 0xFF;
@@ -489,7 +489,7 @@ void __cdecl InsertLine_ZBuffered(int x0, int y0, int x1, int y1, int z, BYTE co
 	_Direct3DDevice2->DrawPrimitive(D3DPT_LINESTRIP, D3DVT_TLVERTEX, VertexZBuffered, 2, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 }
 
-void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spriteIdx, int shade) {
+void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade) {
 	double rhw, u0, v0, u1, v1;
 	int uOffset, vOffset, nPoints;
 
@@ -632,7 +632,7 @@ void __cdecl InsertLine_Sorted(int x0, int y0, int x1, int y1, int z, BYTE color
 	++SurfaceCount;
 }
 
-void __cdecl InsertTrans8_Sorted(PHD_VBUF *vbuf, int shade) {
+void __cdecl InsertTrans8_Sorted(PHD_VBUF *vbuf, __int16 shade) {
 	int i, nPoints, polyZ;
 	char clipOR = 0x00;
 	char clipAND = 0xFF;
@@ -712,7 +712,7 @@ void __cdecl InsertTransQuad_Sorted(int x, int y, int width, int height, int z) 
 	++SurfaceCount;
 }
 
-void __cdecl InsertSprite(int z, int x0, int y0, int x1, int y1, int spriteIdx, int shade) {
+void __cdecl InsertSprite(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade) {
 	Sort3dPtr->_0 = (int)Info3dPtr;
 	Sort3dPtr->_1 = z;
 	++Sort3dPtr;

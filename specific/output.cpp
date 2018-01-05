@@ -138,7 +138,7 @@ void __cdecl S_OutputPolyList() {
 		// Software renderer
 		phd_SortPolyList();
 		if SUCCEEDED(WinVidBufferLock(RenderBufferSurface, &desc, DDLOCK_WRITEONLY|DDLOCK_WAIT)) {
-			phd_PrintPolyList(desc.lpSurface);
+			phd_PrintPolyList((BYTE *)desc.lpSurface);
 			WinVidBufferUnlock(RenderBufferSurface, &desc);
 		}
 	} else {
@@ -284,7 +284,7 @@ void __cdecl S_PrintShadow(__int16 radius, __int16 *bPtr, ITEM_INFO *item) {
 void __cdecl S_CalculateLight(int x, int y, int z, __int16 roomNumber) {
 	ROOM_INFO *room;
 	int i;
-	int xDist, yDist, zDist, distance, radius;
+	int xDist, yDist, zDist, distance, radius, depth;
 	int xBrightest=0, yBrightest=0, zBrightest=0;
 	int brightest, adder;
 	int shade, shade1, shade2;
@@ -385,21 +385,23 @@ void __cdecl S_CalculateLight(int x, int y, int z, __int16 roomNumber) {
 	}
 
 	// Fog calculation
-	distance = PhdMatrixPtr->_23 >> W2V_SHIFT;
-	if( distance > DEPTHQ_START ) {
-		LsAdder += distance - DEPTHQ_START;
-		if( LsAdder > DEPTHQ_RANGE-1 )
-			LsAdder = DEPTHQ_RANGE-1;
+	depth = PhdMatrixPtr->_23 >> W2V_SHIFT;
+	if( depth > DEPTHQ_START ) { // fog begin
+		LsAdder += depth - DEPTHQ_START;
+		if( LsAdder > 0x1FFF ) // fog end
+			LsAdder = 0x1FFF;
 	}
 }
 
 void __cdecl S_CalculateStaticLight(__int16 adder) {
-	int zDist;
+	int depth;
 
 	LsAdder = adder - 16*256;
-	zDist = PhdMatrixPtr->_23 >> W2V_SHIFT;
-	if( zDist > DEPTHQ_START )
-		LsAdder += zDist - DEPTHQ_START;
+	depth = PhdMatrixPtr->_23 >> W2V_SHIFT;
+	if( depth > DEPTHQ_START ) // fog begin
+		LsAdder += depth - DEPTHQ_START;
+	if( LsAdder > 0x1FFF ) // fog end
+		LsAdder = 0x1FFF;
 }
 
 void __cdecl S_CalculateStaticMeshLight(int x, int y, int z, int shade1, int shade2, ROOM_INFO *room) {

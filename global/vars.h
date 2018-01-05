@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -43,15 +43,15 @@
  * General Variables
  */
 // Callback variables
-#define ins_trans_quad		(*(void(__cdecl **)(int,int,int,int,int))			0x00470318)
-#define ins_poly_trans8		(*(void(__cdecl **)(PHD_VBUF*,int))					0x0047032C)
-#define ins_flat_rect		(*(void(__cdecl **)(int,int,int,int,int,BYTE))		0x0047805C)
-#define ins_sprite			(*(void(__cdecl **)(int,int,int,int,int,int,int))	0x004B2A10)
-#define ins_objectGT3		(*(__int16*(__cdecl **)(__int16*,int,int))			0x004B2A1C)
-#define ins_objectGT4		(*(__int16*(__cdecl **)(__int16*,int,int))			0x004B2A20)
-#define ins_line			(*(void(__cdecl **)(int,int,int,int,int,BYTE))		0x004B2AE8)
-#define ins_objectG4		(*(__int16*(__cdecl **)(__int16*,int,int))			0x004BCAF8)
-#define ins_objectG3		(*(__int16*(__cdecl **)(__int16*,int,int))			0x004BCB40)
+#define ins_trans_quad		(*(void(__cdecl **)(int,int,int,int,int))				0x00470318)
+#define ins_poly_trans8		(*(void(__cdecl **)(PHD_VBUF*,__int16))					0x0047032C)
+#define ins_flat_rect		(*(void(__cdecl **)(int,int,int,int,int,BYTE))			0x0047805C)
+#define ins_sprite			(*(void(__cdecl **)(int,int,int,int,int,int,__int16))	0x004B2A10)
+#define ins_objectGT3		(*(__int16*(__cdecl **)(__int16*,int,int))				0x004B2A1C)
+#define ins_objectGT4		(*(__int16*(__cdecl **)(__int16*,int,int))				0x004B2A20)
+#define ins_line			(*(void(__cdecl **)(int,int,int,int,int,BYTE))			0x004B2AE8)
+#define ins_objectG4		(*(__int16*(__cdecl **)(__int16*,int,int))				0x004BCAF8)
+#define ins_objectG3		(*(__int16*(__cdecl **)(__int16*,int,int))				0x004BCB40)
 
 // Initialized variables
 #define PerspectiveDistance			VAR_I_(0x00464060, DWORD,			0x3000000)
@@ -117,7 +117,7 @@
 #define FltWinCenterX				VAR_U_(0x004B29F0, float)
 #define FltWinCenterY				VAR_U_(0x004B29F4, float)
 #define PhdScreenHeight				VAR_U_(0x004B29F8, int)
-#define PrintSurfacePtr				VAR_U_(0x004B29FC, LPVOID)
+#define PrintSurfacePtr				VAR_U_(0x004B29FC, BYTE*)
 #define PhdWinMinX					VAR_U_(0x004B2A00, __int16)
 #define FltPerspONearZ				VAR_U_(0x004B2A04, float)
 #define FltRhwONearZ				VAR_U_(0x004B2A08, float)

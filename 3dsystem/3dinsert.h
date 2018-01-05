@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -40,7 +40,7 @@ int __cdecl ZedClipper(int vtxCount, POINT_INFO *pts, VERTEX_INFO *vtx); // 0x00
 #define InsertObjectG3 ((__int16 *(__cdecl*)(__int16 *ptrObj, int number, int sortType)) 0x00407A00)
 #define XYClipper ((int (__cdecl*)(int vtxCount, VERTEX_INFO *vtx)) 0x00407D20)
 
-void __cdecl InsertTrans8(PHD_VBUF *vbuf, int shade); // 0x00407FF0
+void __cdecl InsertTrans8(PHD_VBUF *vbuf, __int16 shade); // 0x00407FF0
 void __cdecl InsertTransQuad(int x, int y, int width, int height, int z); // 0x004084A0
 void __cdecl InsertFlatRect(int x0, int y0, int x1, int y1, int z, BYTE colorIdx); // 0x00408580
 void __cdecl InsertLine(int x0, int y0, int x1, int y1, int z, BYTE colorIdx); // 0x00408650
@@ -71,11 +71,11 @@ void __cdecl InsertLine_ZBuffered(int x0, int y0, int x1, int y1, int z, BYTE co
 #define InsertPoly_Gouraud ((void (__cdecl*)(int vtxCount, float z, int red, int green, int blue, __int16 polyType)) 0x0040B1D0)
 #define InsertObjectG3_Sorted ((__int16 *(__cdecl*)(__int16 *ptrObj, int number, int sortType)) 0x0040B350)
 
-void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spriteIdx, int shade); // 0x0040B6A0
+void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade); // 0x0040B6A0
 void __cdecl InsertFlatRect_Sorted(int x0, int y0, int x1, int y1, int z, BYTE colorIdx); // 0x0040B9F0
 void __cdecl InsertLine_Sorted(int x0, int y0, int x1, int y1, int z, BYTE colorIdx); // 0x0040BB70
-void __cdecl InsertTrans8_Sorted(PHD_VBUF *vbuf, int shade); // 0x0040BCA0
+void __cdecl InsertTrans8_Sorted(PHD_VBUF *vbuf, __int16 shade); // 0x0040BCA0
 void __cdecl InsertTransQuad_Sorted(int x, int y, int width, int height, int z); // 0x0040BE40
-void __cdecl InsertSprite(int z, int x0, int y0, int x1, int y1, int spriteIdx, int shade); // 0x0040BF80
+void __cdecl InsertSprite(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade); // 0x0040BF80
 
 #endif // _3DINSERT_H_INCLUDED

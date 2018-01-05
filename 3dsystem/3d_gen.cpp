@@ -498,7 +498,7 @@ __int16 *__cdecl calc_vertice_light(__int16 *ptrObj) {
 }
 
 __int16 *__cdecl calc_roomvert(__int16 *ptrObj, BYTE farClip) {
-	double xv, yv, zv, persp, baseZ;
+	double xv, yv, zv, persp, baseZ, depth;
 	int vtxCount, zv_int;
 
 	baseZ = SavedAppSettings.ZBuffer ? 0.0 : (double)(MidSort << 22);
@@ -533,15 +533,16 @@ __int16 *__cdecl calc_roomvert(__int16 *ptrObj, BYTE farClip) {
 			PhdVBuf[i].zv = zv;
 		} else {
 			persp = FltPersp / zv;
+			depth = zv_int >> W2V_SHIFT;
 
-			if( zv_int >= 0x14000000 ) { // fog end
+			if( depth >= DEPTHQ_END ) { // fog end
 				PhdVBuf[i].g = 0x1FFF;
 				PhdVBuf[i].rhw = 0.0;
 				PhdVBuf[i].clip = farClip;
 				PhdVBuf[i].zv = FltFarZ;
 			} else {
-				if( zv_int > 0xC000000 ) { // fog begin
-					PhdVBuf[i].g += (zv_int - 0xC000000) >> 14;
+				if( depth > DEPTHQ_START ) { // fog begin
+					PhdVBuf[i].g += depth - DEPTHQ_START;
 				}
 				PhdVBuf[i].rhw = persp * FltRhwOPersp;
 				PhdVBuf[i].clip = 0;
@@ -639,7 +640,7 @@ void __cdecl do_quickysorty(int left, int right) {
 		do_quickysorty(i, right);
 }
 
-void __cdecl phd_PrintPolyList(LPVOID surfacePtr) {
+void __cdecl phd_PrintPolyList(BYTE *surfacePtr) {
 	__int16 polyType, *bufPtr;
 	PrintSurfacePtr = surfacePtr;
 
