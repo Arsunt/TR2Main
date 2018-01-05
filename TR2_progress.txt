@@ -105,12 +105,12 @@ x function is unused / included in another function
 ---asm----:	+	phd_sqrt
 
 	3dsystem/scalespr.cpp
-0x0040C030:		S_DrawSprite
+0x0040C030:	+	S_DrawSprite
 0x0040C300:	+	S_DrawPickup
-0x0040C390:	 *	ins_room_sprite
-0x0040C4F0:		S_DrawScreenSprite2d
-0x0040C590:		S_DrawScreenSprite
-0x0040C630:	 *	draw_scaled_spriteC
+0x0040C390:	+	ins_room_sprite
+0x0040C4F0:	+	S_DrawScreenSprite2d
+0x0040C590:	+	S_DrawScreenSprite
+0x0040C630:	+	draw_scaled_spriteC
 
 // ======================================
 // GAME
