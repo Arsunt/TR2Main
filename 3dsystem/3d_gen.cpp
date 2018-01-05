@@ -45,6 +45,43 @@ static void (__cdecl *PolyDrawRoutines[])(__int16 *) = {
 	draw_scaled_spriteC		// scaled sprite (texture + colorkey)
 };
 
+#ifdef FEATURE_FOG_DISTANCE
+// view distance
+double ViewDistanceFactor = 1.0;
+
+// regular fog
+double FogBeginFactor = 0.6;
+double FogEndFactor = 1.0;
+int FogBeginDepth = DEPTHQ_START;
+int FogEndDepth = DEPTHQ_END;
+
+// underwater fog
+double WaterFogBeginFactor = 0.6;
+double WaterFogEndFactor = 1.0;
+int WaterFogBeginDepth = DEPTHQ_START;
+int WaterFogEndDepth = DEPTHQ_END;
+
+// fog formula
+int CalculateFogShade(int depth) {
+	int fogBegin, fogEnd;
+
+	if( IsWaterEffect ) {
+		fogBegin = WaterFogBeginDepth;
+		fogEnd = WaterFogEndDepth;
+	} else {
+		fogBegin = FogBeginDepth;
+		fogEnd = FogEndDepth;
+	}
+
+	if( depth < fogBegin )
+		return 0;
+	if( depth >= fogEnd )
+		return 0x1FFF;
+
+	return (depth - fogBegin) * 0x1FFF / (fogEnd - fogBegin);
+}
+#endif // FEATURE_FOG_DISTANCE
+
 void phd_GenerateW2V(PHD_3DPOS *viewPos) {
 	int sx = phd_sin(viewPos->rotX);
 	int cx = phd_cos(viewPos->rotX);
@@ -535,15 +572,23 @@ __int16 *__cdecl calc_roomvert(__int16 *ptrObj, BYTE farClip) {
 			persp = FltPersp / zv;
 			depth = zv_int >> W2V_SHIFT;
 
+#ifdef FEATURE_FOG_DISTANCE
+			if( depth >= PhdViewDistance ) {
+#else // !FEATURE_FOG_DISTANCE
 			if( depth >= DEPTHQ_END ) { // fog end
+#endif // FEATURE_FOG_DISTANCE
 				PhdVBuf[i].g = 0x1FFF;
 				PhdVBuf[i].rhw = 0.0;
 				PhdVBuf[i].clip = farClip;
 				PhdVBuf[i].zv = FltFarZ;
 			} else {
+#ifdef FEATURE_FOG_DISTANCE
+				PhdVBuf[i].g += CalculateFogShade(depth);
+#else // !FEATURE_FOG_DISTANCE
 				if( depth > DEPTHQ_START ) { // fog begin
 					PhdVBuf[i].g += depth - DEPTHQ_START;
 				}
+#endif // FEATURE_FOG_DISTANCE
 				PhdVBuf[i].rhw = persp * FltRhwOPersp;
 				PhdVBuf[i].clip = 0;
 				PhdVBuf[i].zv = zv + baseZ;
@@ -726,6 +771,15 @@ void __cdecl phd_InitWindow(__int16 x, __int16 y, int width, int height, int nea
 
 	PhdScreenWidth = screenWidth;
 	PhdScreenHeight = screenHeight;
+
+#ifdef FEATURE_FOG_DISTANCE
+	double baseDistance = (double)farZ;
+	farZ				= (int)(baseDistance * ViewDistanceFactor);
+	FogBeginDepth		= (int)(baseDistance * FogBeginFactor);
+	FogEndDepth			= (int)(baseDistance * FogEndFactor);
+	WaterFogBeginDepth	= (int)(baseDistance * WaterFogBeginFactor);
+	WaterFogBeginDepth	= (int)(baseDistance * WaterFogEndFactor);
+#endif // FEATURE_FOG_DISTANCE
 
 	PhdNearZ = nearZ << W2V_SHIFT;
 	PhdFarZ = farZ << W2V_SHIFT;

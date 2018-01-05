@@ -46,12 +46,22 @@
 #ifdef FEATURE_HEALTHBAR_IMPROVED
 extern bool PsxBarsEnabled;
 #endif // FEATURE_HEALTHBAR_IMPROVED
+
 #ifdef FEATURE_FOV_FIX
 extern bool PsxFovEnabled;
 #endif // FEATURE_FOV_FIX
+
 #ifdef FEATURE_BACKGROUND_IMPROVED
 extern DWORD InvBackgroundMode;
 #endif // FEATURE_BACKGROUND_IMPROVED
+
+#ifdef FEATURE_FOG_DISTANCE
+extern double ViewDistanceFactor;
+extern double FogBeginFactor;
+extern double FogEndFactor;
+extern double WaterFogBeginFactor;
+extern double WaterFogEndFactor;
+#endif // FEATURE_FOG_DISTANCE
 
 BOOL __cdecl GameMain() {
 	__int16 gfOption, gfDirection, gfParameter;
@@ -366,6 +376,16 @@ void __cdecl S_SaveSettings() {
 	SetRegistryFloatValue(REG_GAME_SIZER, GameSizer);
 	SetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)CustomLayout, sizeof(UINT16)*14);
 	CloseGameRegistryKey();
+
+#ifdef FEATURE_FOG_DISTANCE
+	OpenGameRegistryKey(REG_VIEW_KEY);
+	SetRegistryFloatValue(REG_DRAW_DISTANCE, ViewDistanceFactor);
+	SetRegistryFloatValue(REG_FOG_BEGIN, FogBeginFactor);
+	SetRegistryFloatValue(REG_FOG_END, FogEndFactor);
+	SetRegistryFloatValue(REG_UW_FOG_BEGIN, WaterFogBeginFactor);
+	SetRegistryFloatValue(REG_UW_FOG_END, WaterFogEndFactor);
+	CloseGameRegistryKey();
+#endif // FEATURE_FOG_DISTANCE
 }
 
 void __cdecl S_LoadSettings() {
@@ -382,9 +402,11 @@ void __cdecl S_LoadSettings() {
 #ifdef FEATURE_HEALTHBAR_IMPROVED
 	GetRegistryBoolValue(REG_PSXBAR_ENABLE, &PsxBarsEnabled, false);
 #endif // FEATURE_HEALTHBAR_IMPROVED
+
 #ifdef FEATURE_FOV_FIX
 	GetRegistryBoolValue(REG_PSXFOV_ENABLE, &PsxFovEnabled, false);
 #endif // FEATURE_FOV_FIX
+
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	GetRegistryDwordValue(REG_INVBGND_MODE, &InvBackgroundMode, 1);
 #endif // FEATURE_BACKGROUND_IMPROVED
@@ -400,6 +422,26 @@ void __cdecl S_LoadSettings() {
 	MusicVolume = (musicVol > 10) ? 10 : musicVol;
 	S_SoundSetMasterVolume(6 * SoundVolume + 4);	// 4,  10,  16,  22,  28,  34,  40,  46,  52,  58,  64
 	S_CDVolume(MusicVolume ? MusicVolume*25+5 : 0);	// 0,  30,  55,  80, 105, 130, 155, 180, 205, 230, 255
+
+#ifdef FEATURE_FOG_DISTANCE
+	OpenGameRegistryKey(REG_VIEW_KEY);
+	GetRegistryFloatValue(REG_DRAW_DISTANCE, &ViewDistanceFactor, 1.0);
+	GetRegistryFloatValue(REG_FOG_BEGIN, &FogBeginFactor, 0.6);
+	GetRegistryFloatValue(REG_FOG_END, &FogEndFactor, 1.0);
+	GetRegistryFloatValue(REG_UW_FOG_BEGIN, &WaterFogBeginFactor, 0.6);
+	GetRegistryFloatValue(REG_UW_FOG_END, &WaterFogEndFactor, 1.0);
+	CloseGameRegistryKey();
+
+	CLAMP(ViewDistanceFactor, 1.0, 6.0);
+	CLAMP(FogEndFactor, 0.0, ViewDistanceFactor);
+	CLAMP(FogBeginFactor, 0.0, FogEndFactor);
+	CLAMP(WaterFogEndFactor, 0.0, FogEndFactor);
+	CLAMP(WaterFogBeginFactor, 0.0, FogBeginFactor);
+#endif // FEATURE_FOG_DISTANCE
+
+#if defined (FEATURE_FOV_FIX) || defined (FEATURE_FOG_DISTANCE)
+	setup_screen_size();
+#endif // FEATURE_FOV_FIX || FEATURE_FOG_DISTANCE
 }
 
 /*

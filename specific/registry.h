@@ -30,6 +30,7 @@
 // Registry keys
 #define REG_SYSTEM_KEY			"System"
 #define REG_GAME_KEY			"Game"
+#define REG_VIEW_KEY			"View"
 
 // DWORD value names
 #define REG_DISPLAY_ADAPTER		"PreferredDisplayAdapterGUID"
@@ -69,6 +70,11 @@
 
 // FLOAT value names
 #define REG_GAME_SIZER		"Sizer"
+#define REG_DRAW_DISTANCE	"DrawDistance"
+#define REG_FOG_BEGIN		"FogBegin"
+#define REG_FOG_END			"FogEnd"
+#define REG_UW_FOG_BEGIN	"UwFogBegin"
+#define REG_UW_FOG_END		"UwFogEnd"
 
 // BINARY value names
 #define REG_GAME_LAYOUT		"Layout"

@@ -24,6 +24,10 @@
 #include "specific/output.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_FOG_DISTANCE
+extern int CalculateFogShade(int depth);
+#endif // FEATURE_FOG_DISTANCE
+
 void __cdecl S_DrawSprite(DWORD flags, int x, int y, int z, __int16 spriteIdx, __int16 shade, __int16 scale) {
 	int xv, yv, zv, zp, depth;
 	int x1, y1, x2, y2;
@@ -98,8 +102,12 @@ void __cdecl S_DrawSprite(DWORD flags, int x, int y, int z, __int16 spriteIdx, _
 
 	if( (flags & 0x08000000) != 0 ) {
 		depth = zv >> W2V_SHIFT;
+#ifdef FEATURE_FOG_DISTANCE
+		shade += CalculateFogShade(depth);
+#else // !FEATURE_FOG_DISTANCE
 		if( depth > DEPTHQ_START )
 			shade += depth - DEPTHQ_START;
+#endif // FEATURE_FOG_DISTANCE
 		if( shade > 0x1FFF )
 			return;
 	} else {

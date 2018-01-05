@@ -41,6 +41,10 @@
 bool PsxBarsEnabled;
 #endif // FEATURE_HEALTHBAR_IMPROVED
 
+#ifdef FEATURE_FOG_DISTANCE
+extern int CalculateFogShade(int depth);
+#endif // FEATURE_FOG_DISTANCE
+
 int __cdecl GetRenderScale(int unit) {
 	int scaleX = (PhdWinWidth > 640) ? MulDiv(PhdWinWidth, unit, 640) : unit;
 	int scaleY = (PhdWinHeight > 480) ? MulDiv(PhdWinHeight, unit, 480) : unit;
@@ -386,11 +390,14 @@ void __cdecl S_CalculateLight(int x, int y, int z, __int16 roomNumber) {
 
 	// Fog calculation
 	depth = PhdMatrixPtr->_23 >> W2V_SHIFT;
-	if( depth > DEPTHQ_START ) { // fog begin
+#ifdef FEATURE_FOG_DISTANCE
+	LsAdder += CalculateFogShade(depth);
+#else // !FEATURE_FOG_DISTANCE
+	if( depth > DEPTHQ_START ) // fog begin
 		LsAdder += depth - DEPTHQ_START;
-		if( LsAdder > 0x1FFF ) // fog end
-			LsAdder = 0x1FFF;
-	}
+#endif // FEATURE_FOG_DISTANCE
+	if( LsAdder > 0x1FFF ) // fog end
+		LsAdder = 0x1FFF;
 }
 
 void __cdecl S_CalculateStaticLight(__int16 adder) {
@@ -398,8 +405,12 @@ void __cdecl S_CalculateStaticLight(__int16 adder) {
 
 	LsAdder = adder - 16*256;
 	depth = PhdMatrixPtr->_23 >> W2V_SHIFT;
+#ifdef FEATURE_FOG_DISTANCE
+	LsAdder += CalculateFogShade(depth);
+#else // !FEATURE_FOG_DISTANCE
 	if( depth > DEPTHQ_START ) // fog begin
 		LsAdder += depth - DEPTHQ_START;
+#endif // FEATURE_FOG_DISTANCE
 	if( LsAdder > 0x1FFF ) // fog end
 		LsAdder = 0x1FFF;
 }
