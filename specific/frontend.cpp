@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -305,7 +305,7 @@ void __cdecl SeedRandomDraw(int seed) {
 void __cdecl GetValidLevelsList(REQUEST_INFO *req) {
 	RemoveAllReqItems(req);
 	for( DWORD i = 1; i < GF_GameFlow.num_Levels; ++i )
-		AddRequesterItem(req, GF_LevelNamesStringTable[i++], 0, NULL, 0);
+		AddRequesterItem(req, GF_LevelNamesStringTable[i], 0, NULL, 0);
 }
 
 void __cdecl GetSavedGamesList(REQUEST_INFO *req) {
