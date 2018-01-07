@@ -94,6 +94,309 @@ int __cdecl ZedClipper(int vtxCount, POINT_INFO *pts, VERTEX_INFO *vtx) {
 	return ( j < 3 ) ? 0 : j;
 }
 
+static inline void clipGUV(VERTEX_INFO *buf, VERTEX_INFO *vtx1, VERTEX_INFO *vtx2, float clip) {
+	buf->rhw = vtx2->rhw + (vtx1->rhw - vtx2->rhw) * clip;
+	buf->u   = vtx2->u   + (vtx1->u   - vtx2->u)   * clip;
+	buf->v   = vtx2->v   + (vtx1->v   - vtx2->v)   * clip;
+	buf->g   = vtx2->g   + (vtx1->g   - vtx2->g)   * clip;
+}
+
+int __cdecl XYGUVClipper(int vtxCount, VERTEX_INFO *vtx) {
+	VERTEX_INFO vtx_buf[8];
+	VERTEX_INFO *vtx1, *vtx2;
+	float clip;
+	int i, j;
+
+	if( vtxCount < 3 )
+		return 0;
+
+	// horizontal clip
+	vtx2 = &vtx[vtxCount - 1];
+	j = 0;
+	for( i = 0; i < vtxCount; ++i ) {
+		vtx1 = vtx2;
+		vtx2 = &vtx[i];
+
+		if( vtx1->x < FltWinLeft ) {
+			if( vtx2->x < FltWinLeft ) {
+				continue;
+			}
+			clip = (FltWinLeft - vtx2->x) / (vtx1->x - vtx2->x);
+			vtx_buf[j].x = FltWinLeft;
+			vtx_buf[j].y = vtx2->y + (vtx1->y - vtx2->y) * clip;
+			clipGUV(&vtx_buf[j++], vtx1, vtx2, clip);
+		}
+		else if( vtx1->x > FltWinRight) {
+			if( vtx2->x > FltWinRight ) {
+				continue;
+			}
+			clip = (FltWinRight - vtx2->x) / (vtx1->x - vtx2->x);
+			vtx_buf[j].x = FltWinRight;
+			vtx_buf[j].y = vtx2->y + (vtx1->y - vtx2->y) * clip;
+			clipGUV(&vtx_buf[j++], vtx1, vtx2, clip);
+		}
+
+		if( vtx2->x < FltWinLeft ) {
+			clip = (FltWinLeft - vtx2->x) / (vtx1->x - vtx2->x);
+			vtx_buf[j].x = FltWinLeft;
+			vtx_buf[j].y = vtx2->y + (vtx1->y - vtx2->y) * clip;
+			clipGUV(&vtx_buf[j++], vtx1, vtx2, clip);
+		}
+		else if( vtx2->x > FltWinRight ) {
+			clip = (FltWinRight - vtx2->x) / (vtx1->x - vtx2->x);
+			vtx_buf[j].x = FltWinRight;
+			vtx_buf[j].y = vtx2->y + (vtx1->y - vtx2->y) * clip;
+			clipGUV(&vtx_buf[j++], vtx1, vtx2, clip);
+		} else {
+			vtx_buf[j++] = *vtx2;
+		}
+	}
+	vtxCount = j;
+
+	if( vtxCount < 3 )
+		return 0;
+
+	// vertical clip
+	vtx2 = &vtx_buf[vtxCount-1];
+	j = 0;
+	for( i = 0; i < vtxCount; ++i ) {
+		vtx1 = vtx2;
+		vtx2 = &vtx_buf[i];
+
+		if( vtx1->y < FltWinTop ) {
+			if( vtx2->y < FltWinTop ) {
+				continue;
+			}
+			clip = (FltWinTop - vtx2->y) / (vtx1->y - vtx2->y);
+			vtx[j].x = vtx2->x + (vtx1->x - vtx2->x) * clip;
+			vtx[j].y = FltWinTop;
+			clipGUV(&vtx[j++], vtx1, vtx2, clip);
+		}
+		else if( vtx1->y > FltWinBottom ) {
+			if( vtx2->y > FltWinBottom ) {
+				continue;
+			}
+			clip = (FltWinBottom - vtx2->y) / (vtx1->y - vtx2->y);
+			vtx[j].x = vtx2->x + (vtx1->x - vtx2->x) * clip;
+			vtx[j].y = FltWinBottom;
+			clipGUV(&vtx[j++], vtx1, vtx2, clip);
+		}
+
+		if( vtx2->y < FltWinTop ) {
+			clip = (FltWinTop - vtx2->y) / (vtx1->y - vtx2->y);
+			vtx[j].x = vtx2->x + (vtx1->x - vtx2->x) * clip;
+			vtx[j].y = FltWinTop;
+			clipGUV(&vtx[j++], vtx1, vtx2, clip);
+		}
+		else if( vtx2->y > FltWinBottom ) {
+			clip = (FltWinBottom - vtx2->y) / (vtx1->y - vtx2->y);
+			vtx[j].x = vtx2->x + (vtx1->x - vtx2->x) * clip;
+			vtx[j].y = FltWinBottom;
+			clipGUV(&vtx[j++], vtx1, vtx2, clip);
+		} else {
+			vtx[j++] = *vtx2;
+		}
+	}
+	return ( j < 3 ) ? 0 : j;
+}
+
+int __cdecl XYGClipper(int vtxCount, VERTEX_INFO *vtx) {
+	VERTEX_INFO vtx_buf[8];
+	VERTEX_INFO *vtx1, *vtx2;
+	float clip;
+	int i, j;
+
+	if( vtxCount < 3 )
+		return 0;
+
+	// horizontal clip
+	vtx2 = &vtx[vtxCount - 1];
+	j = 0;
+	for( i = 0; i < vtxCount; ++i ) {
+		vtx1 = vtx2;
+		vtx2 = &vtx[i];
+
+		if( vtx1->x < FltWinLeft ) {
+			if( vtx2->x < FltWinLeft ) {
+				continue;
+			}
+			clip = (FltWinLeft - vtx2->x) / (vtx1->x - vtx2->x);
+			vtx_buf[j].x = FltWinLeft;
+			vtx_buf[j].y = vtx2->y + (vtx1->y - vtx2->y) * clip;
+			clipGUV(&vtx_buf[j++], vtx1, vtx2, clip);
+		}
+		else if( vtx1->x > FltWinRight) {
+			if( vtx2->x > FltWinRight ) {
+				continue;
+			}
+			clip = (FltWinRight - vtx2->x) / (vtx1->x - vtx2->x);
+			vtx_buf[j].x = FltWinRight;
+			vtx_buf[j].y = vtx2->y + (vtx1->y - vtx2->y) * clip;
+			vtx_buf[j++].g = vtx2->g + (vtx1->g - vtx2->g) * clip;
+		}
+
+		if( vtx2->x < FltWinLeft ) {
+			clip = (FltWinLeft - vtx2->x) / (vtx1->x - vtx2->x);
+			vtx_buf[j].x = FltWinLeft;
+			vtx_buf[j].y = vtx2->y + (vtx1->y - vtx2->y) * clip;
+			vtx_buf[j++].g = vtx2->g + (vtx1->g - vtx2->g) * clip;
+		}
+		else if( vtx2->x > FltWinRight ) {
+			clip = (FltWinRight - vtx2->x) / (vtx1->x - vtx2->x);
+			vtx_buf[j].x = FltWinRight;
+			vtx_buf[j].y = vtx2->y + (vtx1->y - vtx2->y) * clip;
+			vtx_buf[j++].g = vtx2->g + (vtx1->g - vtx2->g) * clip;
+		} else {
+			vtx_buf[j].x = vtx2->x;
+			vtx_buf[j].y = vtx2->y;
+			vtx_buf[j++].g = vtx2->g;
+		}
+	}
+	vtxCount = j;
+
+	if( vtxCount < 3 )
+		return 0;
+
+	// vertical clip
+	vtx2 = &vtx_buf[vtxCount-1];
+	j = 0;
+	for( i = 0; i < vtxCount; ++i ) {
+		vtx1 = vtx2;
+		vtx2 = &vtx_buf[i];
+
+		if( vtx1->y < FltWinTop ) {
+			if( vtx2->y < FltWinTop ) {
+				continue;
+			}
+			clip = (FltWinTop - vtx2->y) / (vtx1->y - vtx2->y);
+			vtx[j].x = vtx2->x + (vtx1->x - vtx2->x) * clip;
+			vtx[j].y = FltWinTop;
+			vtx[j++].g = vtx2->g + (vtx1->g - vtx2->g) * clip;
+		}
+		else if( vtx1->y > FltWinBottom ) {
+			if( vtx2->y > FltWinBottom ) {
+				continue;
+			}
+			clip = (FltWinBottom - vtx2->y) / (vtx1->y - vtx2->y);
+			vtx[j].x = vtx2->x + (vtx1->x - vtx2->x) * clip;
+			vtx[j].y = FltWinBottom;
+			vtx[j++].g = vtx2->g + (vtx1->g - vtx2->g) * clip;
+		}
+
+		if( vtx2->y < FltWinTop ) {
+			clip = (FltWinTop - vtx2->y) / (vtx1->y - vtx2->y);
+			vtx[j].x = vtx2->x + (vtx1->x - vtx2->x) * clip;
+			vtx[j].y = FltWinTop;
+			vtx[j++].g = vtx2->g + (vtx1->g - vtx2->g) * clip;
+		}
+		else if( vtx2->y > FltWinBottom ) {
+			clip = (FltWinBottom - vtx2->y) / (vtx1->y - vtx2->y);
+			vtx[j].x = vtx2->x + (vtx1->x - vtx2->x) * clip;
+			vtx[j].y = FltWinBottom;
+			vtx[j++].g = vtx2->g + (vtx1->g - vtx2->g) * clip;
+		} else {
+			vtx[j].x = vtx2->x;
+			vtx[j].y = vtx2->y;
+			vtx[j++].g = vtx2->g;
+		}
+	}
+	return ( j < 3 ) ? 0 : j;
+}
+
+int __cdecl XYClipper(int vtxCount, VERTEX_INFO *vtx) {
+	static VERTEX_INFO vtx_buf[20];
+	VERTEX_INFO *vtx1, *vtx2;
+	float clip;
+	int i, j;
+
+	if( vtxCount < 3 )
+		return 0;
+
+	// horizontal clip
+	vtx2 = &vtx[vtxCount - 1];
+	j = 0;
+	for( i = 0; i < vtxCount; ++i ) {
+		vtx1 = vtx2;
+		vtx2 = &vtx[i];
+
+		if( vtx1->x < FltWinLeft ) {
+			if( vtx2->x < FltWinLeft ) {
+				continue;
+			}
+			clip = (FltWinLeft - vtx2->x) / (vtx1->x - vtx2->x);
+			vtx_buf[j].x = FltWinLeft;
+			vtx_buf[j++].y = vtx2->y + (vtx1->y - vtx2->y) * clip;
+		}
+		else if( vtx1->x > FltWinRight) {
+			if( vtx2->x > FltWinRight ) {
+				continue;
+			}
+			clip = (FltWinRight - vtx2->x) / (vtx1->x - vtx2->x);
+			vtx_buf[j].x = FltWinRight;
+			vtx_buf[j++].y = vtx2->y + (vtx1->y - vtx2->y) * clip;
+		}
+
+		if( vtx2->x < FltWinLeft ) {
+			clip = (FltWinLeft - vtx2->x) / (vtx1->x - vtx2->x);
+			vtx_buf[j].x = FltWinLeft;
+			vtx_buf[j++].y = vtx2->y + (vtx1->y - vtx2->y) * clip;
+		}
+		else if( vtx2->x > FltWinRight ) {
+			clip = (FltWinRight - vtx2->x) / (vtx1->x - vtx2->x);
+			vtx_buf[j].x = FltWinRight;
+			vtx_buf[j++].y = vtx2->y + (vtx1->y - vtx2->y) * clip;
+		} else {
+			vtx_buf[j].x = vtx2->x;
+			vtx_buf[j++].y = vtx2->y;
+		}
+	}
+	vtxCount = j;
+
+	if( vtxCount < 3 )
+		return 0;
+
+	// vertical clip
+	vtx2 = &vtx_buf[vtxCount-1];
+	j = 0;
+	for( i = 0; i < vtxCount; ++i ) {
+		vtx1 = vtx2;
+		vtx2 = &vtx_buf[i];
+
+		if( vtx1->y < FltWinTop ) {
+			if( vtx2->y < FltWinTop ) {
+				continue;
+			}
+			clip = (FltWinTop - vtx2->y) / (vtx1->y - vtx2->y);
+			vtx[j].x = vtx2->x + (vtx1->x - vtx2->x) * clip;
+			vtx[j++].y = FltWinTop;
+		}
+		else if( vtx1->y > FltWinBottom ) {
+			if( vtx2->y > FltWinBottom ) {
+				continue;
+			}
+			clip = (FltWinBottom - vtx2->y) / (vtx1->y - vtx2->y);
+			vtx[j].x = vtx2->x + (vtx1->x - vtx2->x) * clip;
+			vtx[j++].y = FltWinBottom;
+		}
+
+		if( vtx2->y < FltWinTop ) {
+			clip = (FltWinTop - vtx2->y) / (vtx1->y - vtx2->y);
+			vtx[j].x = vtx2->x + (vtx1->x - vtx2->x) * clip;
+			vtx[j++].y = FltWinTop;
+		}
+		else if( vtx2->y > FltWinBottom ) {
+			clip = (FltWinBottom - vtx2->y) / (vtx1->y - vtx2->y);
+			vtx[j].x = vtx2->x + (vtx1->x - vtx2->x) * clip;
+			vtx[j++].y = FltWinBottom;
+		} else {
+			vtx[j].x = vtx2->x;
+			vtx[j++].y = vtx2->y;
+		}
+	}
+
+	return ( j < 3 ) ? 0 : j;
+}
+
 void __cdecl InsertTrans8(PHD_VBUF *vbuf, __int16 shade) {
 	int i, nPoints, polyZ;
 	char clipOR = 0x00;
@@ -734,7 +1037,11 @@ void __cdecl InsertSprite(int z, int x0, int y0, int x1, int y1, int spriteIdx, 
 void Inject_3Dinsert() {
 	INJECT(0x00405840, visible_zclip);
 	INJECT(0x004058B0, ZedClipper);
+	INJECT(0x004059F0, XYGUVClipper);
 
+	INJECT(0x004071F0, XYGClipper);
+
+	INJECT(0x00407D20, XYClipper);
 	INJECT(0x00407FF0, InsertTrans8);
 	INJECT(0x004084A0, InsertTransQuad);
 	INJECT(0x00408580, InsertFlatRect);

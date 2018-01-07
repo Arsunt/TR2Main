@@ -62,13 +62,13 @@ x function is unused / included in another function
 	3dsystem/3dinsert.cpp
 0x00405840:	+	visible_zclip
 0x004058B0:	+	ZedClipper
-0x004059F0:	 *	XYGUVClipper
+0x004059F0:	+	XYGUVClipper
 0x00405F10:	 *	InsertObjectGT4
 0x00406970:	 *	InsertObjectGT3
-0x004071F0:		XYGClipper
+0x004071F0:	+	XYGClipper
 0x00407620:	 *	InsertObjectG4
 0x00407A00:	 *	InsertObjectG3
-0x00407D20:	 *	XYClipper
+0x00407D20:	+	XYClipper
 0x00407FF0:	+	InsertTrans8
 0x004084A0:	+	InsertTransQuad
 0x00408580:	+	InsertFlatRect

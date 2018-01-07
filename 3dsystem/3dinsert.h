@@ -29,17 +29,17 @@
  */
 BOOL __cdecl visible_zclip(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2); // 0x00405840
 int __cdecl ZedClipper(int vtxCount, POINT_INFO *pts, VERTEX_INFO *vtx); // 0x004058B0
+int __cdecl XYGUVClipper(int vtxCount, VERTEX_INFO *vtx); // 0x004059F0
 
-#define XYGUVClipper ((int (__cdecl*)(int vtxCount, VERTEX_INFO *vtx)) 0x004059F0)
 #define InsertObjectGT4 ((__int16 *(__cdecl*)(__int16 *ptrObj, int number, int sortType)) 0x00405F10)
 #define InsertObjectGT3 ((__int16 *(__cdecl*)(__int16 *ptrObj, int number, int sortType)) 0x00406970)
 
-// 0x004071F0:		XYGClipper
+int __cdecl XYGClipper(int vtxCount, VERTEX_INFO *vtx); // 0x004071F0
 
 #define InsertObjectG4 ((__int16 *(__cdecl*)(__int16 *ptrObj, int number, int sortType)) 0x00407620)
 #define InsertObjectG3 ((__int16 *(__cdecl*)(__int16 *ptrObj, int number, int sortType)) 0x00407A00)
-#define XYClipper ((int (__cdecl*)(int vtxCount, VERTEX_INFO *vtx)) 0x00407D20)
 
+int __cdecl XYClipper(int vtxCount, VERTEX_INFO *vtx); // 0x00407D20
 void __cdecl InsertTrans8(PHD_VBUF *vbuf, __int16 shade); // 0x00407FF0
 void __cdecl InsertTransQuad(int x, int y, int width, int height, int z); // 0x004084A0
 void __cdecl InsertFlatRect(int x0, int y0, int x1, int y1, int z, BYTE colorIdx); // 0x00408580
