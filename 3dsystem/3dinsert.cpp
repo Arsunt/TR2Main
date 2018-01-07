@@ -700,6 +700,49 @@ void __cdecl InsertGT4_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2,
 	}
 }
 
+__int16 *__cdecl InsertObjectGT4_ZBuffered(__int16 *ptrObj, int number, int sortType) {
+	PHD_VBUF *vtx0, *vtx1, *vtx2, *vtx3;
+	PHD_TEXTURE *texture;
+
+	for( int i = 0; i < number; ++i ) {
+		vtx0 = &PhdVBuf[ptrObj[0]];
+		vtx1 = &PhdVBuf[ptrObj[1]];
+		vtx2 = &PhdVBuf[ptrObj[2]];
+		vtx3 = &PhdVBuf[ptrObj[3]];
+		texture = &PhdTextureInfo[ptrObj[4]];
+
+		if( texture->drawtype != 0 )
+			InsertGT4_Sorted(vtx0, vtx1, vtx2, vtx3, texture, sortType);
+		else
+			InsertGT4_ZBuffered(vtx0, vtx1, vtx2, vtx3, texture);
+
+		ptrObj += 5;
+	}
+	return ptrObj;
+}
+
+__int16 *__cdecl InsertObjectGT3_ZBuffered(__int16 *ptrObj, int number, int sortType) {
+	PHD_VBUF *vtx0, *vtx1, *vtx2;
+	PHD_TEXTURE *texture;
+	PHD_UV *uv;
+
+	for( int i = 0; i < number; ++i ) {
+		vtx0 = &PhdVBuf[ptrObj[0]];
+		vtx1 = &PhdVBuf[ptrObj[1]];
+		vtx2 = &PhdVBuf[ptrObj[2]];
+		texture = &PhdTextureInfo[ptrObj[3]];
+		uv = texture->uv;
+
+		if( texture->drawtype != 0 )
+			InsertGT3_Sorted(vtx0, vtx1, vtx2, texture, &uv[0], &uv[1], &uv[2], sortType);
+		else
+			InsertGT3_ZBuffered(vtx0, vtx1, vtx2, texture, &uv[0], &uv[1], &uv[2]);
+
+		ptrObj += 4;
+	}
+	return ptrObj;
+}
+
 void __cdecl DrawPoly_Gouraud(int vtxCount, int red, int green, int blue) {
 	D3DCOLOR color;
 
@@ -790,6 +833,51 @@ void __cdecl InsertLine_ZBuffered(int x0, int y0, int x1, int y1, int z, BYTE co
 	HWR_TexSource(0);
 	HWR_EnableColorKey(false);
 	_Direct3DDevice2->DrawPrimitive(D3DPT_LINESTRIP, D3DVT_TLVERTEX, VertexZBuffered, 2, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+}
+
+__int16 *__cdecl InsertObjectGT4_Sorted(__int16 *ptrObj, int number, int sortType) {
+	PHD_VBUF *vtx0, *vtx1, *vtx2, *vtx3;
+	PHD_TEXTURE *texture;
+
+	for( int i = 0; i < number; ++i ) {
+		if( HWR_VertexBufferFull() ) {
+			ptrObj += (number - i) * 5;
+			break;
+		}
+
+		vtx0 = &PhdVBuf[ptrObj[0]];
+		vtx1 = &PhdVBuf[ptrObj[1]];
+		vtx2 = &PhdVBuf[ptrObj[2]];
+		vtx3 = &PhdVBuf[ptrObj[3]];
+		texture = &PhdTextureInfo[ptrObj[4]];
+		ptrObj += 5;
+
+		InsertGT4_Sorted(vtx0, vtx1, vtx2, vtx3, texture, sortType);
+	}
+	return ptrObj;
+}
+
+__int16 *__cdecl InsertObjectGT3_Sorted(__int16 *ptrObj, int number, int sortType) {
+	PHD_VBUF *vtx0, *vtx1, *vtx2;
+	PHD_TEXTURE *texture;
+	PHD_UV *uv;
+
+	for( int i = 0; i < number; ++i ) {
+		if( HWR_VertexBufferFull() ) {
+			ptrObj += (number - i) * 4;
+			break;
+		}
+
+		vtx0 = &PhdVBuf[ptrObj[0]];
+		vtx1 = &PhdVBuf[ptrObj[1]];
+		vtx2 = &PhdVBuf[ptrObj[2]];
+		texture = &PhdTextureInfo[ptrObj[3]];
+		uv = texture->uv;
+		ptrObj += 4;
+
+		InsertGT3_Sorted(vtx0, vtx1, vtx2, texture, &uv[0], &uv[1], &uv[2], sortType);
+	}
+	return ptrObj;
 }
 
 void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade) {
@@ -1049,12 +1137,16 @@ void Inject_3Dinsert() {
 	INJECT(0x00408710, InsertGT3_ZBuffered);
 	INJECT(0x00408D60, DrawClippedPoly_Textured);
 	INJECT(0x00408EA0, InsertGT4_ZBuffered);
+	INJECT(0x004092E0, InsertObjectGT4_ZBuffered);
+	INJECT(0x00409380, InsertObjectGT3_ZBuffered);
 
 	INJECT(0x004097D0, DrawPoly_Gouraud);
 
 	INJECT(0x00409BB0, InsertFlatRect_ZBuffered);
 	INJECT(0x00409D80, InsertLine_ZBuffered);
 
+	INJECT(0x0040AC60, InsertObjectGT4_Sorted);
+	INJECT(0x0040ACF0, InsertObjectGT3_Sorted);
 	INJECT(0x0040B6A0, InsertSprite_Sorted);
 	INJECT(0x0040B9F0, InsertFlatRect_Sorted);
 	INJECT(0x0040BB70, InsertLine_Sorted);

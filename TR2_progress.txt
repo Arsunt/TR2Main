@@ -76,18 +76,18 @@ x function is unused / included in another function
 0x00408710:	+	InsertGT3_ZBuffered
 0x00408D60:	+	DrawClippedPoly_Textured
 0x00408EA0:	+	InsertGT4_ZBuffered
-0x004092E0:	 *	InsertObjectGT4_ZBuffered
-0x00409380:	 *	InsertObjectGT3_ZBuffered
+0x004092E0:	+	InsertObjectGT4_ZBuffered
+0x00409380:	+	InsertObjectGT3_ZBuffered
 0x00409430:	 *	InsertObjectG4_ZBuffered
 0x004097D0:	+	DrawPoly_Gouraud
 0x004098D0:	 *	InsertObjectG3_ZBuffered
 0x00409BB0:	+	InsertFlatRect_ZBuffered
 0x00409D80:	+	InsertLine_ZBuffered
-0x00409EC0:		InsertGT3_Sorted
+0x00409EC0:	 *	InsertGT3_Sorted
 0x0040A5D0:	 *	InsertClippedPoly_Textured
-0x0040A780:		InsertGT4_Sorted
-0x0040AC60:	 *	InsertObjectGT4_Sorted
-0x0040ACF0:	 *	InsertObjectGT3_Sorted
+0x0040A780:	 *	InsertGT4_Sorted
+0x0040AC60:	+	InsertObjectGT4_Sorted
+0x0040ACF0:	+	InsertObjectGT3_Sorted
 0x0040AD90:	 *	InsertObjectG4_Sorted
 0x0040B1D0:	 *	InsertPoly_Gouraud
 0x0040B350:	 *	InsertObjectG3_Sorted
