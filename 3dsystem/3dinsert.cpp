@@ -835,6 +835,38 @@ void __cdecl InsertLine_ZBuffered(int x0, int y0, int x1, int y1, int z, BYTE co
 	_Direct3DDevice2->DrawPrimitive(D3DPT_LINESTRIP, D3DVT_TLVERTEX, VertexZBuffered, 2, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 }
 
+void __cdecl InsertClippedPoly_Textured(int vtxCount, float z, __int16 polyType, __int16 texPage) {
+	double tu, tv;
+
+	Sort3dPtr->_0 = (int)Info3dPtr;
+	Sort3dPtr->_1 = z;
+	++Sort3dPtr;
+
+	*(Info3dPtr++) = polyType; // TODO: change to enum (polyType)
+	*(Info3dPtr++) = texPage;
+	*(Info3dPtr++) = vtxCount;
+	*(D3DTLVERTEX **)Info3dPtr = HWR_VertexPtr;
+	Info3dPtr += sizeof(D3DTLVERTEX *)/sizeof(__int16);
+
+	for( int i = 0; i < vtxCount; ++i ) {
+		tu = VBuffer[i].u / double(PHD_ONE) / VBuffer[i].rhw;
+		tv = VBuffer[i].v / double(PHD_ONE) / VBuffer[i].rhw;
+		CLAMP(tu, 0.0, 1.0);
+		CLAMP(tv, 0.0, 1.0);
+
+		HWR_VertexPtr[i].sx = VBuffer[i].x;
+		HWR_VertexPtr[i].sy = VBuffer[i].y;
+		HWR_VertexPtr[i].sz = FltResZBuf - FltResZORhw * VBuffer[i].rhw; // NOTE: there was bug because of uninitialized sz and rhw
+		HWR_VertexPtr[i].rhw = VBuffer[i].rhw;
+		HWR_VertexPtr[i].color = shadeColor(0xFF, 0xFF, 0xFF, 0xFF, VBuffer[i].g);;
+		HWR_VertexPtr[i].tu = tu;
+		HWR_VertexPtr[i].tv = tv;
+	}
+
+	HWR_VertexPtr += vtxCount;
+	++SurfaceCount;
+}
+
 __int16 *__cdecl InsertObjectGT4_Sorted(__int16 *ptrObj, int number, int sortType) {
 	PHD_VBUF *vtx0, *vtx1, *vtx2, *vtx3;
 	PHD_TEXTURE *texture;
@@ -878,6 +910,30 @@ __int16 *__cdecl InsertObjectGT3_Sorted(__int16 *ptrObj, int number, int sortTyp
 		InsertGT3_Sorted(vtx0, vtx1, vtx2, texture, &uv[0], &uv[1], &uv[2], sortType);
 	}
 	return ptrObj;
+}
+
+void __cdecl InsertPoly_Gouraud(int vtxCount, float z, int red, int green, int blue, __int16 polyType) {
+	BYTE alpha = ( polyType == 13 ) ? 0x80 : 0xFF; // TODO: change to enum (polyType)
+
+	Sort3dPtr->_0 = (int)Info3dPtr;
+	Sort3dPtr->_1 = z;
+	++Sort3dPtr;
+
+	*(Info3dPtr++) = polyType; // TODO: change to enum (polyType)
+	*(Info3dPtr++) = vtxCount;
+	*(D3DTLVERTEX **)Info3dPtr = HWR_VertexPtr;
+	Info3dPtr += sizeof(D3DTLVERTEX *)/sizeof(__int16);
+
+	for( int i = 0; i < vtxCount; ++i ) {
+		HWR_VertexPtr[i].sx = VBuffer[i].x;
+		HWR_VertexPtr[i].sy = VBuffer[i].y;
+		HWR_VertexPtr[i].sz = FltResZBuf - FltResZORhw * VBuffer[i].rhw; // NOTE: there was bug because of uninitialized sz and rhw
+		HWR_VertexPtr[i].rhw = VBuffer[i].rhw;
+		HWR_VertexPtr[i].color = shadeColor(red, green, blue, alpha, VBuffer[i].g);
+	}
+
+	HWR_VertexPtr += vtxCount;
+	++SurfaceCount;
 }
 
 void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade) {
@@ -1145,8 +1201,13 @@ void Inject_3Dinsert() {
 	INJECT(0x00409BB0, InsertFlatRect_ZBuffered);
 	INJECT(0x00409D80, InsertLine_ZBuffered);
 
+	INJECT(0x0040A5D0, InsertClippedPoly_Textured);
+
 	INJECT(0x0040AC60, InsertObjectGT4_Sorted);
 	INJECT(0x0040ACF0, InsertObjectGT3_Sorted);
+
+	INJECT(0x0040B1D0, InsertPoly_Gouraud);
+
 	INJECT(0x0040B6A0, InsertSprite_Sorted);
 	INJECT(0x0040B9F0, InsertFlatRect_Sorted);
 	INJECT(0x0040BB70, InsertLine_Sorted);

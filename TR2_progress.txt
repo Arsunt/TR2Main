@@ -84,12 +84,12 @@ x function is unused / included in another function
 0x00409BB0:	+	InsertFlatRect_ZBuffered
 0x00409D80:	+	InsertLine_ZBuffered
 0x00409EC0:	 *	InsertGT3_Sorted
-0x0040A5D0:	 *	InsertClippedPoly_Textured
+0x0040A5D0:	+	InsertClippedPoly_Textured
 0x0040A780:	 *	InsertGT4_Sorted
 0x0040AC60:	+	InsertObjectGT4_Sorted
 0x0040ACF0:	+	InsertObjectGT3_Sorted
 0x0040AD90:	 *	InsertObjectG4_Sorted
-0x0040B1D0:	 *	InsertPoly_Gouraud
+0x0040B1D0:	+	InsertPoly_Gouraud
 0x0040B350:	 *	InsertObjectG3_Sorted
 0x0040B6A0:	+	InsertSprite_Sorted
 0x0040B9F0:	+	InsertFlatRect_Sorted

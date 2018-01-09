@@ -60,14 +60,18 @@ void __cdecl InsertFlatRect_ZBuffered(int x0, int y0, int x1, int y1, int z, BYT
 void __cdecl InsertLine_ZBuffered(int x0, int y0, int x1, int y1, int z, BYTE colorIdx); // 0x00409D80
 
 #define InsertGT3_Sorted ((void (__cdecl*)(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PHD_TEXTURE *texture, PHD_UV *uv0, PHD_UV *uv1, PHD_UV *uv2, int sortType)) 0x00409EC0)
-#define InsertClippedPoly_Textured ((void (__cdecl*)(int vtxCount, float z, __int16 polyType, __int16 texPage)) 0x0040A5D0)
+
+void __cdecl InsertClippedPoly_Textured(int vtxCount, float z, __int16 polyType, __int16 texPage); // 0x0040A5D0
+
 #define InsertGT4_Sorted ((void (__cdecl*)(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PHD_VBUF *vtx3, PHD_TEXTURE *texture, int sortType)) 0x0040A780)
 
 __int16 *__cdecl InsertObjectGT4_Sorted(__int16 *ptrObj, int number, int sortType); // 0x0040AC60
 __int16 *__cdecl InsertObjectGT3_Sorted(__int16 *ptrObj, int number, int sortType); // 0x0040ACF0
 
 #define InsertObjectG4_Sorted ((__int16 *(__cdecl*)(__int16 *ptrObj, int number, int sortType)) 0x0040AD90)
-#define InsertPoly_Gouraud ((void (__cdecl*)(int vtxCount, float z, int red, int green, int blue, __int16 polyType)) 0x0040B1D0)
+
+void __cdecl InsertPoly_Gouraud(int vtxCount, float z, int red, int green, int blue, __int16 polyType); // 0x0040B1D0
+
 #define InsertObjectG3_Sorted ((__int16 *(__cdecl*)(__int16 *ptrObj, int number, int sortType)) 0x0040B350)
 
 void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade); // 0x0040B6A0
