@@ -303,6 +303,216 @@ int __cdecl XYGClipper(int vtxCount, VERTEX_INFO *vtx) {
 	return ( j < 3 ) ? 0 : j;
 }
 
+__int16 *__cdecl InsertObjectG4(__int16 *ptrObj, int number, int sortType) {
+	char clipOR, clipAND;
+	PHD_VBUF *vtx0, *vtx1, *vtx2, *vtx3;
+	int i, j, nPoints;
+	BYTE colorIdx;
+	POINT_INFO pts[4];
+
+	for( i = 0; i < number; ++i ) {
+		vtx0 = &PhdVBuf[*ptrObj++];
+		vtx1 = &PhdVBuf[*ptrObj++];
+		vtx2 = &PhdVBuf[*ptrObj++];
+		vtx3 = &PhdVBuf[*ptrObj++];
+		colorIdx = *ptrObj++;
+		nPoints = 4;
+
+		clipOR  = LOBYTE(vtx0->clip) | LOBYTE(vtx1->clip) | LOBYTE(vtx2->clip) | LOBYTE(vtx3->clip);
+		clipAND = LOBYTE(vtx0->clip) & LOBYTE(vtx1->clip) & LOBYTE(vtx2->clip) & LOBYTE(vtx3->clip);
+
+		if( clipAND != 0 )
+			continue;
+
+		if( clipOR >= 0 ) {
+			if( !VBUF_VISIBLE(*vtx0, *vtx1, *vtx2) )
+				continue;
+
+			VBuffer[0].x = vtx0->xs;
+			VBuffer[0].y = vtx0->ys;
+			VBuffer[0].rhw = vtx0->rhw;
+			VBuffer[0].g = (float)vtx0->g;
+
+			VBuffer[1].x = vtx1->xs;
+			VBuffer[1].y = vtx1->ys;
+			VBuffer[1].rhw = vtx1->rhw;
+			VBuffer[1].g = (float)vtx1->g;
+
+			VBuffer[2].x = vtx2->xs;
+			VBuffer[2].y = vtx2->ys;
+			VBuffer[2].rhw = vtx2->rhw;
+			VBuffer[2].g = (float)vtx2->g;
+
+			VBuffer[3].x = vtx3->xs;
+			VBuffer[3].y = vtx3->ys;
+			VBuffer[3].rhw = vtx3->rhw;
+			VBuffer[3].g = (float)vtx3->g;
+
+			if( clipOR > 0 ) {
+				nPoints = XYGClipper(nPoints, VBuffer);
+			}
+		} else {
+			if( !visible_zclip(vtx0, vtx1, vtx2) )
+				continue;
+
+			pts[0].xv = vtx0->xv;
+			pts[0].yv = vtx0->yv;
+			pts[0].zv = vtx0->zv;
+			pts[0].rhw = vtx0->rhw;
+			pts[0].xs = vtx0->xs;
+			pts[0].ys = vtx0->ys;
+			pts[0].g = (float)vtx0->g;
+
+			pts[1].xv = vtx1->xv;
+			pts[1].yv = vtx1->yv;
+			pts[1].zv = vtx1->zv;
+			pts[1].rhw = vtx1->rhw;
+			pts[1].xs = vtx1->xs;
+			pts[1].ys = vtx1->ys;
+			pts[1].g = (float)vtx1->g;
+
+			pts[2].xv = vtx2->xv;
+			pts[2].yv = vtx2->yv;
+			pts[2].zv = vtx2->zv;
+			pts[2].rhw = vtx2->rhw;
+			pts[2].xs = vtx2->xs;
+			pts[2].ys = vtx2->ys;
+			pts[2].g = (float)vtx2->g;
+
+			pts[3].xv = vtx3->xv;
+			pts[3].yv = vtx3->yv;
+			pts[3].zv = vtx3->zv;
+			pts[3].rhw = vtx3->rhw;
+			pts[3].xs = vtx3->xs;
+			pts[3].ys = vtx3->ys;
+			pts[3].g = (float)vtx3->g;
+
+			nPoints = ZedClipper(nPoints, pts, VBuffer);
+			if( nPoints == 0 ) continue;
+
+			nPoints = XYGClipper(nPoints, VBuffer);
+		}
+
+		if( nPoints == 0 )
+			continue;
+
+		Sort3dPtr->_0 = (int)Info3dPtr;
+		Sort3dPtr->_1 = ( sortType ) ? 1000000000 : (int)((vtx0->zv + vtx1->zv + vtx2->zv + vtx3->zv) / 4.0);
+		++Sort3dPtr;
+
+		*Info3dPtr++ = 6; // TODO: change to enum (polyType)
+		*Info3dPtr++ = colorIdx;
+		*Info3dPtr++ = nPoints;
+
+		for( j = 0; j < nPoints; ++j ) {
+			*Info3dPtr++ = VBuffer[j].x;
+			*Info3dPtr++ = VBuffer[j].y;
+			*Info3dPtr++ = VBuffer[j].g;
+		}
+		++SurfaceCount;
+	}
+
+	return ptrObj;
+}
+
+__int16 *__cdecl InsertObjectG3(__int16 *ptrObj, int number, int sortType) {
+	char clipOR, clipAND;
+	PHD_VBUF *vtx0, *vtx1, *vtx2;
+	int i, j, nPoints;
+	BYTE colorIdx;
+	POINT_INFO pts[3];
+
+	for( i = 0; i < number; ++i ) {
+		vtx0 = &PhdVBuf[*ptrObj++];
+		vtx1 = &PhdVBuf[*ptrObj++];
+		vtx2 = &PhdVBuf[*ptrObj++];
+		colorIdx = *ptrObj++;
+		nPoints = 3;
+
+		clipOR  = LOBYTE(vtx0->clip) | LOBYTE(vtx1->clip) | LOBYTE(vtx2->clip);
+		clipAND = LOBYTE(vtx0->clip) & LOBYTE(vtx1->clip) & LOBYTE(vtx2->clip);
+
+		if( clipAND != 0 )
+			continue;
+
+		if( clipOR >= 0 ) {
+			if( !VBUF_VISIBLE(*vtx0, *vtx1, *vtx2) )
+				continue;
+
+			VBuffer[0].x = vtx0->xs;
+			VBuffer[0].y = vtx0->ys;
+			VBuffer[0].rhw = vtx0->rhw;
+			VBuffer[0].g = (float)vtx0->g;
+
+			VBuffer[1].x = vtx1->xs;
+			VBuffer[1].y = vtx1->ys;
+			VBuffer[1].rhw = vtx1->rhw;
+			VBuffer[1].g = (float)vtx1->g;
+
+			VBuffer[2].x = vtx2->xs;
+			VBuffer[2].y = vtx2->ys;
+			VBuffer[2].rhw = vtx2->rhw;
+			VBuffer[2].g = (float)vtx2->g;
+
+			if( clipOR > 0 ) {
+				nPoints = XYGClipper(nPoints, VBuffer);
+			}
+		} else {
+			if( !visible_zclip(vtx0, vtx1, vtx2) )
+				continue;
+
+			pts[0].xv = vtx0->xv;
+			pts[0].yv = vtx0->yv;
+			pts[0].zv = vtx0->zv;
+			pts[0].rhw = vtx0->rhw;
+			pts[0].xs = vtx0->xs;
+			pts[0].ys = vtx0->ys;
+			pts[0].g = (float)vtx0->g;
+
+			pts[1].xv = vtx1->xv;
+			pts[1].yv = vtx1->yv;
+			pts[1].zv = vtx1->zv;
+			pts[1].rhw = vtx1->rhw;
+			pts[1].xs = vtx1->xs;
+			pts[1].ys = vtx1->ys;
+			pts[1].g = (float)vtx1->g;
+
+			pts[2].xv = vtx2->xv;
+			pts[2].yv = vtx2->yv;
+			pts[2].zv = vtx2->zv;
+			pts[2].rhw = vtx2->rhw;
+			pts[2].xs = vtx2->xs;
+			pts[2].ys = vtx2->ys;
+			pts[2].g = (float)vtx2->g;
+
+			nPoints = ZedClipper(nPoints, pts, VBuffer);
+			if( nPoints == 0 ) continue;
+
+			nPoints = XYGClipper(nPoints, VBuffer);
+		}
+
+		if( nPoints == 0 )
+			continue;
+
+		Sort3dPtr->_0 = (int)Info3dPtr;
+		Sort3dPtr->_1 = ( sortType ) ? 1000000000 : (int)((vtx0->zv + vtx1->zv + vtx2->zv) / 3.0);
+		++Sort3dPtr;
+
+		*Info3dPtr++ = 6; // TODO: change to enum (polyType)
+		*Info3dPtr++ = colorIdx;
+		*Info3dPtr++ = nPoints;
+
+		for( j = 0; j < nPoints; ++j ) {
+			*Info3dPtr++ = VBuffer[j].x;
+			*Info3dPtr++ = VBuffer[j].y;
+			*Info3dPtr++ = VBuffer[j].g;
+		}
+		++SurfaceCount;
+	}
+
+	return ptrObj;
+}
+
 int __cdecl XYClipper(int vtxCount, VERTEX_INFO *vtx) {
 	static VERTEX_INFO vtx_buf[20];
 	VERTEX_INFO *vtx1, *vtx2;
@@ -611,7 +821,7 @@ void __cdecl InsertGT3_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2,
 	}
 
 	nPoints = XYGUVClipper(nPoints, VBuffer);
-	if( !nPoints ) return;
+	if( nPoints == 0 ) return;
 
 	HWR_TexSource(HWR_PageHandles[texture->tpage]);
 	HWR_EnableColorKey(texture->drawtype != 0);
@@ -743,6 +953,108 @@ __int16 *__cdecl InsertObjectGT3_ZBuffered(__int16 *ptrObj, int number, int sort
 	return ptrObj;
 }
 
+__int16 *__cdecl InsertObjectG4_ZBuffered(__int16 *ptrObj, int number, int sortType) {
+	char clipOR, clipAND;
+	PHD_VBUF *vtx0, *vtx1, *vtx2, *vtx3;
+	int i, nPoints;
+	__int16 colorIdx;
+	POINT_INFO pts[4];
+
+	HWR_TexSource(0);
+	HWR_EnableColorKey(false);
+
+	for( i = 0; i < number; ++i ) {
+		vtx0 = &PhdVBuf[*ptrObj++];
+		vtx1 = &PhdVBuf[*ptrObj++];
+		vtx2 = &PhdVBuf[*ptrObj++];
+		vtx3 = &PhdVBuf[*ptrObj++];
+		colorIdx = *ptrObj++;
+		nPoints = 4;
+
+		clipOR  = LOBYTE(vtx0->clip) | LOBYTE(vtx1->clip) | LOBYTE(vtx2->clip) | LOBYTE(vtx3->clip);
+		clipAND = LOBYTE(vtx0->clip) & LOBYTE(vtx1->clip) & LOBYTE(vtx2->clip) & LOBYTE(vtx3->clip);
+
+		if( clipAND != 0 )
+			continue;
+
+		if( clipOR >= 0 ) {
+			if( !VBUF_VISIBLE(*vtx0, *vtx1, *vtx2) )
+				continue;
+
+			VBuffer[0].x = vtx0->xs;
+			VBuffer[0].y = vtx0->ys;
+			VBuffer[0].rhw = vtx0->rhw;
+			VBuffer[0].g = (float)vtx0->g;
+
+			VBuffer[1].x = vtx1->xs;
+			VBuffer[1].y = vtx1->ys;
+			VBuffer[1].rhw = vtx1->rhw;
+			VBuffer[1].g = (float)vtx1->g;
+
+			VBuffer[2].x = vtx2->xs;
+			VBuffer[2].y = vtx2->ys;
+			VBuffer[2].rhw = vtx2->rhw;
+			VBuffer[2].g = (float)vtx2->g;
+
+			VBuffer[3].x = vtx3->xs;
+			VBuffer[3].y = vtx3->ys;
+			VBuffer[3].rhw = vtx3->rhw;
+			VBuffer[3].g = (float)vtx3->g;
+
+			if( clipOR > 0 ) {
+				nPoints = XYGClipper(nPoints, VBuffer);
+			}
+		} else {
+			if( !visible_zclip(vtx0, vtx1, vtx2) )
+				continue;
+
+			pts[0].xv = vtx0->xv;
+			pts[0].yv = vtx0->yv;
+			pts[0].zv = vtx0->zv;
+			pts[0].rhw = vtx0->rhw;
+			pts[0].xs = vtx0->xs;
+			pts[0].ys = vtx0->ys;
+			pts[0].g = (float)vtx0->g;
+
+			pts[1].xv = vtx1->xv;
+			pts[1].yv = vtx1->yv;
+			pts[1].zv = vtx1->zv;
+			pts[1].rhw = vtx1->rhw;
+			pts[1].xs = vtx1->xs;
+			pts[1].ys = vtx1->ys;
+			pts[1].g = (float)vtx1->g;
+
+			pts[2].xv = vtx2->xv;
+			pts[2].yv = vtx2->yv;
+			pts[2].zv = vtx2->zv;
+			pts[2].rhw = vtx2->rhw;
+			pts[2].xs = vtx2->xs;
+			pts[2].ys = vtx2->ys;
+			pts[2].g = (float)vtx2->g;
+
+			pts[3].xv = vtx3->xv;
+			pts[3].yv = vtx3->yv;
+			pts[3].zv = vtx3->zv;
+			pts[3].rhw = vtx3->rhw;
+			pts[3].xs = vtx3->xs;
+			pts[3].ys = vtx3->ys;
+			pts[3].g = (float)vtx3->g;
+
+			nPoints = ZedClipper(nPoints, pts, VBuffer);
+			if( nPoints == 0 ) continue;
+
+			nPoints = XYGClipper(nPoints, VBuffer);
+		}
+
+		if( nPoints != 0 ) {
+			PALETTEENTRY *color = &GamePalette16[colorIdx >> 8];
+			DrawPoly_Gouraud(nPoints, color->peRed, color->peGreen, color->peBlue);
+		}
+	}
+
+	return ptrObj;
+}
+
 void __cdecl DrawPoly_Gouraud(int vtxCount, int red, int green, int blue) {
 	D3DCOLOR color;
 
@@ -760,6 +1072,94 @@ void __cdecl DrawPoly_Gouraud(int vtxCount, int red, int green, int blue) {
 	}
 
 	_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, VertexZBuffered, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+}
+
+__int16 *__cdecl InsertObjectG3_ZBuffered(__int16 *ptrObj, int number, int sortType) {
+	char clipOR, clipAND;
+	PHD_VBUF *vtx0, *vtx1, *vtx2;
+	int i, nPoints;
+	__int16 colorIdx;
+	POINT_INFO pts[3];
+
+	HWR_TexSource(0);
+	HWR_EnableColorKey(false);
+
+	for( i = 0; i < number; ++i ) {
+		vtx0 = &PhdVBuf[*ptrObj++];
+		vtx1 = &PhdVBuf[*ptrObj++];
+		vtx2 = &PhdVBuf[*ptrObj++];
+		colorIdx = *ptrObj++;
+		nPoints = 3;
+
+		clipOR  = LOBYTE(vtx0->clip) | LOBYTE(vtx1->clip) | LOBYTE(vtx2->clip);
+		clipAND = LOBYTE(vtx0->clip) & LOBYTE(vtx1->clip) & LOBYTE(vtx2->clip);
+
+		if( clipAND != 0 )
+			continue;
+
+		if( clipOR >= 0 ) {
+			if( !VBUF_VISIBLE(*vtx0, *vtx1, *vtx2) )
+				continue;
+
+			VBuffer[0].x = vtx0->xs;
+			VBuffer[0].y = vtx0->ys;
+			VBuffer[0].rhw = vtx0->rhw;
+			VBuffer[0].g = (float)vtx0->g;
+
+			VBuffer[1].x = vtx1->xs;
+			VBuffer[1].y = vtx1->ys;
+			VBuffer[1].rhw = vtx1->rhw;
+			VBuffer[1].g = (float)vtx1->g;
+
+			VBuffer[2].x = vtx2->xs;
+			VBuffer[2].y = vtx2->ys;
+			VBuffer[2].rhw = vtx2->rhw;
+			VBuffer[2].g = (float)vtx2->g;
+
+			if( clipOR > 0 ) {
+				nPoints = XYGClipper(nPoints, VBuffer);
+			}
+		} else {
+			if( !visible_zclip(vtx0, vtx1, vtx2) )
+				continue;
+
+			pts[0].xv = vtx0->xv;
+			pts[0].yv = vtx0->yv;
+			pts[0].zv = vtx0->zv;
+			pts[0].rhw = vtx0->rhw;
+			pts[0].xs = vtx0->xs;
+			pts[0].ys = vtx0->ys;
+			pts[0].g = (float)vtx0->g;
+
+			pts[1].xv = vtx1->xv;
+			pts[1].yv = vtx1->yv;
+			pts[1].zv = vtx1->zv;
+			pts[1].rhw = vtx1->rhw;
+			pts[1].xs = vtx1->xs;
+			pts[1].ys = vtx1->ys;
+			pts[1].g = (float)vtx1->g;
+
+			pts[2].xv = vtx2->xv;
+			pts[2].yv = vtx2->yv;
+			pts[2].zv = vtx2->zv;
+			pts[2].rhw = vtx2->rhw;
+			pts[2].xs = vtx2->xs;
+			pts[2].ys = vtx2->ys;
+			pts[2].g = (float)vtx2->g;
+
+			nPoints = ZedClipper(nPoints, pts, VBuffer);
+			if( nPoints == 0 ) continue;
+
+			nPoints = XYGClipper(nPoints, VBuffer);
+		}
+
+		if( nPoints != 0 ) {
+			PALETTEENTRY *color = &GamePalette16[colorIdx >> 8];
+			DrawPoly_Gouraud(nPoints, color->peRed, color->peGreen, color->peBlue);
+		}
+	}
+
+	return ptrObj;
 }
 
 void __cdecl InsertFlatRect_ZBuffered(int x0, int y0, int x1, int y1, int z, BYTE colorIdx) {
@@ -912,6 +1312,130 @@ __int16 *__cdecl InsertObjectGT3_Sorted(__int16 *ptrObj, int number, int sortTyp
 	return ptrObj;
 }
 
+__int16 *__cdecl InsertObjectG4_Sorted(__int16 *ptrObj, int number, int sortType) {
+	char clipOR, clipAND;
+	PHD_VBUF *vtx0, *vtx1, *vtx2, *vtx3;
+	int i, nPoints;
+	float zv;
+	__int16 colorIdx;
+	PALETTEENTRY *color;
+	POINT_INFO pts[4];
+
+	for( i = 0; i < number; ++i ) {
+		if( HWR_VertexBufferFull() ) {
+			ptrObj += number - i;
+			break;
+		}
+
+		vtx0 = &PhdVBuf[*ptrObj++];
+		vtx1 = &PhdVBuf[*ptrObj++];
+		vtx2 = &PhdVBuf[*ptrObj++];
+		vtx3 = &PhdVBuf[*ptrObj++];
+		colorIdx = *ptrObj++;
+		nPoints = 4;
+
+		clipOR  = LOBYTE(vtx0->clip) | LOBYTE(vtx1->clip) | LOBYTE(vtx2->clip) | LOBYTE(vtx3->clip);
+		clipAND = LOBYTE(vtx0->clip) & LOBYTE(vtx1->clip) & LOBYTE(vtx2->clip) & LOBYTE(vtx3->clip);
+
+		if( clipAND != 0 )
+			continue;
+
+		if( clipOR >= 0 ) {
+			if( !VBUF_VISIBLE(*vtx0, *vtx1, *vtx2) )
+				continue;
+
+			VBuffer[0].x = vtx0->xs;
+			VBuffer[0].y = vtx0->ys;
+			VBuffer[0].rhw = vtx0->rhw;
+			VBuffer[0].g = (float)vtx0->g;
+
+			VBuffer[1].x = vtx1->xs;
+			VBuffer[1].y = vtx1->ys;
+			VBuffer[1].rhw = vtx1->rhw;
+			VBuffer[1].g = (float)vtx1->g;
+
+			VBuffer[2].x = vtx2->xs;
+			VBuffer[2].y = vtx2->ys;
+			VBuffer[2].rhw = vtx2->rhw;
+			VBuffer[2].g = (float)vtx2->g;
+
+			VBuffer[3].x = vtx3->xs;
+			VBuffer[3].y = vtx3->ys;
+			VBuffer[3].rhw = vtx3->rhw;
+			VBuffer[3].g = (float)vtx3->g;
+
+			if( clipOR > 0 ) {
+				nPoints = XYGClipper(nPoints, VBuffer);
+			}
+		} else {
+			if( !visible_zclip(vtx0, vtx1, vtx2) )
+				continue;
+
+			pts[0].xv = vtx0->xv;
+			pts[0].yv = vtx0->yv;
+			pts[0].zv = vtx0->zv;
+			pts[0].rhw = vtx0->rhw;
+			pts[0].xs = vtx0->xs;
+			pts[0].ys = vtx0->ys;
+			pts[0].g = (float)vtx0->g;
+
+			pts[1].xv = vtx1->xv;
+			pts[1].yv = vtx1->yv;
+			pts[1].zv = vtx1->zv;
+			pts[1].rhw = vtx1->rhw;
+			pts[1].xs = vtx1->xs;
+			pts[1].ys = vtx1->ys;
+			pts[1].g = (float)vtx1->g;
+
+			pts[2].xv = vtx2->xv;
+			pts[2].yv = vtx2->yv;
+			pts[2].zv = vtx2->zv;
+			pts[2].rhw = vtx2->rhw;
+			pts[2].xs = vtx2->xs;
+			pts[2].ys = vtx2->ys;
+			pts[2].g = (float)vtx2->g;
+
+			pts[3].xv = vtx3->xv;
+			pts[3].yv = vtx3->yv;
+			pts[3].zv = vtx3->zv;
+			pts[3].rhw = vtx3->rhw;
+			pts[3].xs = vtx3->xs;
+			pts[3].ys = vtx3->ys;
+			pts[3].g = (float)vtx3->g;
+
+			nPoints = ZedClipper(nPoints, pts, VBuffer);
+			if( nPoints == 0 ) continue;
+
+			nPoints = XYGClipper(nPoints, VBuffer);
+		}
+
+		if( nPoints == 0 )
+			continue;
+
+		color = &GamePalette16[colorIdx >> 8];
+
+		switch( sortType ) {
+			case 0 :
+				zv = (vtx0->zv + vtx1->zv + vtx2->zv + vtx3->zv) / 4.0;
+				break;
+
+			case 1 :
+				zv = vtx0->zv;
+				CLAMPL(zv, vtx1->zv);
+				CLAMP(zv, vtx2->zv, vtx3->zv);
+				break;
+
+			default :
+				zv = 1000000000.0;
+				break;
+		}
+
+		InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, 11); // TODO: change to enum (polyType)
+	}
+
+	return ptrObj;
+}
+
 void __cdecl InsertPoly_Gouraud(int vtxCount, float z, int red, int green, int blue, __int16 polyType) {
 	BYTE alpha = ( polyType == 13 ) ? 0x80 : 0xFF; // TODO: change to enum (polyType)
 
@@ -934,6 +1458,115 @@ void __cdecl InsertPoly_Gouraud(int vtxCount, float z, int red, int green, int b
 
 	HWR_VertexPtr += vtxCount;
 	++SurfaceCount;
+}
+
+__int16 *__cdecl InsertObjectG3_Sorted(__int16 *ptrObj, int number, int sortType) {
+	char clipOR, clipAND;
+	PHD_VBUF *vtx0, *vtx1, *vtx2;
+	int i, nPoints;
+	float zv;
+	__int16 colorIdx;
+	PALETTEENTRY *color;
+	POINT_INFO pts[3];
+
+	for( i = 0; i < number; ++i ) {
+		if( HWR_VertexBufferFull() ) {
+			ptrObj += number - i;
+			break;
+		}
+
+		vtx0 = &PhdVBuf[*ptrObj++];
+		vtx1 = &PhdVBuf[*ptrObj++];
+		vtx2 = &PhdVBuf[*ptrObj++];
+		colorIdx = *ptrObj++;
+		nPoints = 3;
+
+		clipOR  = LOBYTE(vtx0->clip) | LOBYTE(vtx1->clip) | LOBYTE(vtx2->clip);
+		clipAND = LOBYTE(vtx0->clip) & LOBYTE(vtx1->clip) & LOBYTE(vtx2->clip);
+
+		if( clipAND != 0 )
+			continue;
+
+		if( clipOR >= 0 ) {
+			if( !VBUF_VISIBLE(*vtx0, *vtx1, *vtx2) )
+				continue;
+
+			VBuffer[0].x = vtx0->xs;
+			VBuffer[0].y = vtx0->ys;
+			VBuffer[0].rhw = vtx0->rhw;
+			VBuffer[0].g = (float)vtx0->g;
+
+			VBuffer[1].x = vtx1->xs;
+			VBuffer[1].y = vtx1->ys;
+			VBuffer[1].rhw = vtx1->rhw;
+			VBuffer[1].g = (float)vtx1->g;
+
+			VBuffer[2].x = vtx2->xs;
+			VBuffer[2].y = vtx2->ys;
+			VBuffer[2].rhw = vtx2->rhw;
+			VBuffer[2].g = (float)vtx2->g;
+
+			if( clipOR > 0 ) {
+				nPoints = XYGClipper(nPoints, VBuffer);
+			}
+		} else {
+			if( !visible_zclip(vtx0, vtx1, vtx2) )
+				continue;
+
+			pts[0].xv = vtx0->xv;
+			pts[0].yv = vtx0->yv;
+			pts[0].zv = vtx0->zv;
+			pts[0].rhw = vtx0->rhw;
+			pts[0].xs = vtx0->xs;
+			pts[0].ys = vtx0->ys;
+			pts[0].g = (float)vtx0->g;
+
+			pts[1].xv = vtx1->xv;
+			pts[1].yv = vtx1->yv;
+			pts[1].zv = vtx1->zv;
+			pts[1].rhw = vtx1->rhw;
+			pts[1].xs = vtx1->xs;
+			pts[1].ys = vtx1->ys;
+			pts[1].g = (float)vtx1->g;
+
+			pts[2].xv = vtx2->xv;
+			pts[2].yv = vtx2->yv;
+			pts[2].zv = vtx2->zv;
+			pts[2].rhw = vtx2->rhw;
+			pts[2].xs = vtx2->xs;
+			pts[2].ys = vtx2->ys;
+			pts[2].g = (float)vtx2->g;
+
+			nPoints = ZedClipper(nPoints, pts, VBuffer);
+			if( nPoints == 0 ) continue;
+
+			nPoints = XYGClipper(nPoints, VBuffer);
+		}
+
+		if( nPoints == 0 )
+			continue;
+
+		color = &GamePalette16[colorIdx >> 8];
+
+		switch( sortType ) {
+			case 0 :
+				zv = (vtx0->zv + vtx1->zv + vtx2->zv) / 3.0;
+				break;
+
+			case 1 :
+				zv = vtx0->zv;
+				CLAMP(zv, vtx1->zv, vtx2->zv);
+				break;
+
+			default :
+				zv = 1000000000.0;
+				break;
+		}
+
+		InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, 11); // TODO: change to enum (polyType)
+	}
+
+	return ptrObj;
 }
 
 void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade) {
@@ -1184,7 +1817,8 @@ void Inject_3Dinsert() {
 	INJECT(0x004059F0, XYGUVClipper);
 
 	INJECT(0x004071F0, XYGClipper);
-
+	INJECT(0x00407620, InsertObjectG4);
+	INJECT(0x00407A00, InsertObjectG3);
 	INJECT(0x00407D20, XYClipper);
 	INJECT(0x00407FF0, InsertTrans8);
 	INJECT(0x004084A0, InsertTransQuad);
@@ -1195,9 +1829,9 @@ void Inject_3Dinsert() {
 	INJECT(0x00408EA0, InsertGT4_ZBuffered);
 	INJECT(0x004092E0, InsertObjectGT4_ZBuffered);
 	INJECT(0x00409380, InsertObjectGT3_ZBuffered);
-
+	INJECT(0x00409430, InsertObjectG4_ZBuffered);
 	INJECT(0x004097D0, DrawPoly_Gouraud);
-
+	INJECT(0x004098D0, InsertObjectG3_ZBuffered);
 	INJECT(0x00409BB0, InsertFlatRect_ZBuffered);
 	INJECT(0x00409D80, InsertLine_ZBuffered);
 
@@ -1205,9 +1839,9 @@ void Inject_3Dinsert() {
 
 	INJECT(0x0040AC60, InsertObjectGT4_Sorted);
 	INJECT(0x0040ACF0, InsertObjectGT3_Sorted);
-
+	INJECT(0x0040AD90, InsertObjectG4_Sorted);
 	INJECT(0x0040B1D0, InsertPoly_Gouraud);
-
+	INJECT(0x0040B350, InsertObjectG3_Sorted);
 	INJECT(0x0040B6A0, InsertSprite_Sorted);
 	INJECT(0x0040B9F0, InsertFlatRect_Sorted);
 	INJECT(0x0040BB70, InsertLine_Sorted);

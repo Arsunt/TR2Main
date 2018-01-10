@@ -35,10 +35,8 @@ int __cdecl XYGUVClipper(int vtxCount, VERTEX_INFO *vtx); // 0x004059F0
 #define InsertObjectGT3 ((__int16 *(__cdecl*)(__int16 *ptrObj, int number, int sortType)) 0x00406970)
 
 int __cdecl XYGClipper(int vtxCount, VERTEX_INFO *vtx); // 0x004071F0
-
-#define InsertObjectG4 ((__int16 *(__cdecl*)(__int16 *ptrObj, int number, int sortType)) 0x00407620)
-#define InsertObjectG3 ((__int16 *(__cdecl*)(__int16 *ptrObj, int number, int sortType)) 0x00407A00)
-
+__int16 *__cdecl InsertObjectG4(__int16 *ptrObj, int number, int sortType); // 0x00407620
+__int16 *__cdecl InsertObjectG3(__int16 *ptrObj, int number, int sortType); // 0x00407A00
 int __cdecl XYClipper(int vtxCount, VERTEX_INFO *vtx); // 0x00407D20
 void __cdecl InsertTrans8(PHD_VBUF *vbuf, __int16 shade); // 0x00407FF0
 void __cdecl InsertTransQuad(int x, int y, int width, int height, int z); // 0x004084A0
@@ -49,13 +47,9 @@ void __cdecl DrawClippedPoly_Textured(int vtxCount); // 0x00408D60
 void __cdecl InsertGT4_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PHD_VBUF *vtx3, PHD_TEXTURE *texture); // 0x00408EA0
 __int16 *__cdecl InsertObjectGT4_ZBuffered(__int16 *ptrObj, int number, int sortType); // 0x004092E0
 __int16 *__cdecl InsertObjectGT3_ZBuffered(__int16 *ptrObj, int number, int sortType); // 0x00409380
-
-#define InsertObjectG4_ZBuffered ((__int16 *(__cdecl*)(__int16 *ptrObj, int number, int sortType)) 0x00409430)
-
+__int16 *__cdecl InsertObjectG4_ZBuffered(__int16 *ptrObj, int number, int sortType); // 0x00409430
 void __cdecl DrawPoly_Gouraud(int vtxCount, int red, int green, int blue); // 0x004097D0
-
-#define InsertObjectG3_ZBuffered ((__int16 *(__cdecl*)(__int16 *ptrObj, int number, int sortType)) 0x004098D0)
-
+__int16 *__cdecl InsertObjectG3_ZBuffered(__int16 *ptrObj, int number, int sortType); // 0x004098D0
 void __cdecl InsertFlatRect_ZBuffered(int x0, int y0, int x1, int y1, int z, BYTE colorIdx); // 0x00409BB0
 void __cdecl InsertLine_ZBuffered(int x0, int y0, int x1, int y1, int z, BYTE colorIdx); // 0x00409D80
 
@@ -67,13 +61,9 @@ void __cdecl InsertClippedPoly_Textured(int vtxCount, float z, __int16 polyType,
 
 __int16 *__cdecl InsertObjectGT4_Sorted(__int16 *ptrObj, int number, int sortType); // 0x0040AC60
 __int16 *__cdecl InsertObjectGT3_Sorted(__int16 *ptrObj, int number, int sortType); // 0x0040ACF0
-
-#define InsertObjectG4_Sorted ((__int16 *(__cdecl*)(__int16 *ptrObj, int number, int sortType)) 0x0040AD90)
-
+__int16 *__cdecl InsertObjectG4_Sorted(__int16 *ptrObj, int number, int sortType); // 0x0040AD90
 void __cdecl InsertPoly_Gouraud(int vtxCount, float z, int red, int green, int blue, __int16 polyType); // 0x0040B1D0
-
-#define InsertObjectG3_Sorted ((__int16 *(__cdecl*)(__int16 *ptrObj, int number, int sortType)) 0x0040B350)
-
+__int16 *__cdecl InsertObjectG3_Sorted(__int16 *ptrObj, int number, int sortType); // 0x0040B350
 void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade); // 0x0040B6A0
 void __cdecl InsertFlatRect_Sorted(int x0, int y0, int x1, int y1, int z, BYTE colorIdx); // 0x0040B9F0
 void __cdecl InsertLine_Sorted(int x0, int y0, int x1, int y1, int z, BYTE colorIdx); // 0x0040BB70
