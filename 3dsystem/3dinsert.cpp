@@ -200,6 +200,11 @@ int __cdecl XYGUVClipper(int vtxCount, VERTEX_INFO *vtx) {
 	return ( j < 3 ) ? 0 : j;
 }
 
+static inline void clipG(VERTEX_INFO *buf, VERTEX_INFO *vtx1, VERTEX_INFO *vtx2, float clip) {
+	buf->rhw = vtx2->rhw + (vtx1->rhw - vtx2->rhw) * clip;
+	buf->g   = vtx2->g   + (vtx1->g   - vtx2->g)   * clip;
+}
+
 int __cdecl XYGClipper(int vtxCount, VERTEX_INFO *vtx) {
 	VERTEX_INFO vtx_buf[8];
 	VERTEX_INFO *vtx1, *vtx2;
@@ -223,7 +228,7 @@ int __cdecl XYGClipper(int vtxCount, VERTEX_INFO *vtx) {
 			clip = (FltWinLeft - vtx2->x) / (vtx1->x - vtx2->x);
 			vtx_buf[j].x = FltWinLeft;
 			vtx_buf[j].y = vtx2->y + (vtx1->y - vtx2->y) * clip;
-			clipGUV(&vtx_buf[j++], vtx1, vtx2, clip);
+			clipG(&vtx_buf[j++], vtx1, vtx2, clip);
 		}
 		else if( vtx1->x > FltWinRight) {
 			if( vtx2->x > FltWinRight ) {
@@ -232,24 +237,22 @@ int __cdecl XYGClipper(int vtxCount, VERTEX_INFO *vtx) {
 			clip = (FltWinRight - vtx2->x) / (vtx1->x - vtx2->x);
 			vtx_buf[j].x = FltWinRight;
 			vtx_buf[j].y = vtx2->y + (vtx1->y - vtx2->y) * clip;
-			vtx_buf[j++].g = vtx2->g + (vtx1->g - vtx2->g) * clip;
+			clipG(&vtx_buf[j++], vtx1, vtx2, clip);
 		}
 
 		if( vtx2->x < FltWinLeft ) {
 			clip = (FltWinLeft - vtx2->x) / (vtx1->x - vtx2->x);
 			vtx_buf[j].x = FltWinLeft;
 			vtx_buf[j].y = vtx2->y + (vtx1->y - vtx2->y) * clip;
-			vtx_buf[j++].g = vtx2->g + (vtx1->g - vtx2->g) * clip;
+			clipG(&vtx_buf[j++], vtx1, vtx2, clip);
 		}
 		else if( vtx2->x > FltWinRight ) {
 			clip = (FltWinRight - vtx2->x) / (vtx1->x - vtx2->x);
 			vtx_buf[j].x = FltWinRight;
 			vtx_buf[j].y = vtx2->y + (vtx1->y - vtx2->y) * clip;
-			vtx_buf[j++].g = vtx2->g + (vtx1->g - vtx2->g) * clip;
+			clipG(&vtx_buf[j++], vtx1, vtx2, clip);
 		} else {
-			vtx_buf[j].x = vtx2->x;
-			vtx_buf[j].y = vtx2->y;
-			vtx_buf[j++].g = vtx2->g;
+			vtx_buf[j++] = *vtx2;
 		}
 	}
 	vtxCount = j;
@@ -271,7 +274,7 @@ int __cdecl XYGClipper(int vtxCount, VERTEX_INFO *vtx) {
 			clip = (FltWinTop - vtx2->y) / (vtx1->y - vtx2->y);
 			vtx[j].x = vtx2->x + (vtx1->x - vtx2->x) * clip;
 			vtx[j].y = FltWinTop;
-			vtx[j++].g = vtx2->g + (vtx1->g - vtx2->g) * clip;
+			clipG(&vtx[j++], vtx1, vtx2, clip);
 		}
 		else if( vtx1->y > FltWinBottom ) {
 			if( vtx2->y > FltWinBottom ) {
@@ -280,24 +283,22 @@ int __cdecl XYGClipper(int vtxCount, VERTEX_INFO *vtx) {
 			clip = (FltWinBottom - vtx2->y) / (vtx1->y - vtx2->y);
 			vtx[j].x = vtx2->x + (vtx1->x - vtx2->x) * clip;
 			vtx[j].y = FltWinBottom;
-			vtx[j++].g = vtx2->g + (vtx1->g - vtx2->g) * clip;
+			clipG(&vtx[j++], vtx1, vtx2, clip);
 		}
 
 		if( vtx2->y < FltWinTop ) {
 			clip = (FltWinTop - vtx2->y) / (vtx1->y - vtx2->y);
 			vtx[j].x = vtx2->x + (vtx1->x - vtx2->x) * clip;
 			vtx[j].y = FltWinTop;
-			vtx[j++].g = vtx2->g + (vtx1->g - vtx2->g) * clip;
+			clipG(&vtx[j++], vtx1, vtx2, clip);
 		}
 		else if( vtx2->y > FltWinBottom ) {
 			clip = (FltWinBottom - vtx2->y) / (vtx1->y - vtx2->y);
 			vtx[j].x = vtx2->x + (vtx1->x - vtx2->x) * clip;
 			vtx[j].y = FltWinBottom;
-			vtx[j++].g = vtx2->g + (vtx1->g - vtx2->g) * clip;
+			clipG(&vtx[j++], vtx1, vtx2, clip);
 		} else {
-			vtx[j].x = vtx2->x;
-			vtx[j].y = vtx2->y;
-			vtx[j++].g = vtx2->g;
+			vtx[j++] = *vtx2;
 		}
 	}
 	return ( j < 3 ) ? 0 : j;
