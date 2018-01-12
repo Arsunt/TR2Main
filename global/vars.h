@@ -394,7 +394,7 @@
 #define TexturePageBuffer8			ARRAY_(0x004D6AD0, LPVOID, 32)
 #define WibbleTable					ARRAY_(0x004D6B68, float, 32)
 #define VBuffer						ARRAY_(0x004D6CC8, VERTEX_INFO, 20)
-#define VertexZBuffered				ARRAY_(0x004D6F70, D3DTLVERTEX, 32)
+#define VBufferD3D					ARRAY_(0x004D6F70, D3DTLVERTEX, 32)
 #define GamePalette16				ARRAY_(0x004D7370, PALETTEENTRY, 256)
 #define InventoryExtraData			ARRAY_(0x004D7970, int, 8)
 #define SfxInfos					ARRAY_(0x004D7C68, SFX_INFO, 32)

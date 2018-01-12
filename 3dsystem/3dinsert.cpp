@@ -731,34 +731,34 @@ void __cdecl InsertGT3_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2,
 			return;
 
 		if( clipOR == 0 ) {
-			VertexZBuffered[0].sx = vtx0->xs;
-			VertexZBuffered[0].sy = vtx0->ys;
-			VertexZBuffered[0].sz = FltResZBuf - FltResZORhw * vtx0->rhw;
-			VertexZBuffered[0].rhw = vtx0->rhw;
-			VertexZBuffered[0].color = shadeColor(0xFF, 0xFF, 0xFF, 0xFF, vtx0->g);
-			VertexZBuffered[0].tu = (double)uv0->u / (double)PHD_ONE;
-			VertexZBuffered[0].tv = (double)uv0->v / (double)PHD_ONE;
+			VBufferD3D[0].sx = vtx0->xs;
+			VBufferD3D[0].sy = vtx0->ys;
+			VBufferD3D[0].sz = FltResZBuf - FltResZORhw * vtx0->rhw;
+			VBufferD3D[0].rhw = vtx0->rhw;
+			VBufferD3D[0].color = shadeColor(0xFF, 0xFF, 0xFF, 0xFF, vtx0->g);
+			VBufferD3D[0].tu = (double)uv0->u / (double)PHD_ONE;
+			VBufferD3D[0].tv = (double)uv0->v / (double)PHD_ONE;
 
-			VertexZBuffered[1].sx = vtx1->xs;
-			VertexZBuffered[1].sy = vtx1->ys;
-			VertexZBuffered[1].sz = FltResZBuf - FltResZORhw * vtx1->rhw;
-			VertexZBuffered[1].rhw = vtx1->rhw;
-			VertexZBuffered[1].color = shadeColor(0xFF, 0xFF, 0xFF, 0xFF, vtx1->g);
-			VertexZBuffered[1].tu = (double)uv1->u / (double)PHD_ONE;
-			VertexZBuffered[1].tv = (double)uv1->v / (double)PHD_ONE;
+			VBufferD3D[1].sx = vtx1->xs;
+			VBufferD3D[1].sy = vtx1->ys;
+			VBufferD3D[1].sz = FltResZBuf - FltResZORhw * vtx1->rhw;
+			VBufferD3D[1].rhw = vtx1->rhw;
+			VBufferD3D[1].color = shadeColor(0xFF, 0xFF, 0xFF, 0xFF, vtx1->g);
+			VBufferD3D[1].tu = (double)uv1->u / (double)PHD_ONE;
+			VBufferD3D[1].tv = (double)uv1->v / (double)PHD_ONE;
 
-			VertexZBuffered[2].sx = vtx2->xs;
-			VertexZBuffered[2].sy = vtx2->ys;
-			VertexZBuffered[2].sz = FltResZBuf - FltResZORhw * vtx2->rhw;
-			VertexZBuffered[2].rhw = vtx2->rhw;
-			VertexZBuffered[2].color = shadeColor(0xFF, 0xFF, 0xFF, 0xFF, vtx2->g);
-			VertexZBuffered[2].tu = (double)uv2->u / (double)PHD_ONE;
-			VertexZBuffered[2].tv = (double)uv2->v / (double)PHD_ONE;
+			VBufferD3D[2].sx = vtx2->xs;
+			VBufferD3D[2].sy = vtx2->ys;
+			VBufferD3D[2].sz = FltResZBuf - FltResZORhw * vtx2->rhw;
+			VBufferD3D[2].rhw = vtx2->rhw;
+			VBufferD3D[2].color = shadeColor(0xFF, 0xFF, 0xFF, 0xFF, vtx2->g);
+			VBufferD3D[2].tu = (double)uv2->u / (double)PHD_ONE;
+			VBufferD3D[2].tv = (double)uv2->v / (double)PHD_ONE;
 
 			HWR_TexSource(HWR_PageHandles[texture->tpage]);
 			HWR_EnableColorKey(texture->drawtype != 0);
 
-			_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLELIST, D3DVT_TLVERTEX, VertexZBuffered, 3, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+			_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLELIST, D3DVT_TLVERTEX, VBufferD3D, 3, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 			return;
 		}
 
@@ -844,16 +844,16 @@ void __cdecl DrawClippedPoly_Textured(int vtxCount) {
 		CLAMP(tu, 0.0, 1.0);
 		CLAMP(tv, 0.0, 1.0);
 
-		VertexZBuffered[i].sx = VBuffer[i].x;
-		VertexZBuffered[i].sy = VBuffer[i].y;
-		VertexZBuffered[i].sz = FltResZBuf - FltResZORhw * VBuffer[i].rhw;
-		VertexZBuffered[i].rhw = VBuffer[i].rhw;
-		VertexZBuffered[i].color = color;
-		VertexZBuffered[i].tu = tu;
-		VertexZBuffered[i].tv = tv;
+		VBufferD3D[i].sx = VBuffer[i].x;
+		VBufferD3D[i].sy = VBuffer[i].y;
+		VBufferD3D[i].sz = FltResZBuf - FltResZORhw * VBuffer[i].rhw;
+		VBufferD3D[i].rhw = VBuffer[i].rhw;
+		VBufferD3D[i].color = color;
+		VBufferD3D[i].tu = tu;
+		VBufferD3D[i].tv = tv;
 	}
 
-	_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, VertexZBuffered, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+	_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, VBufferD3D, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 }
 
 void __cdecl InsertGT4_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PHD_VBUF *vtx3, PHD_TEXTURE *texture) {
@@ -866,42 +866,42 @@ void __cdecl InsertGT4_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2,
 		return;
 
 	if( clipOR == 0 && VBUF_VISIBLE(*vtx0, *vtx1, *vtx2) ) {
-		VertexZBuffered[0].sx = vtx0->xs;
-		VertexZBuffered[0].sy = vtx0->ys;
-		VertexZBuffered[0].sz = FltResZBuf - FltResZORhw * vtx0->rhw;
-		VertexZBuffered[0].rhw = vtx0->rhw;
-		VertexZBuffered[0].color = shadeColor(0xFF, 0xFF, 0xFF, 0xFF, vtx0->g);
-		VertexZBuffered[0].tu = (double)texture->uv[0].u / (double)PHD_ONE;
-		VertexZBuffered[0].tv = (double)texture->uv[0].v / (double)PHD_ONE;
+		VBufferD3D[0].sx = vtx0->xs;
+		VBufferD3D[0].sy = vtx0->ys;
+		VBufferD3D[0].sz = FltResZBuf - FltResZORhw * vtx0->rhw;
+		VBufferD3D[0].rhw = vtx0->rhw;
+		VBufferD3D[0].color = shadeColor(0xFF, 0xFF, 0xFF, 0xFF, vtx0->g);
+		VBufferD3D[0].tu = (double)texture->uv[0].u / (double)PHD_ONE;
+		VBufferD3D[0].tv = (double)texture->uv[0].v / (double)PHD_ONE;
 
-		VertexZBuffered[1].sx = vtx1->xs;
-		VertexZBuffered[1].sy = vtx1->ys;
-		VertexZBuffered[1].sz = FltResZBuf - FltResZORhw * vtx1->rhw;
-		VertexZBuffered[1].rhw = vtx1->rhw;
-		VertexZBuffered[1].color = shadeColor(0xFF, 0xFF, 0xFF, 0xFF, vtx1->g);
-		VertexZBuffered[1].tu = (double)texture->uv[1].u / (double)PHD_ONE;
-		VertexZBuffered[1].tv = (double)texture->uv[1].v / (double)PHD_ONE;
+		VBufferD3D[1].sx = vtx1->xs;
+		VBufferD3D[1].sy = vtx1->ys;
+		VBufferD3D[1].sz = FltResZBuf - FltResZORhw * vtx1->rhw;
+		VBufferD3D[1].rhw = vtx1->rhw;
+		VBufferD3D[1].color = shadeColor(0xFF, 0xFF, 0xFF, 0xFF, vtx1->g);
+		VBufferD3D[1].tu = (double)texture->uv[1].u / (double)PHD_ONE;
+		VBufferD3D[1].tv = (double)texture->uv[1].v / (double)PHD_ONE;
 
-		VertexZBuffered[2].sx = vtx2->xs;
-		VertexZBuffered[2].sy = vtx2->ys;
-		VertexZBuffered[2].sz = FltResZBuf - FltResZORhw * vtx2->rhw;
-		VertexZBuffered[2].rhw = vtx2->rhw;
-		VertexZBuffered[2].color = shadeColor(0xFF, 0xFF, 0xFF, 0xFF, vtx2->g);
-		VertexZBuffered[2].tu = (double)texture->uv[2].u / (double)PHD_ONE;
-		VertexZBuffered[2].tv = (double)texture->uv[2].v / (double)PHD_ONE;
+		VBufferD3D[2].sx = vtx2->xs;
+		VBufferD3D[2].sy = vtx2->ys;
+		VBufferD3D[2].sz = FltResZBuf - FltResZORhw * vtx2->rhw;
+		VBufferD3D[2].rhw = vtx2->rhw;
+		VBufferD3D[2].color = shadeColor(0xFF, 0xFF, 0xFF, 0xFF, vtx2->g);
+		VBufferD3D[2].tu = (double)texture->uv[2].u / (double)PHD_ONE;
+		VBufferD3D[2].tv = (double)texture->uv[2].v / (double)PHD_ONE;
 
-		VertexZBuffered[3].sx = vtx3->xs;
-		VertexZBuffered[3].sy = vtx3->ys;
-		VertexZBuffered[3].sz = FltResZBuf - FltResZORhw * vtx3->rhw;
-		VertexZBuffered[3].rhw = vtx3->rhw;
-		VertexZBuffered[3].color = shadeColor(0xFF, 0xFF, 0xFF, 0xFF, vtx3->g);
-		VertexZBuffered[3].tu = (double)texture->uv[3].u / (double)PHD_ONE;
-		VertexZBuffered[3].tv = (double)texture->uv[3].v / (double)PHD_ONE;
+		VBufferD3D[3].sx = vtx3->xs;
+		VBufferD3D[3].sy = vtx3->ys;
+		VBufferD3D[3].sz = FltResZBuf - FltResZORhw * vtx3->rhw;
+		VBufferD3D[3].rhw = vtx3->rhw;
+		VBufferD3D[3].color = shadeColor(0xFF, 0xFF, 0xFF, 0xFF, vtx3->g);
+		VBufferD3D[3].tu = (double)texture->uv[3].u / (double)PHD_ONE;
+		VBufferD3D[3].tv = (double)texture->uv[3].v / (double)PHD_ONE;
 
 		HWR_TexSource(HWR_PageHandles[texture->tpage]);
 		HWR_EnableColorKey(texture->drawtype != 0);
 
-		_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, VertexZBuffered, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+		_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, VBufferD3D, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 	}
 	else if( (clipOR < 0 && visible_zclip(vtx0, vtx1, vtx2)) ||
 			 (clipOR > 0 && VBUF_VISIBLE(*vtx0, *vtx1, *vtx2)) )
@@ -1065,14 +1065,14 @@ void __cdecl DrawPoly_Gouraud(int vtxCount, int red, int green, int blue) {
 	for( int i = 0; i < vtxCount; ++i ) {
 		color = shadeColor(red, green, blue, 0xFF, (DWORD)VBuffer[i].g);
 
-		VertexZBuffered[i].sx = VBuffer[i].x;
-		VertexZBuffered[i].sy = VBuffer[i].y;
-		VertexZBuffered[i].sz = FltResZBuf - FltResZORhw * VBuffer[i].rhw;
-		VertexZBuffered[i].rhw = VBuffer[i].rhw;
-		VertexZBuffered[i].color = color;
+		VBufferD3D[i].sx = VBuffer[i].x;
+		VBufferD3D[i].sy = VBuffer[i].y;
+		VBufferD3D[i].sz = FltResZBuf - FltResZORhw * VBuffer[i].rhw;
+		VBufferD3D[i].rhw = VBuffer[i].rhw;
+		VBufferD3D[i].color = color;
 	}
 
-	_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, VertexZBuffered, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+	_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, VBufferD3D, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 }
 
 __int16 *__cdecl InsertObjectG3_ZBuffered(__int16 *ptrObj, int number, int sortType) {
@@ -1185,24 +1185,24 @@ void __cdecl InsertFlatRect_ZBuffered(int x0, int y0, int x1, int y1, int z, BYT
 	rhw = RhwFactor / (double)z;
 	sz = FltResZBuf - rhw * FltResZORhw;
 
-	VertexZBuffered[0].sx = (float)x0;
-	VertexZBuffered[0].sy = (float)y0;
-	VertexZBuffered[1].sx = (float)x1;
-	VertexZBuffered[1].sy = (float)y0;
-	VertexZBuffered[2].sx = (float)x0;
-	VertexZBuffered[2].sy = (float)y1;
-	VertexZBuffered[3].sx = (float)x1;
-	VertexZBuffered[3].sy = (float)y1;
+	VBufferD3D[0].sx = (float)x0;
+	VBufferD3D[0].sy = (float)y0;
+	VBufferD3D[1].sx = (float)x1;
+	VBufferD3D[1].sy = (float)y0;
+	VBufferD3D[2].sx = (float)x0;
+	VBufferD3D[2].sy = (float)y1;
+	VBufferD3D[3].sx = (float)x1;
+	VBufferD3D[3].sy = (float)y1;
 
 	for( int i=0; i<4; ++i ) {
-		VertexZBuffered[i].sz = sz;
-		VertexZBuffered[i].rhw = rhw;
-		VertexZBuffered[i].color = color;
+		VBufferD3D[i].sz = sz;
+		VBufferD3D[i].rhw = rhw;
+		VBufferD3D[i].color = color;
 	}
 
 	HWR_TexSource(0);
 	HWR_EnableColorKey(false);
-	_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DVT_TLVERTEX, VertexZBuffered, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+	_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DVT_TLVERTEX, VBufferD3D, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 }
 
 void __cdecl InsertLine_ZBuffered(int x0, int y0, int x1, int y1, int z, BYTE colorIdx) {
@@ -1220,20 +1220,20 @@ void __cdecl InsertLine_ZBuffered(int x0, int y0, int x1, int y1, int z, BYTE co
 	rhw = RhwFactor / (double)z;
 	sz = FltResZBuf - rhw * FltResZORhw;
 
-	VertexZBuffered[0].sx = (float)(PhdWinMinX + x0);
-	VertexZBuffered[0].sy = (float)(PhdWinMinY + y0);
-	VertexZBuffered[1].sx = (float)(PhdWinMinX + x1);
-	VertexZBuffered[1].sy = (float)(PhdWinMinY + y1);
+	VBufferD3D[0].sx = (float)(PhdWinMinX + x0);
+	VBufferD3D[0].sy = (float)(PhdWinMinY + y0);
+	VBufferD3D[1].sx = (float)(PhdWinMinX + x1);
+	VBufferD3D[1].sy = (float)(PhdWinMinY + y1);
 
 	for( int i=0; i<2; ++i ) {
-		VertexZBuffered[i].sz = sz;
-		VertexZBuffered[i].rhw = rhw;
-		VertexZBuffered[i].color = color;
+		VBufferD3D[i].sz = sz;
+		VBufferD3D[i].rhw = rhw;
+		VBufferD3D[i].color = color;
 	}
 
 	HWR_TexSource(0);
 	HWR_EnableColorKey(false);
-	_Direct3DDevice2->DrawPrimitive(D3DPT_LINESTRIP, D3DVT_TLVERTEX, VertexZBuffered, 2, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+	_Direct3DDevice2->DrawPrimitive(D3DPT_LINESTRIP, D3DVT_TLVERTEX, VBufferD3D, 2, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 }
 
 void __cdecl InsertClippedPoly_Textured(int vtxCount, float z, __int16 polyType, __int16 texPage) {
