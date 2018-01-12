@@ -1423,7 +1423,8 @@ __int16 *__cdecl InsertObjectG4_Sorted(__int16 *ptrObj, int number, int sortType
 			case 1 :
 				zv = vtx0->zv;
 				CLAMPL(zv, vtx1->zv);
-				CLAMP(zv, vtx2->zv, vtx3->zv);
+				CLAMPL(zv, vtx2->zv);
+				CLAMPL(zv, vtx3->zv);
 				break;
 
 			default :
@@ -1556,7 +1557,8 @@ __int16 *__cdecl InsertObjectG3_Sorted(__int16 *ptrObj, int number, int sortType
 
 			case 1 :
 				zv = vtx0->zv;
-				CLAMP(zv, vtx1->zv, vtx2->zv);
+				CLAMPL(zv, vtx1->zv);
+				CLAMPL(zv, vtx2->zv);
 				break;
 
 			default :
