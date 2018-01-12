@@ -308,6 +308,7 @@ __int16 *__cdecl InsertObjectG4(__int16 *ptrObj, int number, SORTTYPE sortType) 
 	char clipOR, clipAND;
 	PHD_VBUF *vtx0, *vtx1, *vtx2, *vtx3;
 	int i, j, nPoints;
+	float zv;
 	BYTE colorIdx;
 	POINT_INFO pts[4];
 
@@ -397,8 +398,27 @@ __int16 *__cdecl InsertObjectG4(__int16 *ptrObj, int number, SORTTYPE sortType) 
 		if( nPoints == 0 )
 			continue;
 
+		// NOTE: in the original code the switch had ST_AvgZ and ST_FarZ cases only. This was bug
+		switch( sortType ) {
+			case ST_AvgZ :
+				zv = (vtx0->zv + vtx1->zv + vtx2->zv + vtx3->zv) / 4.0;
+				break;
+
+			case ST_MaxZ :
+				zv = vtx0->zv;
+				CLAMPL(zv, vtx1->zv);
+				CLAMPL(zv, vtx2->zv);
+				CLAMPL(zv, vtx3->zv);
+				break;
+
+			case ST_FarZ :
+			default :
+				zv = 1000000000.0;
+				break;
+		}
+
 		Sort3dPtr->_0 = (int)Info3dPtr;
-		Sort3dPtr->_1 = ( sortType != ST_AvgZ ) ? 1000000000 : (int)((vtx0->zv + vtx1->zv + vtx2->zv + vtx3->zv) / 4.0);
+		Sort3dPtr->_1 = (int)zv;
 		++Sort3dPtr;
 
 		*Info3dPtr++ = 6; // TODO: change to enum (polyType)
@@ -420,6 +440,7 @@ __int16 *__cdecl InsertObjectG3(__int16 *ptrObj, int number, SORTTYPE sortType) 
 	char clipOR, clipAND;
 	PHD_VBUF *vtx0, *vtx1, *vtx2;
 	int i, j, nPoints;
+	float zv;
 	BYTE colorIdx;
 	POINT_INFO pts[3];
 
@@ -495,8 +516,26 @@ __int16 *__cdecl InsertObjectG3(__int16 *ptrObj, int number, SORTTYPE sortType) 
 		if( nPoints == 0 )
 			continue;
 
+		// NOTE: in the original code the switch had ST_AvgZ and ST_FarZ cases only. This was bug
+		switch( sortType ) {
+			case ST_AvgZ :
+				zv = (vtx0->zv + vtx1->zv + vtx2->zv) / 3.0;
+				break;
+
+			case ST_MaxZ :
+				zv = vtx0->zv;
+				CLAMPL(zv, vtx1->zv);
+				CLAMPL(zv, vtx2->zv);
+				break;
+
+			case ST_FarZ :
+			default :
+				zv = 1000000000.0;
+				break;
+		}
+
 		Sort3dPtr->_0 = (int)Info3dPtr;
-		Sort3dPtr->_1 = ( sortType != ST_AvgZ ) ? 1000000000 : (int)((vtx0->zv + vtx1->zv + vtx2->zv) / 3.0);
+		Sort3dPtr->_1 = (int)zv;
 		++Sort3dPtr;
 
 		*Info3dPtr++ = 6; // TODO: change to enum (polyType)
