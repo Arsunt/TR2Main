@@ -319,8 +319,8 @@ __int16 *__cdecl InsertObjectG4(__int16 *ptrObj, int number, int sortType) {
 		colorIdx = *ptrObj++;
 		nPoints = 4;
 
-		clipOR  = LOBYTE(vtx0->clip) | LOBYTE(vtx1->clip) | LOBYTE(vtx2->clip) | LOBYTE(vtx3->clip);
-		clipAND = LOBYTE(vtx0->clip) & LOBYTE(vtx1->clip) & LOBYTE(vtx2->clip) & LOBYTE(vtx3->clip);
+		clipOR  = LOBYTE(vtx0->clip | vtx1->clip | vtx2->clip | vtx3->clip);
+		clipAND = LOBYTE(vtx0->clip & vtx1->clip & vtx2->clip & vtx3->clip);
 
 		if( clipAND != 0 )
 			continue;
@@ -430,8 +430,8 @@ __int16 *__cdecl InsertObjectG3(__int16 *ptrObj, int number, int sortType) {
 		colorIdx = *ptrObj++;
 		nPoints = 3;
 
-		clipOR  = LOBYTE(vtx0->clip) | LOBYTE(vtx1->clip) | LOBYTE(vtx2->clip);
-		clipAND = LOBYTE(vtx0->clip) & LOBYTE(vtx1->clip) & LOBYTE(vtx2->clip);
+		clipOR  = LOBYTE(vtx0->clip | vtx1->clip | vtx2->clip);
+		clipAND = LOBYTE(vtx0->clip & vtx1->clip & vtx2->clip);
 
 		if( clipAND != 0 )
 			continue;
@@ -720,8 +720,8 @@ void __cdecl InsertGT3_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2,
 	POINT_INFO points[3];
 	int nPoints = 3;
 
-	clipOR  = LOBYTE(vtx0->clip) | LOBYTE(vtx1->clip) | LOBYTE(vtx2->clip);
-	clipAND = LOBYTE(vtx0->clip) & LOBYTE(vtx1->clip) & LOBYTE(vtx2->clip);
+	clipOR  = LOBYTE(vtx0->clip | vtx1->clip | vtx2->clip);
+	clipAND = LOBYTE(vtx0->clip & vtx1->clip & vtx2->clip);
 
 	if( clipAND != 0 )
 		return;
@@ -859,8 +859,8 @@ void __cdecl DrawClippedPoly_Textured(int vtxCount) {
 void __cdecl InsertGT4_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PHD_VBUF *vtx3, PHD_TEXTURE *texture) {
 	char clipOR, clipAND;
 
-	clipOR  = LOBYTE(vtx0->clip) | LOBYTE(vtx1->clip) | LOBYTE(vtx2->clip) | LOBYTE(vtx3->clip);
-	clipAND = LOBYTE(vtx0->clip) & LOBYTE(vtx1->clip) & LOBYTE(vtx2->clip) & LOBYTE(vtx3->clip);
+	clipOR  = LOBYTE(vtx0->clip | vtx1->clip | vtx2->clip | vtx3->clip);
+	clipAND = LOBYTE(vtx0->clip & vtx1->clip & vtx2->clip & vtx3->clip);
 
 	if( clipAND != 0 )
 		return;
@@ -972,8 +972,8 @@ __int16 *__cdecl InsertObjectG4_ZBuffered(__int16 *ptrObj, int number, int sortT
 		colorIdx = *ptrObj++;
 		nPoints = 4;
 
-		clipOR  = LOBYTE(vtx0->clip) | LOBYTE(vtx1->clip) | LOBYTE(vtx2->clip) | LOBYTE(vtx3->clip);
-		clipAND = LOBYTE(vtx0->clip) & LOBYTE(vtx1->clip) & LOBYTE(vtx2->clip) & LOBYTE(vtx3->clip);
+		clipOR  = LOBYTE(vtx0->clip | vtx1->clip | vtx2->clip | vtx3->clip);
+		clipAND = LOBYTE(vtx0->clip & vtx1->clip & vtx2->clip & vtx3->clip);
 
 		if( clipAND != 0 )
 			continue;
@@ -1092,8 +1092,8 @@ __int16 *__cdecl InsertObjectG3_ZBuffered(__int16 *ptrObj, int number, int sortT
 		colorIdx = *ptrObj++;
 		nPoints = 3;
 
-		clipOR  = LOBYTE(vtx0->clip) | LOBYTE(vtx1->clip) | LOBYTE(vtx2->clip);
-		clipAND = LOBYTE(vtx0->clip) & LOBYTE(vtx1->clip) & LOBYTE(vtx2->clip);
+		clipOR  = LOBYTE(vtx0->clip | vtx1->clip | vtx2->clip);
+		clipAND = LOBYTE(vtx0->clip & vtx1->clip & vtx2->clip);
 
 		if( clipAND != 0 )
 			continue;
@@ -1335,8 +1335,8 @@ __int16 *__cdecl InsertObjectG4_Sorted(__int16 *ptrObj, int number, int sortType
 		colorIdx = *ptrObj++;
 		nPoints = 4;
 
-		clipOR  = LOBYTE(vtx0->clip) | LOBYTE(vtx1->clip) | LOBYTE(vtx2->clip) | LOBYTE(vtx3->clip);
-		clipAND = LOBYTE(vtx0->clip) & LOBYTE(vtx1->clip) & LOBYTE(vtx2->clip) & LOBYTE(vtx3->clip);
+		clipOR  = LOBYTE(vtx0->clip | vtx1->clip | vtx2->clip | vtx3->clip);
+		clipAND = LOBYTE(vtx0->clip & vtx1->clip & vtx2->clip & vtx3->clip);
 
 		if( clipAND != 0 )
 			continue;
@@ -1482,8 +1482,8 @@ __int16 *__cdecl InsertObjectG3_Sorted(__int16 *ptrObj, int number, int sortType
 		colorIdx = *ptrObj++;
 		nPoints = 3;
 
-		clipOR  = LOBYTE(vtx0->clip) | LOBYTE(vtx1->clip) | LOBYTE(vtx2->clip);
-		clipAND = LOBYTE(vtx0->clip) & LOBYTE(vtx1->clip) & LOBYTE(vtx2->clip);
+		clipOR  = LOBYTE(vtx0->clip | vtx1->clip | vtx2->clip);
+		clipAND = LOBYTE(vtx0->clip & vtx1->clip & vtx2->clip);
 
 		if( clipAND != 0 )
 			continue;
