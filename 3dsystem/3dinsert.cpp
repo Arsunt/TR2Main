@@ -304,7 +304,7 @@ int __cdecl XYGClipper(int vtxCount, VERTEX_INFO *vtx) {
 	return ( j < 3 ) ? 0 : j;
 }
 
-__int16 *__cdecl InsertObjectG4(__int16 *ptrObj, int number, int sortType) {
+__int16 *__cdecl InsertObjectG4(__int16 *ptrObj, int number, SORTTYPE sortType) {
 	char clipOR, clipAND;
 	PHD_VBUF *vtx0, *vtx1, *vtx2, *vtx3;
 	int i, j, nPoints;
@@ -398,7 +398,7 @@ __int16 *__cdecl InsertObjectG4(__int16 *ptrObj, int number, int sortType) {
 			continue;
 
 		Sort3dPtr->_0 = (int)Info3dPtr;
-		Sort3dPtr->_1 = ( sortType ) ? 1000000000 : (int)((vtx0->zv + vtx1->zv + vtx2->zv + vtx3->zv) / 4.0);
+		Sort3dPtr->_1 = ( sortType != ST_AvgZ ) ? 1000000000 : (int)((vtx0->zv + vtx1->zv + vtx2->zv + vtx3->zv) / 4.0);
 		++Sort3dPtr;
 
 		*Info3dPtr++ = 6; // TODO: change to enum (polyType)
@@ -416,7 +416,7 @@ __int16 *__cdecl InsertObjectG4(__int16 *ptrObj, int number, int sortType) {
 	return ptrObj;
 }
 
-__int16 *__cdecl InsertObjectG3(__int16 *ptrObj, int number, int sortType) {
+__int16 *__cdecl InsertObjectG3(__int16 *ptrObj, int number, SORTTYPE sortType) {
 	char clipOR, clipAND;
 	PHD_VBUF *vtx0, *vtx1, *vtx2;
 	int i, j, nPoints;
@@ -496,7 +496,7 @@ __int16 *__cdecl InsertObjectG3(__int16 *ptrObj, int number, int sortType) {
 			continue;
 
 		Sort3dPtr->_0 = (int)Info3dPtr;
-		Sort3dPtr->_1 = ( sortType ) ? 1000000000 : (int)((vtx0->zv + vtx1->zv + vtx2->zv) / 3.0);
+		Sort3dPtr->_1 = ( sortType != ST_AvgZ ) ? 1000000000 : (int)((vtx0->zv + vtx1->zv + vtx2->zv) / 3.0);
 		++Sort3dPtr;
 
 		*Info3dPtr++ = 6; // TODO: change to enum (polyType)
@@ -911,7 +911,7 @@ void __cdecl InsertGT4_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2,
 	}
 }
 
-__int16 *__cdecl InsertObjectGT4_ZBuffered(__int16 *ptrObj, int number, int sortType) {
+__int16 *__cdecl InsertObjectGT4_ZBuffered(__int16 *ptrObj, int number, SORTTYPE sortType) {
 	PHD_VBUF *vtx0, *vtx1, *vtx2, *vtx3;
 	PHD_TEXTURE *texture;
 
@@ -932,7 +932,7 @@ __int16 *__cdecl InsertObjectGT4_ZBuffered(__int16 *ptrObj, int number, int sort
 	return ptrObj;
 }
 
-__int16 *__cdecl InsertObjectGT3_ZBuffered(__int16 *ptrObj, int number, int sortType) {
+__int16 *__cdecl InsertObjectGT3_ZBuffered(__int16 *ptrObj, int number, SORTTYPE sortType) {
 	PHD_VBUF *vtx0, *vtx1, *vtx2;
 	PHD_TEXTURE *texture;
 	PHD_UV *uv;
@@ -954,7 +954,7 @@ __int16 *__cdecl InsertObjectGT3_ZBuffered(__int16 *ptrObj, int number, int sort
 	return ptrObj;
 }
 
-__int16 *__cdecl InsertObjectG4_ZBuffered(__int16 *ptrObj, int number, int sortType) {
+__int16 *__cdecl InsertObjectG4_ZBuffered(__int16 *ptrObj, int number, SORTTYPE sortType) {
 	char clipOR, clipAND;
 	PHD_VBUF *vtx0, *vtx1, *vtx2, *vtx3;
 	int i, nPoints;
@@ -1075,7 +1075,7 @@ void __cdecl DrawPoly_Gouraud(int vtxCount, int red, int green, int blue) {
 	_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, VBufferD3D, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 }
 
-__int16 *__cdecl InsertObjectG3_ZBuffered(__int16 *ptrObj, int number, int sortType) {
+__int16 *__cdecl InsertObjectG3_ZBuffered(__int16 *ptrObj, int number, SORTTYPE sortType) {
 	char clipOR, clipAND;
 	PHD_VBUF *vtx0, *vtx1, *vtx2;
 	int i, nPoints;
@@ -1268,7 +1268,7 @@ void __cdecl InsertClippedPoly_Textured(int vtxCount, float z, __int16 polyType,
 	++SurfaceCount;
 }
 
-__int16 *__cdecl InsertObjectGT4_Sorted(__int16 *ptrObj, int number, int sortType) {
+__int16 *__cdecl InsertObjectGT4_Sorted(__int16 *ptrObj, int number, SORTTYPE sortType) {
 	PHD_VBUF *vtx0, *vtx1, *vtx2, *vtx3;
 	PHD_TEXTURE *texture;
 
@@ -1290,7 +1290,7 @@ __int16 *__cdecl InsertObjectGT4_Sorted(__int16 *ptrObj, int number, int sortTyp
 	return ptrObj;
 }
 
-__int16 *__cdecl InsertObjectGT3_Sorted(__int16 *ptrObj, int number, int sortType) {
+__int16 *__cdecl InsertObjectGT3_Sorted(__int16 *ptrObj, int number, SORTTYPE sortType) {
 	PHD_VBUF *vtx0, *vtx1, *vtx2;
 	PHD_TEXTURE *texture;
 	PHD_UV *uv;
@@ -1313,7 +1313,7 @@ __int16 *__cdecl InsertObjectGT3_Sorted(__int16 *ptrObj, int number, int sortTyp
 	return ptrObj;
 }
 
-__int16 *__cdecl InsertObjectG4_Sorted(__int16 *ptrObj, int number, int sortType) {
+__int16 *__cdecl InsertObjectG4_Sorted(__int16 *ptrObj, int number, SORTTYPE sortType) {
 	char clipOR, clipAND;
 	PHD_VBUF *vtx0, *vtx1, *vtx2, *vtx3;
 	int i, nPoints;
@@ -1416,17 +1416,18 @@ __int16 *__cdecl InsertObjectG4_Sorted(__int16 *ptrObj, int number, int sortType
 		color = &GamePalette16[colorIdx >> 8];
 
 		switch( sortType ) {
-			case 0 :
+			case ST_AvgZ :
 				zv = (vtx0->zv + vtx1->zv + vtx2->zv + vtx3->zv) / 4.0;
 				break;
 
-			case 1 :
+			case ST_MaxZ :
 				zv = vtx0->zv;
 				CLAMPL(zv, vtx1->zv);
 				CLAMPL(zv, vtx2->zv);
 				CLAMPL(zv, vtx3->zv);
 				break;
 
+			case ST_FarZ :
 			default :
 				zv = 1000000000.0;
 				break;
@@ -1462,7 +1463,7 @@ void __cdecl InsertPoly_Gouraud(int vtxCount, float z, int red, int green, int b
 	++SurfaceCount;
 }
 
-__int16 *__cdecl InsertObjectG3_Sorted(__int16 *ptrObj, int number, int sortType) {
+__int16 *__cdecl InsertObjectG3_Sorted(__int16 *ptrObj, int number, SORTTYPE sortType) {
 	char clipOR, clipAND;
 	PHD_VBUF *vtx0, *vtx1, *vtx2;
 	int i, nPoints;
@@ -1551,16 +1552,17 @@ __int16 *__cdecl InsertObjectG3_Sorted(__int16 *ptrObj, int number, int sortType
 		color = &GamePalette16[colorIdx >> 8];
 
 		switch( sortType ) {
-			case 0 :
+			case ST_AvgZ :
 				zv = (vtx0->zv + vtx1->zv + vtx2->zv) / 3.0;
 				break;
 
-			case 1 :
+			case ST_MaxZ :
 				zv = vtx0->zv;
 				CLAMPL(zv, vtx1->zv);
 				CLAMPL(zv, vtx2->zv);
 				break;
 
+			case ST_FarZ :
 			default :
 				zv = 1000000000.0;
 				break;

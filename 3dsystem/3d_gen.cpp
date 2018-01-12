@@ -355,10 +355,10 @@ void __cdecl phd_PutPolygons(__int16 *ptrObj) {
 	ptrObj = calc_object_vertices(ptrObj);
 	if( ptrObj != NULL ) {
 		ptrObj = calc_vertice_light(ptrObj);
-		ptrObj = ins_objectGT4(ptrObj+1, *ptrObj, 0);
-		ptrObj = ins_objectGT3(ptrObj+1, *ptrObj, 0);
-		ptrObj = ins_objectG4(ptrObj+1, *ptrObj, 0);
-		ptrObj = ins_objectG3(ptrObj+1, *ptrObj, 0);
+		ptrObj = ins_objectGT4(ptrObj+1, *ptrObj, ST_AvgZ);
+		ptrObj = ins_objectGT3(ptrObj+1, *ptrObj, ST_AvgZ);
+		ptrObj = ins_objectG4(ptrObj+1, *ptrObj, ST_AvgZ);
+		ptrObj = ins_objectG3(ptrObj+1, *ptrObj, ST_AvgZ);
 	}
 }
 
@@ -371,8 +371,8 @@ void __cdecl S_InsertRoom(__int16 *ptrObj, BOOL isNoFarClip) {
 	FltWinCenterY = (float)(PhdWinMinY + PhdWinCenterY);
 
 	ptrObj = calc_roomvert(ptrObj, isNoFarClip?0x00:0x10);
-	ptrObj = ins_objectGT4(ptrObj+1, *ptrObj, 1);
-	ptrObj = ins_objectGT3(ptrObj+1, *ptrObj, 1);
+	ptrObj = ins_objectGT4(ptrObj+1, *ptrObj, ST_MaxZ);
+	ptrObj = ins_objectGT3(ptrObj+1, *ptrObj, ST_MaxZ);
 	ptrObj = ins_room_sprite(ptrObj+1, *ptrObj);
 }
 
@@ -409,10 +409,10 @@ void __cdecl S_InsertBackground(__int16 *ptrObj) {
 			HWR_EnableZBuffer(false, false);
 
 		ptrObj = calc_background_light(ptrObj);
-		ptrObj = ins_objectGT4(ptrObj+1, *ptrObj, 2);
-		ptrObj = ins_objectGT3(ptrObj+1, *ptrObj, 2);
-		ptrObj = ins_objectG4(ptrObj+1, *ptrObj, 2);
-		ptrObj = ins_objectG3(ptrObj+1, *ptrObj, 2);
+		ptrObj = ins_objectGT4(ptrObj+1, *ptrObj, ST_FarZ);
+		ptrObj = ins_objectGT3(ptrObj+1, *ptrObj, ST_FarZ);
+		ptrObj = ins_objectG4(ptrObj+1, *ptrObj, ST_FarZ);
+		ptrObj = ins_objectG3(ptrObj+1, *ptrObj, ST_FarZ);
 
 		if( SavedAppSettings.RenderMode == RM_Hardware )
 			HWR_EnableZBuffer(true, true);
