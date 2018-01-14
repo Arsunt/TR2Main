@@ -200,6 +200,502 @@ int __cdecl XYGUVClipper(int vtxCount, VERTEX_INFO *vtx) {
 	return ( j < 3 ) ? 0 : j;
 }
 
+__int16 *__cdecl InsertObjectGT4(__int16 *ptrObj, int number, SORTTYPE sortType) {
+	char clipOR, clipAND;
+	PHD_VBUF *vtx0, *vtx1, *vtx2, *vtx3;
+	int i, j, nPoints;
+	float zv;
+	__int16 textureIdx;
+	PHD_TEXTURE *texture;
+	PHD_UV *uv;
+	POINT_INFO points[4];
+
+	for( i = 0; i < number; ++i ) {
+		vtx0 = &PhdVBuf[*ptrObj++];
+		vtx1 = &PhdVBuf[*ptrObj++];
+		vtx2 = &PhdVBuf[*ptrObj++];
+		vtx3 = &PhdVBuf[*ptrObj++];
+		textureIdx = *ptrObj++;
+		texture = &PhdTextureInfo[textureIdx];
+		uv = texture->uv;
+		nPoints = 4;
+
+		clipOR  = LOBYTE(vtx0->clip | vtx1->clip | vtx2->clip | vtx3->clip);
+		clipAND = LOBYTE(vtx0->clip & vtx1->clip & vtx2->clip & vtx3->clip);
+
+		if( clipAND != 0 )
+			continue;
+
+		if( clipOR >= 0 ) {
+			if( !VBUF_VISIBLE(*vtx0, *vtx1, *vtx2) )
+				continue;
+
+			if( clipOR == 0 ) {
+				switch( sortType ) {
+					case ST_AvgZ :
+						zv = (vtx0->zv + vtx1->zv + vtx2->zv + vtx3->zv) / 4.0;
+						break;
+
+					case ST_MaxZ :
+						zv = vtx0->zv;
+						CLAMPL(zv, vtx1->zv);
+						CLAMPL(zv, vtx2->zv);
+						CLAMPL(zv, vtx3->zv);
+						break;
+
+					case ST_FarZ :
+					default :
+						zv = 1000000000.0;
+						break;
+				}
+
+				Sort3dPtr->_0 = (int)Info3dPtr;
+				Sort3dPtr->_1 = (int)zv;
+				++Sort3dPtr;
+
+				if( zv >= (double)PerspectiveDistance ) {
+					*Info3dPtr++ = ( texture->drawtype == 0 ) ? 0 : 1; // TODO: change to enum (polyType)
+					*Info3dPtr++ = texture->tpage;
+					*Info3dPtr++ = 4;
+
+					*Info3dPtr++ = (int)vtx0->xs;
+					*Info3dPtr++ = (int)vtx0->ys;
+					*Info3dPtr++ = (int)vtx0->g;
+					*Info3dPtr++ = uv[0].u;
+					*Info3dPtr++ = uv[0].v;
+
+					*Info3dPtr++ = (int)vtx1->xs;
+					*Info3dPtr++ = (int)vtx1->ys;
+					*Info3dPtr++ = (int)vtx1->g;
+					*Info3dPtr++ = uv[1].u;
+					*Info3dPtr++ = uv[1].v;
+
+					*Info3dPtr++ = (int)vtx2->xs;
+					*Info3dPtr++ = (int)vtx2->ys;
+					*Info3dPtr++ = (int)vtx2->g;
+					*Info3dPtr++ = uv[2].u;
+					*Info3dPtr++ = uv[2].v;
+
+					*Info3dPtr++ = (int)vtx3->xs;
+					*Info3dPtr++ = (int)vtx3->ys;
+					*Info3dPtr++ = (int)vtx3->g;
+					*Info3dPtr++ = uv[3].u;
+					*Info3dPtr++ = uv[3].v;
+				} else {
+					*Info3dPtr++ = ( texture->drawtype == 0 ) ? 2 : 3; // TODO: change to enum (polyType)
+					*Info3dPtr++ = texture->tpage;
+					*Info3dPtr++ = 4;
+
+					*Info3dPtr++ = (int)vtx0->xs;
+					*Info3dPtr++ = (int)vtx0->ys;
+					*Info3dPtr++ = (int)vtx0->g;
+					*(float *)Info3dPtr = vtx0->rhw;
+					Info3dPtr += sizeof(float)/sizeof(__int16);
+					*(float *)Info3dPtr = (double)uv[0].u * vtx0->rhw;
+					Info3dPtr += sizeof(float)/sizeof(__int16);
+					*(float *)Info3dPtr = (double)uv[0].v * vtx0->rhw;
+					Info3dPtr += sizeof(float)/sizeof(__int16);
+
+					*Info3dPtr++ = (int)vtx1->xs;
+					*Info3dPtr++ = (int)vtx1->ys;
+					*Info3dPtr++ = (int)vtx1->g;
+					*(float *)Info3dPtr = vtx1->rhw;
+					Info3dPtr += sizeof(float)/sizeof(__int16);
+					*(float *)Info3dPtr = (double)uv[1].u * vtx1->rhw;
+					Info3dPtr += sizeof(float)/sizeof(__int16);
+					*(float *)Info3dPtr = (double)uv[1].v * vtx1->rhw;
+					Info3dPtr += sizeof(float)/sizeof(__int16);
+
+					*Info3dPtr++ = (int)vtx2->xs;
+					*Info3dPtr++ = (int)vtx2->ys;
+					*Info3dPtr++ = (int)vtx2->g;
+					*(float *)Info3dPtr = vtx2->rhw;
+					Info3dPtr += sizeof(float)/sizeof(__int16);
+					*(float *)Info3dPtr = (double)uv[2].u * vtx2->rhw;
+					Info3dPtr += sizeof(float)/sizeof(__int16);
+					*(float *)Info3dPtr = (double)uv[2].v * vtx2->rhw;
+					Info3dPtr += sizeof(float)/sizeof(__int16);
+
+					*Info3dPtr++ = (int)vtx3->xs;
+					*Info3dPtr++ = (int)vtx3->ys;
+					*Info3dPtr++ = (int)vtx3->g;
+					*(float *)Info3dPtr = vtx3->rhw;
+					Info3dPtr += sizeof(float)/sizeof(__int16);
+					*(float *)Info3dPtr = (double)uv[3].u * vtx3->rhw;
+					Info3dPtr += sizeof(float)/sizeof(__int16);
+					*(float *)Info3dPtr = (double)uv[3].v * vtx3->rhw;
+					Info3dPtr += sizeof(float)/sizeof(__int16);
+				}
+				++SurfaceCount;
+				continue;
+			}
+
+			VBuffer[0].x = vtx0->xs;
+			VBuffer[0].y = vtx0->ys;
+			VBuffer[0].rhw = vtx0->rhw;
+			VBuffer[0].g = (float)vtx0->g;
+			VBuffer[0].u = (double)uv[0].u * vtx0->rhw;
+			VBuffer[0].v = (double)uv[0].v * vtx0->rhw;
+
+			VBuffer[1].x = vtx1->xs;
+			VBuffer[1].y = vtx1->ys;
+			VBuffer[1].rhw = vtx1->rhw;
+			VBuffer[1].g = (float)vtx1->g;
+			VBuffer[1].u = (double)uv[1].u * vtx1->rhw;
+			VBuffer[1].v = (double)uv[1].v * vtx1->rhw;
+
+			VBuffer[2].x = vtx2->xs;
+			VBuffer[2].y = vtx2->ys;
+			VBuffer[2].rhw = vtx2->rhw;
+			VBuffer[2].g = (float)vtx2->g;
+			VBuffer[2].u = (double)uv[2].u * vtx2->rhw;
+			VBuffer[2].v = (double)uv[2].v * vtx2->rhw;
+
+			VBuffer[3].x = vtx3->xs;
+			VBuffer[3].y = vtx3->ys;
+			VBuffer[3].rhw = vtx3->rhw;
+			VBuffer[3].g = (float)vtx3->g;
+			VBuffer[3].u = (double)uv[3].u * vtx3->rhw;
+			VBuffer[3].v = (double)uv[3].v * vtx3->rhw;
+		} else {
+
+			if( !visible_zclip(vtx0, vtx1, vtx2) )
+				continue;
+
+			points[0].xv	= vtx0->xv;
+			points[0].yv	= vtx0->yv;
+			points[0].zv	= vtx0->zv;
+			points[0].rhw	= vtx0->rhw;
+			points[0].xs	= vtx0->xs;
+			points[0].ys	= vtx0->ys;
+			points[0].u		= (float)uv[0].u;
+			points[0].v		= (float)uv[0].v;
+			points[0].g		= (float)vtx0->g;
+
+			points[1].yv	= vtx1->yv;
+			points[1].xv	= vtx1->xv;
+			points[1].zv	= vtx1->zv;
+			points[1].rhw	= vtx1->rhw;
+			points[1].xs	= vtx1->xs;
+			points[1].ys	= vtx1->ys;
+			points[1].u		= (float)uv[1].u;
+			points[1].v		= (float)uv[1].v;
+			points[1].g		= (float)vtx1->g;
+
+			points[2].xv	= vtx2->xv;
+			points[2].yv	= vtx2->yv;
+			points[2].zv	= vtx2->zv;
+			points[2].rhw	= vtx2->rhw;
+			points[2].xs	= vtx2->xs;
+			points[2].ys	= vtx2->ys;
+			points[2].u		= (float)uv[2].u;
+			points[2].v		= (float)uv[2].v;
+			points[2].g		= (float)vtx2->g;
+
+			points[3].xv	= vtx3->xv;
+			points[3].yv	= vtx3->yv;
+			points[3].zv	= vtx3->zv;
+			points[3].rhw	= vtx3->rhw;
+			points[3].xs	= vtx3->xs;
+			points[3].ys	= vtx3->ys;
+			points[3].u		= (float)uv[3].u;
+			points[3].v		= (float)uv[3].v;
+			points[3].g		= (float)vtx3->g;
+
+			nPoints = ZedClipper(nPoints, points, VBuffer);
+			if( nPoints == 0 ) continue;
+		}
+
+		nPoints = XYGUVClipper(nPoints, VBuffer);
+		if( nPoints == 0 ) continue;
+
+		switch( sortType ) {
+			case ST_AvgZ :
+				zv = (vtx0->zv + vtx1->zv + vtx2->zv + vtx3->zv) / 4.0;
+				break;
+
+			case ST_MaxZ :
+				zv = vtx0->zv;
+				CLAMPL(zv, vtx1->zv);
+				CLAMPL(zv, vtx2->zv);
+				CLAMPL(zv, vtx3->zv);
+				break;
+
+			case ST_FarZ :
+			default :
+				zv = 1000000000.0;
+				break;
+		}
+
+		Sort3dPtr->_0 = (int)Info3dPtr;
+		Sort3dPtr->_1 = (int)zv;
+		++Sort3dPtr;
+
+		if( zv >= (double)PerspectiveDistance ) {
+			*Info3dPtr++ = ( texture->drawtype == 0 ) ? 0 : 1; // TODO: change to enum (polyType)
+			*Info3dPtr++ = texture->tpage;
+			*Info3dPtr++ = nPoints;
+
+			for( j = 0; j < nPoints; ++j ) {
+				*Info3dPtr++ = (int)VBuffer[j].x;
+				*Info3dPtr++ = (int)VBuffer[j].y;
+				*Info3dPtr++ = (int)VBuffer[j].g;
+				*Info3dPtr++ = (int)(VBuffer[j].u / VBuffer[j].rhw);
+				*Info3dPtr++ = (int)(VBuffer[j].v / VBuffer[j].rhw);
+			}
+		} else {
+			*Info3dPtr++ = ( texture->drawtype == 0 ) ? 2 : 3; // TODO: change to enum (polyType)
+			*Info3dPtr++ = texture->tpage;
+			*Info3dPtr++ = nPoints;
+
+			for( j = 0; j < nPoints; ++j ) {
+				*Info3dPtr++ = (int)VBuffer[j].x;
+				*Info3dPtr++ = (int)VBuffer[j].y;
+				*Info3dPtr++ = (int)VBuffer[j].g;
+				*(float *)Info3dPtr = VBuffer[j].rhw;
+				Info3dPtr += sizeof(float)/sizeof(__int16);
+				*(float *)Info3dPtr = VBuffer[j].u;
+				Info3dPtr += sizeof(float)/sizeof(__int16);
+				*(float *)Info3dPtr = VBuffer[j].v;
+				Info3dPtr += sizeof(float)/sizeof(__int16);
+			}
+		}
+		++SurfaceCount;
+	}
+
+	return ptrObj;
+}
+
+__int16 *__cdecl InsertObjectGT3(__int16 *ptrObj, int number, SORTTYPE sortType) {
+	char clipOR, clipAND;
+	PHD_VBUF *vtx0, *vtx1, *vtx2;
+	int i, j, nPoints;
+	float zv;
+	__int16 textureIdx;
+	PHD_TEXTURE *texture;
+	PHD_UV *uv;
+	POINT_INFO points[3];
+
+	for( i = 0; i < number; ++i ) {
+		vtx0 = &PhdVBuf[*ptrObj++];
+		vtx1 = &PhdVBuf[*ptrObj++];
+		vtx2 = &PhdVBuf[*ptrObj++];
+		textureIdx = *ptrObj++;
+		texture = &PhdTextureInfo[textureIdx];
+		uv = texture->uv;
+		nPoints = 3;
+
+		clipOR  = LOBYTE(vtx0->clip | vtx1->clip | vtx2->clip);
+		clipAND = LOBYTE(vtx0->clip & vtx1->clip & vtx2->clip);
+
+		if( clipAND != 0 )
+			continue;
+
+		if( clipOR >= 0 ) {
+			if( !VBUF_VISIBLE(*vtx0, *vtx1, *vtx2) )
+				continue;
+
+			if( clipOR == 0 ) {
+				switch( sortType ) {
+					case ST_AvgZ :
+						zv = (vtx0->zv + vtx1->zv + vtx2->zv) / 3.0;
+						break;
+
+					case ST_MaxZ :
+						zv = vtx0->zv;
+						CLAMPL(zv, vtx1->zv);
+						CLAMPL(zv, vtx2->zv);
+						break;
+
+					case ST_FarZ :
+					default :
+						zv = 1000000000.0;
+						break;
+				}
+
+				Sort3dPtr->_0 = (int)Info3dPtr;
+				Sort3dPtr->_1 = (int)zv;
+				++Sort3dPtr;
+
+				if( zv >= (double)PerspectiveDistance ) {
+					*Info3dPtr++ = ( texture->drawtype == 0 ) ? 0 : 1; // TODO: change to enum (polyType)
+					*Info3dPtr++ = texture->tpage;
+					*Info3dPtr++ = 3;
+
+					*Info3dPtr++ = (int)vtx0->xs;
+					*Info3dPtr++ = (int)vtx0->ys;
+					*Info3dPtr++ = (int)vtx0->g;
+					*Info3dPtr++ = uv[0].u;
+					*Info3dPtr++ = uv[0].v;
+
+					*Info3dPtr++ = (int)vtx1->xs;
+					*Info3dPtr++ = (int)vtx1->ys;
+					*Info3dPtr++ = (int)vtx1->g;
+					*Info3dPtr++ = uv[1].u;
+					*Info3dPtr++ = uv[1].v;
+
+					*Info3dPtr++ = (int)vtx2->xs;
+					*Info3dPtr++ = (int)vtx2->ys;
+					*Info3dPtr++ = (int)vtx2->g;
+					*Info3dPtr++ = uv[2].u;
+					*Info3dPtr++ = uv[2].v;
+				} else {
+					*Info3dPtr++ = ( texture->drawtype == 0 ) ? 2 : 3; // TODO: change to enum (polyType)
+					*Info3dPtr++ = texture->tpage;
+					*Info3dPtr++ = 3;
+
+					*Info3dPtr++ = (int)vtx0->xs;
+					*Info3dPtr++ = (int)vtx0->ys;
+					*Info3dPtr++ = (int)vtx0->g;
+					*(float *)Info3dPtr = vtx0->rhw;
+					Info3dPtr += sizeof(float)/sizeof(__int16);
+					*(float *)Info3dPtr = (double)uv[0].u * vtx0->rhw;
+					Info3dPtr += sizeof(float)/sizeof(__int16);
+					*(float *)Info3dPtr = (double)uv[0].v * vtx0->rhw;
+					Info3dPtr += sizeof(float)/sizeof(__int16);
+
+					*Info3dPtr++ = (int)vtx1->xs;
+					*Info3dPtr++ = (int)vtx1->ys;
+					*Info3dPtr++ = (int)vtx1->g;
+					*(float *)Info3dPtr = vtx1->rhw;
+					Info3dPtr += sizeof(float)/sizeof(__int16);
+					*(float *)Info3dPtr = (double)uv[1].u * vtx1->rhw;
+					Info3dPtr += sizeof(float)/sizeof(__int16);
+					*(float *)Info3dPtr = (double)uv[1].v * vtx1->rhw;
+					Info3dPtr += sizeof(float)/sizeof(__int16);
+
+					*Info3dPtr++ = (int)vtx2->xs;
+					*Info3dPtr++ = (int)vtx2->ys;
+					*Info3dPtr++ = (int)vtx2->g;
+					*(float *)Info3dPtr = vtx2->rhw;
+					Info3dPtr += sizeof(float)/sizeof(__int16);
+					*(float *)Info3dPtr = (double)uv[2].u * vtx2->rhw;
+					Info3dPtr += sizeof(float)/sizeof(__int16);
+					*(float *)Info3dPtr = (double)uv[2].v * vtx2->rhw;
+					Info3dPtr += sizeof(float)/sizeof(__int16);
+				}
+				++SurfaceCount;
+				continue;
+			}
+
+			VBuffer[0].x = vtx0->xs;
+			VBuffer[0].y = vtx0->ys;
+			VBuffer[0].rhw = vtx0->rhw;
+			VBuffer[0].g = (float)vtx0->g;
+			VBuffer[0].u = (double)uv[0].u * vtx0->rhw;
+			VBuffer[0].v = (double)uv[0].v * vtx0->rhw;
+
+			VBuffer[1].x = vtx1->xs;
+			VBuffer[1].y = vtx1->ys;
+			VBuffer[1].rhw = vtx1->rhw;
+			VBuffer[1].g = (float)vtx1->g;
+			VBuffer[1].u = (double)uv[1].u * vtx1->rhw;
+			VBuffer[1].v = (double)uv[1].v * vtx1->rhw;
+
+			VBuffer[2].x = vtx2->xs;
+			VBuffer[2].y = vtx2->ys;
+			VBuffer[2].rhw = vtx2->rhw;
+			VBuffer[2].g = (float)vtx2->g;
+			VBuffer[2].u = (double)uv[2].u * vtx2->rhw;
+			VBuffer[2].v = (double)uv[2].v * vtx2->rhw;
+		} else {
+
+			if( !visible_zclip(vtx0, vtx1, vtx2) )
+				continue;
+
+			points[0].xv	= vtx0->xv;
+			points[0].yv	= vtx0->yv;
+			points[0].zv	= vtx0->zv;
+			points[0].rhw	= vtx0->rhw;
+			points[0].xs	= vtx0->xs;
+			points[0].ys	= vtx0->ys;
+			points[0].u		= (float)uv[0].u;
+			points[0].v		= (float)uv[0].v;
+			points[0].g		= (float)vtx0->g;
+
+			points[1].yv	= vtx1->yv;
+			points[1].xv	= vtx1->xv;
+			points[1].zv	= vtx1->zv;
+			points[1].rhw	= vtx1->rhw;
+			points[1].xs	= vtx1->xs;
+			points[1].ys	= vtx1->ys;
+			points[1].u		= (float)uv[1].u;
+			points[1].v		= (float)uv[1].v;
+			points[1].g		= (float)vtx1->g;
+
+			points[2].xv	= vtx2->xv;
+			points[2].yv	= vtx2->yv;
+			points[2].zv	= vtx2->zv;
+			points[2].rhw	= vtx2->rhw;
+			points[2].xs	= vtx2->xs;
+			points[2].ys	= vtx2->ys;
+			points[2].u		= (float)uv[2].u;
+			points[2].v		= (float)uv[2].v;
+			points[2].g		= (float)vtx2->g;
+
+			nPoints = ZedClipper(nPoints, points, VBuffer);
+			if( nPoints == 0 ) continue;
+		}
+
+		nPoints = XYGUVClipper(nPoints, VBuffer);
+		if( nPoints == 0 ) continue;
+
+		switch( sortType ) {
+			case ST_AvgZ :
+				zv = (vtx0->zv + vtx1->zv + vtx2->zv) / 3.0;
+				break;
+
+			case ST_MaxZ :
+				zv = vtx0->zv;
+				CLAMPL(zv, vtx1->zv);
+				CLAMPL(zv, vtx2->zv);
+				break;
+
+			case ST_FarZ :
+			default :
+				zv = 1000000000.0;
+				break;
+		}
+
+		Sort3dPtr->_0 = (int)Info3dPtr;
+		Sort3dPtr->_1 = (int)zv;
+		++Sort3dPtr;
+
+		if( zv >= (double)PerspectiveDistance ) {
+			*Info3dPtr++ = ( texture->drawtype == 0 ) ? 0 : 1; // TODO: change to enum (polyType)
+			*Info3dPtr++ = texture->tpage;
+			*Info3dPtr++ = nPoints;
+
+			for( j = 0; j < nPoints; ++j ) {
+				*Info3dPtr++ = (int)VBuffer[j].x;
+				*Info3dPtr++ = (int)VBuffer[j].y;
+				*Info3dPtr++ = (int)VBuffer[j].g;
+				*Info3dPtr++ = (int)(VBuffer[j].u / VBuffer[j].rhw);
+				*Info3dPtr++ = (int)(VBuffer[j].v / VBuffer[j].rhw);
+			}
+		} else {
+			*Info3dPtr++ = ( texture->drawtype == 0 ) ? 2 : 3; // TODO: change to enum (polyType)
+			*Info3dPtr++ = texture->tpage;
+			*Info3dPtr++ = nPoints;
+
+			for( j = 0; j < nPoints; ++j ) {
+				*Info3dPtr++ = (int)VBuffer[j].x;
+				*Info3dPtr++ = (int)VBuffer[j].y;
+				*Info3dPtr++ = (int)VBuffer[j].g;
+				*(float *)Info3dPtr = VBuffer[j].rhw;
+				Info3dPtr += sizeof(float)/sizeof(__int16);
+				*(float *)Info3dPtr = VBuffer[j].u;
+				Info3dPtr += sizeof(float)/sizeof(__int16);
+				*(float *)Info3dPtr = VBuffer[j].v;
+				Info3dPtr += sizeof(float)/sizeof(__int16);
+			}
+		}
+		++SurfaceCount;
+	}
+
+	return ptrObj;
+}
+
 static inline void clipG(VERTEX_INFO *buf, VERTEX_INFO *vtx1, VERTEX_INFO *vtx2, float clip) {
 	buf->rhw = vtx2->rhw + (vtx1->rhw - vtx2->rhw) * clip;
 	buf->g   = vtx2->g   + (vtx1->g   - vtx2->g)   * clip;
@@ -543,9 +1039,9 @@ __int16 *__cdecl InsertObjectG3(__int16 *ptrObj, int number, SORTTYPE sortType) 
 		*Info3dPtr++ = nPoints;
 
 		for( j = 0; j < nPoints; ++j ) {
-			*Info3dPtr++ = VBuffer[j].x;
-			*Info3dPtr++ = VBuffer[j].y;
-			*Info3dPtr++ = VBuffer[j].g;
+			*Info3dPtr++ = (int)VBuffer[j].x;
+			*Info3dPtr++ = (int)VBuffer[j].y;
+			*Info3dPtr++ = (int)VBuffer[j].g;
 		}
 		++SurfaceCount;
 	}
@@ -692,8 +1188,8 @@ void __cdecl InsertTrans8(PHD_VBUF *vbuf, __int16 shade) {
 	*(Info3dPtr++) = nPoints; // number of vertices
 
 	for( i = 0; i < nPoints; ++i ) {
-		*(Info3dPtr++) = VBuffer[i].x;
-		*(Info3dPtr++) = VBuffer[i].y;
+		*(Info3dPtr++) = (int)VBuffer[i].x;
+		*(Info3dPtr++) = (int)VBuffer[i].y;
 	}
 
 	++SurfaceCount;
@@ -857,7 +1353,7 @@ void __cdecl InsertGT3_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2,
 		points[2].g		= (float)vtx2->g;
 
 		nPoints = ZedClipper(nPoints, points, VBuffer);
-		if( !nPoints ) return;
+		if( nPoints == 0 ) return;
 	}
 
 	nPoints = XYGUVClipper(nPoints, VBuffer);
@@ -1275,6 +1771,161 @@ void __cdecl InsertLine_ZBuffered(int x0, int y0, int x1, int y1, int z, BYTE co
 	_Direct3DDevice2->DrawPrimitive(D3DPT_LINESTRIP, D3DVT_TLVERTEX, VBufferD3D, 2, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 }
 
+void __cdecl InsertGT3_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PHD_TEXTURE *texture, PHD_UV *uv0, PHD_UV *uv1, PHD_UV *uv2, SORTTYPE sortType) {
+	char clipOR, clipAND;
+	float zv;
+	POINT_INFO points[3];
+	int nPoints = 3;
+
+	clipOR  = LOBYTE(vtx0->clip | vtx1->clip | vtx2->clip);
+	clipAND = LOBYTE(vtx0->clip & vtx1->clip & vtx2->clip);
+
+	if( clipAND != 0 )
+		return;
+
+	if( clipOR >= 0 ) {
+		if( !VBUF_VISIBLE(*vtx0, *vtx1, *vtx2) )
+			return;
+
+		if( clipOR == 0 ) {
+			switch( sortType ) {
+				case ST_AvgZ :
+					zv = (vtx0->zv + vtx1->zv + vtx2->zv) / 3.0;
+					break;
+
+				case ST_MaxZ :
+					zv = vtx0->zv;
+					CLAMPL(zv, vtx1->zv);
+					CLAMPL(zv, vtx2->zv);
+					break;
+
+				case ST_FarZ :
+				default :
+					zv = 1000000000.0;
+					break;
+			}
+
+			Sort3dPtr->_0 = (int)Info3dPtr;
+			Sort3dPtr->_1 = (int)zv;
+			++Sort3dPtr;
+
+			*Info3dPtr++ = ( texture->drawtype == 0 ) ? 9 : 10; // TODO: change to enum (polyType)
+			*Info3dPtr++ = texture->tpage;
+			*Info3dPtr++ = 3;
+			*(D3DTLVERTEX **)Info3dPtr = HWR_VertexPtr;
+			Info3dPtr += sizeof(D3DTLVERTEX *)/sizeof(__int16);
+
+			HWR_VertexPtr[0].sx = vtx0->xs;
+			HWR_VertexPtr[0].sy = vtx0->ys;
+			HWR_VertexPtr[0].sz = FltResZBuf - FltResZORhw * vtx0->rhw; // NOTE: there was bug because of uninitialized sz and rhw
+			HWR_VertexPtr[0].rhw = vtx0->rhw;
+			HWR_VertexPtr[0].color = shadeColor(0xFF, 0xFF, 0xFF, 0xFF, vtx0->g);
+			HWR_VertexPtr[0].tu = (double)uv0->u / (double)PHD_ONE;
+			HWR_VertexPtr[0].tv = (double)uv0->v / (double)PHD_ONE;
+
+			HWR_VertexPtr[1].sx = vtx1->xs;
+			HWR_VertexPtr[1].sy = vtx1->ys;
+			HWR_VertexPtr[1].sz = FltResZBuf - FltResZORhw * vtx1->rhw; // NOTE: there was bug because of uninitialized sz and rhw
+			HWR_VertexPtr[1].rhw = vtx1->rhw;
+			HWR_VertexPtr[1].color = shadeColor(0xFF, 0xFF, 0xFF, 0xFF, vtx1->g);
+			HWR_VertexPtr[1].tu = (double)uv1->u / (double)PHD_ONE;
+			HWR_VertexPtr[1].tv = (double)uv1->v / (double)PHD_ONE;
+
+			HWR_VertexPtr[2].sx = vtx2->xs;
+			HWR_VertexPtr[2].sy = vtx2->ys;
+			HWR_VertexPtr[2].sz = FltResZBuf - FltResZORhw * vtx2->rhw; // NOTE: there was bug because of uninitialized sz and rhw
+			HWR_VertexPtr[2].rhw = vtx2->rhw;
+			HWR_VertexPtr[2].color = shadeColor(0xFF, 0xFF, 0xFF, 0xFF, vtx2->g);
+			HWR_VertexPtr[2].tu = (double)uv2->u / (double)PHD_ONE;
+			HWR_VertexPtr[2].tv = (double)uv2->v / (double)PHD_ONE;
+
+			HWR_VertexPtr += 3;
+			++SurfaceCount;
+			return;
+		}
+
+		VBuffer[0].x = vtx0->xs;
+		VBuffer[0].y = vtx0->ys;
+		VBuffer[0].rhw = vtx0->rhw;
+		VBuffer[0].g = (double)vtx0->g;
+		VBuffer[0].u = (double)uv0->u * vtx0->rhw;
+		VBuffer[0].v = (double)uv0->v * vtx0->rhw;
+
+		VBuffer[1].x = vtx1->xs;
+		VBuffer[1].y = vtx1->ys;
+		VBuffer[1].rhw = vtx1->rhw;
+		VBuffer[1].g = (double)vtx1->g;
+		VBuffer[1].u = (double)uv1->u * vtx1->rhw;
+		VBuffer[1].v = (double)uv1->v * vtx1->rhw;
+
+		VBuffer[2].x = vtx2->xs;
+		VBuffer[2].y = vtx2->ys;
+		VBuffer[2].rhw = vtx2->rhw;
+		VBuffer[2].g = (double)vtx2->g;
+		VBuffer[2].u = (double)uv2->u * vtx2->rhw;
+		VBuffer[2].v = (double)uv2->v * vtx2->rhw;
+	} else {
+
+		if( !visible_zclip(vtx0, vtx1, vtx2) )
+			return;
+
+		points[0].xv	= vtx0->xv;
+		points[0].yv	= vtx0->yv;
+		points[0].zv	= vtx0->zv;
+		points[0].rhw	= vtx0->rhw;
+		points[0].xs	= vtx0->xs;
+		points[0].ys	= vtx0->ys;
+		points[0].u		= (float)uv0->u;
+		points[0].v		= (float)uv0->v;
+		points[0].g		= (float)vtx0->g;
+
+		points[1].yv	= vtx1->yv;
+		points[1].xv	= vtx1->xv;
+		points[1].zv	= vtx1->zv;
+		points[1].rhw	= vtx1->rhw;
+		points[1].xs	= vtx1->xs;
+		points[1].ys	= vtx1->ys;
+		points[1].u		= (float)uv1->u;
+		points[1].v		= (float)uv1->v;
+		points[1].g		= (float)vtx1->g;
+
+		points[2].xv	= vtx2->xv;
+		points[2].yv	= vtx2->yv;
+		points[2].zv	= vtx2->zv;
+		points[2].rhw	= vtx2->rhw;
+		points[2].xs	= vtx2->xs;
+		points[2].ys	= vtx2->ys;
+		points[2].u		= (float)uv2->u;
+		points[2].v		= (float)uv2->v;
+		points[2].g		= (float)vtx2->g;
+
+		nPoints = ZedClipper(nPoints, points, VBuffer);
+		if( nPoints == 0 ) return;
+	}
+
+	nPoints = XYGUVClipper(nPoints, VBuffer);
+	if( nPoints == 0 ) return;
+
+	switch( sortType ) {
+		case ST_AvgZ :
+			zv = (vtx0->zv + vtx1->zv + vtx2->zv) / 3.0;
+			break;
+
+		case ST_MaxZ :
+			zv = vtx0->zv;
+			CLAMPL(zv, vtx1->zv);
+			CLAMPL(zv, vtx2->zv);
+			break;
+
+		case ST_FarZ :
+		default :
+			zv = 1000000000.0;
+			break;
+	}
+
+	InsertClippedPoly_Textured(nPoints, zv, ( texture->drawtype == 0 ) ? 9 : 10, texture->tpage); // TODO: change to enum (polyType)
+}
+
 void __cdecl InsertClippedPoly_Textured(int vtxCount, float z, __int16 polyType, __int16 texPage) {
 	double tu, tv;
 
@@ -1305,6 +1956,88 @@ void __cdecl InsertClippedPoly_Textured(int vtxCount, float z, __int16 polyType,
 
 	HWR_VertexPtr += vtxCount;
 	++SurfaceCount;
+}
+
+void __cdecl InsertGT4_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PHD_VBUF *vtx3, PHD_TEXTURE *texture, SORTTYPE sortType) {
+	char clipOR, clipAND;
+	float zv;
+
+	clipOR  = LOBYTE(vtx0->clip | vtx1->clip | vtx2->clip | vtx3->clip);
+	clipAND = LOBYTE(vtx0->clip & vtx1->clip & vtx2->clip & vtx3->clip);
+
+	if( clipAND != 0 )
+		return;
+
+	if( clipOR == 0 && VBUF_VISIBLE(*vtx0, *vtx1, *vtx2) ) {
+		switch( sortType ) {
+			case ST_AvgZ :
+				zv = (vtx0->zv + vtx1->zv + vtx2->zv + vtx3->zv) / 4.0;
+				break;
+
+			case ST_MaxZ :
+				zv = vtx0->zv;
+				CLAMPL(zv, vtx1->zv);
+				CLAMPL(zv, vtx2->zv);
+				CLAMPL(zv, vtx3->zv);
+				break;
+
+			case ST_FarZ :
+			default :
+				zv = 1000000000.0;
+				break;
+		}
+
+		Sort3dPtr->_0 = (int)Info3dPtr;
+		Sort3dPtr->_1 = (int)zv;
+		++Sort3dPtr;
+
+		*Info3dPtr++ = ( texture->drawtype == 0 ) ? 9 : 10; // TODO: change to enum (polyType)
+		*Info3dPtr++ = texture->tpage;
+		*Info3dPtr++ = 4;
+		*(D3DTLVERTEX **)Info3dPtr = HWR_VertexPtr;
+		Info3dPtr += sizeof(D3DTLVERTEX *)/sizeof(__int16);
+
+		HWR_VertexPtr[0].sx = vtx0->xs;
+		HWR_VertexPtr[0].sy = vtx0->ys;
+		HWR_VertexPtr[0].sz = FltResZBuf - FltResZORhw * vtx0->rhw; // NOTE: there was bug because of uninitialized sz and rhw
+		HWR_VertexPtr[0].rhw = vtx0->rhw;
+		HWR_VertexPtr[0].color = shadeColor(0xFF, 0xFF, 0xFF, 0xFF, vtx0->g);
+		HWR_VertexPtr[0].tu = (double)texture->uv[0].u / (double)PHD_ONE;
+		HWR_VertexPtr[0].tv = (double)texture->uv[0].v / (double)PHD_ONE;
+
+		HWR_VertexPtr[1].sx = vtx1->xs;
+		HWR_VertexPtr[1].sy = vtx1->ys;
+		HWR_VertexPtr[1].sz = FltResZBuf - FltResZORhw * vtx1->rhw; // NOTE: there was bug because of uninitialized sz and rhw
+		HWR_VertexPtr[1].rhw = vtx1->rhw;
+		HWR_VertexPtr[1].color = shadeColor(0xFF, 0xFF, 0xFF, 0xFF, vtx1->g);
+		HWR_VertexPtr[1].tu = (double)texture->uv[1].u / (double)PHD_ONE;
+		HWR_VertexPtr[1].tv = (double)texture->uv[1].v / (double)PHD_ONE;
+
+		HWR_VertexPtr[2].sx = vtx2->xs;
+		HWR_VertexPtr[2].sy = vtx2->ys;
+		HWR_VertexPtr[2].sz = FltResZBuf - FltResZORhw * vtx2->rhw; // NOTE: there was bug because of uninitialized sz and rhw
+		HWR_VertexPtr[2].rhw = vtx2->rhw;
+		HWR_VertexPtr[2].color = shadeColor(0xFF, 0xFF, 0xFF, 0xFF, vtx2->g);
+		HWR_VertexPtr[2].tu = (double)texture->uv[2].u / (double)PHD_ONE;
+		HWR_VertexPtr[2].tv = (double)texture->uv[2].v / (double)PHD_ONE;
+
+		HWR_VertexPtr[3].sx = vtx3->xs;
+		HWR_VertexPtr[3].sy = vtx3->ys;
+		HWR_VertexPtr[3].sz = FltResZBuf - FltResZORhw * vtx3->rhw; // NOTE: there was bug because of uninitialized sz and rhw
+		HWR_VertexPtr[3].rhw = vtx3->rhw;
+		HWR_VertexPtr[3].color = shadeColor(0xFF, 0xFF, 0xFF, 0xFF, vtx3->g);
+		HWR_VertexPtr[3].tu = (double)texture->uv[3].u / (double)PHD_ONE;
+		HWR_VertexPtr[3].tv = (double)texture->uv[3].v / (double)PHD_ONE;
+
+		HWR_VertexPtr += 4;
+		++SurfaceCount;
+	}
+	else if( (clipOR < 0 && visible_zclip(vtx0, vtx1, vtx2)) ||
+			 (clipOR > 0 && VBUF_VISIBLE(*vtx0, *vtx1, *vtx2)) )
+	{
+		InsertGT3_Sorted(vtx0, vtx1, vtx2, texture, texture->uv, &texture->uv[1], &texture->uv[2], sortType);
+		InsertGT3_Sorted(vtx0, vtx2, vtx3, texture, texture->uv, &texture->uv[2], &texture->uv[3], sortType);
+	}
 }
 
 __int16 *__cdecl InsertObjectGT4_Sorted(__int16 *ptrObj, int number, SORTTYPE sortType) {
@@ -1859,7 +2592,8 @@ void Inject_3Dinsert() {
 	INJECT(0x00405840, visible_zclip);
 	INJECT(0x004058B0, ZedClipper);
 	INJECT(0x004059F0, XYGUVClipper);
-
+	INJECT(0x00405F10, InsertObjectGT4);
+	INJECT(0x00406970, InsertObjectGT3);
 	INJECT(0x004071F0, XYGClipper);
 	INJECT(0x00407620, InsertObjectG4);
 	INJECT(0x00407A00, InsertObjectG3);
@@ -1878,9 +2612,9 @@ void Inject_3Dinsert() {
 	INJECT(0x004098D0, InsertObjectG3_ZBuffered);
 	INJECT(0x00409BB0, InsertFlatRect_ZBuffered);
 	INJECT(0x00409D80, InsertLine_ZBuffered);
-
+	INJECT(0x00409EC0, InsertGT3_Sorted);
 	INJECT(0x0040A5D0, InsertClippedPoly_Textured);
-
+	INJECT(0x0040A780, InsertGT4_Sorted);
 	INJECT(0x0040AC60, InsertObjectGT4_Sorted);
 	INJECT(0x0040ACF0, InsertObjectGT3_Sorted);
 	INJECT(0x0040AD90, InsertObjectG4_Sorted);

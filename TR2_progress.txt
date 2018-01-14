@@ -63,8 +63,8 @@ x function is unused / included in another function
 0x00405840:	+	visible_zclip
 0x004058B0:	+	ZedClipper
 0x004059F0:	+	XYGUVClipper
-0x00405F10:	 *	InsertObjectGT4
-0x00406970:	 *	InsertObjectGT3
+0x00405F10:	+	InsertObjectGT4
+0x00406970:	+	InsertObjectGT3
 0x004071F0:	+	XYGClipper
 0x00407620:	+	InsertObjectG4
 0x00407A00:	+	InsertObjectG3
@@ -83,9 +83,9 @@ x function is unused / included in another function
 0x004098D0:	+	InsertObjectG3_ZBuffered
 0x00409BB0:	+	InsertFlatRect_ZBuffered
 0x00409D80:	+	InsertLine_ZBuffered
-0x00409EC0:	 *	InsertGT3_Sorted
+0x00409EC0:	+	InsertGT3_Sorted
 0x0040A5D0:	+	InsertClippedPoly_Textured
-0x0040A780:	 *	InsertGT4_Sorted
+0x0040A780:	+	InsertGT4_Sorted
 0x0040AC60:	+	InsertObjectGT4_Sorted
 0x0040ACF0:	+	InsertObjectGT3_Sorted
 0x0040AD90:	+	InsertObjectG4_Sorted
