@@ -42,16 +42,16 @@
 /*
  * General Variables
  */
-// Callback variables
+// 3D insert function variables
 #define ins_trans_quad		(*(void(__cdecl **)(int,int,int,int,int))				0x00470318)
 #define ins_poly_trans8		(*(void(__cdecl **)(PHD_VBUF*,__int16))					0x0047032C)
 #define ins_flat_rect		(*(void(__cdecl **)(int,int,int,int,int,BYTE))			0x0047805C)
 #define ins_sprite			(*(void(__cdecl **)(int,int,int,int,int,int,__int16))	0x004B2A10)
-#define ins_objectGT3		(*(__int16*(__cdecl **)(__int16*,int,SORTTYPE))				0x004B2A1C)
-#define ins_objectGT4		(*(__int16*(__cdecl **)(__int16*,int,SORTTYPE))				0x004B2A20)
+#define ins_objectGT3		(*(__int16*(__cdecl **)(__int16*,int,SORTTYPE))			0x004B2A1C)
+#define ins_objectGT4		(*(__int16*(__cdecl **)(__int16*,int,SORTTYPE))			0x004B2A20)
 #define ins_line			(*(void(__cdecl **)(int,int,int,int,int,BYTE))			0x004B2AE8)
-#define ins_objectG4		(*(__int16*(__cdecl **)(__int16*,int,SORTTYPE))				0x004BCAF8)
-#define ins_objectG3		(*(__int16*(__cdecl **)(__int16*,int,SORTTYPE))				0x004BCB40)
+#define ins_objectG4		(*(__int16*(__cdecl **)(__int16*,int,SORTTYPE))			0x004BCAF8)
+#define ins_objectG3		(*(__int16*(__cdecl **)(__int16*,int,SORTTYPE))			0x004BCB40)
 
 // Initialized variables
 #define PerspectiveDistance			VAR_I_(0x00464060, DWORD,			0x3000000)
