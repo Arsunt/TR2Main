@@ -72,6 +72,7 @@ typedef struct {
 #define CLAMPL(a,b)			{if((a)<(b)) (a)=(b);}
 #define CLAMPG(a,b)			{if((a)>(b)) (a)=(b);}
 #define CLAMP(a,b,c)		{if((a)<(b)) (a)=(b); else if((a)>(c)) (a)=(c);}
+#define SWAP(a,b,c)			{(c)=(a); (a)=(b); (b)=(c);}
 #define	TRIGMULT2(a,b)		(((a)*(b))>>W2V_SHIFT)
 #define	TRIGMULT3(a,b,c)	(TRIGMULT2((TRIGMULT2(a,b)),c))
 #define	VBUF_VISIBLE(a,b,c)	(((a).ys-(b).ys)*((c).xs-(b).xs)>=((c).ys-(b).ys)*((a).xs-(b).xs))

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -431,7 +431,7 @@ static const __int16 PhdSinTable[0x402] = {
 
 int __fastcall phd_atan(int x, int y) {
 	int result;
-	int swapValue;
+	int swapBuf;
 	int flags = 0;
 
 	if( x == 0 && y == 0 )
@@ -449,9 +449,7 @@ int __fastcall phd_atan(int x, int y) {
 
 	if( y > x ) {
 		flags |= 1;
-		swapValue = x;
-		x = y;
-		y = swapValue;
+		SWAP(x, y, swapBuf);
 	}
 
 	result = AtanBaseTable[flags] + AtanAngleTable[MulDiv(0x800, y, x)];

@@ -660,7 +660,7 @@ void __cdecl phd_SortPolyList() {
 }
 
 void __cdecl do_quickysorty(int left, int right) {
-	int swapVal;
+	int swapBuf;
 	int i = left;
 	int j = right;
 	int compare = SortBuffer[(left + right) / 2]._1;
@@ -670,13 +670,8 @@ void __cdecl do_quickysorty(int left, int right) {
 		while( (compare > SortBuffer[j]._1) && (left <  j) ) --j;
 		if( i > j ) break;
 
-		swapVal = SortBuffer[i]._0;
-		SortBuffer[i]._0 = SortBuffer[j]._0;
-		SortBuffer[j]._0 = swapVal;
-
-		swapVal = SortBuffer[i]._1;
-		SortBuffer[i]._1 = SortBuffer[j]._1;
-		SortBuffer[j]._1 = swapVal;
+		SWAP(SortBuffer[i]._0, SortBuffer[j]._0, swapBuf);
+		SWAP(SortBuffer[i]._1, SortBuffer[j]._1, swapBuf);
 	} while( ++i <= --j );
 
 	if( left < j )
