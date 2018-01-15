@@ -254,7 +254,7 @@ __int16 *__cdecl InsertObjectGT4(__int16 *ptrObj, int number, SORTTYPE sortType)
 				++Sort3dPtr;
 
 				if( zv >= (double)PerspectiveDistance ) {
-					*Info3dPtr++ = ( texture->drawtype == 0 ) ? 0 : 1; // TODO: change to enum (polyType)
+					*Info3dPtr++ = ( texture->drawtype == DRAW_Solid ) ? POLY_GTmap : POLY_WGTmap;
 					*Info3dPtr++ = texture->tpage;
 					*Info3dPtr++ = 4;
 
@@ -282,7 +282,7 @@ __int16 *__cdecl InsertObjectGT4(__int16 *ptrObj, int number, SORTTYPE sortType)
 					*Info3dPtr++ = uv[3].u;
 					*Info3dPtr++ = uv[3].v;
 				} else {
-					*Info3dPtr++ = ( texture->drawtype == 0 ) ? 2 : 3; // TODO: change to enum (polyType)
+					*Info3dPtr++ = ( texture->drawtype == DRAW_Solid ) ? POLY_GTmap_persp : POLY_WGTmap_persp;
 					*Info3dPtr++ = texture->tpage;
 					*Info3dPtr++ = 4;
 
@@ -432,7 +432,7 @@ __int16 *__cdecl InsertObjectGT4(__int16 *ptrObj, int number, SORTTYPE sortType)
 		++Sort3dPtr;
 
 		if( zv >= (double)PerspectiveDistance ) {
-			*Info3dPtr++ = ( texture->drawtype == 0 ) ? 0 : 1; // TODO: change to enum (polyType)
+			*Info3dPtr++ = ( texture->drawtype == DRAW_Solid ) ? POLY_GTmap : POLY_WGTmap;
 			*Info3dPtr++ = texture->tpage;
 			*Info3dPtr++ = nPoints;
 
@@ -444,7 +444,7 @@ __int16 *__cdecl InsertObjectGT4(__int16 *ptrObj, int number, SORTTYPE sortType)
 				*Info3dPtr++ = (int)(VBuffer[j].v / VBuffer[j].rhw);
 			}
 		} else {
-			*Info3dPtr++ = ( texture->drawtype == 0 ) ? 2 : 3; // TODO: change to enum (polyType)
+			*Info3dPtr++ = ( texture->drawtype == DRAW_Solid ) ? POLY_GTmap_persp : POLY_WGTmap_persp;
 			*Info3dPtr++ = texture->tpage;
 			*Info3dPtr++ = nPoints;
 
@@ -518,7 +518,7 @@ __int16 *__cdecl InsertObjectGT3(__int16 *ptrObj, int number, SORTTYPE sortType)
 				++Sort3dPtr;
 
 				if( zv >= (double)PerspectiveDistance ) {
-					*Info3dPtr++ = ( texture->drawtype == 0 ) ? 0 : 1; // TODO: change to enum (polyType)
+					*Info3dPtr++ = ( texture->drawtype == DRAW_Solid ) ? POLY_GTmap : POLY_WGTmap;
 					*Info3dPtr++ = texture->tpage;
 					*Info3dPtr++ = 3;
 
@@ -540,7 +540,7 @@ __int16 *__cdecl InsertObjectGT3(__int16 *ptrObj, int number, SORTTYPE sortType)
 					*Info3dPtr++ = uv[2].u;
 					*Info3dPtr++ = uv[2].v;
 				} else {
-					*Info3dPtr++ = ( texture->drawtype == 0 ) ? 2 : 3; // TODO: change to enum (polyType)
+					*Info3dPtr++ = ( texture->drawtype == DRAW_Solid ) ? POLY_GTmap_persp : POLY_WGTmap_persp;
 					*Info3dPtr++ = texture->tpage;
 					*Info3dPtr++ = 3;
 
@@ -662,7 +662,7 @@ __int16 *__cdecl InsertObjectGT3(__int16 *ptrObj, int number, SORTTYPE sortType)
 		++Sort3dPtr;
 
 		if( zv >= (double)PerspectiveDistance ) {
-			*Info3dPtr++ = ( texture->drawtype == 0 ) ? 0 : 1; // TODO: change to enum (polyType)
+			*Info3dPtr++ = ( texture->drawtype == DRAW_Solid ) ? POLY_GTmap : POLY_WGTmap;
 			*Info3dPtr++ = texture->tpage;
 			*Info3dPtr++ = nPoints;
 
@@ -674,7 +674,7 @@ __int16 *__cdecl InsertObjectGT3(__int16 *ptrObj, int number, SORTTYPE sortType)
 				*Info3dPtr++ = (int)(VBuffer[j].v / VBuffer[j].rhw);
 			}
 		} else {
-			*Info3dPtr++ = ( texture->drawtype == 0 ) ? 2 : 3; // TODO: change to enum (polyType)
+			*Info3dPtr++ = ( texture->drawtype == DRAW_Solid ) ? POLY_GTmap_persp : POLY_WGTmap_persp;
 			*Info3dPtr++ = texture->tpage;
 			*Info3dPtr++ = nPoints;
 
@@ -917,7 +917,7 @@ __int16 *__cdecl InsertObjectG4(__int16 *ptrObj, int number, SORTTYPE sortType) 
 		Sort3dPtr->_1 = (int)zv;
 		++Sort3dPtr;
 
-		*Info3dPtr++ = 6; // TODO: change to enum (polyType)
+		*Info3dPtr++ = POLY_gouraud;
 		*Info3dPtr++ = colorIdx;
 		*Info3dPtr++ = nPoints;
 
@@ -1034,7 +1034,7 @@ __int16 *__cdecl InsertObjectG3(__int16 *ptrObj, int number, SORTTYPE sortType) 
 		Sort3dPtr->_1 = (int)zv;
 		++Sort3dPtr;
 
-		*Info3dPtr++ = 6; // TODO: change to enum (polyType)
+		*Info3dPtr++ = POLY_gouraud;
 		*Info3dPtr++ = colorIdx;
 		*Info3dPtr++ = nPoints;
 
@@ -1183,7 +1183,7 @@ void __cdecl InsertTrans8(PHD_VBUF *vbuf, __int16 shade) {
 	Sort3dPtr->_1 = polyZ;
 	++Sort3dPtr;
 
-	*(Info3dPtr++) = 7; // TODO: change to enum (polyType)
+	*(Info3dPtr++) = POLY_trans;
 	*(Info3dPtr++) = shade;
 	*(Info3dPtr++) = nPoints; // number of vertices
 
@@ -1200,8 +1200,11 @@ void __cdecl InsertTransQuad(int x, int y, int width, int height, int z) {
 	Sort3dPtr->_1 = PhdNearZ + 8 * z;
 	++Sort3dPtr;
 
-	*(Info3dPtr++) = 7;  // TODO: change to enum (polyType)
-	*(Info3dPtr++) = 32; // TODO: add description
+	*(Info3dPtr++) = POLY_trans;
+	// Here 32 is DepthQ index (shade factor).
+	// 0 lightest, 15 no shade, 31 darkest (pitch black).
+	// But 32 and above interpreted as 24 (which means 50% darker)
+	*(Info3dPtr++) = 32;
 	*(Info3dPtr++) = 4;  // number of vertices
 	*(Info3dPtr++) = x;
 	*(Info3dPtr++) = y;
@@ -1220,7 +1223,7 @@ void __cdecl InsertFlatRect(int x0, int y0, int x1, int y1, int z, BYTE colorIdx
 	Sort3dPtr->_1 = z;
 	++Sort3dPtr;
 
-	*(Info3dPtr++) = 5; // TODO: change to enum (polyType)
+	*(Info3dPtr++) = POLY_flat;
 	*(Info3dPtr++) = colorIdx;
 	*(Info3dPtr++) = 4; // number of vertices
 	*(Info3dPtr++) = x0;
@@ -1240,7 +1243,7 @@ void __cdecl InsertLine(int x0, int y0, int x1, int y1, int z, BYTE colorIdx) {
 	Sort3dPtr->_1 = z;
 	++Sort3dPtr;
 
-	*(Info3dPtr++) = 4; // TODO: change to enum (polyType)
+	*(Info3dPtr++) = POLY_line;
 	*(Info3dPtr++) = PhdWinMinX + x0;
 	*(Info3dPtr++) = PhdWinMinY + y0;
 	*(Info3dPtr++) = PhdWinMinX + x1;
@@ -1291,7 +1294,7 @@ void __cdecl InsertGT3_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2,
 			VBufferD3D[2].tv = (double)uv2->v / (double)PHD_ONE;
 
 			HWR_TexSource(HWR_PageHandles[texture->tpage]);
-			HWR_EnableColorKey(texture->drawtype != 0);
+			HWR_EnableColorKey(texture->drawtype != DRAW_Solid);
 
 			_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLELIST, D3DVT_TLVERTEX, VBufferD3D, 3, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 			return;
@@ -1360,7 +1363,7 @@ void __cdecl InsertGT3_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2,
 	if( nPoints == 0 ) return;
 
 	HWR_TexSource(HWR_PageHandles[texture->tpage]);
-	HWR_EnableColorKey(texture->drawtype != 0);
+	HWR_EnableColorKey(texture->drawtype != DRAW_Solid);
 	DrawClippedPoly_Textured(nPoints);
 }
 
@@ -1434,7 +1437,7 @@ void __cdecl InsertGT4_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2,
 		VBufferD3D[3].tv = (double)texture->uv[3].v / (double)PHD_ONE;
 
 		HWR_TexSource(HWR_PageHandles[texture->tpage]);
-		HWR_EnableColorKey(texture->drawtype != 0);
+		HWR_EnableColorKey(texture->drawtype != DRAW_Solid);
 
 		_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, VBufferD3D, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 	}
@@ -1457,7 +1460,7 @@ __int16 *__cdecl InsertObjectGT4_ZBuffered(__int16 *ptrObj, int number, SORTTYPE
 		vtx3 = &PhdVBuf[ptrObj[3]];
 		texture = &PhdTextureInfo[ptrObj[4]];
 
-		if( texture->drawtype != 0 )
+		if( texture->drawtype != DRAW_Solid )
 			InsertGT4_Sorted(vtx0, vtx1, vtx2, vtx3, texture, sortType);
 		else
 			InsertGT4_ZBuffered(vtx0, vtx1, vtx2, vtx3, texture);
@@ -1479,7 +1482,7 @@ __int16 *__cdecl InsertObjectGT3_ZBuffered(__int16 *ptrObj, int number, SORTTYPE
 		texture = &PhdTextureInfo[ptrObj[3]];
 		uv = texture->uv;
 
-		if( texture->drawtype != 0 )
+		if( texture->drawtype != DRAW_Solid )
 			InsertGT3_Sorted(vtx0, vtx1, vtx2, texture, &uv[0], &uv[1], &uv[2], sortType);
 		else
 			InsertGT3_ZBuffered(vtx0, vtx1, vtx2, texture, &uv[0], &uv[1], &uv[2]);
@@ -1809,7 +1812,7 @@ void __cdecl InsertGT3_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PH
 			Sort3dPtr->_1 = (int)zv;
 			++Sort3dPtr;
 
-			*Info3dPtr++ = ( texture->drawtype == 0 ) ? 9 : 10; // TODO: change to enum (polyType)
+			*Info3dPtr++ = ( texture->drawtype == DRAW_Solid ) ? POLY_HWR_GTmap : POLY_HWR_WGTmap;
 			*Info3dPtr++ = texture->tpage;
 			*Info3dPtr++ = 3;
 			*(D3DTLVERTEX **)Info3dPtr = HWR_VertexPtr;
@@ -1923,7 +1926,7 @@ void __cdecl InsertGT3_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PH
 			break;
 	}
 
-	InsertClippedPoly_Textured(nPoints, zv, ( texture->drawtype == 0 ) ? 9 : 10, texture->tpage); // TODO: change to enum (polyType)
+	InsertClippedPoly_Textured(nPoints, zv, ( texture->drawtype == DRAW_Solid ) ? POLY_HWR_GTmap : POLY_HWR_WGTmap, texture->tpage);
 }
 
 void __cdecl InsertClippedPoly_Textured(int vtxCount, float z, __int16 polyType, __int16 texPage) {
@@ -1933,7 +1936,7 @@ void __cdecl InsertClippedPoly_Textured(int vtxCount, float z, __int16 polyType,
 	Sort3dPtr->_1 = z;
 	++Sort3dPtr;
 
-	*(Info3dPtr++) = polyType; // TODO: change to enum (polyType)
+	*(Info3dPtr++) = polyType;
 	*(Info3dPtr++) = texPage;
 	*(Info3dPtr++) = vtxCount;
 	*(D3DTLVERTEX **)Info3dPtr = HWR_VertexPtr;
@@ -1991,7 +1994,7 @@ void __cdecl InsertGT4_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PH
 		Sort3dPtr->_1 = (int)zv;
 		++Sort3dPtr;
 
-		*Info3dPtr++ = ( texture->drawtype == 0 ) ? 9 : 10; // TODO: change to enum (polyType)
+		*Info3dPtr++ = ( texture->drawtype == DRAW_Solid ) ? POLY_HWR_GTmap : POLY_HWR_WGTmap;
 		*Info3dPtr++ = texture->tpage;
 		*Info3dPtr++ = 4;
 		*(D3DTLVERTEX **)Info3dPtr = HWR_VertexPtr;
@@ -2205,20 +2208,20 @@ __int16 *__cdecl InsertObjectG4_Sorted(__int16 *ptrObj, int number, SORTTYPE sor
 				break;
 		}
 
-		InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, 11); // TODO: change to enum (polyType)
+		InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, POLY_HWR_gouraud);
 	}
 
 	return ptrObj;
 }
 
 void __cdecl InsertPoly_Gouraud(int vtxCount, float z, int red, int green, int blue, __int16 polyType) {
-	BYTE alpha = ( polyType == 13 ) ? 0x80 : 0xFF; // TODO: change to enum (polyType)
+	BYTE alpha = ( polyType == POLY_HWR_trans ) ? 0x80 : 0xFF;
 
 	Sort3dPtr->_0 = (int)Info3dPtr;
 	Sort3dPtr->_1 = z;
 	++Sort3dPtr;
 
-	*(Info3dPtr++) = polyType; // TODO: change to enum (polyType)
+	*(Info3dPtr++) = polyType;
 	*(Info3dPtr++) = vtxCount;
 	*(D3DTLVERTEX **)Info3dPtr = HWR_VertexPtr;
 	Info3dPtr += sizeof(D3DTLVERTEX *)/sizeof(__int16);
@@ -2340,7 +2343,7 @@ __int16 *__cdecl InsertObjectG3_Sorted(__int16 *ptrObj, int number, SORTTYPE sor
 				break;
 		}
 
-		InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, 11); // TODO: change to enum (polyType)
+		InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, POLY_HWR_gouraud);
 	}
 
 	return ptrObj;
@@ -2406,7 +2409,7 @@ void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spri
 	}
 
 	IsShadeEffect = 0;
-	InsertClippedPoly_Textured(nPoints, (float)z, 10, PhdSpriteInfo[spriteIdx].texPage); // TODO: change to enum (polyType)
+	InsertClippedPoly_Textured(nPoints, (float)z, POLY_HWR_WGTmap, PhdSpriteInfo[spriteIdx].texPage);
 }
 
 void __cdecl InsertFlatRect_Sorted(int x0, int y0, int x1, int y1, int z, BYTE colorIdx) {
@@ -2429,7 +2432,7 @@ void __cdecl InsertFlatRect_Sorted(int x0, int y0, int x1, int y1, int z, BYTE c
 	Sort3dPtr->_1 = z;
 	++Sort3dPtr;
 
-	*(Info3dPtr++) = 11; // TODO: change to enum (polyType)
+	*(Info3dPtr++) = POLY_HWR_gouraud;
 	*(Info3dPtr++) = 4; //  vertex count
 	*(D3DTLVERTEX **)Info3dPtr = HWR_VertexPtr;
 	Info3dPtr += sizeof(D3DTLVERTEX *)/sizeof(__int16);
@@ -2465,7 +2468,7 @@ void __cdecl InsertLine_Sorted(int x0, int y0, int x1, int y1, int z, BYTE color
 	Sort3dPtr->_1 = z;
 	++Sort3dPtr;
 
-	*(Info3dPtr++) = 12; // TODO: change to enum (polyType)
+	*(Info3dPtr++) = POLY_HWR_line;
 	*(Info3dPtr++) = 2; //  vertex count
 	*(D3DTLVERTEX **)Info3dPtr = HWR_VertexPtr;
 	Info3dPtr += sizeof(D3DTLVERTEX *)/sizeof(__int16);
@@ -2526,7 +2529,7 @@ void __cdecl InsertTrans8_Sorted(PHD_VBUF *vbuf, __int16 shade) {
 	}
 	polyZ /= 8;
 
-	InsertPoly_Gouraud(nPoints, (float)(polyZ - 0x20000), 0, 0, 0, 13); // TODO: change to enum (polyType)
+	InsertPoly_Gouraud(nPoints, (float)(polyZ - 0x20000), 0, 0, 0, POLY_HWR_trans);
 }
 
 void __cdecl InsertTransQuad_Sorted(int x, int y, int width, int height, int z) {
@@ -2537,7 +2540,7 @@ void __cdecl InsertTransQuad_Sorted(int x, int y, int width, int height, int z) 
 	Sort3dPtr->_1 = z;
 	++Sort3dPtr;
 
-	*(Info3dPtr++) = 13; // TODO: change to enum (polyType)
+	*(Info3dPtr++) = POLY_HWR_trans;
 	*(Info3dPtr++) = 4; //  vertex count
 	*(D3DTLVERTEX **)Info3dPtr = HWR_VertexPtr;
 	Info3dPtr += sizeof(D3DTLVERTEX *)/sizeof(__int16);
@@ -2574,7 +2577,7 @@ void __cdecl InsertSprite(int z, int x0, int y0, int x1, int y1, int spriteIdx, 
 	Sort3dPtr->_1 = z;
 	++Sort3dPtr;
 
-	*(Info3dPtr++) = 8; // TODO: change to enum (polyType)
+	*(Info3dPtr++) = POLY_sprite;
 	*(Info3dPtr++) = x0;
 	*(Info3dPtr++) = y0;
 	*(Info3dPtr++) = x1;

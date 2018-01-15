@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -119,38 +119,37 @@ void __cdecl HWR_DrawPolyList() {
 	UINT16 *bufPtr;
 	UINT16 polyType, texPage, vtxCount;
 	D3DTLVERTEX *vtxPtr;
-	// TODO: add enums for poly types
 
 	HWR_EnableZBuffer(false, true);
 	for( DWORD i=0; i<SurfaceCount; ++i ) {
 		bufPtr = (UINT16 *)SortBuffer[i]._0;
 
 		polyType = *(bufPtr++);
-		texPage = ( polyType == 9 || polyType == 10 ) ? *(bufPtr++) : 0;
+		texPage = ( polyType == POLY_HWR_GTmap || polyType == POLY_HWR_WGTmap ) ? *(bufPtr++) : 0;
 		vtxCount = *(bufPtr++);
 		vtxPtr = *(D3DTLVERTEX **)bufPtr;
 
 		switch( polyType ) {
-			case 9: // triangle fan (texture)
-			case 10: // triangle fan (texture + colorkey)
+			case POLY_HWR_GTmap: // triangle fan (texture)
+			case POLY_HWR_WGTmap: // triangle fan (texture + colorkey)
 				HWR_TexSource(HWR_PageHandles[texPage]);
-				HWR_EnableColorKey(polyType == 10);
+				HWR_EnableColorKey(polyType == POLY_HWR_WGTmap);
 				_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 				break;
 
-			case 11: // triangle fan (color)
+			case POLY_HWR_gouraud: // triangle fan (color)
 				HWR_TexSource(0);
 				HWR_EnableColorKey(false);
 				_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 				break;
 
-			case 12: // line strip (color)
+			case POLY_HWR_line: // line strip (color)
 				HWR_TexSource(0);
 				HWR_EnableColorKey(false);
 				_Direct3DDevice2->DrawPrimitive(D3DPT_LINESTRIP, D3DVT_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 				break;
 
-			case 13: // triangle fan (color + semitransparent)
+			case POLY_HWR_trans: // triangle fan (color + semitransparent)
 				HWR_TexSource(0);
 				_Direct3DDevice2->GetRenderState(AlphaBlendEnabler, &alphaState);
 				_Direct3DDevice2->SetRenderState(AlphaBlendEnabler, TRUE);

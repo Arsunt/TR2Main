@@ -32,7 +32,7 @@
 bool PsxFovEnabled;
 #endif // FEATURE_FOV_FIX
 
-// TODO: add enums for this
+// related to POLYTYPE enum
 static void (__cdecl *PolyDrawRoutines[])(__int16 *) = {
 	draw_poly_gtmap,		// gouraud shaded poly (texture)
 	draw_poly_wgtmap,		// gouraud shaded poly (texture + colorkey)

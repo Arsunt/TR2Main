@@ -280,6 +280,9 @@ void __cdecl S_PrintShadow(__int16 radius, __int16 *bPtr, ITEM_INFO *item) {
 	phd_TranslateAbs(item->pos.x, item->floor, item->pos.z);
 	phd_RotY(item->pos.rotY);
 	if( calc_object_vertices(&ShadowInfo.polyCount) ) {
+		// Here 32 is DepthQ index (shade factor).
+		// 0 lightest, 15 no shade, 31 darkest (pitch black).
+		// But 32 and above interpreted as 24 (which means 50% darker)
 		ins_poly_trans8(PhdVBuf, 32);
 	}
 	phd_PopMatrix();

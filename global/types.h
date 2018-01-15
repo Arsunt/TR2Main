@@ -608,6 +608,30 @@ typedef enum {
 	ST_FarZ,
 } SORTTYPE;
 
+typedef enum {
+	DRAW_Solid,
+	DRAW_ColorKey,
+} DRAWTYPE;
+
+typedef enum {
+// Software renderer
+	POLY_GTmap,			// gouraud shaded poly (texture)
+	POLY_WGTmap,		// gouraud shaded poly (texture + colorkey)
+	POLY_GTmap_persp,	// gouraud shaded poly (texture + perspective)
+	POLY_WGTmap_persp,	// gouraud shaded poly (texture + colorkey + perspective)
+	POLY_line,			// line (color)
+	POLY_flat,			// flat shaded poly (color)
+	POLY_gouraud,		// gouraud shaded poly (color)
+	POLY_trans,			// shadow poly (color + semitransparent)
+	POLY_sprite,		// scaled sprite (texture + colorkey)
+// Hardware renderer
+	POLY_HWR_GTmap,		// gouraud shaded poly (texture)
+	POLY_HWR_WGTmap,	// gouraud shaded poly (texture + colorkey)
+	POLY_HWR_gouraud,	// gouraud shaded poly (color)
+	POLY_HWR_line,		// line (color)
+	POLY_HWR_trans,		// shadow poly (color + semitransparent)
+} POLYTYPE;
+
 /*
  * Structs
  */
