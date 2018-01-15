@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -27,7 +27,8 @@
 /*
  * Function list
  */
-#define draw_poly_line ((void(__cdecl*)(__int16*)) 0x00402960)
+void __cdecl draw_poly_line(__int16 *bufPtr); // 0x00402960
+
 #define draw_poly_flat ((void(__cdecl*)(__int16*)) 0x00402B00)
 #define draw_poly_trans ((void(__cdecl*)(__int16*)) 0x00402B40)
 #define draw_poly_gouraud ((void(__cdecl*)(__int16*)) 0x00402B80)

@@ -47,6 +47,7 @@
 
 // 3d system
 extern void Inject_3Dgen();
+extern void Inject_3Dout();
 extern void Inject_3Dinsert();
 extern void Inject_PhdMath();
 extern void Inject_ScaleSpr();
@@ -93,6 +94,7 @@ extern void Inject_WinVid();
 static void Inject() {
 // 3d system
 	Inject_3Dgen();
+	Inject_3Dout();
 	Inject_3Dinsert();
 	Inject_PhdMath();
 	Inject_ScaleSpr();

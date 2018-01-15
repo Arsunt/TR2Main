@@ -80,6 +80,7 @@
 		<Unit filename="3dsystem/3d_gen.cpp" />
 		<Unit filename="3dsystem/3d_gen.h" />
 
+		<Unit filename="3dsystem/3d_out.cpp" />
 		<Unit filename="3dsystem/3d_out.h" />
 
 		<Unit filename="3dsystem/3dinsert.cpp" />

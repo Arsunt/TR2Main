@@ -39,7 +39,7 @@ x function is unused / included in another function
 ---asm----:	+	phd_PushUnitMatrix
 
 	3dsystem/3d_out.cpp
-0x00402960:	 *	draw_poly_line
+0x00402960:	+	draw_poly_line
 0x00402B00:	 *	draw_poly_flat
 0x00402B40:	 *	draw_poly_trans
 0x00402B80:	 *	draw_poly_gouraud
