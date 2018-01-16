@@ -609,7 +609,7 @@ typedef enum {
 } SORTTYPE;
 
 typedef enum {
-	DRAW_Solid,
+	DRAW_Opaque,
 	DRAW_ColorKey,
 } DRAWTYPE;
 
@@ -1094,11 +1094,16 @@ typedef struct SaveGame_t {
 	BYTE buffer[6272];
 } SAVEGAME_INFO;
 
-typedef struct VertexPos_t {
+typedef struct Pos2D_t {
+	__int16 x;
+	__int16 y;
+} POS_2D;
+
+typedef struct Pos3D_t {
 	__int16 x;
 	__int16 y;
 	__int16 z;
-} VERTEX_POS;
+} POS_3D;
 
 typedef struct PhdVector_t {
 	int x;
@@ -1246,7 +1251,7 @@ typedef struct DoorInfo_t {
 	__int16 x;
 	__int16 y;
 	__int16 z;
-	VERTEX_POS vertex[4];
+	POS_3D vertex[4];
 } DOOR_INFO;
 
 typedef struct DoorInfos_t {
@@ -1348,7 +1353,7 @@ typedef struct ShadowInfo_t {
 	__int16 radius;
 	__int16 polyCount;
 	__int16 vertexCount;
-	VERTEX_POS vertex[8];
+	POS_3D vertex[8];
 } SHADOW_INFO;
 
 typedef struct VertexInfo_t {

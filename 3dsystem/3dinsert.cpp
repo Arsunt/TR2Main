@@ -254,7 +254,7 @@ __int16 *__cdecl InsertObjectGT4(__int16 *ptrObj, int number, SORTTYPE sortType)
 				++Sort3dPtr;
 
 				if( zv >= (double)PerspectiveDistance ) {
-					*Info3dPtr++ = ( texture->drawtype == DRAW_Solid ) ? POLY_GTmap : POLY_WGTmap;
+					*Info3dPtr++ = ( texture->drawtype == DRAW_Opaque ) ? POLY_GTmap : POLY_WGTmap;
 					*Info3dPtr++ = texture->tpage;
 					*Info3dPtr++ = 4;
 
@@ -282,7 +282,7 @@ __int16 *__cdecl InsertObjectGT4(__int16 *ptrObj, int number, SORTTYPE sortType)
 					*Info3dPtr++ = uv[3].u;
 					*Info3dPtr++ = uv[3].v;
 				} else {
-					*Info3dPtr++ = ( texture->drawtype == DRAW_Solid ) ? POLY_GTmap_persp : POLY_WGTmap_persp;
+					*Info3dPtr++ = ( texture->drawtype == DRAW_Opaque ) ? POLY_GTmap_persp : POLY_WGTmap_persp;
 					*Info3dPtr++ = texture->tpage;
 					*Info3dPtr++ = 4;
 
@@ -432,7 +432,7 @@ __int16 *__cdecl InsertObjectGT4(__int16 *ptrObj, int number, SORTTYPE sortType)
 		++Sort3dPtr;
 
 		if( zv >= (double)PerspectiveDistance ) {
-			*Info3dPtr++ = ( texture->drawtype == DRAW_Solid ) ? POLY_GTmap : POLY_WGTmap;
+			*Info3dPtr++ = ( texture->drawtype == DRAW_Opaque ) ? POLY_GTmap : POLY_WGTmap;
 			*Info3dPtr++ = texture->tpage;
 			*Info3dPtr++ = nPoints;
 
@@ -444,7 +444,7 @@ __int16 *__cdecl InsertObjectGT4(__int16 *ptrObj, int number, SORTTYPE sortType)
 				*Info3dPtr++ = (int)(VBuffer[j].v / VBuffer[j].rhw);
 			}
 		} else {
-			*Info3dPtr++ = ( texture->drawtype == DRAW_Solid ) ? POLY_GTmap_persp : POLY_WGTmap_persp;
+			*Info3dPtr++ = ( texture->drawtype == DRAW_Opaque ) ? POLY_GTmap_persp : POLY_WGTmap_persp;
 			*Info3dPtr++ = texture->tpage;
 			*Info3dPtr++ = nPoints;
 
@@ -518,7 +518,7 @@ __int16 *__cdecl InsertObjectGT3(__int16 *ptrObj, int number, SORTTYPE sortType)
 				++Sort3dPtr;
 
 				if( zv >= (double)PerspectiveDistance ) {
-					*Info3dPtr++ = ( texture->drawtype == DRAW_Solid ) ? POLY_GTmap : POLY_WGTmap;
+					*Info3dPtr++ = ( texture->drawtype == DRAW_Opaque ) ? POLY_GTmap : POLY_WGTmap;
 					*Info3dPtr++ = texture->tpage;
 					*Info3dPtr++ = 3;
 
@@ -540,7 +540,7 @@ __int16 *__cdecl InsertObjectGT3(__int16 *ptrObj, int number, SORTTYPE sortType)
 					*Info3dPtr++ = uv[2].u;
 					*Info3dPtr++ = uv[2].v;
 				} else {
-					*Info3dPtr++ = ( texture->drawtype == DRAW_Solid ) ? POLY_GTmap_persp : POLY_WGTmap_persp;
+					*Info3dPtr++ = ( texture->drawtype == DRAW_Opaque ) ? POLY_GTmap_persp : POLY_WGTmap_persp;
 					*Info3dPtr++ = texture->tpage;
 					*Info3dPtr++ = 3;
 
@@ -662,7 +662,7 @@ __int16 *__cdecl InsertObjectGT3(__int16 *ptrObj, int number, SORTTYPE sortType)
 		++Sort3dPtr;
 
 		if( zv >= (double)PerspectiveDistance ) {
-			*Info3dPtr++ = ( texture->drawtype == DRAW_Solid ) ? POLY_GTmap : POLY_WGTmap;
+			*Info3dPtr++ = ( texture->drawtype == DRAW_Opaque ) ? POLY_GTmap : POLY_WGTmap;
 			*Info3dPtr++ = texture->tpage;
 			*Info3dPtr++ = nPoints;
 
@@ -674,7 +674,7 @@ __int16 *__cdecl InsertObjectGT3(__int16 *ptrObj, int number, SORTTYPE sortType)
 				*Info3dPtr++ = (int)(VBuffer[j].v / VBuffer[j].rhw);
 			}
 		} else {
-			*Info3dPtr++ = ( texture->drawtype == DRAW_Solid ) ? POLY_GTmap_persp : POLY_WGTmap_persp;
+			*Info3dPtr++ = ( texture->drawtype == DRAW_Opaque ) ? POLY_GTmap_persp : POLY_WGTmap_persp;
 			*Info3dPtr++ = texture->tpage;
 			*Info3dPtr++ = nPoints;
 
@@ -1201,10 +1201,13 @@ void __cdecl InsertTransQuad(int x, int y, int width, int height, int z) {
 	++Sort3dPtr;
 
 	*(Info3dPtr++) = POLY_trans;
-	// Here 32 is DepthQ index (shade factor).
+	// NOTE: Here 24 is DepthQ index (shade factor).
 	// 0 lightest, 15 no shade, 31 darkest (pitch black).
-	// But 32 and above interpreted as 24 (which means 50% darker)
-	*(Info3dPtr++) = 32;
+	// But original code has value 32 supposed to be interpreted as 24 (which means 50% darker)
+	// Also 32 is maximum valid value in the original code, though it is DepthQTable range violation.
+	// This trick worked because DepthQIndex array was right after DepthQ array in the memory
+	// (DepthQIndex is equal to &DepthQ[24].index).This allocation is not guaranteed on some systems, so it was fixed
+	*(Info3dPtr++) = 24;
 	*(Info3dPtr++) = 4;  // number of vertices
 	*(Info3dPtr++) = x;
 	*(Info3dPtr++) = y;
@@ -1294,7 +1297,7 @@ void __cdecl InsertGT3_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2,
 			VBufferD3D[2].tv = (double)uv2->v / (double)PHD_ONE;
 
 			HWR_TexSource(HWR_PageHandles[texture->tpage]);
-			HWR_EnableColorKey(texture->drawtype != DRAW_Solid);
+			HWR_EnableColorKey(texture->drawtype != DRAW_Opaque);
 
 			_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLELIST, D3DVT_TLVERTEX, VBufferD3D, 3, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 			return;
@@ -1363,7 +1366,7 @@ void __cdecl InsertGT3_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2,
 	if( nPoints == 0 ) return;
 
 	HWR_TexSource(HWR_PageHandles[texture->tpage]);
-	HWR_EnableColorKey(texture->drawtype != DRAW_Solid);
+	HWR_EnableColorKey(texture->drawtype != DRAW_Opaque);
 	DrawClippedPoly_Textured(nPoints);
 }
 
@@ -1437,7 +1440,7 @@ void __cdecl InsertGT4_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2,
 		VBufferD3D[3].tv = (double)texture->uv[3].v / (double)PHD_ONE;
 
 		HWR_TexSource(HWR_PageHandles[texture->tpage]);
-		HWR_EnableColorKey(texture->drawtype != DRAW_Solid);
+		HWR_EnableColorKey(texture->drawtype != DRAW_Opaque);
 
 		_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, VBufferD3D, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 	}
@@ -1460,7 +1463,7 @@ __int16 *__cdecl InsertObjectGT4_ZBuffered(__int16 *ptrObj, int number, SORTTYPE
 		vtx3 = &PhdVBuf[ptrObj[3]];
 		texture = &PhdTextureInfo[ptrObj[4]];
 
-		if( texture->drawtype != DRAW_Solid )
+		if( texture->drawtype != DRAW_Opaque )
 			InsertGT4_Sorted(vtx0, vtx1, vtx2, vtx3, texture, sortType);
 		else
 			InsertGT4_ZBuffered(vtx0, vtx1, vtx2, vtx3, texture);
@@ -1482,7 +1485,7 @@ __int16 *__cdecl InsertObjectGT3_ZBuffered(__int16 *ptrObj, int number, SORTTYPE
 		texture = &PhdTextureInfo[ptrObj[3]];
 		uv = texture->uv;
 
-		if( texture->drawtype != DRAW_Solid )
+		if( texture->drawtype != DRAW_Opaque )
 			InsertGT3_Sorted(vtx0, vtx1, vtx2, texture, &uv[0], &uv[1], &uv[2], sortType);
 		else
 			InsertGT3_ZBuffered(vtx0, vtx1, vtx2, texture, &uv[0], &uv[1], &uv[2]);
@@ -1812,7 +1815,7 @@ void __cdecl InsertGT3_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PH
 			Sort3dPtr->_1 = (int)zv;
 			++Sort3dPtr;
 
-			*Info3dPtr++ = ( texture->drawtype == DRAW_Solid ) ? POLY_HWR_GTmap : POLY_HWR_WGTmap;
+			*Info3dPtr++ = ( texture->drawtype == DRAW_Opaque ) ? POLY_HWR_GTmap : POLY_HWR_WGTmap;
 			*Info3dPtr++ = texture->tpage;
 			*Info3dPtr++ = 3;
 			*(D3DTLVERTEX **)Info3dPtr = HWR_VertexPtr;
@@ -1926,7 +1929,7 @@ void __cdecl InsertGT3_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PH
 			break;
 	}
 
-	InsertClippedPoly_Textured(nPoints, zv, ( texture->drawtype == DRAW_Solid ) ? POLY_HWR_GTmap : POLY_HWR_WGTmap, texture->tpage);
+	InsertClippedPoly_Textured(nPoints, zv, ( texture->drawtype == DRAW_Opaque ) ? POLY_HWR_GTmap : POLY_HWR_WGTmap, texture->tpage);
 }
 
 void __cdecl InsertClippedPoly_Textured(int vtxCount, float z, __int16 polyType, __int16 texPage) {
@@ -1994,7 +1997,7 @@ void __cdecl InsertGT4_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PH
 		Sort3dPtr->_1 = (int)zv;
 		++Sort3dPtr;
 
-		*Info3dPtr++ = ( texture->drawtype == DRAW_Solid ) ? POLY_HWR_GTmap : POLY_HWR_WGTmap;
+		*Info3dPtr++ = ( texture->drawtype == DRAW_Opaque ) ? POLY_HWR_GTmap : POLY_HWR_WGTmap;
 		*Info3dPtr++ = texture->tpage;
 		*Info3dPtr++ = 4;
 		*(D3DTLVERTEX **)Info3dPtr = HWR_VertexPtr;
