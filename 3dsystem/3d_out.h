@@ -30,14 +30,14 @@
 void __cdecl draw_poly_line(__int16 *bufPtr); // 0x00402960
 void __cdecl draw_poly_flat(__int16 *bufPtr); // 0x00402B00
 void __cdecl draw_poly_trans(__int16 *bufPtr); // 0x00402B40
+void __cdecl draw_poly_gouraud(__int16 *bufPtr); // 0x00402B80
 
-#define draw_poly_gouraud ((void(__cdecl*)(__int16*)) 0x00402B80)
 #define draw_poly_gtmap ((void(__cdecl*)(__int16*)) 0x00402BC0)
 #define draw_poly_wgtmap ((void(__cdecl*)(__int16*)) 0x00402C00)
 
 int __cdecl xgen_x(__int16 *bufPtr); // 0x00402C40
+int __cdecl xgen_xg(__int16 *bufPtr); // 0x00402D20
 
-// 0x00402D20:		xgen_xg
 // 0x00402E70:		xgen_xguv
 // 0x00403090:		xgen_xguvpersp_fp
 // 0x00403320:		gtmap_persp32_fp
@@ -46,10 +46,10 @@ int __cdecl xgen_x(__int16 *bufPtr); // 0x00402C40
 #define draw_poly_gtmap_persp ((void(__cdecl*)(__int16*)) 0x004057C0)
 #define draw_poly_wgtmap_persp ((void(__cdecl*)(__int16*)) 0x00405800)
 
-void __fastcall flatA(int yMin, int yMax, BYTE colorIdx); // 0x00457564
-void __fastcall transA(int yMin, int yMax, BYTE depthQ); // 0x004575C5
+void __fastcall flatA(int y0, int y1, BYTE colorIdx); // 0x00457564
+void __fastcall transA(int y0, int y1, BYTE depthQ); // 0x004575C5
+void __fastcall gourA(int y0, int y1, BYTE colorIdx); // 0x004576FF
 
-// 0x004576FF:		gourA
 // 0x0045785F:		gtmapA
 // 0x00457B5C:		wgtmapA
 

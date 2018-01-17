@@ -24,9 +24,27 @@
 #include "global/vars.h"
 
 typedef struct {
+	__int16 x;
+	__int16 y;
+} XGEN_X;
+
+typedef struct {
+	__int16 x;
+	__int16 y;
+	__int16 g;
+} XGEN_XG;
+
+typedef struct {
 	int x0;
 	int x1;
 } XBUF_X;
+
+typedef struct {
+	int x0;
+	int g0;
+	int x1;
+	int g1;
+} XBUF_XG;
 
 void __cdecl draw_poly_line(__int16 *bufPtr) {
 	int i, j;
@@ -138,9 +156,14 @@ void __cdecl draw_poly_trans(__int16 *bufPtr) {
 		transA(XGen_y0, XGen_y1, *bufPtr);
 }
 
+void __cdecl draw_poly_gouraud(__int16 *bufPtr) {
+	if( xgen_xg(bufPtr + 1) )
+		gourA(XGen_y0, XGen_y1, *bufPtr);
+}
+
 int __cdecl xgen_x(__int16 *bufPtr) {
 	int ptCount;
-	POS_2D *pt1, *pt2;
+	XGEN_X *pt1, *pt2;
 	int yMin, yMax;
 	int x1, y1, x2, y2;
 	int xSize, ySize;
@@ -148,7 +171,7 @@ int __cdecl xgen_x(__int16 *bufPtr) {
 	XBUF_X *xPtr;
 
 	ptCount = *bufPtr++;
-	pt2 = (POS_2D *)bufPtr;
+	pt2 = (XGEN_X *)bufPtr;
 	pt1 = pt2 + (ptCount - 1);
 
 	yMin = yMax = pt1->y;
@@ -184,6 +207,76 @@ int __cdecl xgen_x(__int16 *bufPtr) {
 
 			do {
 				(xPtr++)->x0 = (x += xAdd);
+			} while( --ySize );
+		}
+	}
+
+	if( yMin == yMax )
+		return 0;
+
+	XGen_y0 = yMin;
+	XGen_y1 = yMax;
+	return 1;
+}
+
+int __cdecl xgen_xg(__int16 *bufPtr) {
+	int ptCount;
+	XGEN_XG *pt1, *pt2;
+	int yMin, yMax;
+	int x1, y1, g1, x2, y2, g2;
+	int xSize, ySize, gSize;
+	int x, g, xAdd, gAdd;
+	XBUF_XG *xgPtr;
+
+	ptCount = *bufPtr++;
+	pt2 = (XGEN_XG *)bufPtr;
+	pt1 = pt2 + (ptCount - 1);
+
+	yMin = yMax = pt1->y;
+
+	while( ptCount-- ) {
+		x1 = pt1->x;
+		y1 = pt1->y;
+		g1 = pt1->g;
+		x2 = pt2->x;
+		y2 = pt2->y;
+		g2 = pt2->g;
+		pt1 = pt2++;
+
+		if( y1 < y2 ) {
+			CLAMPG(yMin, y1);
+			xSize = x2 - x1;
+			ySize = y2 - y1;
+			gSize = g2 - g1;
+
+			xgPtr = (XBUF_XG *)XBuffer + y1;
+			xAdd = PHD_ONE * xSize / ySize;
+			gAdd = PHD_HALF * gSize / ySize;
+			x = x1 * PHD_ONE + (PHD_ONE - 1);
+			g = g1 * PHD_HALF;
+
+			do {
+				xgPtr->x1 = (x += xAdd);
+				xgPtr->g1 = (g += gAdd);
+				xgPtr++;
+			} while( --ySize );
+		}
+		else if ( y2 < y1 ) {
+			CLAMPL(yMax, y1);
+			xSize = x1 - x2;
+			ySize = y1 - y2;
+			gSize = g1 - g2;
+
+			xgPtr = (XBUF_XG *)XBuffer + y2;
+			xAdd = PHD_ONE * xSize / ySize;
+			gAdd = PHD_HALF * gSize / ySize;
+			x = x2 * PHD_ONE + 1;
+			g = g2 * PHD_HALF;
+
+			do {
+				xgPtr->x0 = (x += xAdd);
+				xgPtr->g0 = (g += gAdd);
+				xgPtr++;
 			} while( --ySize );
 		}
 	}
@@ -255,6 +348,47 @@ void __fastcall transA(int y0, int y1, BYTE depthQ) {
 	} while( --ySize );
 }
 
+void __fastcall gourA(int y0, int y1, BYTE colorIdx) {
+	int x0, g0, x1, g1;
+	int xSize, ySize, gSize;
+	int g, gAdd;
+	BYTE *drawPtr, *linePtr;
+	XBUF_XG *xbuf;
+	GOURAUD_ENTRY *gt;
+
+	ySize = y1 - y0;
+	if( ySize <= 0 )
+		return;
+
+	xbuf = (XBUF_XG *)XBuffer + y0;
+	drawPtr = PrintSurfacePtr + y0 * PhdScreenWidth;
+	gt = GouraudTable + colorIdx;
+
+	do {
+		x0 = xbuf->x0 / PHD_ONE;
+		g0 = xbuf->g0;
+		x1 = xbuf->x1 / PHD_ONE;
+		g1 = xbuf->g1;
+		++xbuf;
+
+		xSize = x1 - x0;
+		if( xSize <= 0 )
+			continue;
+
+		gSize = g1 - g0;
+		gAdd = gSize / xSize;
+		g = g0;
+
+		linePtr = drawPtr + x0;
+
+		while( xSize-- ) {
+			*(linePtr++) = gt->index[g / PHD_ONE];
+			g += gAdd;
+		}
+		drawPtr += PhdScreenWidth;
+	} while( --ySize );
+}
+
 /*
  * Inject function
  */
@@ -262,10 +396,13 @@ void Inject_3Dout() {
 	INJECT(0x00402960, draw_poly_line);
 	INJECT(0x00402B00, draw_poly_flat);
 	INJECT(0x00402B40, draw_poly_trans);
+	INJECT(0x00402B80, draw_poly_gouraud);
 
 	INJECT(0x00402C40, xgen_x);
+	INJECT(0x00402D20, xgen_xg);
 
 //	NOTE: asm functions below use Watcom register calling convention so they incompatible
 //	INJECT(0x00457564, flatA);
 //	INJECT(0x004575C5, transA);
+//	INJECT(0x004576FF, gourA);
 }
