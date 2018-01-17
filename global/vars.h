@@ -91,6 +91,8 @@
 }; */
 #define MidSort						VAR_I_(0x0046C2F0, DWORD,			0)
 #define FltViewAspect				VAR_I_(0x0046C2F4, float,			0.0)
+#define XGen_y0						VAR_I_(0x0046C2F8, int,				0)
+#define XGen_y1						VAR_I_(0x0046C2FC, int,				0)
 
 // Uninitialized variables
 #define PhdWinTop					VAR_U_(0x0046E300, int)
@@ -391,6 +393,7 @@
 #define DepthQTable					ARRAY_(0x004BD2C8, DEPTHQ_ENTRY, 32)
 #define DepthQIndex					ARRAY_(0x004BF2C8, BYTE, 256)
 #define PhdVBuf						ARRAY_(0x004BF3D0, PHD_VBUF, 1500)
+#define XBuffer						ARRAY_(0x004CAF50, int, 12000) // this means that SW renderer maximum safe resolution is 1200 pixels
 #define TexturePageBuffer8			ARRAY_(0x004D6AD0, LPVOID, 32)
 #define WibbleTable					ARRAY_(0x004D6B68, float, 32)
 #define VBuffer						ARRAY_(0x004D6CC8, VERTEX_INFO, 20)

@@ -40,12 +40,12 @@ x function is unused / included in another function
 
 	3dsystem/3d_out.cpp
 0x00402960:	+	draw_poly_line
-0x00402B00:	 *	draw_poly_flat
-0x00402B40:	 *	draw_poly_trans
+0x00402B00:	+	draw_poly_flat
+0x00402B40:	+	draw_poly_trans
 0x00402B80:	 *	draw_poly_gouraud
 0x00402BC0:	 *	draw_poly_gtmap
 0x00402C00:	 *	draw_poly_wgtmap
-0x00402C40:		xgen_x
+0x00402C40:	+	xgen_x
 0x00402D20:		xgen_xg
 0x00402E70:		xgen_xguv
 0x00403090:		xgen_xguvpersp_fp
@@ -53,8 +53,8 @@ x function is unused / included in another function
 0x004042F0:		wgtmap_persp16_fp
 0x004057C0:	 *	draw_poly_gtmap_persp
 0x00405800:	 *	draw_poly_wgtmap_persp
----asm----:		flatA
----asm----:		transA
+---asm----:	+	flatA
+---asm----:	+	transA
 ---asm----:		gourA
 ---asm----:		gtmapA
 ---asm----:		wgtmapA
@@ -1458,8 +1458,8 @@ x function is unused / included in another function
 0x0045752E:	+	phd_PushUnitMatrix
 
 	asm/3d_xouta.s -> 3dsystem/3d_out.cpp
-0x00457564:		flatA
-0x004575C5:		transA
+0x00457564:	+	flatA
+0x004575C5:	+	transA
 0x004576FF:		gourA
 0x0045785F:		gtmapA
 0x00457B5C:		wgtmapA

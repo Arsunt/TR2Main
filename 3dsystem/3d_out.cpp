@@ -23,6 +23,11 @@
 #include "3dsystem/3d_out.h"
 #include "global/vars.h"
 
+typedef struct {
+	int x0;
+	int x1;
+} XBUF_X;
+
 void __cdecl draw_poly_line(__int16 *bufPtr) {
 	int i, j;
 	int x0, y0, x1, y1;
@@ -123,9 +128,144 @@ void __cdecl draw_poly_line(__int16 *bufPtr) {
 	}
 }
 
+void __cdecl draw_poly_flat(__int16 *bufPtr) {
+	if( xgen_x(bufPtr + 1) )
+		flatA(XGen_y0, XGen_y1, *bufPtr);
+}
+
+void __cdecl draw_poly_trans(__int16 *bufPtr) {
+	if( xgen_x(bufPtr + 1) )
+		transA(XGen_y0, XGen_y1, *bufPtr);
+}
+
+int __cdecl xgen_x(__int16 *bufPtr) {
+	int ptCount;
+	POS_2D *pt1, *pt2;
+	int yMin, yMax;
+	int x1, y1, x2, y2;
+	int xSize, ySize;
+	int x, xAdd;
+	XBUF_X *xPtr;
+
+	ptCount = *bufPtr++;
+	pt2 = (POS_2D *)bufPtr;
+	pt1 = pt2 + (ptCount - 1);
+
+	yMin = yMax = pt1->y;
+
+	while( ptCount-- ) {
+		x1 = pt1->x;
+		y1 = pt1->y;
+		x2 = pt2->x;
+		y2 = pt2->y;
+		pt1 = pt2++;
+
+		if( y1 < y2 ) {
+			CLAMPG(yMin, y1);
+			xSize = x2 - x1;
+			ySize = y2 - y1;
+
+			xPtr = (XBUF_X *)XBuffer + y1;
+			xAdd = PHD_ONE * xSize / ySize;
+			x = x1 * PHD_ONE + (PHD_ONE - 1);
+
+			do {
+				(xPtr++)->x1 = (x += xAdd);
+			} while( --ySize );
+		}
+		else if ( y2 < y1 ) {
+			CLAMPL(yMax, y1);
+			xSize = x1 - x2;
+			ySize = y1 - y2;
+
+			xPtr = (XBUF_X *)XBuffer + y2;
+			xAdd = PHD_ONE * xSize / ySize;
+			x = x2 * PHD_ONE + 1;
+
+			do {
+				(xPtr++)->x0 = (x += xAdd);
+			} while( --ySize );
+		}
+	}
+
+	if( yMin == yMax )
+		return 0;
+
+	XGen_y0 = yMin;
+	XGen_y1 = yMax;
+	return 1;
+}
+
+void __fastcall flatA(int y0, int y1, BYTE colorIdx) {
+	int x0, x1;
+	int xSize, ySize;
+	BYTE *drawPtr, *linePtr;;
+	XBUF_X *xbuf;
+
+	ySize = y1 - y0;
+	if( ySize <= 0 )
+		return;
+
+	xbuf = (XBUF_X *)XBuffer + y0;
+	drawPtr = PrintSurfacePtr + y0 * PhdScreenWidth;
+
+	do {
+		x0 = xbuf->x0 / PHD_ONE;
+		x1 = xbuf->x1 / PHD_ONE;
+		++xbuf;
+
+		xSize = x1 - x0;
+		linePtr = drawPtr + x0;
+
+		if( xSize > 0 ) {
+			memset(linePtr, colorIdx, xSize);
+		}
+		drawPtr += PhdScreenWidth;
+	} while( --ySize );
+}
+
+void __fastcall transA(int y0, int y1, BYTE depthQ) {
+	int x0, x1;
+	int xSize, ySize;
+	BYTE *drawPtr, *linePtr;
+	XBUF_X *xbuf;
+	DEPTHQ_ENTRY *q;
+
+	ySize = y1 - y0;
+	if( ySize <= 0 || depthQ >= 32 ) // NOTE: depthQ check was ( > 32) in the original code
+		return;
+
+	xbuf = (XBUF_X *)XBuffer + y0;
+	drawPtr = PrintSurfacePtr + y0 * PhdScreenWidth;
+	q = DepthQTable + depthQ;
+
+	do {
+		x0 = xbuf->x0 / PHD_ONE;
+		x1 = xbuf->x1 / PHD_ONE;
+		++xbuf;
+
+		xSize = x1 - x0;
+		linePtr = drawPtr + x0;
+
+		while( xSize-- ) {
+			*linePtr = q->index[*linePtr];
+			++linePtr;
+		}
+		drawPtr += PhdScreenWidth;
+	} while( --ySize );
+}
+
 /*
  * Inject function
  */
 void Inject_3Dout() {
 	INJECT(0x00402960, draw_poly_line);
+	INJECT(0x00402B00, draw_poly_flat);
+	INJECT(0x00402B40, draw_poly_trans);
+
+	INJECT(0x00402C40, xgen_x);
+
+//	NOTE: asm functions below use Watcom register calling convention so they incompatible
+//	INJECT(0x00457564, flatA);
+//	INJECT(0x004575C5, transA);
 }
