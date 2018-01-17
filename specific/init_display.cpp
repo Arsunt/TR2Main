@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -695,10 +695,12 @@ void __cdecl GameApplySettings(APP_SETTINGS *newSettings) {
 		newSettings->ZBuffer    != SavedAppSettings.ZBuffer ||
 		newSettings->TripleBuffering != SavedAppSettings.TripleBuffering )
 	{
-		needInitRenderState = false;
 		ApplySettings(newSettings);
+		S_AdjustTexelCoordinates();
+		return;
 	}
-	else if( !newSettings->FullScreen ) {
+
+	if( !newSettings->FullScreen ) {
 		if( newSettings->WindowWidth != SavedAppSettings.WindowWidth || newSettings->WindowHeight != SavedAppSettings.WindowHeight ) {
 			if( !WinVidGoWindowed(newSettings->WindowWidth, newSettings->WindowHeight, &dispMode) ) {
 				return;
@@ -728,12 +730,6 @@ void __cdecl GameApplySettings(APP_SETTINGS *newSettings) {
 	}
 
 	if( needInitRenderState ) {
-		if( newSettings->BilinearFiltering != SavedAppSettings.BilinearFiltering ||
-			newSettings->RenderMode != SavedAppSettings.RenderMode )
-		{
-			S_AdjustTexelCoordinates();
-		}
-
 		SavedAppSettings.PerspectiveCorrect = newSettings->PerspectiveCorrect;
 		SavedAppSettings.Dither = newSettings->Dither;
 		SavedAppSettings.BilinearFiltering = newSettings->BilinearFiltering;
@@ -746,6 +742,7 @@ void __cdecl GameApplySettings(APP_SETTINGS *newSettings) {
 	if( needRebuildBuffers ) {
 		ClearBuffers(CLRB_WindowedPrimaryBuffer, 0);
 		ApplySettings(newSettings);
+		S_AdjustTexelCoordinates();
 	}
 }
 
