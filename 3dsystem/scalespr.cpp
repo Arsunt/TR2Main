@@ -236,7 +236,7 @@ void __cdecl draw_scaled_spriteC(__int16 *ptrObj) {
 	dst = PrintSurfacePtr + (PhdWinMinY + y1) * PhdScreenWidth + (PhdWinMinX + x1);
 	dstAdd = PhdScreenWidth - width;
 
-	isDepthQ = (GameVid_IsWindowedVga || depthQ != &DepthQTable[16]);
+	isDepthQ = (GameVid_IsWindowedVga || depthQ != &DepthQTable[15]); // NOTE: index was 16 in the original code, this was wrong
 
 	for( i = 0; i < height; ++i ) {
 		u = uBase;
