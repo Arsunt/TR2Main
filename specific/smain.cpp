@@ -313,25 +313,23 @@ void __cdecl CheckCheatMode() {
 			break;
 
 		case 8 :
-			// Start falling forward / backward
-			if( LaraItem->fallSpeed > 0 && (as == AS_FORWARDJUMP || as == AS_BACKJUMP) ) {
-				// Check flare still active
-				if( isFlare ) {
-					isFlare = ( Lara_CurrentGunType == LGT_Flare );
-				}
-				// Explode if there is no flare!
-				if( !isFlare ) {
+			// Start falling
+			if( LaraItem->fallSpeed > 0 ) {
+				// Check if jump interrupted
+				if( as != AS_FORWARDJUMP && as != AS_BACKJUMP ) {
+					// Finish cheat sequence with no action
+				} // Check if flare is not active
+				else if( !isFlare || Lara_CurrentGunType != LGT_Flare ) {
+					// Explode Lara!
 					ExplodingDeath(Lara_ItemNumber, 0xFFFFFFFF, 1);
 					LaraItem->hitPoints = 0;
-					LaraItem->flags |= 0100; // TODO: flags definition
-				}
-
-				// Check jump forward
-				if( as == AS_FORWARDJUMP ) {
+					LaraItem->flags |= 0x0100; // TODO: flags definition
+				} // Check jump forward
+				else if( as == AS_FORWARDJUMP ) {
 					// Complete level
 					IsLevelComplete = TRUE;
 				} // Check jump backward
-				else if ( as == AS_BACKJUMP) {
+				else if( as == AS_BACKJUMP ) {
 					// Give weapon
 					Inv_AddItem(ID_SHOTGUN_ITEM);
 					Inv_AddItem(ID_MAGNUM_ITEM);
