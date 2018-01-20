@@ -35,8 +35,8 @@ void __cdecl draw_poly_gouraud(__int16 *bufPtr); // 0x00402B80
 #define draw_poly_gtmap ((void(__cdecl*)(__int16*)) 0x00402BC0)
 #define draw_poly_wgtmap ((void(__cdecl*)(__int16*)) 0x00402C00)
 
-int __cdecl xgen_x(__int16 *bufPtr); // 0x00402C40
-int __cdecl xgen_xg(__int16 *bufPtr); // 0x00402D20
+BOOL __cdecl xgen_x(__int16 *bufPtr); // 0x00402C40
+BOOL __cdecl xgen_xg(__int16 *bufPtr); // 0x00402D20
 
 // 0x00402E70:		xgen_xguv
 // 0x00403090:		xgen_xguvpersp_fp

@@ -24,14 +24,14 @@
 #include "global/vars.h"
 
 typedef struct {
-	__int16 x;
-	__int16 y;
+	UINT16 x;
+	UINT16 y;
 } XGEN_X;
 
 typedef struct {
-	__int16 x;
-	__int16 y;
-	__int16 g;
+	UINT16 x;
+	UINT16 y;
+	UINT16 g;
 } XGEN_XG;
 
 typedef struct {
@@ -161,7 +161,7 @@ void __cdecl draw_poly_gouraud(__int16 *bufPtr) {
 		gourA(XGen_y0, XGen_y1, *bufPtr);
 }
 
-int __cdecl xgen_x(__int16 *bufPtr) {
+BOOL __cdecl xgen_x(__int16 *bufPtr) {
 	int ptCount;
 	XGEN_X *pt1, *pt2;
 	int yMin, yMax;
@@ -196,7 +196,7 @@ int __cdecl xgen_x(__int16 *bufPtr) {
 				(xPtr++)->x1 = (x += xAdd);
 			} while( --ySize );
 		}
-		else if ( y2 < y1 ) {
+		else if( y2 < y1 ) {
 			CLAMPL(yMax, y1);
 			xSize = x1 - x2;
 			ySize = y1 - y2;
@@ -212,14 +212,14 @@ int __cdecl xgen_x(__int16 *bufPtr) {
 	}
 
 	if( yMin == yMax )
-		return 0;
+		return FALSE;
 
 	XGen_y0 = yMin;
 	XGen_y1 = yMax;
-	return 1;
+	return TRUE;
 }
 
-int __cdecl xgen_xg(__int16 *bufPtr) {
+BOOL __cdecl xgen_xg(__int16 *bufPtr) {
 	int ptCount;
 	XGEN_XG *pt1, *pt2;
 	int yMin, yMax;
@@ -261,7 +261,7 @@ int __cdecl xgen_xg(__int16 *bufPtr) {
 				xgPtr++;
 			} while( --ySize );
 		}
-		else if ( y2 < y1 ) {
+		else if( y2 < y1 ) {
 			CLAMPL(yMax, y1);
 			xSize = x1 - x2;
 			ySize = y1 - y2;
@@ -282,17 +282,16 @@ int __cdecl xgen_xg(__int16 *bufPtr) {
 	}
 
 	if( yMin == yMax )
-		return 0;
+		return FALSE;
 
 	XGen_y0 = yMin;
 	XGen_y1 = yMax;
-	return 1;
+	return TRUE;
 }
 
 void __fastcall flatA(int y0, int y1, BYTE colorIdx) {
-	int x0, x1;
-	int xSize, ySize;
-	BYTE *drawPtr, *linePtr;;
+	int x, xSize, ySize;
+	BYTE *drawPtr;
 	XBUF_X *xbuf;
 
 	ySize = y1 - y0;
@@ -302,27 +301,20 @@ void __fastcall flatA(int y0, int y1, BYTE colorIdx) {
 	xbuf = (XBUF_X *)XBuffer + y0;
 	drawPtr = PrintSurfacePtr + y0 * PhdScreenWidth;
 
-	do {
-		x0 = xbuf->x0 / PHD_ONE;
-		x1 = xbuf->x1 / PHD_ONE;
-		++xbuf;
-
-		xSize = x1 - x0;
-		linePtr = drawPtr + x0;
-
+	for( ; ySize > 0; --ySize, ++xbuf, drawPtr += PhdScreenWidth ) {
+		x = xbuf->x0 / PHD_ONE;
+		xSize = (xbuf->x1 / PHD_ONE) - x;
 		if( xSize > 0 ) {
-			memset(linePtr, colorIdx, xSize);
+			memset(drawPtr + x, colorIdx, xSize);
 		}
-		drawPtr += PhdScreenWidth;
-	} while( --ySize );
+	}
 }
 
 void __fastcall transA(int y0, int y1, BYTE depthQ) {
-	int x0, x1;
-	int xSize, ySize;
+	int x, xSize, ySize;
 	BYTE *drawPtr, *linePtr;
 	XBUF_X *xbuf;
-	DEPTHQ_ENTRY *q;
+	DEPTHQ_ENTRY *qt;
 
 	ySize = y1 - y0;
 	if( ySize <= 0 || depthQ >= 32 ) // NOTE: depthQ check was ( > 32) in the original code
@@ -330,28 +322,26 @@ void __fastcall transA(int y0, int y1, BYTE depthQ) {
 
 	xbuf = (XBUF_X *)XBuffer + y0;
 	drawPtr = PrintSurfacePtr + y0 * PhdScreenWidth;
-	q = DepthQTable + depthQ;
+	qt = DepthQTable + depthQ;
 
-	do {
-		x0 = xbuf->x0 / PHD_ONE;
-		x1 = xbuf->x1 / PHD_ONE;
-		++xbuf;
+	for( ; ySize > 0; --ySize, ++xbuf, drawPtr += PhdScreenWidth ) {
+		x = xbuf->x0 / PHD_ONE;
+		xSize = (xbuf->x1 / PHD_ONE) - x;
+		if( xSize <= 0 )
+			continue;
 
-		xSize = x1 - x0;
-		linePtr = drawPtr + x0;
-
-		while( xSize-- ) {
-			*linePtr = q->index[*linePtr];
+		linePtr = drawPtr + x;
+		do {
+			*linePtr = qt->index[*linePtr];
 			++linePtr;
-		}
-		drawPtr += PhdScreenWidth;
-	} while( --ySize );
+		} while( --xSize );
+	}
 }
 
 void __fastcall gourA(int y0, int y1, BYTE colorIdx) {
-	int x0, g0, x1, g1;
-	int xSize, ySize, gSize;
+	int x, xSize, ySize;
 	int g, gAdd;
+	BYTE bg;
 	BYTE *drawPtr, *linePtr;
 	XBUF_XG *xbuf;
 	GOURAUD_ENTRY *gt;
@@ -364,29 +354,22 @@ void __fastcall gourA(int y0, int y1, BYTE colorIdx) {
 	drawPtr = PrintSurfacePtr + y0 * PhdScreenWidth;
 	gt = GouraudTable + colorIdx;
 
-	do {
-		x0 = xbuf->x0 / PHD_ONE;
-		g0 = xbuf->g0;
-		x1 = xbuf->x1 / PHD_ONE;
-		g1 = xbuf->g1;
-		++xbuf;
-
-		xSize = x1 - x0;
+	for( ; ySize > 0; --ySize, ++xbuf, drawPtr += PhdScreenWidth ) {
+		x = xbuf->x0 / PHD_ONE;
+		xSize = (xbuf->x1 / PHD_ONE) - x;
 		if( xSize <= 0 )
 			continue;
 
-		gSize = g1 - g0;
-		gAdd = gSize / xSize;
-		g = g0;
+		g = xbuf->g0;
+		gAdd = (xbuf->g1 - g) / xSize;
 
-		linePtr = drawPtr + x0;
-
-		while( xSize-- ) {
-			*(linePtr++) = gt->index[g / PHD_ONE];
+		linePtr = drawPtr + x;
+		do {
+			bg = g / PHD_ONE;
+			*(linePtr++) = gt->index[bg];
 			g += gAdd;
-		}
-		drawPtr += PhdScreenWidth;
-	} while( --ySize );
+		} while( --xSize );
+	}
 }
 
 /*
