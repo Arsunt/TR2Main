@@ -394,7 +394,7 @@
 #define DepthQIndex					ARRAY_(0x004BF2C8, BYTE, 256)
 #define PhdVBuf						ARRAY_(0x004BF3D0, PHD_VBUF, 1500)
 #define XBuffer						ARRAY_(0x004CAF50, int, 12000) // this means that SW renderer maximum safe resolution is 1200 pixels
-#define TexturePageBuffer8			ARRAY_(0x004D6AD0, LPVOID, 32)
+#define TexturePageBuffer8			ARRAY_(0x004D6AD0, BYTE*, 32)
 #define WibbleTable					ARRAY_(0x004D6B68, float, 32)
 #define VBuffer						ARRAY_(0x004D6CC8, VERTEX_INFO, 20)
 #define VBufferD3D					ARRAY_(0x004D6F70, D3DTLVERTEX, 32)

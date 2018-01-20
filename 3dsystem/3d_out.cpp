@@ -35,6 +35,14 @@ typedef struct {
 } XGEN_XG;
 
 typedef struct {
+	UINT16 x;
+	UINT16 y;
+	UINT16 g;
+	UINT16 u;
+	UINT16 v;
+} XGEN_XGUV;
+
+typedef struct {
 	int x0;
 	int x1;
 } XBUF_X;
@@ -45,6 +53,17 @@ typedef struct {
 	int x1;
 	int g1;
 } XBUF_XG;
+
+typedef struct {
+	int x0;
+	int g0;
+	int u0;
+	int v0;
+	int x1;
+	int g1;
+	int u1;
+	int v1;
+} XBUF_XGUV;
 
 void __cdecl draw_poly_line(__int16 *bufPtr) {
 	int i, j;
@@ -159,6 +178,16 @@ void __cdecl draw_poly_trans(__int16 *bufPtr) {
 void __cdecl draw_poly_gouraud(__int16 *bufPtr) {
 	if( xgen_xg(bufPtr + 1) )
 		gourA(XGen_y0, XGen_y1, *bufPtr);
+}
+
+void __cdecl draw_poly_gtmap(__int16 *bufPtr) {
+	if( xgen_xguv(bufPtr + 1) )
+		gtmapA(XGen_y0, XGen_y1, TexturePageBuffer8[*bufPtr]);
+}
+
+void __cdecl draw_poly_wgtmap(__int16 *bufPtr) {
+	if( xgen_xguv(bufPtr + 1) )
+		wgtmapA(XGen_y0, XGen_y1, TexturePageBuffer8[*bufPtr]);
 }
 
 BOOL __cdecl xgen_x(__int16 *bufPtr) {
@@ -289,6 +318,96 @@ BOOL __cdecl xgen_xg(__int16 *bufPtr) {
 	return TRUE;
 }
 
+BOOL __cdecl xgen_xguv(__int16 *bufPtr) {
+	int ptCount;
+	XGEN_XGUV *pt1, *pt2;
+	int yMin, yMax;
+	int x1, y1, g1, u1, v1, x2, y2, g2, u2, v2;
+	int xSize, ySize, gSize, uSize, vSize;
+	int x, g, u, v, xAdd, gAdd, uAdd, vAdd;
+	XBUF_XGUV *xguvPtr;
+
+	ptCount = *bufPtr++;
+	pt2 = (XGEN_XGUV *)bufPtr;
+	pt1 = pt2 + (ptCount - 1);
+
+	yMin = yMax = pt1->y;
+
+	while( ptCount-- ) {
+		x1 = pt1->x;
+		y1 = pt1->y;
+		g1 = pt1->g;
+		u1 = pt1->u;
+		v1 = pt1->v;
+		x2 = pt2->x;
+		y2 = pt2->y;
+		g2 = pt2->g;
+		u2 = pt2->u;
+		v2 = pt2->v;
+		pt1 = pt2++;
+
+		if( y1 < y2 ) {
+			CLAMPG(yMin, y1);
+			xSize = x2 - x1;
+			ySize = y2 - y1;
+			gSize = g2 - g1;
+			uSize = u2 - u1;
+			vSize = v2 - v1;
+
+			xguvPtr = (XBUF_XGUV *)XBuffer + y1;
+			xAdd = PHD_ONE * xSize / ySize;
+			gAdd = PHD_HALF * gSize / ySize;
+			uAdd = PHD_HALF * uSize / ySize;
+			vAdd = PHD_HALF * vSize / ySize;
+			x = x1 * PHD_ONE + (PHD_ONE - 1);
+			g = g1 * PHD_HALF;
+			u = u1 * PHD_HALF;
+			v = v1 * PHD_HALF;
+
+			do {
+				xguvPtr->x1 = (x += xAdd);
+				xguvPtr->g1 = (g += gAdd);
+				xguvPtr->u1 = (u += uAdd);
+				xguvPtr->v1 = (v += vAdd);
+				xguvPtr++;
+			} while( --ySize );
+		}
+		else if( y2 < y1 ) {
+			CLAMPL(yMax, y1);
+			xSize = x1 - x2;
+			ySize = y1 - y2;
+			gSize = g1 - g2;
+			uSize = u1 - u2;
+			vSize = v1 - v2;
+
+			xguvPtr = (XBUF_XGUV *)XBuffer + y2;
+			xAdd = PHD_ONE * xSize / ySize;
+			gAdd = PHD_HALF * gSize / ySize;
+			uAdd = PHD_HALF * uSize / ySize;
+			vAdd = PHD_HALF * vSize / ySize;
+			x = x2 * PHD_ONE + 1;
+			g = g2 * PHD_HALF;
+			u = u2 * PHD_HALF;
+			v = v2 * PHD_HALF;
+
+			do {
+				xguvPtr->x0 = (x += xAdd);
+				xguvPtr->g0 = (g += gAdd);
+				xguvPtr->u0 = (u += uAdd);
+				xguvPtr->v0 = (v += vAdd);
+				xguvPtr++;
+			} while( --ySize );
+		}
+	}
+
+	if( yMin == yMax )
+		return FALSE;
+
+	XGen_y0 = yMin;
+	XGen_y1 = yMax;
+	return TRUE;
+}
+
 void __fastcall flatA(int y0, int y1, BYTE colorIdx) {
 	int x, xSize, ySize;
 	BYTE *drawPtr;
@@ -372,6 +491,95 @@ void __fastcall gourA(int y0, int y1, BYTE colorIdx) {
 	}
 }
 
+void __fastcall gtmapA(int y0, int y1, BYTE *texPage) {
+	int x, xSize, ySize;
+	int g, u, v, gAdd, uAdd, vAdd;
+	BYTE bg, bu, bv;
+	BYTE *drawPtr, *linePtr;
+	XBUF_XGUV *xbuf;
+	BYTE colorIdx;
+
+	ySize = y1 - y0;
+	if( ySize <= 0 )
+		return;
+
+	xbuf = (XBUF_XGUV *)XBuffer + y0;
+	drawPtr = PrintSurfacePtr + y0 * PhdScreenWidth;
+
+	for( ; ySize > 0; --ySize, ++xbuf, drawPtr += PhdScreenWidth ) {
+		x = xbuf->x0 / PHD_ONE;
+		xSize = (xbuf->x1 / PHD_ONE) - x;
+		if( xSize <= 0 )
+			continue;
+
+		g = xbuf->g0;
+		u = xbuf->u0;
+		v = xbuf->v0;
+		gAdd = (xbuf->g1 - g) / xSize;
+		uAdd = (xbuf->u1 - u) / xSize;
+		vAdd = (xbuf->v1 - v) / xSize;
+
+		linePtr = drawPtr + x;
+		do {
+			bg = g / PHD_ONE;
+			bu = u / PHD_ONE;
+			bv = v / PHD_ONE;
+
+			colorIdx = texPage[bv*256 + bu];
+			*(linePtr++) = DepthQTable[bg].index[colorIdx];
+			g += gAdd;
+			u += uAdd;
+			v += vAdd;
+		} while( --xSize );
+	}
+}
+
+void __fastcall wgtmapA(int y0, int y1, BYTE *texPage) {
+	int x, xSize, ySize;
+	int g, u, v, gAdd, uAdd, vAdd;
+	BYTE bg, bu, bv;
+	BYTE *drawPtr, *linePtr;
+	XBUF_XGUV *xbuf;
+	BYTE colorIdx;
+
+	ySize = y1 - y0;
+	if( ySize <= 0 )
+		return;
+
+	xbuf = (XBUF_XGUV *)XBuffer + y0;
+	drawPtr = PrintSurfacePtr + y0 * PhdScreenWidth;
+
+	for( ; ySize > 0; --ySize, ++xbuf, drawPtr += PhdScreenWidth ) {
+		x = xbuf->x0 / PHD_ONE;
+		xSize = (xbuf->x1 / PHD_ONE) - x;
+		if( xSize <= 0 )
+			continue;
+
+		g = xbuf->g0;
+		u = xbuf->u0;
+		v = xbuf->v0;
+		gAdd = (xbuf->g1 - g) / xSize;
+		uAdd = (xbuf->u1 - u) / xSize;
+		vAdd = (xbuf->v1 - v) / xSize;
+
+		linePtr = drawPtr + x;
+		do {
+			bg = g / PHD_ONE;
+			bu = u / PHD_ONE;
+			bv = v / PHD_ONE;
+
+			colorIdx = texPage[bv*256 + bu];
+			if( colorIdx != 0 ) {
+				*linePtr = DepthQTable[bg].index[colorIdx];
+			}
+			++linePtr;
+			g += gAdd;
+			u += uAdd;
+			v += vAdd;
+		} while( --xSize );
+	}
+}
+
 /*
  * Inject function
  */
@@ -380,12 +588,16 @@ void Inject_3Dout() {
 	INJECT(0x00402B00, draw_poly_flat);
 	INJECT(0x00402B40, draw_poly_trans);
 	INJECT(0x00402B80, draw_poly_gouraud);
-
+	INJECT(0x00402BC0, draw_poly_gtmap);
+	INJECT(0x00402C00, draw_poly_wgtmap);
 	INJECT(0x00402C40, xgen_x);
 	INJECT(0x00402D20, xgen_xg);
+	INJECT(0x00402E70, xgen_xguv);
 
 //	NOTE: asm functions below use Watcom register calling convention so they incompatible
 //	INJECT(0x00457564, flatA);
 //	INJECT(0x004575C5, transA);
 //	INJECT(0x004576FF, gourA);
+//	INJECT(0x0045785F, gtmapA);
+//	INJECT(0x00457B5C, wgtmapA);
 }

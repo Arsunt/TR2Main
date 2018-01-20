@@ -65,7 +65,7 @@ BOOL __cdecl LoadTexturePages(HANDLE hFile) {
 	if( SavedAppSettings.RenderMode == RM_Software ) {
 		for( i=0; i<pageCount; ++i ) {
 			if( TexturePageBuffer8[i] == NULL ) {
-				TexturePageBuffer8[i] = game_malloc(256*256*1, 1); // Texture Pages
+				TexturePageBuffer8[i] = (BYTE *)game_malloc(256*256*1, 1); // Texture Pages
 			}
 			ReadFileSync(hFile, TexturePageBuffer8[i], 256*256*1, &bytesRead, NULL);
 		}
