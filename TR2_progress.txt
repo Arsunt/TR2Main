@@ -48,11 +48,11 @@ x function is unused / included in another function
 0x00402C40:	+	xgen_x
 0x00402D20:	+	xgen_xg
 0x00402E70:	+	xgen_xguv
-0x00403090:		xgen_xguvpersp_fp
-0x00403320:		gtmap_persp32_fp
-0x004042F0:		wgtmap_persp16_fp
-0x004057C0:	 *	draw_poly_gtmap_persp
-0x00405800:	 *	draw_poly_wgtmap_persp
+0x00403090:	+	xgen_xguvpersp_fp
+0x00403320:	+	gtmap_persp32_fp
+0x004042F0:	+	wgtmap_persp32_fp
+0x004057C0:	+	draw_poly_gtmap_persp
+0x00405800:	+	draw_poly_wgtmap_persp
 ---asm----:	+	flatA
 ---asm----:	+	transA
 ---asm----:	+	gourA

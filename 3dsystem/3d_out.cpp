@@ -23,6 +23,8 @@
 #include "3dsystem/3d_out.h"
 #include "global/vars.h"
 
+#pragma pack(push, 1)
+
 typedef struct {
 	UINT16 x;
 	UINT16 y;
@@ -41,6 +43,15 @@ typedef struct {
 	UINT16 u;
 	UINT16 v;
 } XGEN_XGUV;
+
+typedef struct {
+	UINT16 x;
+	UINT16 y;
+	UINT16 g;
+	float rhw;
+	float u;
+	float v;
+} XGEN_XGUVP;
 
 typedef struct {
 	int x0;
@@ -64,6 +75,21 @@ typedef struct {
 	int u1;
 	int v1;
 } XBUF_XGUV;
+
+typedef struct {
+	int x0;
+	int g0;
+	float u0;
+	float v0;
+	float rhw0;
+	int x1;
+	int g1;
+	float u1;
+	float v1;
+	float rhw1;
+} XBUF_XGUVP;
+
+#pragma pack(pop)
 
 void __cdecl draw_poly_line(__int16 *bufPtr) {
 	int i, j;
@@ -408,6 +434,222 @@ BOOL __cdecl xgen_xguv(__int16 *bufPtr) {
 	return TRUE;
 }
 
+BOOL __cdecl xgen_xguvpersp_fp(__int16 *bufPtr) {
+	int ptCount;
+	XGEN_XGUVP *pt1, *pt2;
+	int yMin, yMax;
+	int x1, y1, g1, x2, y2, g2;
+	float u1, v1, rhw1, u2, v2, rhw2;
+	int xSize, ySize, gSize;
+	float uSize, vSize, rhwSize;
+	int x, g, xAdd, gAdd;
+	float u, v, rhw, uAdd, vAdd, rhwAdd;
+	XBUF_XGUVP *xguvPtr;
+
+	ptCount = *bufPtr++;
+	pt2 = (XGEN_XGUVP *)bufPtr;
+	pt1 = pt2 + (ptCount - 1);
+
+	yMin = yMax = pt1->y;
+
+	while( ptCount-- ) {
+		x1 = pt1->x;
+		y1 = pt1->y;
+		g1 = pt1->g;
+		u1 = pt1->u;
+		v1 = pt1->v;
+		rhw1 = pt1->rhw;
+		x2 = pt2->x;
+		y2 = pt2->y;
+		g2 = pt2->g;
+		u2 = pt2->u;
+		v2 = pt2->v;
+		rhw2 = pt2->rhw;
+		pt1 = pt2++;
+
+		if( y1 < y2 ) {
+			CLAMPG(yMin, y1);
+			xSize = x2 - x1;
+			ySize = y2 - y1;
+			gSize = g2 - g1;
+			uSize = u2 - u1;
+			vSize = v2 - v1;
+			rhwSize = rhw2 - rhw1;
+
+			xguvPtr = (XBUF_XGUVP *)XBuffer + y1;
+			xAdd = PHD_ONE * xSize / ySize;
+			gAdd = PHD_HALF * gSize / ySize;
+			uAdd = uSize / (float)ySize;
+			vAdd = vSize / (float)ySize;
+			rhwAdd = rhwSize / (float)ySize;
+			x = x1 * PHD_ONE + (PHD_ONE - 1);
+			g = g1 * PHD_HALF;
+			u = u1;
+			v = v1;
+			rhw = rhw1;
+
+			do {
+ 				xguvPtr->x1 = (x += xAdd);
+				xguvPtr->g1 = (g += gAdd);
+				xguvPtr->u1 = (u += uAdd);
+				xguvPtr->v1 = (v += vAdd);
+				xguvPtr->rhw1 = (rhw += rhwAdd);
+				xguvPtr++;
+			} while( --ySize );
+		}
+		else if( y2 < y1 ) {
+			CLAMPL(yMax, y1);
+			xSize = x1 - x2;
+			ySize = y1 - y2;
+			gSize = g1 - g2;
+			uSize = u1 - u2;
+			vSize = v1 - v2;
+			rhwSize = rhw1 - rhw2;
+
+			xguvPtr = (XBUF_XGUVP *)XBuffer + y2;
+			xAdd = PHD_ONE * xSize / ySize;
+			gAdd = PHD_HALF * gSize / ySize;
+			uAdd = (float)uSize / (float)ySize;
+			vAdd = (float)vSize / (float)ySize;
+			rhwAdd = (float)rhwSize / (float)ySize;
+			x = x2 * PHD_ONE + 1;
+			g = g2 * PHD_HALF;
+			u = (float)u2;
+			v = (float)v2;
+			rhw = (float)rhw2;
+
+			do {
+				xguvPtr->x0 = (x += xAdd);
+				xguvPtr->g0 = (g += gAdd);
+				xguvPtr->u0 = (u += uAdd);
+				xguvPtr->v0 = (v += vAdd);
+				xguvPtr->rhw0 = (rhw += rhwAdd);
+				xguvPtr++;
+			} while( --ySize );
+		}
+	}
+
+	if( yMin == yMax )
+		return FALSE;
+
+	XGen_y0 = yMin;
+	XGen_y1 = yMax;
+	return TRUE;
+}
+
+void __cdecl gtmap_persp32_fp(int y0, int y1, BYTE *texPage) {
+	// TODO: rewrite this function with Core's optimization
+	int x, xSize, ySize;
+	int g, gAdd;
+	double u, v, rhw, uAdd, vAdd, rhwAdd;
+	BYTE bg, bu, bv;
+	BYTE *drawPtr, *linePtr;
+	XBUF_XGUVP *xbuf;
+	BYTE colorIdx;
+
+	ySize = y1 - y0;
+	if( ySize <= 0 )
+		return;
+
+	xbuf = (XBUF_XGUVP *)XBuffer + y0;
+	drawPtr = PrintSurfacePtr + y0 * PhdScreenWidth;
+
+	for( ; ySize > 0; --ySize, ++xbuf, drawPtr += PhdScreenWidth ) {
+		x = xbuf->x0 / PHD_ONE;
+		xSize = (xbuf->x1 / PHD_ONE) - x;
+		if( xSize <= 0 )
+			continue;
+
+		g = xbuf->g0;
+		u = xbuf->u0;
+		v = xbuf->v0;
+		rhw = xbuf->rhw0;
+
+		gAdd = (xbuf->g1 - g) / xSize;
+		uAdd = (xbuf->u1 - u) / (double)xSize;
+		vAdd = (xbuf->v1 - v) / (double)xSize;
+		rhwAdd = (xbuf->rhw1 - rhw) / (double)xSize;
+
+		linePtr = drawPtr + x;
+
+		while( xSize-- ) {
+			bg = g / PHD_ONE;
+			bu = (int)((u / PHD_ONE) / (rhw / PHD_HALF));
+			bv = (int)((v / PHD_ONE) / (rhw / PHD_HALF));
+
+			colorIdx = texPage[bv*256 + bu];
+			*(linePtr++) = DepthQTable[bg].index[colorIdx];
+			g += gAdd;
+			u += uAdd;
+			v += vAdd;
+			rhw += rhwAdd;
+		}
+	}
+}
+
+void __cdecl wgtmap_persp32_fp(int y0, int y1, BYTE *texPage) {
+	// TODO: rewrite this function with Core's optimization
+	int x, xSize, ySize;
+	int g, gAdd;
+	double u, v, rhw, uAdd, vAdd, rhwAdd;
+	BYTE bg, bu, bv;
+	BYTE *drawPtr, *linePtr;
+	XBUF_XGUVP *xbuf;
+	BYTE colorIdx;
+
+	ySize = y1 - y0;
+	if( ySize <= 0 )
+		return;
+
+	xbuf = (XBUF_XGUVP *)XBuffer + y0;
+	drawPtr = PrintSurfacePtr + y0 * PhdScreenWidth;
+
+	for( ; ySize > 0; --ySize, ++xbuf, drawPtr += PhdScreenWidth ) {
+		x = xbuf->x0 / PHD_ONE;
+		xSize = (xbuf->x1 / PHD_ONE) - x;
+		if( xSize <= 0 )
+			continue;
+
+		g = xbuf->g0;
+		u = xbuf->u0;
+		v = xbuf->v0;
+		rhw = xbuf->rhw0;
+
+		gAdd = (xbuf->g1 - g) / xSize;
+		uAdd = (xbuf->u1 - u) / (double)xSize;
+		vAdd = (xbuf->v1 - v) / (double)xSize;
+		rhwAdd = (xbuf->rhw1 - rhw) / (double)xSize;
+
+		linePtr = drawPtr + x;
+
+		while( xSize-- ) {
+			bg = g / PHD_ONE;
+			bu = (int)((u / PHD_ONE) / (rhw / PHD_HALF));
+			bv = (int)((v / PHD_ONE) / (rhw / PHD_HALF));
+
+			colorIdx = texPage[bv*256 + bu];
+			if( colorIdx != 0 ) {
+				*linePtr = DepthQTable[bg].index[colorIdx];
+			}
+			++linePtr;
+			g += gAdd;
+			u += uAdd;
+			v += vAdd;
+			rhw += rhwAdd;
+		}
+	}
+}
+
+void __cdecl draw_poly_gtmap_persp(__int16 *bufPtr) {
+	if( xgen_xguvpersp_fp(bufPtr + 1) )
+		gtmap_persp32_fp(XGen_y0, XGen_y1, TexturePageBuffer8[*bufPtr]);
+}
+
+void __cdecl draw_poly_wgtmap_persp(__int16 *bufPtr) {
+	if( xgen_xguvpersp_fp(bufPtr + 1) )
+		wgtmap_persp32_fp(XGen_y0, XGen_y1, TexturePageBuffer8[*bufPtr]);
+}
+
 void __fastcall flatA(int y0, int y1, BYTE colorIdx) {
 	int x, xSize, ySize;
 	BYTE *drawPtr;
@@ -593,7 +835,11 @@ void Inject_3Dout() {
 	INJECT(0x00402C40, xgen_x);
 	INJECT(0x00402D20, xgen_xg);
 	INJECT(0x00402E70, xgen_xguv);
-
+	INJECT(0x00403090, xgen_xguvpersp_fp);
+	INJECT(0x00403320, gtmap_persp32_fp);
+	INJECT(0x004042F0, wgtmap_persp32_fp);
+	INJECT(0x004057C0, draw_poly_gtmap_persp);
+	INJECT(0x00405800, draw_poly_wgtmap_persp);
 //	NOTE: asm functions below use Watcom register calling convention so they incompatible
 //	INJECT(0x00457564, flatA);
 //	INJECT(0x004575C5, transA);
