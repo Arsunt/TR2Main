@@ -538,11 +538,10 @@ BOOL __cdecl xgen_xguvpersp_fp(__int16 *bufPtr) {
 }
 
 void __cdecl gtmap_persp32_fp(int y0, int y1, BYTE *texPage) {
-	// TODO: rewrite this function with Core's optimization
+	int batchSize, batchCounter;
 	int x, xSize, ySize;
-	int g, gAdd;
+	int g, u0, u1, v0, v1, gAdd, u0Add, v0Add;
 	double u, v, rhw, uAdd, vAdd, rhwAdd;
-	BYTE bg, bu, bv;
 	BYTE *drawPtr, *linePtr;
 	XBUF_XGUVP *xbuf;
 	BYTE colorIdx;
@@ -566,33 +565,101 @@ void __cdecl gtmap_persp32_fp(int y0, int y1, BYTE *texPage) {
 		rhw = xbuf->rhw0;
 
 		gAdd = (xbuf->g1 - g) / xSize;
-		uAdd = (xbuf->u1 - u) / (double)xSize;
-		vAdd = (xbuf->v1 - v) / (double)xSize;
-		rhwAdd = (xbuf->rhw1 - rhw) / (double)xSize;
+
+		u0 = (int)(PHD_HALF * u / rhw);
+		v0 = (int)(PHD_HALF * v / rhw);
 
 		linePtr = drawPtr + x;
+		batchSize = 32;
 
-		while( xSize-- ) {
-			bg = g / PHD_ONE;
-			bu = (int)((u / PHD_ONE) / (rhw / PHD_HALF));
-			bv = (int)((v / PHD_ONE) / (rhw / PHD_HALF));
+		if( xSize >= batchSize ) {
+			uAdd = (xbuf->u1 - u) / (double)xSize * double(batchSize);
+			vAdd = (xbuf->v1 - v) / (double)xSize * double(batchSize);
+			rhwAdd = (xbuf->rhw1 - rhw) / (double)xSize * double(batchSize);
 
-			colorIdx = texPage[bv*256 + bu];
-			*(linePtr++) = DepthQTable[bg].index[colorIdx];
-			g += gAdd;
-			u += uAdd;
-			v += vAdd;
-			rhw += rhwAdd;
+			do {
+				u += uAdd;
+				v += vAdd;
+				rhw += rhwAdd;
+
+				u1 = (int)(PHD_HALF * u / rhw);
+				v1 = (int)(PHD_HALF * v / rhw);
+
+				u0Add = (u1 - u0) / batchSize;
+				v0Add = (v1 - v0) / batchSize;
+
+				if( (ABS(u0Add) + ABS(v0Add)) < (PHD_ONE / 2) ) {
+					batchCounter = batchSize / 2;
+					do {
+						colorIdx = texPage[BYTE2(v0)*256 + BYTE2(u0)];
+						colorIdx = DepthQTable[BYTE2(g)].index[colorIdx];
+						*(linePtr++) = colorIdx;
+						*(linePtr++) = colorIdx;
+						g += gAdd * 2;
+						u0 += u0Add * 2;
+						v0 += v0Add * 2;
+					} while( --batchCounter );
+				} else {
+					batchCounter = batchSize;
+					do {
+						colorIdx = texPage[BYTE2(v0)*256 + BYTE2(u0)];
+						*(linePtr++) = DepthQTable[BYTE2(g)].index[colorIdx];
+						g += gAdd;
+						u0 += u0Add;
+						v0 += v0Add;
+					} while( --batchCounter );
+				}
+
+				u0 = u1;
+				v0 = v1;
+				xSize -= batchSize;
+			} while( xSize >= batchSize );
+		}
+
+		if( xSize > 1 ) {
+			u1 = (int)(PHD_HALF * xbuf->u1 / xbuf->rhw1);
+			v1 = (int)(PHD_HALF * xbuf->v1 / xbuf->rhw1);
+			u0Add = (u1 - u0) / xSize;
+			v0Add = (v1 - v0) / xSize;
+
+			batchSize = xSize & ~1;
+			xSize -= batchSize;
+
+			if( (ABS(u0Add) + ABS(v0Add)) < (PHD_ONE / 2) ) {
+				batchCounter = batchSize / 2;
+				do {
+					colorIdx = texPage[BYTE2(v0)*256 + BYTE2(u0)];
+					colorIdx = DepthQTable[BYTE2(g)].index[colorIdx];
+					*(linePtr++) = colorIdx;
+					*(linePtr++) = colorIdx;
+					g += gAdd * 2;
+					u0 += u0Add * 2;
+					v0 += v0Add * 2;
+				} while( --batchCounter );
+			} else {
+				batchCounter = batchSize;
+				do {
+					colorIdx = texPage[BYTE2(v0)*256 + BYTE2(u0)];
+					*(linePtr++) = DepthQTable[BYTE2(g)].index[colorIdx];
+					g += gAdd;
+					u0 += u0Add;
+					v0 += v0Add;
+				} while( --batchCounter );
+			}
+		}
+
+		if( xSize != 0 ) { // xSize == 1
+			colorIdx = texPage[BYTE2(v0)*256 + BYTE2(u0)];
+			*linePtr = DepthQTable[BYTE2(g)].index[colorIdx];
 		}
 	}
 }
 
 void __cdecl wgtmap_persp32_fp(int y0, int y1, BYTE *texPage) {
-	// TODO: rewrite this function with Core's optimization
+	int batchSize, batchCounter;
 	int x, xSize, ySize;
-	int g, gAdd;
+	int g, u0, u1, v0, v1, gAdd, u0Add, v0Add;
 	double u, v, rhw, uAdd, vAdd, rhwAdd;
-	BYTE bg, bu, bv;
 	BYTE *drawPtr, *linePtr;
 	XBUF_XGUVP *xbuf;
 	BYTE colorIdx;
@@ -616,26 +683,106 @@ void __cdecl wgtmap_persp32_fp(int y0, int y1, BYTE *texPage) {
 		rhw = xbuf->rhw0;
 
 		gAdd = (xbuf->g1 - g) / xSize;
-		uAdd = (xbuf->u1 - u) / (double)xSize;
-		vAdd = (xbuf->v1 - v) / (double)xSize;
-		rhwAdd = (xbuf->rhw1 - rhw) / (double)xSize;
+
+		u0 = (int)(PHD_HALF * u / rhw);
+		v0 = (int)(PHD_HALF * v / rhw);
 
 		linePtr = drawPtr + x;
+		batchSize = 32;
 
-		while( xSize-- ) {
-			bg = g / PHD_ONE;
-			bu = (int)((u / PHD_ONE) / (rhw / PHD_HALF));
-			bv = (int)((v / PHD_ONE) / (rhw / PHD_HALF));
+		if( xSize >= batchSize ) {
+			uAdd = (xbuf->u1 - u) / (double)xSize * double(batchSize);
+			vAdd = (xbuf->v1 - v) / (double)xSize * double(batchSize);
+			rhwAdd = (xbuf->rhw1 - rhw) / (double)xSize * double(batchSize);
 
-			colorIdx = texPage[bv*256 + bu];
-			if( colorIdx != 0 ) {
-				*linePtr = DepthQTable[bg].index[colorIdx];
+			do {
+				u += uAdd;
+				v += vAdd;
+				rhw += rhwAdd;
+
+				u1 = (int)(PHD_HALF * u / rhw);
+				v1 = (int)(PHD_HALF * v / rhw);
+
+				u0Add = (u1 - u0) / batchSize;
+				v0Add = (v1 - v0) / batchSize;
+
+				if( (ABS(u0Add) + ABS(v0Add)) < (PHD_ONE / 2) ) {
+					batchCounter = batchSize / 2;
+					do {
+						colorIdx = texPage[BYTE2(v0)*256 + BYTE2(u0)];
+						if( colorIdx != 0 ) {
+							colorIdx = DepthQTable[BYTE2(g)].index[colorIdx];
+							linePtr[0] = colorIdx;
+							linePtr[1] = colorIdx;
+						}
+						linePtr += 2;
+						g += gAdd * 2;
+						u0 += u0Add * 2;
+						v0 += v0Add * 2;
+					} while( --batchCounter );
+				} else {
+					batchCounter = batchSize;
+					do {
+						colorIdx = texPage[BYTE2(v0)*256 + BYTE2(u0)];
+						if( colorIdx != 0 ) {
+							*linePtr = DepthQTable[BYTE2(g)].index[colorIdx];
+						}
+						linePtr++;
+						g += gAdd;
+						u0 += u0Add;
+						v0 += v0Add;
+					} while( --batchCounter );
+				}
+
+				u0 = u1;
+				v0 = v1;
+				xSize -= batchSize;
+			} while( xSize >= batchSize );
+		}
+
+		if( xSize > 1 ) {
+			u1 = (int)(PHD_HALF * xbuf->u1 / xbuf->rhw1);
+			v1 = (int)(PHD_HALF * xbuf->v1 / xbuf->rhw1);
+			u0Add = (u1 - u0) / xSize;
+			v0Add = (v1 - v0) / xSize;
+
+			batchSize = xSize & ~1;
+			xSize -= batchSize;
+
+			if( (ABS(u0Add) + ABS(v0Add)) < (PHD_ONE / 2) ) {
+				batchCounter = batchSize / 2;
+				do {
+					colorIdx = texPage[BYTE2(v0)*256 + BYTE2(u0)];
+					if( colorIdx != 0 ) {
+						colorIdx = DepthQTable[BYTE2(g)].index[colorIdx];
+						linePtr[0] = colorIdx;
+						linePtr[1] = colorIdx;
+					}
+					linePtr += 2;
+					g += gAdd * 2;
+					u0 += u0Add * 2;
+					v0 += v0Add * 2;
+				} while( --batchCounter );
+			} else {
+				batchCounter = batchSize;
+				do {
+					colorIdx = texPage[BYTE2(v0)*256 + BYTE2(u0)];
+					if( colorIdx != 0 ) {
+						*linePtr = DepthQTable[BYTE2(g)].index[colorIdx];
+					}
+					linePtr++;
+					g += gAdd;
+					u0 += u0Add;
+					v0 += v0Add;
+				} while( --batchCounter );
 			}
-			++linePtr;
-			g += gAdd;
-			u += uAdd;
-			v += vAdd;
-			rhw += rhwAdd;
+		}
+
+		if( xSize != 0 ) { // xSize == 1
+			colorIdx = texPage[BYTE2(v0)*256 + BYTE2(u0)];
+			if( colorIdx != 0 ) {
+				*linePtr = DepthQTable[BYTE2(g)].index[colorIdx];
+			}
 		}
 	}
 }
@@ -702,7 +849,6 @@ void __fastcall transA(int y0, int y1, BYTE depthQ) {
 void __fastcall gourA(int y0, int y1, BYTE colorIdx) {
 	int x, xSize, ySize;
 	int g, gAdd;
-	BYTE bg;
 	BYTE *drawPtr, *linePtr;
 	XBUF_XG *xbuf;
 	GOURAUD_ENTRY *gt;
@@ -726,8 +872,7 @@ void __fastcall gourA(int y0, int y1, BYTE colorIdx) {
 
 		linePtr = drawPtr + x;
 		do {
-			bg = g / PHD_ONE;
-			*(linePtr++) = gt->index[bg];
+			*(linePtr++) = gt->index[BYTE2(g)];
 			g += gAdd;
 		} while( --xSize );
 	}
@@ -736,7 +881,6 @@ void __fastcall gourA(int y0, int y1, BYTE colorIdx) {
 void __fastcall gtmapA(int y0, int y1, BYTE *texPage) {
 	int x, xSize, ySize;
 	int g, u, v, gAdd, uAdd, vAdd;
-	BYTE bg, bu, bv;
 	BYTE *drawPtr, *linePtr;
 	XBUF_XGUV *xbuf;
 	BYTE colorIdx;
@@ -763,12 +907,8 @@ void __fastcall gtmapA(int y0, int y1, BYTE *texPage) {
 
 		linePtr = drawPtr + x;
 		do {
-			bg = g / PHD_ONE;
-			bu = u / PHD_ONE;
-			bv = v / PHD_ONE;
-
-			colorIdx = texPage[bv*256 + bu];
-			*(linePtr++) = DepthQTable[bg].index[colorIdx];
+			colorIdx = texPage[BYTE2(v)*256 + BYTE2(u)];
+			*(linePtr++) = DepthQTable[BYTE2(g)].index[colorIdx];
 			g += gAdd;
 			u += uAdd;
 			v += vAdd;
@@ -779,7 +919,6 @@ void __fastcall gtmapA(int y0, int y1, BYTE *texPage) {
 void __fastcall wgtmapA(int y0, int y1, BYTE *texPage) {
 	int x, xSize, ySize;
 	int g, u, v, gAdd, uAdd, vAdd;
-	BYTE bg, bu, bv;
 	BYTE *drawPtr, *linePtr;
 	XBUF_XGUV *xbuf;
 	BYTE colorIdx;
@@ -806,13 +945,9 @@ void __fastcall wgtmapA(int y0, int y1, BYTE *texPage) {
 
 		linePtr = drawPtr + x;
 		do {
-			bg = g / PHD_ONE;
-			bu = u / PHD_ONE;
-			bv = v / PHD_ONE;
-
-			colorIdx = texPage[bv*256 + bu];
+			colorIdx = texPage[BYTE2(v)*256 + BYTE2(u)];
 			if( colorIdx != 0 ) {
-				*linePtr = DepthQTable[bg].index[colorIdx];
+				*linePtr = DepthQTable[BYTE2(g)].index[colorIdx];
 			}
 			++linePtr;
 			g += gAdd;

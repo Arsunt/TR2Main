@@ -77,6 +77,13 @@ typedef struct {
 #define	TRIGMULT3(a,b,c)	(TRIGMULT2((TRIGMULT2(a,b)),c))
 #define	VBUF_VISIBLE(a,b,c)	(((a).ys-(b).ys)*((c).xs-(b).xs)>=((c).ys-(b).ys)*((a).xs-(b).xs))
 
+// Fast conversion macros
+#define BYTEn(a,b)			(*((BYTE*)&(a)+b))
+#define BYTE0(a)			(LOBYTE(a))
+#define BYTE1(a)			(BYTEn(a,1))
+#define BYTE2(a)			(BYTEn(a,2))
+#define BYTE3(a)			(BYTEn(a,3))
+
 // View distance values
 #define VIEW_NEAR			(0x14 * 0x001)
 #define VIEW_FAR			(0x14 * 0x400)
