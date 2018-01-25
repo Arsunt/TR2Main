@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -99,34 +99,34 @@ void __cdecl D3DDeviceCreate(LPDIRECTDRAWSURFACE3 lpBackBuffer) {
 	D3DMATERIALHANDLE matHandle;
 
 	if( !Direct3D2Create() )
-		throw 27; // D3D_Create
+		throw ERR_D3D_Create;
 
 	if FAILED(_Direct3D2->CreateDevice(IID_IDirect3DHALDevice, (LPDIRECTDRAWSURFACE)lpBackBuffer, &_Direct3DDevice2))
-		throw 28; // CreateDevice
+		throw ERR_CreateDevice;
 
 	if FAILED(_Direct3D2->CreateViewport(&_Direct3DViewport2, NULL))
-		throw 29; // CreateViewport
+		throw ERR_CreateViewport;
 
 	if FAILED(_Direct3DDevice2->AddViewport(_Direct3DViewport2))
-		throw 30; // AddViewport
+		throw ERR_AddViewport;
 
 	if FAILED(!D3DSetViewport())
-		throw 31; // SetViewport2
+		throw ERR_SetViewport2;
 
 	if FAILED(_Direct3D2->CreateMaterial(&_Direct3DMaterial2, NULL))
-		throw 29; // CreateViewport
+		throw ERR_CreateViewport;
 
 	memset(&matData, 0, sizeof(D3DMATERIAL));
 	matData.dwSize = sizeof(D3DMATERIAL);
 
 	if FAILED(_Direct3DMaterial2->SetMaterial(&matData))
-		throw 29; // CreateViewport
+		throw ERR_CreateViewport;
 
 	if FAILED(_Direct3DMaterial2->GetHandle(_Direct3DDevice2, &matHandle))
-		throw 29; // CreateViewport
+		throw ERR_CreateViewport;
 
 	if FAILED(_Direct3DViewport2->SetBackground(matHandle))
-		throw 29; // CreateViewport
+		throw ERR_CreateViewport;
 }
 
 void __cdecl Direct3DRelease() {

@@ -38,7 +38,7 @@ void __cdecl BGND_Make640x480(BYTE *bitmap, RGB *palette) {
 	// NOTE: 8 bit bitmap may be converted to 16 bit right in the tmpBuffer
 	// so we need to allocate memory for 16 bit bitmap anyway
 	DWORD tmpBufSize = 256*256*2;
-	BYTE *tmpBuffer = (BYTE *)game_malloc(tmpBufSize, 0); // Temp Alloc
+	BYTE *tmpBuffer = (BYTE *)game_malloc(tmpBufSize, GBUF_TempAlloc);
 
 	BGND_PaletteIndex = (TextureFormat.bpp < 16) ? CreateTexturePalette(palette) : -1;
 

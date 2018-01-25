@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -892,7 +892,7 @@ void __cdecl SE_GraphicsDlgInit(HWND hwndDlg) {
 	}
 
 	SendMessage(comboBox, CB_SETCURSEL, selectedIndex, 0);
-	EnableWindow(comboBox, (DisplayAdapterList.dwCount > 0)); // TODO: must be >1. There is no reason to select 1/1 adapter
+	EnableWindow(comboBox, (DisplayAdapterList.dwCount > 1)); // NOTE: original was be >0. But there is no reason to select 1/1 adapter
 	if( DisplayAdapterList.dwCount > 0 ) {
 		selected = (DISPLAY_ADAPTER_NODE *)SendMessage(comboBox, CB_GETITEMDATA, selectedIndex, 0);
 		if( ChangedAppSettings.VideoMode != NULL ) {
@@ -1084,7 +1084,7 @@ void __cdecl SE_ControlsDlgInit(HWND hwndDlg) {
 	}
 
 	SendMessage(comboBox, CB_SETCURSEL, selectedIndex, 0);
-	EnableWindow(comboBox, (JoystickList.dwCount > 0)); // TODO: must be >1. There is no reason to select 1/1 joystick
+	EnableWindow(comboBox, (JoystickList.dwCount > 1)); // NOTE: original was >0. But there is no reason to select 1/1 joystick
 	if( JoystickList.dwCount > 0 ) {
 		selected = (JOYSTICK_NODE *)SendMessage(comboBox, CB_GETITEMDATA, selectedIndex, 0);
 		SE_ControlsJoystickSet(hwndDlg, selected);

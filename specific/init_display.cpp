@@ -32,7 +32,7 @@
 #include "specific/winvid.h"
 #include "global/vars.h"
 
-// TODO: add enums for this
+// Related to ERROR_CODE enum
 static LPCTSTR ErrorStringTable[] = {
 	"OK",
 	"PreferredAdapterNotFound",
@@ -74,7 +74,7 @@ static LPCTSTR ErrorStringTable[] = {
 	"GoWindowed",
 	"WrongBitDepth",
 	"GetPixelFormat",
-	"GetDisplayMode"
+	"GetDisplayMode",
 };
 
 void __cdecl CreateScreenBuffers() {
@@ -90,20 +90,20 @@ void __cdecl CreateScreenBuffers() {
 		dsp.ddsCaps.dwCaps |= DDSCAPS_3DDEVICE;
 
 	if FAILED(DDrawSurfaceCreate(&dsp, &PrimaryBufferSurface))
-		throw 14; // CreateScreenBuffers
+		throw ERR_CreateScreenBuffers;
 
 	WinVidClearBuffer(PrimaryBufferSurface, NULL, 0);
 
 	ddsCaps.dwCaps = DDSCAPS_BACKBUFFER;
 	if FAILED(PrimaryBufferSurface->GetAttachedSurface(&ddsCaps, &BackBufferSurface))
-		throw 15; // GetBackBuffer
+		throw ERR_GetBackBuffer;
 
 	WinVidClearBuffer(BackBufferSurface, NULL, 0);
 
 	if( SavedAppSettings.TripleBuffering ) {
 		ddsCaps.dwCaps = DDSCAPS_FLIP;
 		if FAILED(BackBufferSurface->GetAttachedSurface(&ddsCaps, &ThirdBufferSurface))
-			throw 35; // GetThirdBuffer
+			throw ERR_GetThirdBuffer;
 
 		WinVidClearBuffer(ThirdBufferSurface, NULL, 0);
 	}
@@ -114,7 +114,7 @@ void __cdecl CreatePrimarySurface() {
 
 	if( ( GameVid_IsVga && SavedAppSettings.RenderMode == RM_Hardware) ||
 		(!GameVid_IsVga && SavedAppSettings.RenderMode == RM_Software) )
-		throw 38; // WrongBitDepth
+		throw ERR_WrongBitDepth;
 
 	memset(&dsp, 0, sizeof(DDSURFACEDESC));
 	dsp.dwSize = sizeof(DDSURFACEDESC);
@@ -122,7 +122,7 @@ void __cdecl CreatePrimarySurface() {
 	dsp.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
 
 	if FAILED(DDrawSurfaceCreate(&dsp, &PrimaryBufferSurface))
-		throw 18; // CreatePrimarySurface
+		throw ERR_CreatePrimarySurface;
 }
 
 void __cdecl CreateBackBuffer() {
@@ -139,7 +139,7 @@ void __cdecl CreateBackBuffer() {
 		dsp.ddsCaps.dwCaps |= DDSCAPS_VIDEOMEMORY;
 
 	if FAILED(DDrawSurfaceCreate(&dsp, &BackBufferSurface))
-		throw 19; // CreateBackBuffer
+		throw ERR_CreateBackBuffer;
 
 	WinVidClearBuffer(BackBufferSurface, NULL, 0);
 }
@@ -147,13 +147,13 @@ void __cdecl CreateBackBuffer() {
 void __cdecl CreateClipper() {
 
 	if FAILED(_DirectDraw2->CreateClipper(0, &_DirectDrawClipper, NULL))
-		throw 20; // CreateClipper
+		throw ERR_CreateClipper;
 
 	if FAILED(_DirectDrawClipper->SetHWnd(0, HGameWindow))
-		throw 21; // SetClipperHWnd
+		throw ERR_SetClipperHWnd;
 
 	if FAILED(PrimaryBufferSurface->SetClipper(_DirectDrawClipper))
-		throw 22; // SetClipper
+		throw ERR_SetClipper;
 }
 
 void __cdecl CreateWindowPalette() {
@@ -182,10 +182,10 @@ void __cdecl CreateWindowPalette() {
 	}
 
 	if FAILED(_DirectDraw2->CreatePalette(dwFlags, WinVidPalette, &_DirectDrawPalette, NULL))
-		throw 16; // CreatePalette
+		throw ERR_CreatePalette;
 
 	if FAILED(PrimaryBufferSurface->SetPalette(_DirectDrawPalette))
-		throw 17; // SetPalette
+		throw ERR_SetPalette;
 }
 
 void __cdecl CreateZBuffer() {
@@ -203,10 +203,10 @@ void __cdecl CreateZBuffer() {
 	dsp.ddsCaps.dwCaps = DDSCAPS_ZBUFFER|DDSCAPS_VIDEOMEMORY;
 
 	if FAILED(DDrawSurfaceCreate(&dsp, &ZBufferSurface))
-		throw 23; // CreateZBuffer
+		throw ERR_CreateZBuffer;
 
 	if FAILED(BackBufferSurface->AddAttachedSurface(ZBufferSurface))
-		throw 24; // AttachZBuffer
+		throw ERR_AttachZBuffer;
 }
 
 DWORD __cdecl GetZBufferDepth() {
@@ -228,10 +228,10 @@ void __cdecl CreateRenderBuffer() {
 	dsp.ddsCaps.dwCaps = DDSCAPS_SYSTEMMEMORY|DDSCAPS_OFFSCREENPLAIN;
 
 	if FAILED(DDrawSurfaceCreate(&dsp, &RenderBufferSurface))
-		throw 25; // CreateRenderBuffer
+		throw ERR_CreateRenderBuffer;
 
 	if( !WinVidClearBuffer(RenderBufferSurface, NULL, 0) )
-		throw 33; // ClearRenderBuffer
+		throw ERR_ClearRenderBuffer;
 }
 
 void __cdecl CreatePictureBuffer() {
@@ -245,7 +245,7 @@ void __cdecl CreatePictureBuffer() {
 	dsp.dwHeight = 480;
 
 	if FAILED(DDrawSurfaceCreate(&dsp, &PictureBufferSurface))
-		throw 26; // CreatePictureBuffer
+		throw ERR_CreatePictureBuffer;
 }
 
 void __cdecl ClearBuffers(DWORD flags, DWORD fillColor) {
@@ -373,7 +373,7 @@ void __cdecl UpdateFrame(bool needRunMessageLoop, LPRECT rect) {
 	}
 
 	if( needRunMessageLoop ) {
-		WinVidSpinMessageLoop(0);
+		WinVidSpinMessageLoop(false);
 	}
 }
 
@@ -402,7 +402,7 @@ void __cdecl RenderStart(bool isReset) {
 		// FullScreen mode
 
 		if( SavedAppSettings.VideoMode == NULL )
-			throw 36; // GoFullScreen
+			throw ERR_GoFullScreen;
 
 		dispMode.width  = SavedAppSettings.VideoMode->body.width;
 		dispMode.height = SavedAppSettings.VideoMode->body.height;
@@ -410,7 +410,7 @@ void __cdecl RenderStart(bool isReset) {
 		dispMode.vga = SavedAppSettings.VideoMode->body.vga;
 
 		if( !WinVidGoFullScreen(&dispMode) )
-			throw 36; // GoFullScreen
+			throw ERR_GoFullScreen;
 
 		CreateScreenBuffers();
 
@@ -434,7 +434,7 @@ void __cdecl RenderStart(bool isReset) {
 
 		WinVidSetMinWindowSize(minWidth, minHeight);
 		if( !WinVidGoWindowed(SavedAppSettings.WindowWidth, SavedAppSettings.WindowHeight, &dispMode) )
-			throw 37; // GoWindowed
+			throw ERR_GoWindowed;
 
 		GameVidWidth  = dispMode.width;
 		GameVidHeight = dispMode.height;
@@ -455,7 +455,7 @@ void __cdecl RenderStart(bool isReset) {
 	memset(&pixelFormat, 0, sizeof(DDPIXELFORMAT));
 	pixelFormat.dwSize = sizeof(DDPIXELFORMAT);
 	if FAILED(PrimaryBufferSurface->GetPixelFormat(&pixelFormat))
-		throw 39; // GetPixelFormat
+		throw ERR_GetPixelFormat;
 
 	WinVidGetColorBitMasks(&ColorBitMasks, &pixelFormat);
 	if( GameVid_IsVga )

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -172,13 +172,13 @@ JOYSTICK_NODE *__cdecl GetJoystick(GUID *lpGuid) {
 
 void __cdecl DInputKeyboardCreate() {
 	if FAILED(_DirectInput->CreateDevice(GUID_SysKeyboard, &IDID_SysKeyboard, NULL))
-		throw 6; // CantCreateKeyboardDevice
+		throw ERR_CantCreateKeyboardDevice;
 	if FAILED(IDID_SysKeyboard->SetCooperativeLevel(HGameWindow, DISCL_FOREGROUND|DISCL_NONEXCLUSIVE))
-		throw 7; // CantSetKBCooperativeLevel
+		throw ERR_CantSetKBCooperativeLevel;
 	if FAILED(IDID_SysKeyboard->SetDataFormat(&c_dfDIKeyboard))
-		throw 8; // CantSetKBDataFormat
+		throw ERR_CantSetKBDataFormat;
 	if FAILED(IDID_SysKeyboard->Acquire())
-		throw 9; // CantAcquireKeyboard
+		throw ERR_CantAcquireKeyboard;
 }
 
 void __cdecl DInputKeyboardRelease() {
@@ -205,7 +205,7 @@ bool __cdecl DInputJoystickSelect() {
 
 void __cdecl WinInStart() {
 	if( !DInputCreate() )
-		throw 5; // CantCreateDirectInput
+		throw ERR_CantCreateDirectInput;
 
 	DInputKeyboardCreate();
 	DInputJoystickSelect();

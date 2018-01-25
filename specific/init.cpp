@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -27,7 +27,7 @@
 #include "global/vars.h"
 #include <time.h>
 
-// TODO: add enums for this
+// related to GAMEALLOC_BUFFER enum
 static LPCTSTR BufferNames[] = {
 	"Temp Alloc",
 	"Texture Pages",
@@ -75,7 +75,7 @@ static LPCTSTR BufferNames[] = {
 	"Order Tables",
 	"CLUTs",
 	"Texture Infos",
-	"Sprite Infos"
+	"Sprite Infos",
 };
 
 BOOL __cdecl S_InitialiseSystem() {

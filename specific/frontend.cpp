@@ -349,14 +349,14 @@ void __cdecl DisplayCredits() {
 		hFile = CreateFile(fullPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 		if( hFile != INVALID_HANDLE_VALUE ) {
 			fileSize[i] = GetFileSize(hFile, 0);
-			fileData[i] = (BYTE *)game_malloc(fileSize[i], 0x28); // Load Piccy Buffer
+			fileData[i] = (BYTE *)game_malloc(fileSize[i], GBUF_LoadPiccyBuffer);
 			ReadFile(hFile, fileData[i], fileSize[i], &bytesRead, 0);
 			CloseHandle(hFile);
 		}
 	}
 
 	bitmapSize = 640*480*1;
-	bitmapData = (BYTE *)game_malloc(bitmapSize, 0x28);// Load Piccy Buffer
+	bitmapData = (BYTE *)game_malloc(bitmapSize, GBUF_LoadPiccyBuffer);
 	S_CDPlay(52, FALSE);
 
 	// slideshow loop

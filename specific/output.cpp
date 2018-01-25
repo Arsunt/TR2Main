@@ -729,12 +729,12 @@ void __cdecl S_DisplayPicture(LPCTSTR fileName, BOOL reallocGame) {
 		init_game_malloc();
 
 	fileSize = GetFileSize(hFile, NULL);
-	fileData = (BYTE *)game_malloc(fileSize, 0x28); // Load Piccy Buffer
+	fileData = (BYTE *)game_malloc(fileSize, GBUF_LoadPiccyBuffer);
 	ReadFile(hFile, fileData, fileSize, &bytesRead, NULL);
 	CloseHandle(hFile);
 
 	bitmapSize = 640*480*1;
-	bitmapData = (BYTE *)game_malloc(bitmapSize, 0x28); // Load Piccy Buffer
+	bitmapData = (BYTE *)game_malloc(bitmapSize, GBUF_LoadPiccyBuffer);
 	DecompPCX(fileData, fileSize, bitmapData, PicPalette);
 
 	DecompPCX(fileData, fileSize, bitmapData, PicPalette);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -1166,7 +1166,7 @@ DISPLAY_ADAPTER_NODE *__cdecl WinVidGetDisplayAdapter(GUID *lpGuid) {
 
 void __cdecl WinVidStart() {
 	if( SavedAppSettings.PreferredDisplayAdapter == NULL )
-		throw 3; // CantCreateDirectDraw
+		throw ERR_CantCreateDirectDraw;
 
 	DISPLAY_ADAPTER *preferred = &SavedAppSettings.PreferredDisplayAdapter->body;
 	CurrentDisplayAdapter = *preferred;
@@ -1181,7 +1181,7 @@ void __cdecl WinVidStart() {
 	DisplayModeListCopy(&CurrentDisplayAdapter.swDispModeList, &preferred->swDispModeList);
 
 	if( !DDrawCreate(CurrentDisplayAdapter.lpAdapterGuid) )
-		throw 3; // CantCreateDirectDraw
+		throw ERR_CantCreateDirectDraw;
 }
 
 void __cdecl WinVidFinish() {
