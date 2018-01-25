@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -73,6 +73,15 @@ void __cdecl DoInventoryBackground() {
  * Inject function
  */
 void Inject_Inventory() {
+//	INJECT(0x00422060, Display_Inventory);
+//	INJECT(0x004232F0, Construct_Inventory);
+//	INJECT(0x00423450, SelectMeshes);
+//	INJECT(0x004234E0, AnimateInventoryItem);
+//	INJECT(0x00423570, DrawInventoryItem);
+
 	INJECT(0x004239A0, GetDebouncedInput);
+
+//	INJECT(0x004239C0, DoInventoryPicture);
+
 	INJECT(0x004239D0, DoInventoryBackground);
 }

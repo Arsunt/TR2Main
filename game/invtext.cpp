@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -135,9 +135,21 @@ void __cdecl SetPCRequesterSize(REQUEST_INFO *req, int maxLines, __int16 yPos) {
  */
 void Inject_InvText() {
 	INJECT(0x00425580, Init_Requester);
+
+//	INJECT(0x00425610, Remove_Requester);
+//	INJECT(0x004256C0, ResetTextParams);
+//	INJECT(0x004256E0, GetTextParams1);
+//	INJECT(0x00425740, GetTextParams2);
+//	INJECT(0x004257A0, Display_Requester);
+
 	INJECT(0x00426010, SetRequesterHeading);
 	INJECT(0x004260C0, RemoveAllReqItems);
 	INJECT(0x004260E0, ChangeRequesterItem);
 	INJECT(0x004261A0, AddRequesterItem);
 	INJECT(0x00426250, SetPCRequesterSize);
+
+//	INJECT(0x00426290, AddAssaultTime);
+//	INJECT(0x00426320, ShowGymStatsText);
+//	INJECT(0x00426500, ShowStatsText);
+//	INJECT(0x004268A0, ShowEndStatsText);
 }

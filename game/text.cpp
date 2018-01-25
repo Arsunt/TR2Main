@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -160,11 +160,28 @@ void Inject_Text() {
 	INJECT(0x00440500, T_InitPrint);
 	INJECT(0x00440530, T_Print);
 	INJECT(0x00440640, T_ChangeText);
+
+//	INJECT(0x00440680, T_SetScale);
+//	INJECT(0x004406A0, T_FlashText);
+//	INJECT(0x004406D0, T_AddBackground);
+//	INJECT(0x00440760, T_RemoveBackground);
+//	INJECT(0x00440770, T_AddOutline);
+//	INJECT(0x004407A0, T_RemoveOutline);
+//	INJECT(0x004407B0, T_CentreH);
+//	INJECT(0x004407D0, T_CentreV);
+
 	INJECT(0x004407F0, T_RightAlign);
 	INJECT(0x00440810, T_BottomAlign);
+
+//	INJECT(0x00440830, T_GetTextWidth);
+
 	INJECT(0x00440940, T_RemovePrint);
 	INJECT(0x00440970, T_GetStringLen);
 	INJECT(0x004409A0, T_DrawText);
+
+//	INJECT(0x004409D0, T_DrawTextBox);
+//	INJECT(0x00440B60, T_DrawThisText);
+
 	INJECT(0x00440F40, GetTextScaleH);
 	INJECT(0x00440F80, GetTextScaleV);
 }

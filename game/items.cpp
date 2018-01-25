@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -130,7 +130,24 @@ int __cdecl GlobalItemReplace(int oldItemID, int newItemID) {
  */
 void Inject_Items() {
 	INJECT(0x00426CD0, InitialiseItemArray);
+
+//	INJECT(0x00426D30, KillItem);
+//	INJECT(0x00426E50, CreateItem);
+
 	INJECT(0x00426E90, InitialiseItem);
+
+//	INJECT(0x00427050, RemoveActiveItem);
+//	INJECT(0x004270E0, RemoveDrawnItem);
+
 	INJECT(0x00427150, AddActiveItem);
+
+//	INJECT(0x004271B0, ItemNewRoom);
+
 	INJECT(0x00427250, GlobalItemReplace);
+
+//	INJECT(0x004272D0, InitialiseFXArray);
+//	INJECT(0x00427300, CreateEffect);
+//	INJECT(0x00427370, KillEffect);
+//	INJECT(0x00427460, EffectNewRoom);
+//	INJECT(0x00427500, ClearBodyBag);
 }

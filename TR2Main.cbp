@@ -92,20 +92,55 @@
 		<Unit filename="3dsystem/scalespr.cpp" />
 		<Unit filename="3dsystem/scalespr.h" />
 
+		<Unit filename="game/bird.cpp" />
+		<Unit filename="game/bird.h" />
+
+		<Unit filename="game/boat.cpp" />
+		<Unit filename="game/boat.h" />
+
+		<Unit filename="game/box.cpp" />
+		<Unit filename="game/box.h" />
+
+		<Unit filename="game/camera.cpp" />
 		<Unit filename="game/camera.h" />
 
+		<Unit filename="game/cinema.cpp" />
 		<Unit filename="game/cinema.h" />
 
+		<Unit filename="game/collide.cpp" />
+		<Unit filename="game/collide.h" />
+
+		<Unit filename="game/control.cpp" />
 		<Unit filename="game/control.h" />
 
+		<Unit filename="game/demo.cpp" />
 		<Unit filename="game/demo.h" />
+
+		<Unit filename="game/diver.cpp" />
+		<Unit filename="game/diver.h" />
+
+		<Unit filename="game/dog.cpp" />
+		<Unit filename="game/dog.h" />
+
+		<Unit filename="game/dragon.cpp" />
+		<Unit filename="game/dragon.h" />
 
 		<Unit filename="game/draw.cpp" />
 		<Unit filename="game/draw.h" />
 
+		<Unit filename="game/eel.cpp" />
+		<Unit filename="game/eel.h" />
+
+		<Unit filename="game/effects.cpp" />
+		<Unit filename="game/effects.h" />
+
+		<Unit filename="game/enemies.cpp" />
+		<Unit filename="game/enemies.h" />
+
 		<Unit filename="game/gameflow.cpp" />
 		<Unit filename="game/gameflow.h" />
 
+		<Unit filename="game/hair.cpp" />
 		<Unit filename="game/hair.h" />
 
 		<Unit filename="game/health.cpp" />
@@ -126,10 +161,50 @@
 		<Unit filename="game/lara.cpp" />
 		<Unit filename="game/lara.h" />
 
+		<Unit filename="game/lara1gun.cpp" />
+		<Unit filename="game/lara1gun.h" />
+
+		<Unit filename="game/lara2gun.cpp" />
+		<Unit filename="game/lara2gun.h" />
+
+		<Unit filename="game/laraclimb.cpp" />
+		<Unit filename="game/laraclimb.h" />
+
+		<Unit filename="game/larafire.cpp" />
+		<Unit filename="game/larafire.h" />
+
+		<Unit filename="game/laraflare.cpp" />
+		<Unit filename="game/laraflare.h" />
+
 		<Unit filename="game/laramisc.cpp" />
 		<Unit filename="game/laramisc.h" />
 
+		<Unit filename="game/larasurf.cpp" />
+		<Unit filename="game/larasurf.h" />
+
+		<Unit filename="game/laraswim.cpp" />
+		<Unit filename="game/laraswim.h" />
+
+		<Unit filename="game/lot.cpp" />
+		<Unit filename="game/lot.h" />
+
+		<Unit filename="game/missile.cpp" />
 		<Unit filename="game/missile.h" />
+
+		<Unit filename="game/moveblock.cpp" />
+		<Unit filename="game/moveblock.h" />
+
+		<Unit filename="game/objects.cpp" />
+		<Unit filename="game/objects.h" />
+
+		<Unit filename="game/people.cpp" />
+		<Unit filename="game/people.h" />
+
+		<Unit filename="game/pickup.cpp" />
+		<Unit filename="game/pickup.h" />
+
+		<Unit filename="game/rat.cpp" />
+		<Unit filename="game/rat.h" />
 
 		<Unit filename="game/savegame.cpp" />
 		<Unit filename="game/savegame.h" />
@@ -137,11 +212,29 @@
 		<Unit filename="game/setup.cpp" />
 		<Unit filename="game/setup.h" />
 
+		<Unit filename="game/shark.cpp" />
+		<Unit filename="game/shark.h" />
+
+		<Unit filename="game/skidoo.cpp" />
+		<Unit filename="game/skidoo.h" />
+
 		<Unit filename="game/sound.cpp" />
 		<Unit filename="game/sound.h" />
 
+		<Unit filename="game/sphere.cpp" />
+		<Unit filename="game/sphere.h" />
+
+		<Unit filename="game/spider.cpp" />
+		<Unit filename="game/spider.h" />
+
 		<Unit filename="game/text.cpp" />
 		<Unit filename="game/text.h" />
+
+		<Unit filename="game/traps.cpp" />
+		<Unit filename="game/traps.h" />
+
+		<Unit filename="game/yeti.cpp" />
+		<Unit filename="game/yeti.h" />
 
 		<Unit filename="specific/background.cpp" />
 		<Unit filename="specific/background.h" />

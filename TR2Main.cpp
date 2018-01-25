@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -52,20 +52,55 @@ extern void Inject_3Dinsert();
 extern void Inject_PhdMath();
 extern void Inject_ScaleSpr();
 // game
+extern void Inject_Bird();
+extern void Inject_Boat();
+extern void Inject_Box();
+extern void Inject_Camera();
+extern void Inject_Cinema();
+extern void Inject_Collide();
+extern void Inject_Control();
+extern void Inject_Demo();
+extern void Inject_Diver();
+extern void Inject_Dog();
+extern void Inject_Dragon();
 extern void Inject_Draw();
+extern void Inject_Eel();
+extern void Inject_Effects();
+extern void Inject_Enemies();
 extern void Inject_Gameflow();
+extern void Inject_Hair();
 extern void Inject_Health();
 extern void Inject_Inventory();
 extern void Inject_InvFunc();
 extern void Inject_InvText();
 extern void Inject_Items();
 extern void Inject_Lara();
+extern void Inject_Lara1Gun();
+extern void Inject_Lara2Gun();
+extern void Inject_LaraClimb();
+extern void Inject_LaraFire();
+extern void Inject_LaraFlare();
 extern void Inject_LaraMisc();
+extern void Inject_LaraSurf();
+extern void Inject_LaraSwim();
+extern void Inject_Lot();
+extern void Inject_Missile();
+extern void Inject_MoveBlock();
+extern void Inject_Objects();
+extern void Inject_People();
+extern void Inject_Pickup();
+extern void Inject_Rat();
 extern void Inject_SaveGame();
 extern void Inject_Setup();
+extern void Inject_Shark();
+extern void Inject_Skidoo();
 extern void Inject_Sound();
+extern void Inject_Sphere();
+extern void Inject_Spider();
 extern void Inject_Text();
-//specific
+extern void Inject_Traps();
+extern void Inject_Yeti();
+// specific
 extern void Inject_Background();
 extern void Inject_Display();
 extern void Inject_File();
@@ -99,20 +134,55 @@ static void Inject() {
 	Inject_PhdMath();
 	Inject_ScaleSpr();
 // game
+	Inject_Bird();
+	Inject_Boat();
+	Inject_Box();
+	Inject_Camera();
+	Inject_Cinema();
+	Inject_Collide();
+	Inject_Control();
+	Inject_Demo();
+	Inject_Diver();
+	Inject_Dog();
+	Inject_Dragon();
 	Inject_Draw();
+	Inject_Eel();
+	Inject_Effects();
+	Inject_Enemies();
 	Inject_Gameflow();
+	Inject_Hair();
 	Inject_Health();
 	Inject_Inventory();
 	Inject_InvFunc();
 	Inject_InvText();
 	Inject_Items();
 	Inject_Lara();
+	Inject_Lara1Gun();
+	Inject_Lara2Gun();
+	Inject_LaraClimb();
+	Inject_LaraFire();
+	Inject_LaraFlare();
 	Inject_LaraMisc();
+	Inject_LaraSurf();
+	Inject_LaraSwim();
+	Inject_Lot();
+	Inject_Missile();
+	Inject_MoveBlock();
+	Inject_Objects();
+	Inject_People();
+	Inject_Pickup();
+	Inject_Rat();
 	Inject_SaveGame();
 	Inject_Setup();
+	Inject_Shark();
+	Inject_Skidoo();
 	Inject_Sound();
+	Inject_Sphere();
+	Inject_Spider();
 	Inject_Text();
-//specific
+	Inject_Traps();
+	Inject_Yeti();
+// specific
 	Inject_Background();
 	Inject_Display();
 	Inject_File();

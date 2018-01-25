@@ -596,7 +596,7 @@ x function is unused / included in another function
 ----------:		lara_col_twist
 0x0042A000:		lara_default_col
 0x0042A040:	+	lara_col_jumper
-0x0042A120:		nullsub
+0x0042A120:	  x	nullsub
 ----------:		lara_col_kick
 ----------:		lara_col_deathslide
 0x0042A130:	 *	GetLaraCollisionInfo
@@ -923,7 +923,6 @@ x function is unused / included in another function
 0x00440830:		T_GetTextWidth
 0x00440940:	+	T_RemovePrint
 0x00440970:	+	T_GetStringLen
-----------:		DisplayFPS
 0x004409A0:	+	T_DrawText
 0x004409D0:		T_DrawTextBox
 0x00440B60:	 *	T_DrawThisText

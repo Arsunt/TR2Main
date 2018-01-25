@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -494,10 +494,33 @@ GAME_OBJECT_ID __cdecl Inv_GetItemOption(GAME_OBJECT_ID itemID) {
  */
 void Inject_InvFunc() {
 	INJECT(0x00423B10, InitColours);
+
+//	INJECT(0x00423C20, RingIsOpen);
+//	INJECT(0x00423D90, RingIsNotOpen);
+//	INJECT(0x00423E20, RingNotActive);
+//	INJECT(0x00424290, RingActive);
+
 	INJECT(0x004242D0, Inv_AddItem);
 	INJECT(0x00424AE0, Inv_InsertItem);
 	INJECT(0x00424C10, Inv_RequestItem);
 	INJECT(0x00424C90, Inv_RemoveAllItems);
 	INJECT(0x00424CB0, Inv_RemoveItem);
 	INJECT(0x00424DC0, Inv_GetItemOption);
+
+//	INJECT(0x00424FB0, RemoveInventoryText);
+//	INJECT(0x00424FE0, Inv_RingInit);
+//	INJECT(0x004250F0, Inv_RingGetView);
+//	INJECT(0x00425150, Inv_RingLight);
+//	INJECT(0x00425190, Inv_RingCalcAdders);
+//	INJECT(0x004251C0, Inv_RingDoMotions);
+//	INJECT(0x00425300, Inv_RingRotateLeft);
+//	INJECT(0x00425330, Inv_RingRotateRight);
+//	INJECT(0x00425360, Inv_RingMotionInit);
+//	INJECT(0x004253D0, Inv_RingMotionSetup);
+//	INJECT(0x00425400, Inv_RingMotionRadius);
+//	INJECT(0x00425430, Inv_RingMotionRotation);
+//	INJECT(0x00425460, Inv_RingMotionCameraPos);
+//	INJECT(0x00425490, Inv_RingMotionCameraPitch);
+//	INJECT(0x004254B0, Inv_RingMotionItemSelect);
+//	INJECT(0x00425510, Inv_RingMotionItemDeselect);
 }

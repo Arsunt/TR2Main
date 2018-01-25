@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -107,4 +107,11 @@ void __cdecl ModifyStartInfo(int levelIdx) {
 void Inject_SaveGame() {
 	INJECT(0x00439190, InitialiseStartInfo);
 	INJECT(0x00439200, ModifyStartInfo);
+
+//	INJECT(0x004392E0, CreateStartInfo);
+//	INJECT(0x004394F0, CreateSaveGameInfo);
+//	INJECT(0x00439A20, ExtractSaveGameInfo);
+//	INJECT(0x0043A280, ResetSG);
+//	INJECT(0x0043A2A0, WriteSG);
+//	INJECT(0x0043A2F0, ReadSG);
 }

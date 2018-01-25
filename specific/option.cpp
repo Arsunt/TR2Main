@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -40,5 +40,18 @@ void __cdecl DefaultConflict() {
  * Inject function
  */
 void Inject_Option() {
+//	INJECT(0x0044EE80, do_inventory_options);
+//	INJECT(0x0044EF90, do_passport_option);
+//	INJECT(----------, do_gamma_option);
+//	INJECT(0x0044F5E0, do_detail_option);
+//	INJECT(0x0044F8C0, do_sound_option);
+//	INJECT(0x0044FD60, do_compass_option);
+//	INJECT(0x0044FE20, FlashConflicts);
+
 	INJECT(0x0044FEA0, DefaultConflict);
+
+//	INJECT(0x0044FEE0, do_control_option);
+//	INJECT(0x004505F0, S_ShowControls);
+//	INJECT(0x00450AC0, S_ChangeCtrlText);
+//	INJECT(0x00450B60, S_RemoveCtrlText);
 }
