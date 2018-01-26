@@ -41,8 +41,7 @@ TEXT_STR_INFO *__cdecl T_Print(int x, int y, __int16 z, const char *str) {
 	for( int i=0; i<64; ++i ) {
 		if( (TextInfoTable[i].flags & TIF_Active) == 0 ) {
 			int stringLen = T_GetStringLen(str);
-			if( stringLen > 64 )
-				stringLen = 64; // TODO: remove. Useless check
+			CLAMPG(stringLen, 64); // NOTE: useless check, but decided to leave it here
 
 			TextInfoTable[i].scaleW = PHD_ONE;
 			TextInfoTable[i].scaleH = PHD_ONE;
@@ -73,13 +72,32 @@ TEXT_STR_INFO *__cdecl T_Print(int x, int y, __int16 z, const char *str) {
 	return NULL;
 }
 
-void __cdecl T_ChangeText(TEXT_STR_INFO *textInfo, char *newString) {
+void __cdecl T_ChangeText(TEXT_STR_INFO *textInfo, const char *newString) {
 	if( newString == NULL || textInfo == NULL || (textInfo->flags & TIF_Active) == 0 )
 		return;
 
+#if 0 // NOTE: original code was unsafe crap. Reimplemented it a little safer
 	if( T_GetStringLen(newString) >= 64 )
 		newString[63] = 0;
-	memcpy(textInfo->pString, newString, 64); // TODO: Fix it! This is unsafe!
+	memcpy(textInfo->pString, newString, 64);
+#else
+	strncpy(textInfo->pString, newString, 64);
+	if( T_GetStringLen(newString) >= 64 )
+		textInfo->pString[63] = 0;
+#endif
+}
+
+void __cdecl T_FlashText(TEXT_STR_INFO *textInfo, __int16 state, __int16 rate) {
+	if( textInfo == NULL)
+		return;
+
+	if( state == 0 ) {
+		textInfo->flags &= ~TIF_Flash;
+	} else {
+		textInfo->flags |= TIF_Flash;
+		textInfo->flashRate = rate;
+		textInfo->flashCount = rate;
+	}
 }
 
 void __cdecl T_RightAlign(TEXT_STR_INFO *textInfo, bool state) {
@@ -134,8 +152,7 @@ DWORD __cdecl GetTextScaleH(DWORD baseScale) {
 	DWORD interValue;
 
 	renderWidth = GetRenderWidth();
-	if( renderWidth < 640 )
-		renderWidth = 640;
+	CLAMPL(renderWidth, 640)
 
 	interValue = renderWidth * PHD_ONE / 640;
 	return (baseScale / PHD_HALF) * (interValue / PHD_HALF);
@@ -146,8 +163,7 @@ DWORD __cdecl GetTextScaleV(DWORD baseScale) {
 	DWORD interValue;
 
 	renderHeight = GetRenderHeight();
-	if( renderHeight < 480 )
-		renderHeight = 480;
+	CLAMPL(renderHeight, 480)
 
 	interValue = renderHeight * PHD_ONE / 480;
 	return (baseScale / PHD_HALF) * (interValue / PHD_HALF);
@@ -162,7 +178,9 @@ void Inject_Text() {
 	INJECT(0x00440640, T_ChangeText);
 
 //	INJECT(0x00440680, T_SetScale);
-//	INJECT(0x004406A0, T_FlashText);
+
+	INJECT(0x004406A0, T_FlashText);
+
 //	INJECT(0x004406D0, T_AddBackground);
 //	INJECT(0x00440760, T_RemoveBackground);
 //	INJECT(0x00440770, T_AddOutline);

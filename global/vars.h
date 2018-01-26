@@ -270,6 +270,7 @@
 #define JoyKeys						VAR_U_(0x0051A200, DWORD)
 #define GameModule					VAR_U_(0x0051A228, HINSTANCE)
 #define CommandLinePtr				VAR_U_(0x0051A22C, LPTSTR)
+#define LayoutPage					VAR_U_(0x0051A240, DWORD)
 #define PhdWinRect					VAR_U_(0x0051B908, RECT)
 #define HiRes						VAR_U_(0x0051B918, int)
 #define AnimatedTextureRanges		VAR_U_(0x0051B91C, __int16*)
@@ -348,37 +349,39 @@
 
 // Initialized arrays
 #define SaveSlotFlags	ARRAY_(0x00466B80, __int16, 16) /* = {-1, 0}; */
-#define DefaultLayout	ARRAY_(0x00466F58, UINT16, 14) /* = {
-	DIK_UP,
-	DIK_DOWN,
-	DIK_LEFT,
-	DIK_RIGHT,
-	DIK_DELETE,
-	DIK_NEXT,
-	DIK_RSHIFT,
-	DIK_RMENU,
-	DIK_RCONTROL,
-	DIK_SPACE,
-	DIK_SLASH,
-	DIK_NUMPAD0,
-	DIK_END,
-	DIK_ESCAPE
-}; */
-#define CustomLayout	ARRAY_(0x00466F74, UINT16, 14) /* = {
-	DIK_NUMPAD8,
-	DIK_NUMPAD2,
-	DIK_NUMPAD4,
-	DIK_NUMPAD6,
-	DIK_NUMPAD7,
-	DIK_NUMPAD9,
-	DIK_NUMPAD1,
-	DIK_ADD,
-	DIK_NUMPADENTER,
-	DIK_NUMPAD3,
-	DIK_SUBTRACT,
-	DIK_NUMPAD0,
-	DIK_NUMPAD5,
-	DIK_DECIMAL
+#define Layout			ARRAY_(0x00466F58, CONTROL_LAYOUT, 2) /* = {
+	{	// Default Layout
+		DIK_UP,
+		DIK_DOWN,
+		DIK_LEFT,
+		DIK_RIGHT,
+		DIK_DELETE,
+		DIK_NEXT,
+		DIK_RSHIFT,
+		DIK_RMENU,
+		DIK_RCONTROL,
+		DIK_SPACE,
+		DIK_SLASH,
+		DIK_NUMPAD0,
+		DIK_END,
+		DIK_ESCAPE,
+	},
+	{	// User Layout
+		DIK_NUMPAD8,
+		DIK_NUMPAD2,
+		DIK_NUMPAD4,
+		DIK_NUMPAD6,
+		DIK_NUMPAD7,
+		DIK_NUMPAD9,
+		DIK_NUMPAD1,
+		DIK_ADD,
+		DIK_NUMPADENTER,
+		DIK_NUMPAD3,
+		DIK_SUBTRACT,
+		DIK_NUMPAD0,
+		DIK_NUMPAD5,
+		DIK_DECIMAL,
+	},
 }; */
 
 // Uninitialized arrays
@@ -415,6 +418,7 @@
 #define HWR_TexturePageIndexes		ARRAY_(0x00519F68, int, 32)
 #define ConflictLayout				ARRAY_(0x0051A0C0, BOOL, 14)
 #define DIKeys						ARRAY_(0x0051A0F8, BYTE, 256)
+#define ControlTextInfo				ARRAY_(0x0051A2F0, TEXT_STR_INFO*, 2)
 #define RoomLightTables				ARRAY_(0x0051A2F8, ROOM_LIGHT_TABLE, 32)
 #define WaterPalette				ARRAY_(0x0051B2F8, RGB, 256)
 #define PicPalette					ARRAY_(0x0051B5F8, RGB, 256)
@@ -547,6 +551,8 @@
 	&InvPickup2Option,
 	NULL,
 }; */
+#define CtrlTextA					ARRAY_(0x0051A248, TEXT_STR_INFO*, 14)
+#define CtrlTextB					ARRAY_(0x0051A280, TEXT_STR_INFO*, 14)
 #define GF_ScriptTable				ARRAY_(0x00521EE0, __int16*, 24)
 #define GF_DemoLevels				ARRAY_(0x00521F60, UINT16, 24)
 

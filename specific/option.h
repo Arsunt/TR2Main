@@ -29,17 +29,20 @@
  */
 // 0x0044EE80:		do_inventory_options
 // 0x0044EF90:		do_passport_option
-// ----------:		do_gamma_option
+
+void __cdecl do_gamma_option(INVENTORY_ITEM *item); // ----------
+
 // 0x0044F5E0:		do_detail_option
 // 0x0044F8C0:		do_sound_option
 // 0x0044FD60:		do_compass_option
-// 0x0044FE20:		FlashConflicts
 
+void __cdecl FlashConflicts(); // 0x0044FE20
 void __cdecl DefaultConflict(); // 0x0044FEA0
 
 // 0x0044FEE0:		do_control_option
 // 0x004505F0:		S_ShowControls
-// 0x00450AC0:		S_ChangeCtrlText
-// 0x00450B60:		S_RemoveCtrlText
+
+void __cdecl S_ChangeCtrlText(); // 0x00450AC0
+void __cdecl S_RemoveCtrlText(); // 0x00450B60
 
 #endif // OPTION_H_INCLUDED

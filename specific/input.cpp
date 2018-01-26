@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -39,7 +39,7 @@
 BOOL __cdecl Key(KEYMAP keyMap) {
 	UINT16 key;
 
-	key = CustomLayout[keyMap];
+	key = Layout[CTRL_Custom].key[keyMap];
 	if( key < 0x100 ) {
 		if KEY_DOWN(key) {
 			return TRUE;
@@ -58,7 +58,7 @@ BOOL __cdecl Key(KEYMAP keyMap) {
 	if( ConflictLayout[keyMap] )
 		return FALSE;
 
-	key = DefaultLayout[keyMap];
+	key = Layout[CTRL_Default].key[keyMap];
 	if( key < 0x100 ) {
 		if KEY_DOWN(key) {
 			return TRUE;

@@ -911,7 +911,7 @@ x function is unused / included in another function
 0x00440530:	+	T_Print
 0x00440640:	+	T_ChangeText
 0x00440680:		T_SetScale
-0x004406A0:		T_FlashText
+0x004406A0:	+	T_FlashText
 0x004406D0:		T_AddBackground
 0x00440760:		T_RemoveBackground
 0x00440770:		T_AddOutline
@@ -1264,16 +1264,16 @@ x function is unused / included in another function
 	specific/option.cpp
 0x0044EE80:		do_inventory_options
 0x0044EF90:		do_passport_option
-----------:		do_gamma_option
+----------:	+	do_gamma_option
 0x0044F5E0:		do_detail_option
 0x0044F8C0:		do_sound_option
 0x0044FD60:		do_compass_option
-0x0044FE20:		FlashConflicts
+0x0044FE20:	+	FlashConflicts
 0x0044FEA0:	+	DefaultConflict
 0x0044FEE0:		do_control_option
 0x004505F0:		S_ShowControls
-0x00450AC0:		S_ChangeCtrlText
-0x00450B60:		S_RemoveCtrlText
+0x00450AC0:	+	S_ChangeCtrlText
+0x00450B60:	+	S_RemoveCtrlText
 
 	specific/output.cpp
 0x00450BA0:	+	GetRenderHeight

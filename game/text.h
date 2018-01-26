@@ -29,10 +29,12 @@
  */
 void __cdecl T_InitPrint(); // 0x00440500
 TEXT_STR_INFO *__cdecl T_Print(int x, int y, __int16 z, const char *str); // 0x00440530
-void __cdecl T_ChangeText(TEXT_STR_INFO *textInfo, char *newString); // 0x00440640
+void __cdecl T_ChangeText(TEXT_STR_INFO *textInfo, const char *newString); // 0x00440640
 
 // 0x00440680:		T_SetScale
-// 0x004406A0:		T_FlashText
+
+void __cdecl T_FlashText(TEXT_STR_INFO *textInfo, __int16 state, __int16 rate); // 0x004406A0
+
 // 0x004406D0:		T_AddBackground
 // 0x00440760:		T_RemoveBackground
 // 0x00440770:		T_AddOutline

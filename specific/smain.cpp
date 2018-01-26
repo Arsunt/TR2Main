@@ -372,7 +372,7 @@ void __cdecl S_SaveSettings() {
 	SetRegistryDwordValue(REG_SOUND_VOLUME, SoundVolume);
 	SetRegistryDwordValue(REG_DETAIL_LEVEL, DetailLevel);
 	SetRegistryFloatValue(REG_GAME_SIZER, GameSizer);
-	SetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)CustomLayout, sizeof(UINT16)*14);
+	SetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)Layout[CTRL_Custom].key, sizeof(UINT16)*14);
 	CloseGameRegistryKey();
 
 #ifdef FEATURE_FOG_DISTANCE
@@ -395,7 +395,7 @@ void __cdecl S_LoadSettings() {
 	GetRegistryDwordValue(REG_SOUND_VOLUME, &soundVol, 10);
 	GetRegistryDwordValue(REG_DETAIL_LEVEL, &DetailLevel, 1);
 	GetRegistryFloatValue(REG_GAME_SIZER, &GameSizer, 1.0);
-	GetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)CustomLayout, sizeof(UINT16)*14, NULL);
+	GetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)Layout[CTRL_Custom].key, sizeof(UINT16)*14, NULL);
 
 #ifdef FEATURE_HEALTHBAR_IMPROVED
 	GetRegistryBoolValue(REG_PSXBAR_ENABLE, &PsxBarsEnabled, false);
