@@ -27,19 +27,21 @@
 /*
  * Function list
  */
-// 0x0044EE80:		do_inventory_options
-// 0x0044EF90:		do_passport_option
+void __cdecl do_inventory_options(INVENTORY_ITEM *item); // 0x0044EE80
+
+#define do_passport_option ((void(__cdecl*)(INVENTORY_ITEM *)) 0x0044EF90)
 
 void __cdecl do_gamma_option(INVENTORY_ITEM *item); // ----------
+void __cdecl do_detail_option(INVENTORY_ITEM *item); // 0x0044F5E0
 
-// 0x0044F5E0:		do_detail_option
-// 0x0044F8C0:		do_sound_option
-// 0x0044FD60:		do_compass_option
+#define do_sound_option ((void(__cdecl*)(INVENTORY_ITEM *)) 0x0044F8C0)
 
+void __cdecl do_compass_option(INVENTORY_ITEM *item); // 0x0044FD60
 void __cdecl FlashConflicts(); // 0x0044FE20
 void __cdecl DefaultConflict(); // 0x0044FEA0
 
-// 0x0044FEE0:		do_control_option
+#define do_control_option ((void(__cdecl*)(INVENTORY_ITEM *)) 0x0044FEE0)
+
 // 0x004505F0:		S_ShowControls
 
 void __cdecl S_ChangeCtrlText(); // 0x00450AC0

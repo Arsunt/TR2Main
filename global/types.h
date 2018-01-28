@@ -107,6 +107,7 @@ typedef struct {
 #define SW_DETAIL_LOW		(0 * 0x400 * W2V_SCALE)
 #define SW_DETAIL_MEDIUM	(3 * 0x400 * W2V_SCALE)
 #define SW_DETAIL_HIGH		(6 * 0x400 * W2V_SCALE)
+#define SW_DETAIL_ULTRA		(20* 0x400 * W2V_SCALE)
 
 // ClearBuffers flags
 #define CLRB_PrimaryBuffer			(0x0001)

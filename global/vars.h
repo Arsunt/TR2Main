@@ -417,6 +417,7 @@
 #define HWR_TexturePageIndexes		ARRAY_(0x00519F68, int, 32)
 #define ConflictLayout				ARRAY_(0x0051A0C0, BOOL, 14)
 #define DIKeys						ARRAY_(0x0051A0F8, BYTE, 256)
+#define DetailTextInfo				ARRAY_(0x0051A2C8, TEXT_STR_INFO*, 5)
 #define ControlTextInfo				ARRAY_(0x0051A2F0, TEXT_STR_INFO*, 2)
 #define RoomLightTables				ARRAY_(0x0051A2F8, ROOM_LIGHT_TABLE, 32)
 #define WaterPalette				ARRAY_(0x0051B2F8, RGB, 256)
