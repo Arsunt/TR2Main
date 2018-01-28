@@ -28,11 +28,11 @@
  * Function list
  */
 void __cdecl Init_Requester(REQUEST_INFO *req); // 0x00425580
+void __cdecl Remove_Requester(REQUEST_INFO *req); // 0x00425610
+void __cdecl ResetTextParams(REQUEST_INFO *req, TEXT_STR_INFO *textInfo); // 0x004256C0
+void __cdecl GetTextParams1(REQUEST_INFO *req, TEXT_STR_INFO *textInfo); // 0x004256E0
+void __cdecl GetTextParams2(REQUEST_INFO *req, TEXT_STR_INFO *textInfo); // 0x00425740
 
-// 0x00425610:		Remove_Requester
-// 0x004256C0:		ResetTextParams
-// 0x004256E0:		GetTextParams1
-// 0x00425740:		GetTextParams2
 // 0x004257A0:		Display_Requester
 
 void __cdecl SetRequesterHeading(REQUEST_INFO *req, const char *string1, DWORD flags1, const char *string2, DWORD flags2); // 0x00426010
@@ -42,8 +42,8 @@ void __cdecl AddRequesterItem(REQUEST_INFO *req, const char *string1, DWORD flag
 void __cdecl SetPCRequesterSize(REQUEST_INFO *req, int maxLines, __int16 yPos); // 0x00426250
 
 // 0x00426290:		AddAssaultTime
-// 0x00426320:		ShowGymStatsText
 
+#define ShowGymStatsText ((void(__cdecl*)()) 0x00426320)
 #define ShowStatsText ((void(__cdecl*)(char *,BOOL)) 0x00426500)
 #define ShowEndStatsText ((void(__cdecl*)(void)) 0x004268A0)
 

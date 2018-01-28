@@ -439,10 +439,10 @@ x function is unused / included in another function
 
 	game/invtext.cpp
 0x00425580:	+	Init_Requester
-0x00425610:		Remove_Requester
-0x004256C0:		ResetTextParams
-0x004256E0:		GetTextParams1
-0x00425740:		GetTextParams2
+0x00425610:	+	Remove_Requester
+0x004256C0:	+	ResetTextParams
+0x004256E0:	+	GetTextParams1
+0x00425740:	+	GetTextParams2
 0x004257A0:		Display_Requester
 0x00426010:	+	SetRequesterHeading
 0x004260C0:	+	RemoveAllReqItems
@@ -450,7 +450,7 @@ x function is unused / included in another function
 0x004261A0:	+	AddRequesterItem
 0x00426250:	+	SetPCRequesterSize
 0x00426290:		AddAssaultTime
-0x00426320:		ShowGymStatsText
+0x00426320:	 *	ShowGymStatsText
 0x00426500:	 *	ShowStatsText
 0x004268A0:	 *	ShowEndStatsText
 

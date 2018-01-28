@@ -52,6 +52,59 @@ void __cdecl Init_Requester(REQUEST_INFO *req) {
 	req->renderHeight = GetRenderHeight();
 }
 
+void __cdecl Remove_Requester(REQUEST_INFO *req) {
+	T_RemovePrint(req->headingText1);
+	req->headingText1 = NULL;
+	T_RemovePrint(req->headingText2);
+	req->headingText2 = NULL;
+	T_RemovePrint(req->backgroundText);
+	req->backgroundText = NULL;
+	T_RemovePrint(req->moreupText);
+	req->moreupText = NULL;
+	T_RemovePrint(req->moredownText);
+	req->moredownText = NULL;
+
+	for( int i=0; i<24; ++i ) {
+		T_RemovePrint(req->itemTexts1[i]);
+		req->itemTexts1[i] = NULL;
+		T_RemovePrint(req->itemTexts2[i]);
+		req->itemTexts2[i] = NULL;
+	}
+}
+
+void __cdecl ResetTextParams(REQUEST_INFO *req, TEXT_STR_INFO *textInfo) {
+	if( textInfo != NULL ) {
+		textInfo->xPos = req->xPos;
+		textInfo->bgndOffX = 0;
+	}
+}
+
+void __cdecl GetTextParams1(REQUEST_INFO *req, TEXT_STR_INFO *textInfo) {
+	DWORD scaleH;
+	int bgndOffX;
+
+	if( textInfo == NULL )
+		return;
+
+	scaleH = GetTextScaleH(textInfo->scaleH);
+	bgndOffX = (req->pixWidth * scaleH / PHD_ONE) / 2 - T_GetTextWidth(textInfo) / 2 - (8 * scaleH / PHD_ONE);
+	textInfo->xPos = req->xPos - bgndOffX;
+	textInfo->bgndOffX = bgndOffX;
+}
+
+void __cdecl GetTextParams2(REQUEST_INFO *req, TEXT_STR_INFO *textInfo) {
+	DWORD scaleH;
+	int bgndOffX;
+
+	if( textInfo == NULL )
+		return;
+
+	scaleH = GetTextScaleH(textInfo->scaleH);
+	bgndOffX = (req->pixWidth * scaleH / PHD_ONE) / 2 - T_GetTextWidth(textInfo) / 2 - (8 * scaleH / PHD_ONE);
+	textInfo->xPos = req->xPos + bgndOffX;
+	textInfo->bgndOffX = -bgndOffX;
+}
+
 void __cdecl SetRequesterHeading(REQUEST_INFO *req, const char *string1, DWORD flags1, const char *string2, DWORD flags2) {
 	T_RemovePrint(req->headingText1);
 	req->headingText1 = NULL;
@@ -135,11 +188,11 @@ void __cdecl SetPCRequesterSize(REQUEST_INFO *req, int maxLines, __int16 yPos) {
  */
 void Inject_InvText() {
 	INJECT(0x00425580, Init_Requester);
+	INJECT(0x00425610, Remove_Requester);
+	INJECT(0x004256C0, ResetTextParams);
+	INJECT(0x004256E0, GetTextParams1);
+	INJECT(0x00425740, GetTextParams2);
 
-//	INJECT(0x00425610, Remove_Requester);
-//	INJECT(0x004256C0, ResetTextParams);
-//	INJECT(0x004256E0, GetTextParams1);
-//	INJECT(0x00425740, GetTextParams2);
 //	INJECT(0x004257A0, Display_Requester);
 
 	INJECT(0x00426010, SetRequesterHeading);
