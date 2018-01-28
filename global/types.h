@@ -56,6 +56,10 @@ typedef struct {
 #define PHD_IONE			(PHD_ONE/2) // signed short int equivalent of 1.0
 #define PHD_HALF			(0x100) // half size of PHD_ONE
 
+// Flag check macros
+#define CHK_ALL(a,b)	(((a)&(b))==(b))
+#define CHK_ANY(a,b)	(((a)&(b))!=0)
+
 // Geometry values
 #define WALL_SHIFT			(10)
 
@@ -848,6 +852,26 @@ typedef enum {
 	SSI_Dozy,
 } SPECIFIC_STRING_ID;
 
+typedef enum {
+	ICLR_Black,
+	ICLR_Gray,
+	ICLR_White,
+	ICLR_Red,
+	ICLR_Orange,
+	ICLR_Yellow,
+	ICLR_Reserved1,
+	ICLR_Reserved2,
+	ICLR_Reserved3,
+	ICLR_Reserved4,
+	ICLR_Reserved5,
+	ICLR_Reserved6,
+	ICLR_DarkGreen,
+	ICLR_Green,
+	ICLR_Cyan,
+	ICLR_Blue,
+	ICLR_Magenta,
+} INV_COLOURS;
+
 /*
  * Structs
  */
@@ -1021,26 +1045,6 @@ typedef struct PhdTexture_t {
 	PHD_UV uv[4];
 } PHD_TEXTURE;
 
-typedef struct InvColours_t {
-	UINT16 black;
-	UINT16 gray;
-	UINT16 white;
-	UINT16 red;
-	UINT16 orange;
-	UINT16 yellow;
-	UINT16 reserved1;
-	UINT16 reserved2;
-	UINT16 reserved3;
-	UINT16 reserved4;
-	UINT16 reserved5;
-	UINT16 reserved6;
-	UINT16 darkGreen;
-	UINT16 green;
-	UINT16 cyan;
-	UINT16 blue;
-	UINT16 magenta;
-} INV_COLOURS;
-
 typedef struct ColorBitMasks_t {
 	DWORD dwRBitMask;
 	DWORD dwGBitMask;
@@ -1084,7 +1088,7 @@ typedef struct TextStrInfo_t {
 	__int16 bgndOffY;
 	__int16 bgndOffZ;
 	int scaleH;
-	int scaleW;
+	int scaleV;
 	char *pString;
 } TEXT_STR_INFO;
 

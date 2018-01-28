@@ -43,8 +43,8 @@ TEXT_STR_INFO *__cdecl T_Print(int x, int y, __int16 z, const char *str) {
 			int stringLen = T_GetStringLen(str);
 			CLAMPG(stringLen, 64); // NOTE: useless check, but decided to leave it here
 
-			TextInfoTable[i].scaleW = PHD_ONE;
 			TextInfoTable[i].scaleH = PHD_ONE;
+			TextInfoTable[i].scaleV = PHD_ONE;
 			TextInfoTable[i].xPos = x * GetTextScaleH(PHD_ONE) / PHD_ONE;
 			TextInfoTable[i].yPos = y * GetTextScaleV(PHD_ONE) / PHD_ONE;
 			TextInfoTable[i].zPos = z;
@@ -148,25 +148,31 @@ void __cdecl T_DrawText() {
 }
 
 DWORD __cdecl GetTextScaleH(DWORD baseScale) {
-	DWORD renderWidth;
-	DWORD interValue;
+#ifdef FEATURE_FOV_FIX
+	return GetRenderScale(baseScale);
+#else // !FEATURE_FOV_FIX
+	DWORD renderWidth, renderScale;
 
 	renderWidth = GetRenderWidth();
 	CLAMPL(renderWidth, 640)
 
-	interValue = renderWidth * PHD_ONE / 640;
-	return (baseScale / PHD_HALF) * (interValue / PHD_HALF);
+	renderScale = renderWidth * PHD_ONE / 640;
+	return (baseScale / PHD_HALF) * (renderScale / PHD_HALF);
+#endif // FEATURE_FOV_FIX
 }
 
 DWORD __cdecl GetTextScaleV(DWORD baseScale) {
-	DWORD renderHeight;
-	DWORD interValue;
+#ifdef FEATURE_FOV_FIX
+	return GetRenderScale(baseScale);
+#else // !FEATURE_FOV_FIX
+	DWORD renderWidth, renderScale;
 
 	renderHeight = GetRenderHeight();
 	CLAMPL(renderHeight, 480)
 
-	interValue = renderHeight * PHD_ONE / 480;
-	return (baseScale / PHD_HALF) * (interValue / PHD_HALF);
+	renderScale = renderHeight * PHD_ONE / 480;
+	return = (baseScale / PHD_HALF) * (renderScale / PHD_HALF);
+#endif // FEATURE_FOV_FIX
 }
 
 /*

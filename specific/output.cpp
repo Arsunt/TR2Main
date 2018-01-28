@@ -233,7 +233,7 @@ int __cdecl S_GetObjectBounds(__int16 *bPtr) {
 void __cdecl S_InsertBackPolygon(int x0, int y0, int x1, int y1) {
 	ins_flat_rect(PhdWinMinX + x0, PhdWinMinY + y0,
 				  PhdWinMinX + x1, PhdWinMinY + y1,
-				  PhdFarZ + 1, InvColours.black);
+				  PhdFarZ + 1, InvColours[ICLR_Black]);
 }
 
 void __cdecl S_PrintShadow(__int16 radius, __int16 *bPtr, ITEM_INFO *item) {
@@ -548,14 +548,14 @@ void __cdecl S_DrawHealthBar(int percent) {
 	}
 
 	// Frame
-	ins_flat_rect(x0-pixel*2, y0-pixel*2, x1+pixel*2, y1+pixel*2, PhdNearZ + 50, InvColours.white);
-	ins_flat_rect(x0-pixel*1, y0-pixel*1, x1+pixel*2, y1+pixel*2, PhdNearZ + 40, InvColours.gray);
-	ins_flat_rect(x0-pixel*1, y0-pixel*1, x1+pixel*1, y1+pixel*1, PhdNearZ + 30, InvColours.black);
+	ins_flat_rect(x0-pixel*2, y0-pixel*2, x1+pixel*2, y1+pixel*2, PhdNearZ + 50, InvColours[ICLR_White]);
+	ins_flat_rect(x0-pixel*1, y0-pixel*1, x1+pixel*2, y1+pixel*2, PhdNearZ + 40, InvColours[ICLR_Gray]);
+	ins_flat_rect(x0-pixel*1, y0-pixel*1, x1+pixel*1, y1+pixel*1, PhdNearZ + 30, InvColours[ICLR_Black]);
 
 	// Health bar
 	if( bar > 0 ) {
-		ins_flat_rect(x0, y0+pixel*0, x0+bar, y0+barHeight,	PhdNearZ + 20, InvColours.red);
-		ins_flat_rect(x0, y0+pixel*1, x0+bar, y0+pixel*2,	PhdNearZ + 10, InvColours.orange);
+		ins_flat_rect(x0, y0+pixel*0, x0+bar, y0+barHeight,	PhdNearZ + 20, InvColours[ICLR_Red]);
+		ins_flat_rect(x0, y0+pixel*1, x0+bar, y0+pixel*2,	PhdNearZ + 10, InvColours[ICLR_Orange]);
 	}
 #else // !FEATURE_HEALTHBAR_IMPROVED
 	int i;
@@ -575,20 +575,20 @@ void __cdecl S_DrawHealthBar(int percent) {
 
 	// Black background
 	for( i = 0; i < (barHeight+2); ++i )
-		ins_line(x0-2, y0+i-1, x1+1, y0+i-1, PhdNearZ + 50, InvColours.black);
+		ins_line(x0-2, y0+i-1, x1+1, y0+i-1, PhdNearZ + 50, InvColours[ICLR_Black]);
 
 	// Dark frame
-	ins_line(x0-2, y1+1, x1+2, y1+1, PhdNearZ + 40, InvColours.gray);
-	ins_line(x1+2, y0-2, x1+2, y1+1, PhdNearZ + 40, InvColours.gray);
+	ins_line(x0-2, y1+1, x1+2, y1+1, PhdNearZ + 40, InvColours[ICLR_Gray]);
+	ins_line(x1+2, y0-2, x1+2, y1+1, PhdNearZ + 40, InvColours[ICLR_Gray]);
 
 	// Light frame
-	ins_line(x0-2, y0-2, x1+2, y0-2, PhdNearZ + 30, InvColours.white);
-	ins_line(x0-2, y1+1, x0-2, y0-2, PhdNearZ + 30, InvColours.white);
+	ins_line(x0-2, y0-2, x1+2, y0-2, PhdNearZ + 30, InvColours[ICLR_White]);
+	ins_line(x0-2, y1+1, x0-2, y0-2, PhdNearZ + 30, InvColours[ICLR_White]);
 
 	// Health bar
 	if( bar > 0 ) {
 		for( i = 0; i < barHeight; ++i )
-			ins_line(x0, y0+i, x0+bar, y0+i, PhdNearZ + 20, ( i == 1 ) ? InvColours.orange : InvColours.red);
+			ins_line(x0, y0+i, x0+bar, y0+i, PhdNearZ + 20, ( i == 1 ) ? InvColours[ICLR_Orange] : InvColours[ICLR_Red]);
 	}
 #endif // FEATURE_HEALTHBAR_IMPROVED
 }
@@ -616,14 +616,14 @@ void __cdecl S_DrawAirBar(int percent) {
 	}
 
 	// Frame
-	ins_flat_rect(x0-pixel*2, y0-pixel*2, x1+pixel*2, y1+pixel*2, PhdNearZ + 50, InvColours.white);
-	ins_flat_rect(x0-pixel*1, y0-pixel*1, x1+pixel*2, y1+pixel*2, PhdNearZ + 40, InvColours.gray);
-	ins_flat_rect(x0-pixel*1, y0-pixel*1, x1+pixel*1, y1+pixel*1, PhdNearZ + 30, InvColours.black);
+	ins_flat_rect(x0-pixel*2, y0-pixel*2, x1+pixel*2, y1+pixel*2, PhdNearZ + 50, InvColours[ICLR_White]);
+	ins_flat_rect(x0-pixel*1, y0-pixel*1, x1+pixel*2, y1+pixel*2, PhdNearZ + 40, InvColours[ICLR_Gray]);
+	ins_flat_rect(x0-pixel*1, y0-pixel*1, x1+pixel*1, y1+pixel*1, PhdNearZ + 30, InvColours[ICLR_Black]);
 
 	// Air bar
 	if( bar > 0 ) {
-		ins_flat_rect(x0, y0+pixel*0, x0+bar, y0+barHeight,	PhdNearZ + 20, InvColours.blue);
-		ins_flat_rect(x0, y0+pixel*1, x0+bar, y0+pixel*2,	PhdNearZ + 10, InvColours.white);
+		ins_flat_rect(x0, y0+pixel*0, x0+bar, y0+barHeight,	PhdNearZ + 20, InvColours[ICLR_Blue]);
+		ins_flat_rect(x0, y0+pixel*1, x0+bar, y0+pixel*2,	PhdNearZ + 10, InvColours[ICLR_White]);
 	}
 #else // !FEATURE_HEALTHBAR_IMPROVED
 	int i;
@@ -643,20 +643,20 @@ void __cdecl S_DrawAirBar(int percent) {
 
 	// Black background
 	for( i = 0; i < (barHeight+2); ++i )
-		ins_line(x0-2, y0+i-1, x1+1, y0+i-1, PhdNearZ + 50, InvColours.black);
+		ins_line(x0-2, y0+i-1, x1+1, y0+i-1, PhdNearZ + 50, InvColours[ICLR_Black]);
 
 	// Dark frame
-	ins_line(x0-2, y1+1, x1+2, y1+1, PhdNearZ + 40, InvColours.gray);
-	ins_line(x1+2, y0-2, x1+2, y1+1, PhdNearZ + 40, InvColours.gray);
+	ins_line(x0-2, y1+1, x1+2, y1+1, PhdNearZ + 40, InvColours[ICLR_Gray]);
+	ins_line(x1+2, y0-2, x1+2, y1+1, PhdNearZ + 40, InvColours[ICLR_Gray]);
 
 	// Light frame
-	ins_line(x0-2, y0-2, x1+2, y0-2, PhdNearZ + 30, InvColours.white);
-	ins_line(x0-2, y1+1, x0-2, y0-2, PhdNearZ + 30, InvColours.white);
+	ins_line(x0-2, y0-2, x1+2, y0-2, PhdNearZ + 30, InvColours[ICLR_White]);
+	ins_line(x0-2, y1+1, x0-2, y0-2, PhdNearZ + 30, InvColours[ICLR_White]);
 
 	// Air bar
 	if( bar > 0 ) {
 		for( i = 0; i < barHeight; ++i )
-			ins_line(x0, y0+i, x0+bar, y0+i, PhdNearZ + 20, ( i == 1 ) ? InvColours.white : InvColours.blue);
+			ins_line(x0, y0+i, x0+bar, y0+i, PhdNearZ + 20, ( i == 1 ) ? InvColours[ICLR_White] : InvColours[ICLR_Blue]);
 	}
 #endif // FEATURE_HEALTHBAR_IMPROVED
 }

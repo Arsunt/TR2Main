@@ -35,7 +35,7 @@ void __cdecl Init_Requester(REQUEST_INFO *req); // 0x00425580
 // 0x00425740:		GetTextParams2
 // 0x004257A0:		Display_Requester
 
-void __cdecl SetRequesterHeading(REQUEST_INFO *requester, const char *string1, DWORD flags1, const char *string2, DWORD flags2); // 0x00426010
+void __cdecl SetRequesterHeading(REQUEST_INFO *req, const char *string1, DWORD flags1, const char *string2, DWORD flags2); // 0x00426010
 void __cdecl RemoveAllReqItems(REQUEST_INFO *req); // 0x004260C0
 void __cdecl ChangeRequesterItem(REQUEST_INFO *req, DWORD itemIdx, const char *string1, DWORD flags1, const char *string2, DWORD flags2); // 0x004260E0
 void __cdecl AddRequesterItem(REQUEST_INFO *req, const char *string1, DWORD flags1, const char *string2, DWORD flags2); // 0x004261A0

@@ -50,31 +50,30 @@ UINT16 __cdecl S_COLOUR(int red, int green, int blue) {
 	return FindNearestPaletteEntry(GamePalette8, red, green, blue, false);
 }
 
-void __cdecl S_DrawScreenLine(int x, int y, int z, int xLen, int yLen, BYTE colorIdx) {
+void __cdecl S_DrawScreenLine(int x, int y, int z, int xLen, int yLen, BYTE colorIdx, LPVOID gour, UINT16 flags) {
 	ins_line(x, y, x + xLen, y + yLen, PhdNearZ + z * 8, colorIdx);
 }
 
-void __cdecl S_DrawScreenBox(int sx, int sy, int z, int width, int height, BYTE colorIdx, UINT16 *grdPtr, UINT16 flags) {
+void __cdecl S_DrawScreenBox(int sx, int sy, int z, int width, int height, BYTE colorIdx, LPVOID gour, UINT16 flags) {
 	const BYTE colorIdx1 = 15;
 	const BYTE colorIdx2 = 31;
 	int sx1 = sx + width;
 	int sy1 = sy + height;
 
-	S_DrawScreenLine(sx,	sy-1,	z,	width+1,	0,			colorIdx1);
-	S_DrawScreenLine(sx+1,	sy,		z,	width-1,	0,			colorIdx2);
+	S_DrawScreenLine(sx,	sy-1,	z,	width+1,	0,			colorIdx1, NULL, flags);
+	S_DrawScreenLine(sx+1,	sy,		z,	width-1,	0,			colorIdx2, NULL, flags);
 
-	S_DrawScreenLine(sx1,	sy+1,	z,	0,			height-1,	colorIdx1);
-	S_DrawScreenLine(sx1+1,	sy,		z,	0,			height+1,	colorIdx2);
+	S_DrawScreenLine(sx1,	sy+1,	z,	0,			height-1,	colorIdx1, NULL, flags);
+	S_DrawScreenLine(sx1+1,	sy,		z,	0,			height+1,	colorIdx2, NULL, flags);
 
-	S_DrawScreenLine(sx-1,	sy-1,	z,	0,			height+1,	colorIdx1);
-	S_DrawScreenLine(sx,	sy,		z,	0,			height-1,	colorIdx2);
+	S_DrawScreenLine(sx-1,	sy-1,	z,	0,			height+1,	colorIdx1, NULL, flags);
+	S_DrawScreenLine(sx,	sy,		z,	0,			height-1,	colorIdx2, NULL, flags);
 
-	S_DrawScreenLine(sx,	sy1,	z,	width-1,	0,			colorIdx1);
-	S_DrawScreenLine(sx-1,	sy1+1,	z,	width+1,	0,			colorIdx2);
+	S_DrawScreenLine(sx,	sy1,	z,	width-1,	0,			colorIdx1, NULL, flags);
+	S_DrawScreenLine(sx-1,	sy1+1,	z,	width+1,	0,			colorIdx2, NULL, flags);
 }
 
-
-void __cdecl S_DrawScreenFBox(int sx, int sy, int z, int width, int height) {
+void __cdecl S_DrawScreenFBox(int sx, int sy, int z, int width, int height, BYTE colorIdx, LPVOID gour, UINT16 flags) {
 	ins_trans_quad(sx, sy, width + 1, height + 1, PhdNearZ + z * 8);
 }
 
@@ -227,10 +226,10 @@ int __cdecl LevelStats(int levelID) {
 	T_InitPrint();
 	S_CopyScreenToBuffer();
 
-	while( (InputStatus & IN_SELECT) != 0 )
+	while( CHK_ANY(InputStatus, IN_SELECT) )
 		S_UpdateInput();
 
-	while( (InputStatus & IN_SELECT) == 0 ) {
+	while( !CHK_ANY(InputStatus, IN_SELECT) ) {
 		S_InitialisePolyList(FALSE);
 		S_CopyBufferToScreen();
 		S_UpdateInput();
@@ -258,10 +257,10 @@ int __cdecl GameStats() {
 
 	T_InitPrint();
 
-	while( (InputStatus & IN_SELECT) != 0 )
+	while( CHK_ANY(InputStatus, IN_SELECT) )
 		S_UpdateInput();
 
-	while( (InputStatus & IN_SELECT) == 0 ) {
+	while( !CHK_ANY(InputStatus, IN_SELECT) ) {
 		S_InitialisePolyList(FALSE);
 		S_CopyBufferToScreen();
 		S_UpdateInput();

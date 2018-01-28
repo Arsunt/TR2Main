@@ -32,8 +32,6 @@
 
 // Macros
 #define KEY_DOWN(a)		((DIKeys[(a)]&0x80)!=0)
-#define CHK_ALL(a,b)	(((a)&(b))==(b))
-#define CHK_ANY(a,b)	(((a)&(b))!=0)
 #define TOGGLE(a)		{(a)=!(a);}
 
 BOOL __cdecl Key(KEYMAP keyMap) {
@@ -258,9 +256,15 @@ bool __cdecl S_UpdateInput() {
 						GameApplySettings(&newSettings);
 					}
 				} else {
-					// Perspective Correction (F7). For SW this means Detail Level: Max or Half perspective distance
+					// Perspective Correction (F7). For SW this means Detail Level: single or double perspective distance
 					TOGGLE(SavedAppSettings.PerspectiveCorrect);
-					PerspectiveDistance = SavedAppSettings.PerspectiveCorrect ? SW_DETAIL_HIGH : SW_DETAIL_MEDIUM;
+					if( SavedAppSettings.PerspectiveCorrect ) {
+						DetailLevel = 2;
+						PerspectiveDistance = SW_DETAIL_HIGH;
+					} else {
+						DetailLevel = 1;
+						PerspectiveDistance = SW_DETAIL_MEDIUM;
+					}
 				}
 			}
 		} else {

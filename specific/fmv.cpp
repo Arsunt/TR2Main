@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -200,7 +200,7 @@ void __cdecl WinPlayFMV(LPCTSTR fileName, bool isPlayback) {
 	while( Movie_GetCurrentFrame(MovieContext) < Movie_GetTotalFrames(MovieContext) ) {
 		if( 0 != Player_PlayFrame(MovieContext, FmvContext, FmvSoundContext, 0, &rect, 0, 0, 0) )
 			return;
-		if( S_UpdateInput() || InputStatus & IN_OPTION )
+		if( S_UpdateInput() || CHK_ANY(InputStatus, IN_OPTION) )
 			break;
 	}
 }

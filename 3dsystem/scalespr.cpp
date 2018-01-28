@@ -158,7 +158,7 @@ __int16 *__cdecl ins_room_sprite(__int16 *ptrObj, int vtxCount) {
 	return ptrObj;
 }
 
-void __cdecl S_DrawScreenSprite2d(int sx, int sy, int sz, int scaleH, int scaleV, __int16 spriteIdx, __int16 shade) {
+void __cdecl S_DrawScreenSprite2d(int sx, int sy, int sz, int scaleH, int scaleV, __int16 spriteIdx, __int16 shade, UINT16 flags) {
 	int x1, y1, x2, y2, z;
 	PHD_SPRITE *sprite = &PhdSpriteInfo[spriteIdx];
 
@@ -172,7 +172,7 @@ void __cdecl S_DrawScreenSprite2d(int sx, int sy, int sz, int scaleH, int scaleV
 		ins_sprite(z, x1, y1, x2, y2, spriteIdx, shade);
 }
 
-void __cdecl S_DrawScreenSprite(int sx, int sy, int sz, int scaleH, int scaleV, __int16 spriteIdx, __int16 shade) {
+void __cdecl S_DrawScreenSprite(int sx, int sy, int sz, int scaleH, int scaleV, __int16 spriteIdx, __int16 shade, UINT16 flags) {
 	int x1, y1, x2, y2, z;
 	PHD_SPRITE *sprite = &PhdSpriteInfo[spriteIdx];
 
