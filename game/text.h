@@ -30,31 +30,22 @@
 void __cdecl T_InitPrint(); // 0x00440500
 TEXT_STR_INFO *__cdecl T_Print(int x, int y, __int16 z, const char *str); // 0x00440530
 void __cdecl T_ChangeText(TEXT_STR_INFO *textInfo, const char *newString); // 0x00440640
-
-// 0x00440680:		T_SetScale
-
+void __cdecl T_SetScale(TEXT_STR_INFO *textInfo, int scaleH, int scaleV); // 0x00440680
 void __cdecl T_FlashText(TEXT_STR_INFO *textInfo, __int16 state, __int16 rate); // 0x004406A0
-
-// 0x004406D0:		T_AddBackground
-// 0x00440760:		T_RemoveBackground
-// 0x00440770:		T_AddOutline
-// 0x004407A0:		T_RemoveOutline
-// 0x004407B0:		T_CentreH
-// 0x004407D0:		T_CentreV
-
+void __cdecl T_AddBackground(TEXT_STR_INFO *textInfo, __int16 xSize, __int16 ySize, __int16 xOff, __int16 yOff, __int16 zOff, INV_COLOURS invColour, LPVOID gour, UINT16 flags); // 0x004406D0
+void __cdecl T_RemoveBackground(TEXT_STR_INFO *textInfo); // 0x00440760
+void __cdecl T_AddOutline(TEXT_STR_INFO *textInfo, BOOL state, INV_COLOURS invColour, LPVOID gour, UINT16 flags); // 0x00440770
+void __cdecl T_RemoveOutline(TEXT_STR_INFO *textInfo); // 0x004407A0
+void __cdecl T_CentreH(TEXT_STR_INFO *textInfo, UINT16 state); // 0x004407B0
+void __cdecl T_CentreV(TEXT_STR_INFO *textInfo, UINT16 state); // 0x004407D0
 void __cdecl T_RightAlign(TEXT_STR_INFO *textInfo, bool state); // 0x004407F0
 void __cdecl T_BottomAlign(TEXT_STR_INFO *textInfo, bool state); // 0x00440810
-
-// 0x00440830:		T_GetTextWidth
-
+DWORD __cdecl T_GetTextWidth(TEXT_STR_INFO *textInfo); // 0x00440830
 BOOL __cdecl T_RemovePrint(TEXT_STR_INFO *textInfo); // 0x00440940
 __int16 __cdecl T_GetStringLen(const char *str); // 0x00440970
 void __cdecl T_DrawText(); // 0x004409A0
-
-// 0x004409D0:		T_DrawTextBox
-
-#define T_DrawThisText ((void(__cdecl*)(TEXT_STR_INFO *)) 0x00440B60)
-
+void __cdecl T_DrawTextBox(int sx, int sy, int z, int width, int height); // 0x004409D0
+void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo); // 0x00440B60
 DWORD __cdecl GetTextScaleH(DWORD baseScale); // 0x00440F40
 DWORD __cdecl GetTextScaleV(DWORD baseScale); // 0x00440F80
 
