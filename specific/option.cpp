@@ -24,25 +24,49 @@
 #include "game/invtext.h"
 #include "game/sound.h"
 #include "game/text.h"
+#include "specific/sndpc.h"
 #include "global/vars.h"
 
-#define LN_WIDTH_L	(160)
-#define LN_WIDTH_M	(LN_WIDTH_L - 4)
-#define LN_WIDTH_S	(LN_WIDTH_L - 12)
+/*
+ * Detail text box parameters
+ */
+#define DETAIL_WIDTH_L		(160)
+#define DETAIL_WIDTH_M		(DETAIL_WIDTH_L - 4)
+#define DETAIL_WIDTH_S		(DETAIL_WIDTH_L - 12)
 
-#define LN_HEIGHT	(25)
+#define DETAIL_LN_HEIGHT	(25)
+#define DETAIL_HEIGHT		(DETAIL_LN_HEIGHT * 3 + 32)
 
-#define LN_Y_TITLE	(-30)
-#define LN_Y_SPACE	(LN_Y_TITLE - 2)
-#define LN_Y_LINE1	(LN_HEIGHT * 0)
-#define LN_Y_LINE2	(LN_HEIGHT * 1)
-#define LN_Y_LINE3	(LN_HEIGHT * 2)
-#define LN_Y_LINE4	(LN_HEIGHT * 3)
-#define LN_Y_LINE5	(LN_HEIGHT * 4)
+#define DETAIL_Y_BOX		(-32)
+#define DETAIL_Y_TITLE		(DETAIL_Y_BOX + 2)
+#define DETAIL_Y_LINE1		(DETAIL_LN_HEIGHT * 0)
+#define DETAIL_Y_LINE2		(DETAIL_LN_HEIGHT * 1)
+#define DETAIL_Y_LINE3		(DETAIL_LN_HEIGHT * 2)
 
-#define LN_NEARZ	(8)
-#define LN_FARZ		(16)
+#define DETAIL_NEARZ		(8)
+#define DETAIL_FARZ			(16)
 
+/*
+ * Sound text box parameters
+ */
+#define SOUND_WIDTH_L		(140)
+#define SOUND_WIDTH_M		(SOUND_WIDTH_L - 4)
+#define SOUND_WIDTH_S		(SOUND_WIDTH_L - 12)
+
+#define SOUND_LN_HEIGHT		(25)
+#define SOUND_HEIGHT		(SOUND_LN_HEIGHT * 2 + 32)
+
+#define SOUND_Y_BOX			(-32)
+#define SOUND_Y_TITLE		(SOUND_Y_BOX + 2)
+#define SOUND_Y_LINE1		(SOUND_LN_HEIGHT * 0)
+#define SOUND_Y_LINE2		(SOUND_LN_HEIGHT * 1)
+
+#define SOUND_NEARZ			(8)
+#define SOUND_FARZ			(48)
+
+/*
+ * Control key names
+ */
 static LPCSTR ControlKeysText[0x110] = {
 	NULL,   "ESC",   "1",     "2",     "3",     "4",     "5",     "6",
 	"7",    "8",     "9",     "0",     "-",     "+",     "BKSP",  "TAB",
@@ -159,19 +183,19 @@ void __cdecl do_detail_option(INVENTORY_ITEM *item) {
 	int i;
 
 	if( DetailTextInfo[0] == NULL ) {
-		DetailTextInfo[4] = T_Print(0, LN_Y_TITLE, 0, GF_GameStringTable[GSI_Detail_SelectDetail]);
-		DetailTextInfo[3] = T_Print(0, LN_Y_SPACE, 0, " ");
-		DetailTextInfo[2] = T_Print(0, LN_Y_LINE1, 0, GF_GameStringTable[GSI_Detail_High]);
-		DetailTextInfo[1] = T_Print(0, LN_Y_LINE2, 0, GF_GameStringTable[GSI_Detail_Medium]);
-		DetailTextInfo[0] = T_Print(0, LN_Y_LINE3, 0, GF_GameStringTable[GSI_Detail_Low]);
+		DetailTextInfo[4] = T_Print(0, DETAIL_Y_TITLE, 0, GF_GameStringTable[GSI_Detail_SelectDetail]);
+		DetailTextInfo[3] = T_Print(0, DETAIL_Y_BOX, 0, " ");
+		DetailTextInfo[2] = T_Print(0, DETAIL_Y_LINE1, 0, GF_GameStringTable[GSI_Detail_High]);
+		DetailTextInfo[1] = T_Print(0, DETAIL_Y_LINE2, 0, GF_GameStringTable[GSI_Detail_Medium]);
+		DetailTextInfo[0] = T_Print(0, DETAIL_Y_LINE3, 0, GF_GameStringTable[GSI_Detail_Low]);
 
-		T_AddBackground(DetailTextInfo[4], LN_WIDTH_M, 0, 0, 0, LN_NEARZ, ICLR_Black, NULL, 0);
+		T_AddBackground(DetailTextInfo[4], DETAIL_WIDTH_M, 0, 0, 0, DETAIL_NEARZ, ICLR_Black, NULL, 0);
 		T_AddOutline(DetailTextInfo[4], TRUE, ICLR_Orange, NULL, 0);
 
-		T_AddBackground(DetailTextInfo[DetailLevel], LN_WIDTH_S, 0, 0, 0, LN_NEARZ, ICLR_Black, NULL, 0);
+		T_AddBackground(DetailTextInfo[DetailLevel], DETAIL_WIDTH_S, 0, 0, 0, DETAIL_NEARZ, ICLR_Black, NULL, 0);
 		T_AddOutline(DetailTextInfo[DetailLevel], TRUE, ICLR_Orange, NULL, 0);
 
-		T_AddBackground(DetailTextInfo[3], LN_WIDTH_L, (LN_HEIGHT * 4 + 7), 0, 0, LN_FARZ, ICLR_Black, NULL, 0);
+		T_AddBackground(DetailTextInfo[3], DETAIL_WIDTH_L, DETAIL_HEIGHT, 0, 0, DETAIL_FARZ, ICLR_Black, NULL, 0);
 		T_AddOutline(DetailTextInfo[3], TRUE, ICLR_Blue, NULL, 0);
 
 		for( i=0; i<5 ; ++i ) {
@@ -185,7 +209,7 @@ void __cdecl do_detail_option(INVENTORY_ITEM *item) {
 		T_RemoveBackground(DetailTextInfo[DetailLevel]);
 		--DetailLevel;
 		T_AddOutline(DetailTextInfo[DetailLevel], TRUE, ICLR_Orange, NULL, 0);
-		T_AddBackground(DetailTextInfo[DetailLevel], LN_WIDTH_S, 0, 0, 0, LN_NEARZ, ICLR_Black, NULL, 0);
+		T_AddBackground(DetailTextInfo[DetailLevel], DETAIL_WIDTH_S, 0, 0, 0, DETAIL_NEARZ, ICLR_Black, NULL, 0);
 	}
 
 	if ( CHK_ANY(InputDB, IN_FORWARD) && DetailLevel < 2 ) {
@@ -193,7 +217,7 @@ void __cdecl do_detail_option(INVENTORY_ITEM *item) {
 		T_RemoveBackground(DetailTextInfo[DetailLevel]);
 		++DetailLevel;
 		T_AddOutline(DetailTextInfo[DetailLevel], TRUE, ICLR_Orange, NULL, 0);
-		T_AddBackground(DetailTextInfo[DetailLevel], LN_WIDTH_S, 0, 0, 0, LN_NEARZ, ICLR_Black, NULL, 0);
+		T_AddBackground(DetailTextInfo[DetailLevel], DETAIL_WIDTH_S, 0, 0, 0, DETAIL_NEARZ, ICLR_Black, NULL, 0);
 	}
 
 	switch( DetailLevel ) {
@@ -214,6 +238,101 @@ void __cdecl do_detail_option(INVENTORY_ITEM *item) {
 		for( i=0; i<5 ; ++i ) {
 			T_RemovePrint(DetailTextInfo[i]);
 			DetailTextInfo[i] = NULL;
+		}
+	}
+}
+
+void __cdecl do_sound_option(INVENTORY_ITEM *item) {
+	int i;
+	char volumeString[20];
+
+	if( SoundTextInfo[0] == NULL ) {
+		CLAMP(MusicVolume, 0, 10);
+		CLAMP(SoundVolume, 0, 10);
+		sprintf(volumeString, "| %2d", MusicVolume); // Char '|' is musical note picture
+		SoundTextInfo[0] = T_Print(0, 0, 0, volumeString);
+		sprintf(volumeString, "} %2d", SoundVolume); // Char '}' is dynamic speaker picture
+		SoundTextInfo[1] = T_Print(0, 25, 0, volumeString);
+
+		T_AddBackground(SoundTextInfo[0], SOUND_WIDTH_S, 0, 0, 0, SOUND_NEARZ, ICLR_Black, NULL, 0);
+		T_AddOutline(SoundTextInfo[0], TRUE, ICLR_Orange, NULL, 0);
+
+		SoundTextInfo[2] = T_Print(0, SOUND_Y_BOX, 0, " ");
+		T_AddBackground(SoundTextInfo[2], SOUND_WIDTH_L, SOUND_HEIGHT, 0, 0, SOUND_FARZ, ICLR_Black, NULL, 0);
+		T_AddOutline(SoundTextInfo[2], TRUE, ICLR_Blue, NULL, 0);
+
+		SoundTextInfo[3] = T_Print(0, SOUND_Y_TITLE, 0, GF_SpecificStringTable[SSI_SetVolumes]);
+		T_AddBackground(SoundTextInfo[3], SOUND_WIDTH_M, 0, 0, 0, SOUND_NEARZ, ICLR_Black, NULL, 0);
+		T_AddOutline(SoundTextInfo[3], TRUE, ICLR_Blue, NULL, 0);
+
+		for( i=0; i<4 ; ++i ) {
+			T_CentreH(SoundTextInfo[i], 1);
+			T_CentreV(SoundTextInfo[i], 1);
+		}
+	}
+
+	if( CHK_ANY(InputDB, IN_FORWARD) && SoundOptionLine > 0 ) {
+		T_RemoveOutline(SoundTextInfo[SoundOptionLine]);
+		T_RemoveBackground(SoundTextInfo[SoundOptionLine]);
+		--SoundOptionLine;
+		T_AddBackground(SoundTextInfo[SoundOptionLine], SOUND_WIDTH_S, 0, 0, 0, SOUND_NEARZ, ICLR_Black, NULL, 0);
+		T_AddOutline(SoundTextInfo[SoundOptionLine], TRUE, ICLR_Orange, NULL, 0);
+	}
+
+	if( CHK_ANY(InputDB, IN_BACK) && SoundOptionLine < 1 ) {
+		T_RemoveOutline(SoundTextInfo[SoundOptionLine]);
+		T_RemoveBackground(SoundTextInfo[SoundOptionLine]);
+		++SoundOptionLine;
+		T_AddBackground(SoundTextInfo[SoundOptionLine], SOUND_WIDTH_S, 0, 0, 0, SOUND_NEARZ, ICLR_Black, NULL, 0);
+		T_AddOutline(SoundTextInfo[SoundOptionLine], TRUE, ICLR_Orange, NULL, 0);
+	}
+
+	switch( SoundOptionLine ) {
+		case 0 :
+			if( CHK_ANY(InputStatus, IN_LEFT) && MusicVolume > 0 )
+				--MusicVolume;
+			else if( CHK_ANY(InputStatus, IN_RIGHT) && MusicVolume < 10 )
+				++MusicVolume;
+			else
+				break;
+
+			IsInvOptionsDelay = 1;
+			InvOptionsDelayCounter = 10;
+			sprintf(volumeString, "| %2d", MusicVolume); // Char '|' is musical note picture
+			T_ChangeText(SoundTextInfo[0], volumeString);
+			S_CDVolume(( MusicVolume == 0 ) ? 0 : (25 * MusicVolume + 5));
+			PlaySoundEffect(115, NULL, SFX_ALWAYS);
+			break;
+
+		case 1 :
+			if( CHK_ANY(InputStatus, IN_LEFT) && SoundVolume > 0 )
+				--SoundVolume;
+			else if( CHK_ANY(InputStatus, IN_RIGHT) && SoundVolume < 10 )
+				++SoundVolume;
+			else
+				break;
+
+			IsInvOptionsDelay = 1;
+			InvOptionsDelayCounter = 10;
+			sprintf(volumeString, "} %2d", SoundVolume); // Char '}' is dynamic speaker picture
+			T_ChangeText(SoundTextInfo[1], volumeString);
+			S_SoundSetMasterVolume(( SoundVolume == 0 ) ? 0 : (6 * SoundVolume + 4));
+			PlaySoundEffect(115, NULL, SFX_ALWAYS); // page flip SFX
+			break;
+
+		default :
+			break;
+	}
+
+	InvSpriteSoundVolume[6].param1 = SoundVolume;
+	InvSpriteSoundVolumeLow[6].param1 = SoundVolume;
+	InvSpriteMusicVolume[6].param1 = MusicVolume;
+	InvSpriteMusicVolumeLow[6].param1 = MusicVolume;
+
+	if( CHK_ANY(InputDB, IN_SELECT|IN_DESELECT) ) {
+		for( i=0; i<4 ; ++i ) {
+			T_RemovePrint(SoundTextInfo[i]);
+			SoundTextInfo[i] = NULL;
 		}
 	}
 }
@@ -285,7 +404,8 @@ void __cdecl S_ChangeCtrlText() {
 
 	for( int i=0; i<14; ++i ) {
 		key = Layout[LayoutPage].key[i];
-		if( ControlKeysText[key] != 0 )
+		// NOTE: there was no key range check in the original code
+		if( key < 0x110 && ControlKeysText[key] != 0 )
 			T_ChangeText(CtrlTextB[i], ControlKeysText[key]);
 		else
 			T_ChangeText(CtrlTextB[i], "BAD");
@@ -311,9 +431,7 @@ void Inject_Option() {
 
 //	INJECT(----------, do_gamma_option); // NOTE: this is null in the original code
 	INJECT(0x0044F5E0, do_detail_option);
-
-//	INJECT(0x0044F8C0, do_sound_option);
-
+	INJECT(0x0044F8C0, do_sound_option);
 	INJECT(0x0044FD60, do_compass_option);
 	INJECT(0x0044FE20, FlashConflicts);
 	INJECT(0x0044FEA0, DefaultConflict);

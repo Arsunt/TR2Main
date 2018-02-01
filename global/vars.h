@@ -156,6 +156,9 @@
 #define InvKeysCurrent				VAR_U_(0x004D7930, UINT16)
 #define InputDB						VAR_U_(0x004D795C, DWORD)
 #define IsInventoryActive			VAR_U_(0x004D7968, UINT16)
+#define IsInvOptionsDelay			VAR_U_(0x004D79A4, BOOL)
+#define InvOptionsDelayCounter		VAR_U_(0x004D79A8, int)
+#define SoundOptionLine				VAR_U_(0x004D79AC, UINT16)
 #define LevelItemCount				VAR_U_(0x004D7C28, int)
 #define CameraCount					VAR_U_(0x004D7C64, DWORD)
 #define BGND_PictureIsReady			VAR_U_(0x004D7E78, bool)
@@ -347,8 +350,52 @@
 #define BoxesCount					VAR_U_(0x005263D0, DWORD)
 
 // Initialized arrays
-#define SaveSlotFlags	ARRAY_(0x00466B80, __int16, 16) /* = {-1, 0}; */
-#define Layout			ARRAY_(0x00466F58, CONTROL_LAYOUT, 2) /* = {
+#define InvSpriteMusicVolume		ARRAY_(0x00464718, INVENTORY_SPRITE, 9) /* = {
+	{2, -66, -80, 32, 132,  0, 0x004645DC, ICLR_Gray},
+	{2, -66, -65, 32, 132,  0, 0x004645E0, ICLR_Gray},
+	{2, -66, -80, 32,   0, 16, 0x004645DC, ICLR_Gray},
+	{2,  66, -80, 32,   0, 16, 0x004645E0, ICLR_Gray},
+	{3, -65, -79, 32, 131, 14, 0x004645E8, ICLR_Gray},
+	{3, -64, -78, 32, 129, 12, 0x004645E8, ICLR_Gray},
+	{4, -63, -77, 32, 126, 10, 0x004645F8, ICLR_Red},
+	{4, -63, -77, 33, 127, 10, NULL, 0},
+	{0,   0,   0,  0,   0,  0, NULL, 0},
+}; */
+#define InvSpriteSoundVolume		ARRAY_(0x004647E0, INVENTORY_SPRITE, 9) /* = {
+	{2, -66, -56, 32, 132,  0, 0x004645DC, ICLR_Gray},
+	{2, -66, -41, 32, 132,  0, 0x004645E0, ICLR_Gray},
+	{2, -66, -56, 32,   0, 16, 0x004645DC, ICLR_Gray},
+	{2,  66, -56, 32,   0, 16, 0x004645E0, ICLR_Gray},
+	{3, -65, -55, 32, 131, 14, 0x004645E8, ICLR_Gray},
+	{3, -64, -54, 32, 129, 12, 0x004645E8, ICLR_Gray},
+	{4, -63, -53, 32, 126, 10, 0x00464600, ICLR_Blue},
+	{4, -63, -53, 33, 127, 10, NULL, 0},
+	{0,   0,   0,  0,   0,  0, NULL, 0},
+}; */
+#define InvSpriteMusicVolumeLow		ARRAY_(0x004648A8, INVENTORY_SPRITE, 9) /* = {
+	{2, -66, -80, 32, 132,  0, 0x00464610, ICLR_Gray},
+	{2, -66, -65, 32, 132,  0, 0x00464614, ICLR_Gray},
+	{2, -66, -80, 32,   0, 16, 0x00464610, ICLR_Gray},
+	{2,  66, -80, 32,   0, 16, 0x00464614, ICLR_Gray},
+	{3, -65, -79, 32, 131, 14, 0x00464618, ICLR_Gray},
+	{3, -64, -78, 32, 129, 12, 0x00464618, ICLR_Gray},
+	{4, -63, -77, 32, 126, 10, 0x00464620, ICLR_Red},
+	{4, -63, -77, 33, 127, 10, NULL, 0},
+	{0,   0,   0,  0,   0,  0, NULL, 0},
+}; */
+#define InvSpriteSoundVolumeLow		ARRAY_(0x00464970, INVENTORY_SPRITE, 9) /* = {
+	{2, -66, -56, 32, 132,  0, 0x00464610, ICLR_Gray},
+	{2, -66, -41, 32, 132,  0, 0x00464614, ICLR_Gray},
+	{2, -66, -56, 32,   0, 16, 0x00464610, ICLR_Gray},
+	{2,  66, -56, 32,   0, 16, 0x00464614, ICLR_Gray},
+	{3, -65, -55, 32, 131, 14, 0x00464618, ICLR_Gray},
+	{3, -64, -54, 32, 129, 12, 0x00464618, ICLR_Gray},
+	{4, -63, -53, 32, 126, 10, 0x00464628, ICLR_Blue},
+	{4, -63, -53, 33, 127, 10, NULL, 0},
+	{0,   0,   0,  0,   0,  0, NULL, 0},
+}; */
+#define SaveSlotFlags				ARRAY_(0x00466B80, __int16, 16) /* = {-1, 0}; */
+#define Layout						ARRAY_(0x00466F58, CONTROL_LAYOUT, 2) /* = {
 	{	// Default Layout
 		DIK_UP,
 		DIK_DOWN,
@@ -418,6 +465,7 @@
 #define ConflictLayout				ARRAY_(0x0051A0C0, BOOL, 14)
 #define DIKeys						ARRAY_(0x0051A0F8, BYTE, 256)
 #define DetailTextInfo				ARRAY_(0x0051A2C8, TEXT_STR_INFO*, 5)
+#define SoundTextInfo				ARRAY_(0x0051A2E0, TEXT_STR_INFO*, 4)
 #define ControlTextInfo				ARRAY_(0x0051A2F0, TEXT_STR_INFO*, 2)
 #define RoomLightTables				ARRAY_(0x0051A2F8, ROOM_LIGHT_TABLE, 32)
 #define WaterPalette				ARRAY_(0x0051B2F8, RGB, 256)

@@ -33,9 +33,7 @@ void __cdecl do_inventory_options(INVENTORY_ITEM *item); // 0x0044EE80
 
 void __cdecl do_gamma_option(INVENTORY_ITEM *item); // ----------
 void __cdecl do_detail_option(INVENTORY_ITEM *item); // 0x0044F5E0
-
-#define do_sound_option ((void(__cdecl*)(INVENTORY_ITEM *)) 0x0044F8C0)
-
+void __cdecl do_sound_option(INVENTORY_ITEM *item); // 0x0044F8C0
 void __cdecl do_compass_option(INVENTORY_ITEM *item); // 0x0044FD60
 void __cdecl FlashConflicts(); // 0x0044FE20
 void __cdecl DefaultConflict(); // 0x0044FEA0

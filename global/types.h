@@ -1676,6 +1676,17 @@ typedef struct ControlLayout_t {
 	UINT16 key[14];
 } CONTROL_LAYOUT;
 
+typedef struct InventorySprite_t {
+	__int16 shape;
+	__int16 x;
+	__int16 y;
+	__int16 z;
+	int param1;
+	int param2;
+	LPVOID gour;
+	UINT16 invColour;
+} INVENTORY_SPRITE;
+
 #pragma pack(pop)
 
 #endif // GLOBAL_TYPES_H_INCLUDED
