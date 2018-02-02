@@ -40,8 +40,7 @@ void __cdecl DefaultConflict(); // 0x0044FEA0
 
 #define do_control_option ((void(__cdecl*)(INVENTORY_ITEM *)) 0x0044FEE0)
 
-// 0x004505F0:		S_ShowControls
-
+void __cdecl S_ShowControls(); // 0x004505F0
 void __cdecl S_ChangeCtrlText(); // 0x00450AC0
 void __cdecl S_RemoveCtrlText(); // 0x00450B60
 

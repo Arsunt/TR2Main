@@ -24,11 +24,12 @@
 #include "game/invtext.h"
 #include "game/sound.h"
 #include "game/text.h"
+#include "specific/output.h"
 #include "specific/sndpc.h"
 #include "global/vars.h"
 
 /*
- * Detail text box parameters
+ * Detail option box parameters
  */
 #define DETAIL_WIDTH_L		(160)
 #define DETAIL_WIDTH_M		(DETAIL_WIDTH_L - 4)
@@ -47,7 +48,7 @@
 #define DETAIL_FARZ			(16)
 
 /*
- * Sound text box parameters
+ * Sound option box parameters
  */
 #define SOUND_WIDTH_L		(140)
 #define SOUND_WIDTH_M		(SOUND_WIDTH_L - 4)
@@ -64,6 +65,31 @@
 #define SOUND_NEARZ			(8)
 #define SOUND_FARZ			(48)
 
+/*
+ * Control option box parameters
+ */
+#define CONTROL_WIDTH_LOW	(300)
+#define CONTROL_WIDTH_HIGH	(420)
+
+#define CONTROL_LN_HEIGHT	(15)
+#define CONTROL_HEIGHT_LOW	(CONTROL_LN_HEIGHT * 7 + 35)
+#define CONTROL_HEIGHT_HIGH	(CONTROL_LN_HEIGHT * 7 + 45)
+
+#define CONTROL_COLUMN_B	(10)
+#define CONTROL_COLUMN_A	(80)
+
+#define CONTROL_Y_BOX		(-55)
+#define CONTROL_Y_TITLE		(CONTROL_Y_BOX + 2)
+#define CONTROL_Y_LINE1		(CONTROL_LN_HEIGHT * 0 - 25)
+#define CONTROL_Y_LINE2		(CONTROL_LN_HEIGHT * 1 - 25)
+#define CONTROL_Y_LINE3		(CONTROL_LN_HEIGHT * 2 - 25)
+#define CONTROL_Y_LINE4		(CONTROL_LN_HEIGHT * 3 - 25)
+#define CONTROL_Y_LINE5		(CONTROL_LN_HEIGHT * 4 - 25)
+#define CONTROL_Y_LINE6		(CONTROL_LN_HEIGHT * 5 - 25)
+#define CONTROL_Y_LINE7		(CONTROL_LN_HEIGHT * 6 - 25)
+
+#define CONTROL_NEARZ		(16)
+#define CONTROL_FARZ		(48)
 /*
  * Control key names
  */
@@ -390,6 +416,92 @@ void __cdecl DefaultConflict() {
 	}
 }
 
+void __cdecl S_ShowControls() {
+	int i, x0, x1;
+	int xCenter = GetRenderWidth() / 2;
+
+#ifdef FEATURE_FOV_FIX
+	xCenter = xCenter * PHD_ONE / GetRenderScale(PHD_ONE);
+#else // !FEATURE_FOV_FIX
+	CLAMPG(xCenter, 320);
+#endif // FEATURE_FOV_FIX
+
+	if( CtrlTextB[0] == NULL ) {
+		if( xCenter < 320 ) {
+			x0 = xCenter - (CONTROL_WIDTH_LOW / 2) + CONTROL_COLUMN_B;
+		} else {
+			x0 = xCenter - (CONTROL_WIDTH_HIGH / 2) + CONTROL_COLUMN_B;
+		}
+		x1 = xCenter + CONTROL_COLUMN_B;
+
+		CtrlTextB[0]  = T_Print(x0, CONTROL_Y_LINE1, CONTROL_NEARZ, ControlKeysText[Layout[LayoutPage].key[0]]);
+		CtrlTextB[1]  = T_Print(x0, CONTROL_Y_LINE2, CONTROL_NEARZ, ControlKeysText[Layout[LayoutPage].key[1]]);
+		CtrlTextB[2]  = T_Print(x0, CONTROL_Y_LINE3, CONTROL_NEARZ, ControlKeysText[Layout[LayoutPage].key[2]]);
+		CtrlTextB[3]  = T_Print(x0, CONTROL_Y_LINE4, CONTROL_NEARZ, ControlKeysText[Layout[LayoutPage].key[3]]);
+		CtrlTextB[4]  = T_Print(x0, CONTROL_Y_LINE5, CONTROL_NEARZ, ControlKeysText[Layout[LayoutPage].key[4]]);
+		CtrlTextB[5]  = T_Print(x0, CONTROL_Y_LINE6, CONTROL_NEARZ, ControlKeysText[Layout[LayoutPage].key[5]]);
+		CtrlTextB[6]  = T_Print(x0, CONTROL_Y_LINE7, CONTROL_NEARZ, ControlKeysText[Layout[LayoutPage].key[6]]);
+
+		CtrlTextB[7]  = T_Print(x1, CONTROL_Y_LINE1, CONTROL_NEARZ, ControlKeysText[Layout[LayoutPage].key[7]]);
+		CtrlTextB[8]  = T_Print(x1, CONTROL_Y_LINE2, CONTROL_NEARZ, ControlKeysText[Layout[LayoutPage].key[8]]);
+		CtrlTextB[9]  = T_Print(x1, CONTROL_Y_LINE3, CONTROL_NEARZ, ControlKeysText[Layout[LayoutPage].key[9]]);
+		CtrlTextB[10] = T_Print(x1, CONTROL_Y_LINE4, CONTROL_NEARZ, ControlKeysText[Layout[LayoutPage].key[10]]);
+		CtrlTextB[11] = T_Print(x1, CONTROL_Y_LINE5, CONTROL_NEARZ, ControlKeysText[Layout[LayoutPage].key[11]]);
+		CtrlTextB[12] = T_Print(x1, CONTROL_Y_LINE6, CONTROL_NEARZ, ControlKeysText[Layout[LayoutPage].key[12]]);
+		CtrlTextB[13] = T_Print(x1, CONTROL_Y_LINE7, CONTROL_NEARZ, ControlKeysText[Layout[LayoutPage].key[13]]);
+
+		for( i=0; i<14; ++i ) {
+			T_CentreV(CtrlTextB[i], 1);
+		}
+
+		ControlKeyChange = 0;
+	}
+
+	if( CtrlTextA[0] == NULL ) {
+		if( xCenter < 320 ) {
+			x0 = xCenter - (CONTROL_WIDTH_LOW / 2) + CONTROL_COLUMN_A;
+		} else {
+			x0 = xCenter - (CONTROL_WIDTH_HIGH / 2) + CONTROL_COLUMN_A;
+		}
+		x1 = xCenter + CONTROL_COLUMN_A + 10;
+
+		CtrlTextA[0]  = T_Print(x0, CONTROL_Y_LINE1, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Run]);
+		CtrlTextA[1]  = T_Print(x0, CONTROL_Y_LINE2, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Back]);
+		CtrlTextA[2]  = T_Print(x0, CONTROL_Y_LINE3, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Left]);
+		CtrlTextA[3]  = T_Print(x0, CONTROL_Y_LINE4, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Right]);
+		CtrlTextA[4]  = T_Print(x0, CONTROL_Y_LINE5, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_StepLeft]);
+		CtrlTextA[5]  = T_Print(x0, CONTROL_Y_LINE6, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_StepRight]);
+		CtrlTextA[6]  = T_Print(x0, CONTROL_Y_LINE7, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Walk]);
+
+		CtrlTextA[7]  = T_Print(x1, CONTROL_Y_LINE1, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Jump]);
+		CtrlTextA[8]  = T_Print(x1, CONTROL_Y_LINE2, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Action]);
+		CtrlTextA[9]  = T_Print(x1, CONTROL_Y_LINE3, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_DrawWeapon]);
+		CtrlTextA[10] = T_Print(x1, CONTROL_Y_LINE4, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Flare]);
+		CtrlTextA[11] = T_Print(x1, CONTROL_Y_LINE5, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Look]);
+		CtrlTextA[12] = T_Print(x1, CONTROL_Y_LINE6, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Roll]);
+		CtrlTextA[13] = T_Print(x1, CONTROL_Y_LINE7, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Inventory]);
+
+		for( i=0; i<14; ++i ) {
+			T_CentreV(CtrlTextA[i], 1);
+		}
+	}
+
+	ControlTextInfo[1] = T_Print(0, CONTROL_Y_BOX, 0, " ");
+	T_CentreV(ControlTextInfo[1], 1);
+	T_CentreH(ControlTextInfo[1], 1);
+	T_AddOutline(ControlTextInfo[1], TRUE, ICLR_Blue, NULL, 0);
+
+	if( xCenter >= 320 ) {
+		T_AddBackground(ControlTextInfo[1], CONTROL_WIDTH_HIGH, CONTROL_HEIGHT_HIGH, 0, 0, CONTROL_FARZ, ICLR_Black, NULL, 0);
+	} else {
+		for( i=0; i<14; ++i ) {
+			T_SetScale(CtrlTextB[i], PHD_ONE/2, PHD_ONE);
+			T_SetScale(CtrlTextA[i], PHD_ONE/2, PHD_ONE);
+		}
+		T_AddBackground(ControlTextInfo[1], CONTROL_WIDTH_LOW, CONTROL_HEIGHT_LOW, 0, 0, CONTROL_FARZ, ICLR_Black, NULL, 0);
+	}
+}
+
 void __cdecl S_ChangeCtrlText() {
 	UINT16 key;
 	char headerStr[40];
@@ -437,8 +549,8 @@ void Inject_Option() {
 	INJECT(0x0044FEA0, DefaultConflict);
 
 //	INJECT(0x0044FEE0, do_control_option);
-//	INJECT(0x004505F0, S_ShowControls);
 
+	INJECT(0x004505F0, S_ShowControls);
 	INJECT(0x00450AC0, S_ChangeCtrlText);
 	INJECT(0x00450B60, S_RemoveCtrlText);
 }

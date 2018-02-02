@@ -273,6 +273,7 @@
 #define JoyKeys						VAR_U_(0x0051A200, DWORD)
 #define GameModule					VAR_U_(0x0051A228, HINSTANCE)
 #define CommandLinePtr				VAR_U_(0x0051A22C, LPTSTR)
+#define ControlKeyChange			VAR_U_(0x0051A238, int)
 #define LayoutPage					VAR_U_(0x0051A240, DWORD)
 #define PhdWinRect					VAR_U_(0x0051B908, RECT)
 #define HiRes						VAR_U_(0x0051B918, int)
