@@ -99,7 +99,7 @@ TEXT_STR_INFO *__cdecl T_Print(int x, int y, __int16 z, const char *str) {
 		return NULL;
 
 	for( int i=0; i<64; ++i ) {
-		if( (TextInfoTable[i].flags & TIF_Active) == 0 ) {
+		if( !CHK_ANY(TextInfoTable[i].flags, TIF_Active) ) {
 			int stringLen = T_GetStringLen(str);
 			CLAMPG(stringLen, 64); // NOTE: useless check, but decided to leave it here
 
@@ -133,7 +133,7 @@ TEXT_STR_INFO *__cdecl T_Print(int x, int y, __int16 z, const char *str) {
 }
 
 void __cdecl T_ChangeText(TEXT_STR_INFO *textInfo, const char *newString) {
-	if( newString == NULL || textInfo == NULL || (textInfo->flags & TIF_Active) == 0 )
+	if( newString == NULL || textInfo == NULL || !CHK_ANY(textInfo->flags, TIF_Active) )
 		return;
 
 #if 0 // NOTE: original code was unsafe crap. Reimplemented it a little safer
@@ -328,7 +328,7 @@ DWORD __cdecl T_GetTextWidth(TEXT_STR_INFO *textInfo) {
 }
 
 BOOL __cdecl T_RemovePrint(TEXT_STR_INFO *textInfo) {
-	if( textInfo == NULL || (textInfo->flags & TIF_Active) == 0 )
+	if( textInfo == NULL || !CHK_ANY(textInfo->flags, TIF_Active) )
 		return false;
 
 	textInfo->flags &= ~TIF_Active;
@@ -347,7 +347,7 @@ __int16 __cdecl T_GetStringLen(const char *str) {
 
 void __cdecl T_DrawText() {
 	for( int i=0; i<64; ++i ) {
-		if( (TextInfoTable[i].flags & TIF_Active) != 0 )
+		if( CHK_ANY(TextInfoTable[i].flags, TIF_Active) )
 			T_DrawThisText(&TextInfoTable[i]);
 	}
 }
@@ -500,13 +500,13 @@ DWORD __cdecl GetTextScaleV(DWORD baseScale) {
 #ifdef FEATURE_FOV_FIX
 	return GetRenderScale(baseScale);
 #else // !FEATURE_FOV_FIX
-	DWORD renderWidth, renderScale;
+	DWORD renderHeight, renderScale;
 
 	renderHeight = GetRenderHeight();
 	CLAMPL(renderHeight, 480)
 
 	renderScale = renderHeight * PHD_ONE / 480;
-	return = (baseScale / PHD_HALF) * (renderScale / PHD_HALF);
+	return (baseScale / PHD_HALF) * (renderScale / PHD_HALF);
 #endif // FEATURE_FOV_FIX
 }
 
