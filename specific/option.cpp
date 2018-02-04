@@ -416,6 +416,188 @@ void __cdecl DefaultConflict() {
 	}
 }
 
+void __cdecl do_control_option(INVENTORY_ITEM *item) {
+	static int KeySelector = 0;
+	int i;
+
+	if( ControlTextInfo[0] == NULL ) {
+		ControlTextInfo[0] = T_Print(0, -50, 0, GF_SpecificStringTable[(LayoutPage == 0) ? SSI_DefaultKeys : SSI_UserKeys]);
+		T_CentreH(ControlTextInfo[0], 1);
+		T_CentreV(ControlTextInfo[0], 1);
+
+		S_ShowControls();
+		KeyCursor = -1;
+		T_AddBackground(ControlTextInfo[0], 0, 0, 0, 0, CONTROL_FARZ, ICLR_Black, NULL, 0);
+		T_AddOutline(ControlTextInfo[0], TRUE, ICLR_Blue, NULL, 0);
+	}
+
+	switch( KeySelector ) {
+		case 0 :
+			if( CHK_ANY(InputDB, IN_LEFT|IN_RIGHT) ) {
+				if( KeyCursor == -1 ) {
+					LayoutPage = !LayoutPage;
+					S_ChangeCtrlText();
+					FlashConflicts();
+				} else {
+					CtrlTextA[KeyCursor]->zPos = CONTROL_NEARZ;
+					T_RemoveBackground(CtrlTextA[KeyCursor]);
+					T_RemoveOutline(CtrlTextA[KeyCursor]);
+
+					if( KeyCursor < 7 ) {
+						KeyCursor += 7;
+					} else if ( KeyCursor < 14 ) {
+						KeyCursor -= 7;
+					} else {
+						KeyCursor = 7;
+					}
+
+					CtrlTextA[KeyCursor]->zPos = 0;
+					T_AddBackground(CtrlTextA[KeyCursor], 0, 0, 0, 0, 0, ICLR_Black, NULL, 0);
+					T_AddOutline(CtrlTextA[KeyCursor], TRUE, ICLR_Blue, NULL, 0);
+				}
+			}
+			else if( CHK_ANY(InputDB, IN_DESELECT) || (CHK_ANY(InputDB, IN_SELECT) && KeyCursor == -1) ) {
+				T_RemovePrint(ControlTextInfo[0]);
+				ControlTextInfo[0] = NULL;
+				T_RemovePrint(ControlTextInfo[1]);
+				ControlTextInfo[1] = NULL;
+				S_RemoveCtrlText();
+				DefaultConflict();
+				return;
+			}
+
+			if( LayoutPage == 0 )
+				break;
+
+			if( CHK_ANY(InputDB, IN_SELECT) ) {
+				KeySelector = 1;
+
+				CtrlTextA[KeyCursor]->zPos = CONTROL_NEARZ;
+				T_RemoveBackground(CtrlTextA[KeyCursor]);
+				T_RemoveOutline(CtrlTextA[KeyCursor]);
+
+				CtrlTextB[KeyCursor]->zPos = 0;
+				T_AddBackground(CtrlTextB[KeyCursor], 0, 0, 0, 0, 0, ICLR_Black, NULL, 0);
+				T_AddOutline(CtrlTextB[KeyCursor], TRUE, ICLR_Blue, NULL, 0);
+			}
+			else if( CHK_ANY(InputDB, IN_FORWARD) ) {
+				if( KeyCursor == -1 ) {
+					T_RemoveBackground(ControlTextInfo[0]);
+					T_RemoveOutline(ControlTextInfo[0]);
+				} else {
+					CtrlTextA[KeyCursor]->zPos = CONTROL_NEARZ;
+					T_RemoveBackground(CtrlTextA[KeyCursor]);
+					T_RemoveOutline(CtrlTextA[KeyCursor]);
+				}
+
+				if( --KeyCursor < -1 ) {
+					KeyCursor = 13;
+				}
+
+				if( KeyCursor == -1 ) {
+					T_AddBackground(ControlTextInfo[0], 0, 0, 0, 0, 0, ICLR_Black, NULL, 0);
+					T_AddOutline(ControlTextInfo[0], TRUE, ICLR_Blue, NULL, 0);
+				} else {
+					CtrlTextA[KeyCursor]->zPos = 0;
+					T_AddBackground(CtrlTextA[KeyCursor], 0, 0, 0, 0, 0, ICLR_Black, NULL, 0);
+					T_AddOutline(CtrlTextA[KeyCursor], TRUE, ICLR_Blue, NULL, 0);
+				}
+			}
+			else if( CHK_ANY(InputDB, IN_BACK) ) {
+				if( KeyCursor == -1 ) {
+					T_RemoveBackground(ControlTextInfo[0]);
+					T_RemoveOutline(ControlTextInfo[0]);
+				} else {
+					CtrlTextA[KeyCursor]->zPos = CONTROL_NEARZ;
+					T_RemoveBackground(CtrlTextA[KeyCursor]);
+					T_RemoveOutline(CtrlTextA[KeyCursor]);
+				}
+
+				if( ++KeyCursor > 13 ) {
+					KeyCursor = -1;
+				}
+
+				if( KeyCursor == -1 ) {
+					T_AddBackground(ControlTextInfo[0], 0, 0, 0, 0, 0, ICLR_Black, NULL, 0);
+					T_AddOutline(ControlTextInfo[0], TRUE, ICLR_Blue, NULL, 0);
+				} else {
+					CtrlTextA[KeyCursor]->zPos = 0;
+					T_AddBackground(CtrlTextA[KeyCursor], 0, 0, 0, 0, 0, ICLR_Black, NULL, 0);
+					T_AddOutline(CtrlTextA[KeyCursor], TRUE, ICLR_Blue, NULL, 0);
+				}
+			}
+			break;
+
+		case 1:
+			if( !CHK_ANY(InputDB, IN_SELECT) ) {
+				KeySelector = 2;
+			}
+			break;
+
+		case 2:
+			if( JoyKeys != 0 ) {
+				for( i = 0; i < 0x20; ++i ) {
+					if( CHK_ANY((1 << i), JoyKeys) )
+						break;
+				}
+				if( i == 0x20 ) {
+					break;
+				}
+				i += 0x100;
+			} else {
+				for( i = 0; i < 0x100; ++i ) {
+					if( CHK_ANY(DIKeys[i], 0x80) )
+						break;
+				}
+				if( i == 0x100 ) {
+					break;
+				}
+			}
+
+			if( i != 0 && ControlKeysText[i] != NULL && i != DIK_RETURN &&
+				i != DIK_LEFT && i != DIK_RIGHT && i != DIK_UP && i != DIK_DOWN )
+			{
+				if( i != DIK_ESCAPE ) {
+					Layout[LayoutPage].key[KeyCursor] = i;
+					T_ChangeText(CtrlTextB[KeyCursor], ControlKeysText[i]);
+				}
+
+				CtrlTextB[KeyCursor]->zPos = CONTROL_NEARZ;
+				T_RemoveBackground(CtrlTextB[KeyCursor]);
+				T_RemoveOutline(CtrlTextB[KeyCursor]);
+
+				CtrlTextA[KeyCursor]->zPos = 0;
+				T_AddBackground(CtrlTextA[KeyCursor], 0, 0, 0, 0, 0, ICLR_Black, NULL, 0);
+				T_AddOutline(CtrlTextA[KeyCursor], TRUE, ICLR_Blue, NULL, 0);
+
+				KeySelector = 3;
+				FlashConflicts();
+			}
+			break;
+
+		case 3:
+			if( CHK_ANY(Layout[LayoutPage].key[KeyCursor], 0x100) ) {
+				if( !CHK_ANY((1 << Layout[LayoutPage].key[KeyCursor]), JoyKeys) ) {
+					KeySelector = 0;
+				}
+			}
+			else if( !CHK_ANY(DIKeys[Layout[LayoutPage].key[KeyCursor]], 0x80) ) {
+				KeySelector = 0;
+				if( Layout[LayoutPage].key[KeyCursor] == DIK_LCONTROL )
+					Layout[LayoutPage].key[KeyCursor] = DIK_RCONTROL;
+				if( Layout[LayoutPage].key[KeyCursor] == DIK_LSHIFT )
+					Layout[LayoutPage].key[KeyCursor] = DIK_RSHIFT;
+				if( Layout[LayoutPage].key[KeyCursor] == DIK_LMENU )
+					Layout[LayoutPage].key[KeyCursor] = DIK_RMENU;
+				FlashConflicts();
+			}
+			break;
+	}
+
+	InputStatus = 0;
+	InputDB = 0;
+}
+
 void __cdecl S_ShowControls() {
 	int i, x0, x1;
 	int xCenter = GetRenderWidth() / 2;
@@ -454,7 +636,7 @@ void __cdecl S_ShowControls() {
 			T_CentreV(CtrlTextB[i], 1);
 		}
 
-		ControlKeyChange = 0;
+		KeyCursor = 0;
 	}
 
 	if( CtrlTextA[0] == NULL ) {
@@ -547,9 +729,7 @@ void Inject_Option() {
 	INJECT(0x0044FD60, do_compass_option);
 	INJECT(0x0044FE20, FlashConflicts);
 	INJECT(0x0044FEA0, DefaultConflict);
-
-//	INJECT(0x0044FEE0, do_control_option);
-
+	INJECT(0x0044FEE0, do_control_option);
 	INJECT(0x004505F0, S_ShowControls);
 	INJECT(0x00450AC0, S_ChangeCtrlText);
 	INJECT(0x00450B60, S_RemoveCtrlText);
