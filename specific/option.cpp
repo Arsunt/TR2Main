@@ -24,9 +24,18 @@
 #include "game/invtext.h"
 #include "game/sound.h"
 #include "game/text.h"
+#include "specific/frontend.h"
 #include "specific/output.h"
 #include "specific/sndpc.h"
 #include "global/vars.h"
+
+/*
+ * Passport option box parameters
+ */
+#define PASSPORT_LINE_COUNT	(10)
+// Y coordinates relative to the bottom of the screen
+#define PASSPORT_Y_BOX		(-32)
+#define PASSPORT_Y_TITLE	(-16)
 
 /*
  * Detail option box parameters
@@ -37,7 +46,7 @@
 
 #define DETAIL_LN_HEIGHT	(25)
 #define DETAIL_HEIGHT		(DETAIL_LN_HEIGHT * 3 + 32)
-
+// Y coordinates relative to the center of the screen
 #define DETAIL_Y_BOX		(-32)
 #define DETAIL_Y_TITLE		(DETAIL_Y_BOX + 2)
 #define DETAIL_Y_LINE1		(DETAIL_LN_HEIGHT * 0)
@@ -56,7 +65,7 @@
 
 #define SOUND_LN_HEIGHT		(25)
 #define SOUND_HEIGHT		(SOUND_LN_HEIGHT * 2 + 32)
-
+// Y coordinates relative to the center of the screen
 #define SOUND_Y_BOX			(-32)
 #define SOUND_Y_TITLE		(SOUND_Y_BOX + 2)
 #define SOUND_Y_LINE1		(SOUND_LN_HEIGHT * 0)
@@ -77,7 +86,7 @@
 
 #define CONTROL_COLUMN_B	(10)
 #define CONTROL_COLUMN_A	(80)
-
+// Y coordinates relative to the center of the screen
 #define CONTROL_Y_BOX		(-55)
 #define CONTROL_Y_TITLE		(CONTROL_Y_BOX + 2)
 #define CONTROL_Y_LINE1		(CONTROL_LN_HEIGHT * 0 - 25)
@@ -198,6 +207,222 @@ void __cdecl do_inventory_options(INVENTORY_ITEM *item) {
 				item->animDirection = -1;
 			}
 			break;
+	}
+}
+
+void __cdecl do_passport_option(INVENTORY_ITEM *item) {
+	static int passportMode = 0;
+	int frame, page, select;
+	REQUEST_INFO *requester;
+
+	T_RemovePrint(InvItemText[0]);
+	InvItemText[0] = NULL;
+
+	frame = item->goalFrame - item->openFrame;
+	page = ( (frame % 5) == 0 ) ? (frame / 5) : -1;
+
+	if( InventoryMode == INV_LoadMode ||
+		InventoryMode == INV_SaveMode ||
+		CHK_ANY(GF_GameFlow.flags, GFF_LoadSaveDisabled) )
+	{
+		InputDB &= ~(IN_LEFT|IN_RIGHT);
+	}
+
+	switch( page ) {
+		case 0 : // load game
+			if( CHK_ANY(GF_GameFlow.flags, GFF_LoadSaveDisabled) ) {
+				InputDB = IN_RIGHT;
+			}
+			else if( passportMode == 1 ) {
+				SetPCRequesterSize(&LoadGameRequester, PASSPORT_LINE_COUNT, PASSPORT_Y_BOX);
+				select = Display_Requester(&LoadGameRequester, TRUE, TRUE);
+				if( select == 0 ) {
+					if( CHK_ANY(InputDB, IN_RIGHT) ) {
+						Remove_Requester(&LoadGameRequester);
+						passportMode = 0;
+					} else {
+						InputStatus = 0;
+						InputDB = 0;
+					}
+				} else {
+					if( select > 0 ) {
+						InventoryExtraData[1] = select - 1;
+					}
+					passportMode = 0;
+				}
+			}
+			else if( passportMode == 0 ) {
+				if( SavedGamesCount == 0 || InventoryMode == INV_SaveMode ) {
+					InputDB = IN_RIGHT;
+				} else {
+					if( PassportTextInfo == NULL ) {
+						PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[GSI_Passport_LoadGame]);
+						T_BottomAlign(PassportTextInfo, 1);
+						T_CentreH(PassportTextInfo, 1);
+					}
+					T_RemovePrint(InvRingText);
+					InvRingText = NULL;
+					T_RemovePrint(InvItemText[0]);
+					InvItemText[0] = NULL;
+					GetSavedGamesList(&LoadGameRequester);
+					SetRequesterHeading(&LoadGameRequester, GF_GameStringTable[GSI_Passport_LoadGame], 0, NULL, 0);
+					passportMode = 1;
+					InputStatus = 0;
+					InputDB = 0;
+				}
+			}
+			break;
+
+		case 1 : // new game | save game
+			if( CHK_ANY(GF_GameFlow.flags, GFF_LoadSaveDisabled) ) {
+				InputDB = IN_RIGHT;
+			}
+			else if( passportMode == 1 || passportMode == 2 ) {
+				requester = ( passportMode == 1 ) ? &LoadGameRequester : &SaveGameRequester;
+
+				SetPCRequesterSize(requester, PASSPORT_LINE_COUNT, PASSPORT_Y_BOX);
+				select = Display_Requester(requester, TRUE, TRUE);
+				if( select == 0 ) {
+					if( CHK_ANY(InputDB, IN_LEFT|IN_RIGHT) ) {
+						Remove_Requester(requester);
+						passportMode = 0;
+					} else {
+						InputStatus = 0;
+						InputDB = 0;
+					}
+				} else {
+					if( select > 0 ) {
+						InventoryExtraData[1] = select - 1;
+					}
+					passportMode = 0;
+				}
+			}
+			else if( passportMode == 0 ) {
+				if( InventoryMode == INV_DeathMode ) {
+					InputDB = ( item->animDirection == -1 ) ? IN_LEFT : IN_RIGHT;
+				} else {
+					if( PassportTextInfo == NULL ) {
+						if( InventoryMode != INV_TitleMode && CurrentLevel != 0 )
+							PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[GSI_Passport_SaveGame]);
+						else
+							PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[GSI_Passport_NewGame]);
+						T_BottomAlign(PassportTextInfo, 1);
+						T_CentreH(PassportTextInfo, 1);
+					}
+
+					if( InventoryMode != INV_TitleMode && CurrentLevel != 0 ) {
+						T_RemovePrint(InvRingText);
+						InvRingText = NULL;
+						T_RemovePrint(InvItemText[0]);
+						InvItemText[0] = NULL;
+						GetSavedGamesList(&LoadGameRequester);
+						SetRequesterHeading(&LoadGameRequester, GF_GameStringTable[GSI_Passport_SaveGame], 0, NULL, 0);
+						passportMode = 1;
+						InputStatus = 0;
+						InputDB = 0;
+					}
+					else if( CHK_ANY(GF_GameFlow.flags, GFF_SelectAnyLevel) ) {
+						T_RemovePrint(InvItemText[0]);
+						InvItemText[0] = 0;
+						Init_Requester(&SaveGameRequester);
+						GetValidLevelsList(&SaveGameRequester);
+						SetRequesterHeading(&SaveGameRequester, GF_GameStringTable[GSI_Passport_SelectLevel], 0, NULL, 0);
+						passportMode = 2;
+						InputStatus = 0;
+						InputDB = 0;
+					}
+					else if( CHK_ANY(InputDB, IN_SELECT) ) {
+						InventoryExtraData[1] = 1;
+					}
+				}
+			}
+			break;
+
+		case 2 : // exit game
+			if( PassportTextInfo == NULL ) {
+				if( InventoryMode == INV_TitleMode ) {
+					PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[GSI_Passport_ExitGame]);
+				}
+				else if( CHK_ANY(GF_GameFlow.flags, GFF_DemoVersion) ) {
+					PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[GSI_Passport_ExitDemo]);
+				}
+				else {
+					PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[GSI_Passport_ExitToTitle]);
+				}
+				T_BottomAlign(PassportTextInfo, 1);
+				T_CentreH(PassportTextInfo, 1);
+			}
+			break;
+
+		default :
+			break;
+	}
+
+	if( CHK_ANY(InputDB, IN_LEFT) && (InventoryMode != INV_DeathMode || SavedGamesCount != 0) ) {
+		item->animDirection = -1;
+		item->goalFrame -= 5;
+		if( SavedGamesCount != 0 ) {
+			if( item->goalFrame < item->openFrame ) {
+				item->goalFrame = item->openFrame;
+			} else {
+				PlaySoundEffect(115, NULL, SFX_ALWAYS); // page flip SFX
+				T_RemovePrint(PassportTextInfo);
+				PassportTextInfo = NULL;
+			}
+		} else {
+			if( item->goalFrame < item->openFrame + 5 ) {
+				item->goalFrame = item->openFrame + 5;
+			} else {
+				T_RemovePrint(PassportTextInfo);
+				PassportTextInfo = NULL;
+			}
+		}
+		InputStatus = 0;
+		InputDB = 0;
+	}
+
+	if( CHK_ANY(InputDB, IN_RIGHT) ) {
+		item->animDirection = 1;
+		item->goalFrame += 5;
+		if( item->goalFrame > item->framesTotal - 6 ) {
+			item->goalFrame = item->framesTotal - 6;
+		} else {
+			PlaySoundEffect(115, NULL, SFX_ALWAYS); // page flip SFX
+			T_RemovePrint(PassportTextInfo);
+			PassportTextInfo = NULL;
+		}
+		InputStatus = 0;
+		InputDB = 0;
+	}
+
+	if( CHK_ANY(InputDB, IN_DESELECT) ) {
+		if( InventoryMode == INV_DeathMode ) {
+			InputStatus = 0;
+			InputDB = 0;
+		} else {
+			if( page == 2 ) {
+				item->animDirection = 1;
+				item->goalFrame = item->framesTotal - 1;
+			} else {
+				item->animDirection = -1;
+				item->goalFrame = 0;
+			}
+			T_RemovePrint(PassportTextInfo);
+			PassportTextInfo = NULL;
+		}
+	}
+
+	if( CHK_ANY(InputDB, IN_SELECT) ) {
+		InventoryExtraData[0] = page;
+		if( page == 2 ) {
+			item->animDirection = 1;
+			item->goalFrame = item->framesTotal - 1;
+		} else {
+			item->animDirection = -1;
+			item->goalFrame = 0;
+		}
+		T_RemovePrint(PassportTextInfo);
+		PassportTextInfo = NULL;
 	}
 }
 
@@ -327,7 +552,7 @@ void __cdecl do_sound_option(INVENTORY_ITEM *item) {
 			sprintf(volumeString, "| %2d", MusicVolume); // Char '|' is musical note picture
 			T_ChangeText(SoundTextInfo[0], volumeString);
 			S_CDVolume(( MusicVolume == 0 ) ? 0 : (25 * MusicVolume + 5));
-			PlaySoundEffect(115, NULL, SFX_ALWAYS);
+			PlaySoundEffect(115, NULL, SFX_ALWAYS); // page flip SFX
 			break;
 
 		case 1 :
@@ -720,9 +945,7 @@ void __cdecl S_RemoveCtrlText() {
  */
 void Inject_Option() {
 	INJECT(0x0044EE80, do_inventory_options);
-
-//	INJECT(0x0044EF90, do_passport_option);
-
+	INJECT(0x0044EF90, do_passport_option);
 //	INJECT(----------, do_gamma_option); // NOTE: this is null in the original code
 	INJECT(0x0044F5E0, do_detail_option);
 	INJECT(0x0044F8C0, do_sound_option);

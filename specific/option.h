@@ -28,9 +28,7 @@
  * Function list
  */
 void __cdecl do_inventory_options(INVENTORY_ITEM *item); // 0x0044EE80
-
-#define do_passport_option ((void(__cdecl*)(INVENTORY_ITEM *)) 0x0044EF90)
-
+void __cdecl do_passport_option(INVENTORY_ITEM *item); // 0x0044EF90
 void __cdecl do_gamma_option(INVENTORY_ITEM *item); // ----------
 void __cdecl do_detail_option(INVENTORY_ITEM *item); // 0x0044F5E0
 void __cdecl do_sound_option(INVENTORY_ITEM *item); // 0x0044F8C0

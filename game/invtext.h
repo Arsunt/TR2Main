@@ -33,7 +33,7 @@ void __cdecl ResetTextParams(REQUEST_INFO *req, TEXT_STR_INFO *textInfo); // 0x0
 void __cdecl GetTextParams1(REQUEST_INFO *req, TEXT_STR_INFO *textInfo); // 0x004256E0
 void __cdecl GetTextParams2(REQUEST_INFO *req, TEXT_STR_INFO *textInfo); // 0x00425740
 
-// 0x004257A0:		Display_Requester
+#define Display_Requester ((int(__cdecl*)(REQUEST_INFO *, BOOL, BOOL)) 0x004257A0)
 
 void __cdecl SetRequesterHeading(REQUEST_INFO *req, const char *string1, DWORD flags1, const char *string2, DWORD flags2); // 0x00426010
 void __cdecl RemoveAllReqItems(REQUEST_INFO *req); // 0x004260C0

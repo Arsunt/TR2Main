@@ -443,7 +443,7 @@ x function is unused / included in another function
 0x004256C0:	+	ResetTextParams
 0x004256E0:	+	GetTextParams1
 0x00425740:	+	GetTextParams2
-0x004257A0:		Display_Requester
+0x004257A0:	 *	Display_Requester
 0x00426010:	+	SetRequesterHeading
 0x004260C0:	+	RemoveAllReqItems
 0x004260E0:	+	ChangeRequesterItem
@@ -1263,7 +1263,7 @@ x function is unused / included in another function
 
 	specific/option.cpp
 0x0044EE80:	+	do_inventory_options
-0x0044EF90:	 *	do_passport_option
+0x0044EF90:	+	do_passport_option
 ----------:	+	do_gamma_option
 0x0044F5E0:	+	do_detail_option
 0x0044F8C0:	+	do_sound_option
