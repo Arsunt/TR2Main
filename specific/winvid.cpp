@@ -29,7 +29,7 @@
 #ifdef FEATURE_WINDOW_STYLE_FIX
 static void setWindowStyle(bool isFullScreen) {
 	static const DWORD fullScreenFlags = WS_POPUP;
-	static const DWORD windowedFlags = WS_BORDER|WS_DLGFRAME|WS_SYSMENU|WS_SIZEBOX|WS_MINIMIZEBOX|WS_MAXIMIZEBOX;
+	static const DWORD windowedFlags = WS_OVERLAPPEDWINDOW; // WS_BORDER|WS_DLGFRAME|WS_SYSMENU|WS_SIZEBOX|WS_MINIMIZEBOX|WS_MAXIMIZEBOX
 	DWORD style = GetWindowLong(HGameWindow, GWL_STYLE);
 	style &= ~(isFullScreen ? windowedFlags : fullScreenFlags);
 	style |= (isFullScreen ? fullScreenFlags : windowedFlags);
@@ -1124,8 +1124,7 @@ bool __cdecl WinVidCreateGameWindow() {
 	WinVidClearMinWindowSize();
 	WinVidClearMaxWindowSize();
 
-	HGameWindow = CreateWindowEx(WS_EX_APPWINDOW, GameClassName, GameWindowName,
-								WS_BORDER|WS_DLGFRAME|WS_SYSMENU|WS_SIZEBOX|WS_MINIMIZEBOX|WS_MAXIMIZEBOX,
+	HGameWindow = CreateWindowEx(WS_EX_APPWINDOW, GameClassName, GameWindowName, WS_OVERLAPPEDWINDOW,
 								CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 								NULL, NULL, GameModule, NULL);
 	if( HGameWindow == NULL)
