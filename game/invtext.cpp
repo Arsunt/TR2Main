@@ -25,6 +25,47 @@
 #include "specific/output.h"
 #include "global/vars.h"
 
+#define REQ_NEARZ		(8)
+#define REQ_MIDZ		(16)
+#define REQ_FARZ		(48)
+
+// These gouraud arrays are not used in the game (apparently were not ready for release)
+static __int16 ReqBgndGour1[16] = {
+	0x1E00, 0x1E00, 0x1A00, 0x1E00,
+	0x1E00, 0x1E00, 0x1E00, 0x1A00,
+	0x1A00, 0x1E00, 0x1E00, 0x1E00,
+	0x1E00, 0x1A00, 0x1E00, 0x1E00,
+};
+static __int16 ReqBgndGour2[9] = {
+	0x1A00, 0x1800, 0x1E00,
+	0x2000, 0x2000, 0x1E00,
+	0x1C00, 0x1C00, 0x1A00,
+};
+
+static __int16 ReqMainGour1[16] = {
+	0x2000, 0x2000, 0x1800, 0x2000,
+	0x2000, 0x2000, 0x2000, 0x1800,
+	0x1800, 0x2000, 0x2000, 0x2000,
+	0x2000, 0x1800, 0x2000, 0x2000,
+};
+static __int16 ReqMainGour2[9] = {
+	0x2000, 0x2000, 0x2000,
+	0x2000, 0x2000, 0x2000,
+	0x2000, 0x2000, 0x2000,
+};
+
+static __int16 ReqSelGour1[16] = {
+	0x2000, 0x2000, 0x1A00, 0x2000,
+	0x2000, 0x2000, 0x2000, 0x1A00,
+	0x1A00, 0x2000, 0x2000, 0x2000,
+	0x2000, 0x1A00, 0x2000, 0x2000,
+};
+static __int16 ReqSelGour2[9] = {
+	0x2000, 0x1010, 0x2000,
+	0x1400, 0x2000, 0x1010,
+	0x2000, 0x1400, 0x2000,
+};
+
 void __cdecl Init_Requester(REQUEST_INFO *req) {
 	req->headingText1  = NULL;
 	req->headingText2  = NULL;
@@ -103,6 +144,249 @@ void __cdecl GetTextParams2(REQUEST_INFO *req, TEXT_STR_INFO *textInfo) {
 	bgndOffX = (req->pixWidth * scaleH / PHD_ONE) / 2 - T_GetTextWidth(textInfo) / 2 - (8 * scaleH / PHD_ONE);
 	textInfo->xPos = req->xPos + bgndOffX;
 	textInfo->bgndOffX = -bgndOffX;
+}
+
+int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isBackground) {
+	int i, linesCount, linesHeight, linesOff;
+	DWORD renderWidth, renderHeight;
+
+	linesCount = req->visibleCount;
+	linesHeight = req->lineHeight * linesCount + 10;
+	linesOff = req->yPos - linesHeight;
+
+	renderWidth = GetRenderWidth();
+	renderHeight = GetRenderHeight();
+	if( renderWidth != req->renderWidth || renderHeight != req->renderHeight ) {
+		Remove_Requester(req);
+		req->renderWidth = renderWidth;
+		req->renderHeight = renderHeight;
+	}
+
+	req->lpItemFlags1 = RequesterItemFlags1;
+	req->lpItemFlags2 = RequesterItemFlags2;
+
+	if( req->itemsCount < req->visibleCount ) {
+		linesCount = req->itemsCount;
+	}
+
+	// Heading 1
+	if( CHK_ANY(req->headingFlags1, 1) ) {
+		if( req->headingText1 == NULL ) {
+			req->headingText1 = T_Print(req->xPos, (linesOff - req->lineHeight - 10), req->zPos, req->headingString1);
+			T_CentreH(req->headingText1, 1);
+			T_BottomAlign(req->headingText1, 1);
+			if( isBackground ) {
+				T_AddBackground(req->headingText1, (req->pixWidth - 4), 0, 0, 0, REQ_NEARZ, ICLR_Black, ReqMainGour1, 2);
+				T_AddOutline(req->headingText1, TRUE, ICLR_Orange, ReqMainGour2, 0);
+			}
+		}
+		if( CHK_ANY(req->headingFlags1, 2) ) {
+			GetTextParams1(req, req->headingText1);
+		}
+		if( CHK_ANY(req->headingFlags1, 4) ) {
+			GetTextParams2(req, req->headingText1);
+		}
+	}
+
+	// Heading 2
+	if( CHK_ANY(req->headingFlags2, 1) ) {
+		if( req->headingText2 == NULL ) {
+			req->headingText2 = T_Print(req->xPos, (linesOff - req->lineHeight - 10), req->zPos, req->headingString2);
+			T_CentreH(req->headingText2, 1);
+			T_BottomAlign(req->headingText2, 1);
+			if( isBackground ) {
+				T_AddBackground(req->headingText2, (req->pixWidth - 4), 0, 0, 0, REQ_NEARZ, ICLR_Black, ReqMainGour1, 2);
+				T_AddOutline(req->headingText2, TRUE, ICLR_Orange, ReqMainGour2, 0);
+			}
+		}
+		if( CHK_ANY(req->headingFlags2, 2) ) {
+			GetTextParams1(req, req->headingText2);
+		}
+		if( CHK_ANY(req->headingFlags2, 4) ) {
+			GetTextParams2(req, req->headingText2);
+		}
+	}
+
+	// Background
+	if( isBackground && req->backgroundText == NULL && CHK_ANY(req->backgroundFlags, 1) ) {
+		req->backgroundText = T_Print(req->xPos, (linesOff - req->lineHeight - 12), 0, " ");
+		T_CentreH(req->backgroundText, 1);
+		T_BottomAlign(req->backgroundText, 1);
+		T_AddBackground(req->backgroundText, req->pixWidth, (req->lineHeight + linesHeight + 12), 0, 0, REQ_FARZ, ICLR_Black, ReqBgndGour1, 1);
+		T_AddOutline(req->backgroundText, TRUE, ICLR_Blue, ReqBgndGour2, 0);
+	}
+
+	// More up
+	if( req->lineOffset == 0 ) {
+		T_RemovePrint(req->moreupText);
+		req->moreupText = NULL;
+	}
+	else if( req->moreupText == NULL && CHK_ANY(req->moreupFlags, 1) ) {
+		T_CentreH(req->moreupText, 1);
+		T_BottomAlign(req->moreupText, 1);
+	}
+
+	// More down
+	if( req->itemsCount <= (req->visibleCount + req->lineOffset) ) {
+		T_RemovePrint(req->moredownText);
+		req->moredownText = 0;
+	}
+	else if( req->moredownText == NULL && CHK_ANY(req->moredownFlags, 1) ) {
+		T_CentreH(req->moredownText, 1);
+		T_BottomAlign(req->moredownText, 1);
+	}
+
+	// Lines init
+	for( i = 0; i < linesCount; ++i ) {
+		if( CHK_ANY(req->lpItemFlags1[req->lineOffset + i], 1) ) {
+			if( req->itemTexts1[i] == NULL ) {
+				req->itemTexts1[i] = T_Print(0, (linesOff + req->lineHeight * i), 0, &req->lpItemStrings1[(req->lineOffset + i) * req->itemStringLen]);
+				T_CentreH(req->itemTexts1[i], 1);
+				T_BottomAlign(req->itemTexts1[i], 1);
+			}
+
+			if( CHK_ANY(req->reqFlags, 1) || (req->lineOffset + i != req->selected) ) {
+				T_RemoveBackground(req->itemTexts1[i]);
+				T_RemoveOutline(req->itemTexts1[i]);
+			} else {
+				T_AddBackground(req->itemTexts1[i], (req->pixWidth - 12), 0, 0, 0, REQ_MIDZ, ICLR_Black, ReqSelGour1, 1);
+				T_AddOutline(req->itemTexts1[i], TRUE, ICLR_Orange, ReqSelGour2, 0);
+			}
+
+			if( CHK_ANY(req->lpItemFlags1[req->lineOffset + i], 2) ) {
+				GetTextParams1(req, req->itemTexts1[i]);
+			}
+			else if( CHK_ANY(req->lpItemFlags1[req->lineOffset + i], 4) ) {
+				GetTextParams2(req, req->itemTexts1[i]);
+			}
+			else {
+				ResetTextParams(req, req->itemTexts1[i]);
+			}
+		} else {
+			T_RemovePrint(req->itemTexts1[i]);
+			T_RemoveBackground(req->itemTexts1[i]);
+			T_RemoveOutline(req->itemTexts1[i]);
+			req->itemTexts1[i] = NULL;
+		}
+
+		if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], 1) ) {
+			if( req->itemTexts2[i] == NULL ) {
+				req->itemTexts2[i] = T_Print(0, (linesOff + req->lineHeight * i), 0, &req->lpItemStrings2[(req->lineOffset + i) * req->itemStringLen]);
+				T_CentreH(req->itemTexts2[i], 1);
+				T_BottomAlign(req->itemTexts2[i], 1);
+			}
+
+			if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], 2) ) {
+				GetTextParams1(req, req->itemTexts2[i]);
+			}
+			else if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], 4) ) {
+				GetTextParams2(req, req->itemTexts2[i]);
+			}
+			else {
+				ResetTextParams(req, req->itemTexts2[i]);
+			}
+		} else {
+			T_RemovePrint(req->itemTexts2[i]);
+			T_RemoveBackground(req->itemTexts2[i]);
+			T_RemoveOutline(req->itemTexts2[i]);
+			req->itemTexts2[i] = NULL;
+		}
+	}
+
+	// Lines change
+	if( req->lineOffset != req->lineOldOffset ) {
+		for( i = 0; i < linesCount; ++i ) {
+			if( req->itemTexts1[i] != NULL && CHK_ANY(req->lpItemFlags1[req->lineOffset + i], 1) ) {
+				T_ChangeText(req->itemTexts1[i], &req->lpItemStrings1[(req->lineOffset + i) * req->itemStringLen]);
+			}
+
+			if( CHK_ANY(req->lpItemFlags1[req->lineOffset + i], 2) ) {
+				GetTextParams1(req, req->itemTexts1[i]);
+			}
+			else if( CHK_ANY(req->lpItemFlags1[req->lineOffset + i], 4) ) {
+				GetTextParams2(req, req->itemTexts1[i]);
+			}
+			else {
+				ResetTextParams(req, req->itemTexts1[i]);
+			}
+
+			if( req->itemTexts2[i] != NULL && CHK_ANY(req->lpItemFlags2[req->lineOffset + i], 1) ) {
+				T_ChangeText(req->itemTexts2[i], &req->lpItemStrings2[(req->lineOffset + i) * req->itemStringLen]);
+			}
+
+			if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], 2) ) {
+				GetTextParams1(req, req->itemTexts2[i]);
+			}
+			else if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], 4) ) {
+				GetTextParams2(req, req->itemTexts2[i]);
+			}
+			else {
+				ResetTextParams(req, req->itemTexts2[i]);
+			}
+		}
+	}
+
+	// Menu down
+	if( CHK_ANY(InputDB, IN_BACK) ) {
+		if( CHK_ANY(req->reqFlags, 1) ) { // Cursor is disabled. Move the list
+			req->lineOldOffset = req->lineOffset;
+			if( req->lineOffset < (req->itemsCount - req->visibleCount) ) {
+				++req->lineOffset;
+			}
+		}
+		else { // Cursor is enabled. Move the cursor
+			if( req->selected < (req->itemsCount - 1) ) {
+				++req->selected;
+			}
+			req->lineOldOffset = req->lineOffset;
+			if( req->lineOffset <= (req->selected - req->visibleCount) ) {
+				++req->lineOffset;
+			}
+		}
+		return 0;
+	}
+
+	// Menu Up
+	if( CHK_ANY(InputDB, IN_FORWARD) ) {
+		if( CHK_ANY(req->reqFlags, 1) ) { // Cursor is disabled. Move the list
+			req->lineOldOffset = req->lineOffset;
+			if( req->lineOffset > 0 ) {
+				--req->lineOffset;
+			}
+		}
+		else { // Cursor is enabled. Move the cursor
+			if( req->selected > 0 ) {
+				--req->selected;
+			}
+
+			req->lineOldOffset = req->lineOffset;
+			if( req->lineOffset > req->selected ) {
+				--req->lineOffset;
+			}
+		}
+		return 0;
+	}
+
+	// Menu Select
+	if( CHK_ANY(InputDB, IN_SELECT) ) {
+		if( strncmp(req->itemTexts1[req->selected - req->lineOffset]->pString, GF_SpecificStringTable[SSI_EmptySlot], 12) ||
+			strcmp(PassportTextInfo->pString, GF_GameStringTable[GSI_Passport_LoadGame]) )
+		{
+			Remove_Requester(req);
+			return (req->selected + 1);
+		} else {
+			InputStatus = 0;
+			return 0;
+		}
+	}
+
+	// Menu Deselect
+	if( CHK_ANY(InputDB, IN_DESELECT) && removeOnDeselect ) {
+		Remove_Requester(req);
+		return -1;
+	}
+
+	return 0;
 }
 
 void __cdecl SetRequesterHeading(REQUEST_INFO *req, const char *string1, DWORD flags1, const char *string2, DWORD flags2) {
@@ -192,9 +476,7 @@ void Inject_InvText() {
 	INJECT(0x004256C0, ResetTextParams);
 	INJECT(0x004256E0, GetTextParams1);
 	INJECT(0x00425740, GetTextParams2);
-
-//	INJECT(0x004257A0, Display_Requester);
-
+	INJECT(0x004257A0, Display_Requester);
 	INJECT(0x00426010, SetRequesterHeading);
 	INJECT(0x004260C0, RemoveAllReqItems);
 	INJECT(0x004260E0, ChangeRequesterItem);
