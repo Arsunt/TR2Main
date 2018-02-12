@@ -113,14 +113,14 @@ void __cdecl Remove_Requester(REQUEST_INFO *req) {
 	}
 }
 
-void __cdecl ResetTextParams(REQUEST_INFO *req, TEXT_STR_INFO *textInfo) {
+void __cdecl ReqItemCentreAlign(REQUEST_INFO *req, TEXT_STR_INFO *textInfo) {
 	if( textInfo != NULL ) {
 		textInfo->xPos = req->xPos;
 		textInfo->bgndOffX = 0;
 	}
 }
 
-void __cdecl GetTextParams1(REQUEST_INFO *req, TEXT_STR_INFO *textInfo) {
+void __cdecl ReqItemLeftAlign(REQUEST_INFO *req, TEXT_STR_INFO *textInfo) {
 	DWORD scaleH;
 	int bgndOffX;
 
@@ -133,7 +133,7 @@ void __cdecl GetTextParams1(REQUEST_INFO *req, TEXT_STR_INFO *textInfo) {
 	textInfo->bgndOffX = bgndOffX;
 }
 
-void __cdecl GetTextParams2(REQUEST_INFO *req, TEXT_STR_INFO *textInfo) {
+void __cdecl ReqItemRightAlign(REQUEST_INFO *req, TEXT_STR_INFO *textInfo) {
 	DWORD scaleH;
 	int bgndOffX;
 
@@ -181,10 +181,10 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 			}
 		}
 		if( CHK_ANY(req->headingFlags1, 2) ) {
-			GetTextParams1(req, req->headingText1);
+			ReqItemLeftAlign(req, req->headingText1);
 		}
 		if( CHK_ANY(req->headingFlags1, 4) ) {
-			GetTextParams2(req, req->headingText1);
+			ReqItemRightAlign(req, req->headingText1);
 		}
 	}
 
@@ -200,10 +200,10 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 			}
 		}
 		if( CHK_ANY(req->headingFlags2, 2) ) {
-			GetTextParams1(req, req->headingText2);
+			ReqItemLeftAlign(req, req->headingText2);
 		}
 		if( CHK_ANY(req->headingFlags2, 4) ) {
-			GetTextParams2(req, req->headingText2);
+			ReqItemRightAlign(req, req->headingText2);
 		}
 	}
 
@@ -254,13 +254,13 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 			}
 
 			if( CHK_ANY(req->lpItemFlags1[req->lineOffset + i], 2) ) {
-				GetTextParams1(req, req->itemTexts1[i]);
+				ReqItemLeftAlign(req, req->itemTexts1[i]);
 			}
 			else if( CHK_ANY(req->lpItemFlags1[req->lineOffset + i], 4) ) {
-				GetTextParams2(req, req->itemTexts1[i]);
+				ReqItemRightAlign(req, req->itemTexts1[i]);
 			}
 			else {
-				ResetTextParams(req, req->itemTexts1[i]);
+				ReqItemCentreAlign(req, req->itemTexts1[i]);
 			}
 		} else {
 			T_RemovePrint(req->itemTexts1[i]);
@@ -277,13 +277,13 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 			}
 
 			if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], 2) ) {
-				GetTextParams1(req, req->itemTexts2[i]);
+				ReqItemLeftAlign(req, req->itemTexts2[i]);
 			}
 			else if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], 4) ) {
-				GetTextParams2(req, req->itemTexts2[i]);
+				ReqItemRightAlign(req, req->itemTexts2[i]);
 			}
 			else {
-				ResetTextParams(req, req->itemTexts2[i]);
+				ReqItemCentreAlign(req, req->itemTexts2[i]);
 			}
 		} else {
 			T_RemovePrint(req->itemTexts2[i]);
@@ -301,13 +301,13 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 			}
 
 			if( CHK_ANY(req->lpItemFlags1[req->lineOffset + i], 2) ) {
-				GetTextParams1(req, req->itemTexts1[i]);
+				ReqItemLeftAlign(req, req->itemTexts1[i]);
 			}
 			else if( CHK_ANY(req->lpItemFlags1[req->lineOffset + i], 4) ) {
-				GetTextParams2(req, req->itemTexts1[i]);
+				ReqItemRightAlign(req, req->itemTexts1[i]);
 			}
 			else {
-				ResetTextParams(req, req->itemTexts1[i]);
+				ReqItemCentreAlign(req, req->itemTexts1[i]);
 			}
 
 			if( req->itemTexts2[i] != NULL && CHK_ANY(req->lpItemFlags2[req->lineOffset + i], 1) ) {
@@ -315,13 +315,13 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 			}
 
 			if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], 2) ) {
-				GetTextParams1(req, req->itemTexts2[i]);
+				ReqItemLeftAlign(req, req->itemTexts2[i]);
 			}
 			else if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], 4) ) {
-				GetTextParams2(req, req->itemTexts2[i]);
+				ReqItemRightAlign(req, req->itemTexts2[i]);
 			}
 			else {
-				ResetTextParams(req, req->itemTexts2[i]);
+				ReqItemCentreAlign(req, req->itemTexts2[i]);
 			}
 		}
 	}
@@ -473,9 +473,9 @@ void __cdecl SetPCRequesterSize(REQUEST_INFO *req, int maxLines, __int16 yPos) {
 void Inject_InvText() {
 	INJECT(0x00425580, Init_Requester);
 	INJECT(0x00425610, Remove_Requester);
-	INJECT(0x004256C0, ResetTextParams);
-	INJECT(0x004256E0, GetTextParams1);
-	INJECT(0x00425740, GetTextParams2);
+	INJECT(0x004256C0, ReqItemCentreAlign);
+	INJECT(0x004256E0, ReqItemLeftAlign);
+	INJECT(0x00425740, ReqItemRightAlign);
 	INJECT(0x004257A0, Display_Requester);
 	INJECT(0x00426010, SetRequesterHeading);
 	INJECT(0x004260C0, RemoveAllReqItems);

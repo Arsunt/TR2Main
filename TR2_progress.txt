@@ -440,9 +440,9 @@ x function is unused / included in another function
 	game/invtext.cpp
 0x00425580:	+	Init_Requester
 0x00425610:	+	Remove_Requester
-0x004256C0:	+	ResetTextParams
-0x004256E0:	+	GetTextParams1
-0x00425740:	+	GetTextParams2
+0x004256C0:	+	ReqItemCentreAlign
+0x004256E0:	+	ReqItemLeftAlign
+0x00425740:	+	ReqItemRightAlign
 0x004257A0:	+	Display_Requester
 0x00426010:	+	SetRequesterHeading
 0x004260C0:	+	RemoveAllReqItems
