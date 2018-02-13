@@ -74,7 +74,15 @@ void __cdecl S_DrawScreenBox(int sx, int sy, int z, int width, int height, BYTE 
 }
 
 void __cdecl S_DrawScreenFBox(int sx, int sy, int z, int width, int height, BYTE colorIdx, LPVOID gour, UINT16 flags) {
-	ins_trans_quad(sx, sy, width + 1, height + 1, PhdNearZ + z * 8);
+	int adder;
+#ifdef FEATURE_FOV_FIX
+	adder = GetRenderScale(2);
+#else // !FEATURE_FOV_FIX
+	// NOTE: in the original code the adder was 1, but 1 is insufficient,
+	// because there was visible gap between FBox and bottom/right Frame
+	adder = 2;
+#endif // FEATURE_FOV_FIX
+	ins_trans_quad(sx, sy, width + adder, height + adder, PhdNearZ + z * 8);
 }
 
 void __cdecl S_FinishInventory() {

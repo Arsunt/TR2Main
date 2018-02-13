@@ -247,27 +247,37 @@ void __cdecl T_BottomAlign(TEXT_STR_INFO *textInfo, bool state) {
 }
 
 void __cdecl T_DrawTextBox(int sx, int sy, int z, int width, int height) {
-	int x0, y0, x1, y1;
+	int x0, y0, x1, y1, offset;
 	int scaleH, scaleV;
 	int meshIdx = Objects[ID_TEXT_BOX].meshIndex;
 
-	x0 = sx + 4;
-	y0 = sy + 4;
-	x1 = sx - 4 + width;
-	y1 = sy - 4 + height;
+#ifdef FEATURE_FOV_FIX
+	offset = GetRenderScale(4);
+	scaleH = GetRenderScale(PHD_ONE);
+	scaleV = GetRenderScale(PHD_ONE);
+#else // !FEATURE_FOV_FIX
+	offset = 4;
+	scaleH = PHD_ONE;
+	scaleV = PHD_ONE;
+#endif // FEATURE_FOV_FIX
 
-	scaleH = PHD_ONE * (width  - 8) / 8;
-	scaleV = PHD_ONE * (height - 8) / 8;
+	x0 = sx + offset;
+	y0 = sy + offset;
+	x1 = sx - offset + width;
+	y1 = sy - offset + height;
 
-	S_DrawScreenSprite2d(x0, y0, z, PHD_ONE, PHD_ONE, (meshIdx + 0), 0x1000, 0);
-	S_DrawScreenSprite2d(x1, y0, z, PHD_ONE, PHD_ONE, (meshIdx + 1), 0x1000, 0);
-	S_DrawScreenSprite2d(x1, y1, z, PHD_ONE, PHD_ONE, (meshIdx + 2), 0x1000, 0);
-	S_DrawScreenSprite2d(x0, y1, z, PHD_ONE, PHD_ONE, (meshIdx + 3), 0x1000, 0);
+	width = PHD_ONE * (width  - offset * 2) / 8;
+	height = PHD_ONE * (height - offset * 2) / 8;
 
-	S_DrawScreenSprite2d(x0, y0, z, scaleH, PHD_ONE, (meshIdx + 4), 0x1000, 0);
-	S_DrawScreenSprite2d(x1, y0, z, PHD_ONE, scaleV, (meshIdx + 5), 0x1000, 0);
-	S_DrawScreenSprite2d(x0, y1, z, scaleH, PHD_ONE, (meshIdx + 6), 0x1000, 0);
-	S_DrawScreenSprite2d(x0, y0, z, PHD_ONE, scaleV, (meshIdx + 7), 0x1000, 0);
+	S_DrawScreenSprite2d(x0, y0, z, scaleH, scaleV, (meshIdx + 0), 0x1000, 0);
+	S_DrawScreenSprite2d(x1, y0, z, scaleH, scaleV, (meshIdx + 1), 0x1000, 0);
+	S_DrawScreenSprite2d(x1, y1, z, scaleH, scaleV, (meshIdx + 2), 0x1000, 0);
+	S_DrawScreenSprite2d(x0, y1, z, scaleH, scaleV, (meshIdx + 3), 0x1000, 0);
+
+	S_DrawScreenSprite2d(x0, y0, z, width,  scaleV, (meshIdx + 4), 0x1000, 0);
+	S_DrawScreenSprite2d(x1, y0, z, scaleH, height, (meshIdx + 5), 0x1000, 0);
+	S_DrawScreenSprite2d(x0, y1, z, width,  scaleV, (meshIdx + 6), 0x1000, 0);
+	S_DrawScreenSprite2d(x0, y0, z, scaleH, height, (meshIdx + 7), 0x1000, 0);
 }
 
 DWORD __cdecl T_GetTextWidth(TEXT_STR_INFO *textInfo) {
