@@ -28,6 +28,8 @@
  * Function list
  */
 int __cdecl GetRenderScale(int unit);
+int __cdecl GetRenderHeightDownscaled();
+int __cdecl GetRenderWidthDownscaled();
 int __cdecl GetRenderHeight(); // 0x00450BA0
 int __cdecl GetRenderWidth(); // 0x00450BB0
 void __cdecl S_InitialisePolyList(BOOL clearBackBuffer); // 0x00450BC0

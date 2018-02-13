@@ -51,6 +51,14 @@ int __cdecl GetRenderScale(int unit) {
 	return min(scaleX, scaleY);
 }
 
+int __cdecl GetRenderHeightDownscaled() {
+	return PhdWinHeight * PHD_ONE / GetRenderScale(PHD_ONE);
+}
+
+int __cdecl GetRenderWidthDownscaled() {
+	return PhdWinWidth * PHD_ONE / GetRenderScale(PHD_ONE);
+}
+
 int __cdecl GetRenderHeight() {
 	return PhdWinHeight;
 }

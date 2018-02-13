@@ -824,12 +824,12 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 }
 
 void __cdecl S_ShowControls() {
-	int i, x0, x1;
-	int xCenter = GetRenderWidth() / 2;
+	int i, x0, x1, xCenter;
 
 #ifdef FEATURE_FOV_FIX
-	xCenter = xCenter * PHD_ONE / GetRenderScale(PHD_ONE);
+	xCenter = GetRenderWidthDownscaled() / 2;
 #else // !FEATURE_FOV_FIX
+	xCenter = GetRenderWidth() / 2;
 	CLAMPG(xCenter, 320);
 #endif // FEATURE_FOV_FIX
 
