@@ -29,6 +29,8 @@
 #define REQ_MIDZ		(16)
 #define REQ_FARZ		(48)
 
+#define REQ_LN_HEIGHT	(18)
+
 // These gouraud arrays are not used in the game (apparently were not ready for release)
 static __int16 ReqBgndGour1[16] = {
 	0x1E00, 0x1E00, 0x1A00, 0x1E00,
@@ -89,8 +91,13 @@ void __cdecl Init_Requester(REQUEST_INFO *req) {
 
 	req->lpItemFlags1 = RequesterItemFlags1;
 	req->lpItemFlags2 = RequesterItemFlags2;
+#ifdef FEATURE_FOV_FIX
+	req->renderWidth  = GetRenderWidthDownscaled();
+	req->renderHeight = GetRenderHeightDownscaled();
+#else // !FEATURE_FOV_FIX
 	req->renderWidth  = GetRenderWidth();
 	req->renderHeight = GetRenderHeight();
+#endif // FEATURE_FOV_FIX
 }
 
 void __cdecl Remove_Requester(REQUEST_INFO *req) {
@@ -154,8 +161,14 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 	linesHeight = req->lineHeight * linesCount + 10;
 	linesOff = req->yPos - linesHeight;
 
+#ifdef FEATURE_FOV_FIX
+	renderWidth = GetRenderWidthDownscaled();
+	renderHeight = GetRenderHeightDownscaled();
+#else // !FEATURE_FOV_FIX
 	renderWidth = GetRenderWidth();
 	renderHeight = GetRenderHeight();
+#endif // FEATURE_FOV_FIX
+
 	if( renderWidth != req->renderWidth || renderHeight != req->renderHeight ) {
 		Remove_Requester(req);
 		req->renderWidth = renderWidth;
@@ -462,7 +475,11 @@ void __cdecl AddRequesterItem(REQUEST_INFO *req, const char *string1, DWORD flag
 
 void __cdecl SetPCRequesterSize(REQUEST_INFO *req, int maxLines, __int16 yPos) {
 	req->yPos = yPos;
-	req->visibleCount = GetRenderHeight() / 2 / 0x12;
+#ifdef FEATURE_FOV_FIX
+	req->visibleCount = GetRenderHeightDownscaled() / 2 / REQ_LN_HEIGHT;
+#else // !FEATURE_FOV_FIX
+	req->visibleCount = GetRenderHeight() / 2 / REQ_LN_HEIGHT;
+#endif // FEATURE_FOV_FIX
 	if( req->visibleCount > maxLines )
 		req->visibleCount = maxLines;
 }
