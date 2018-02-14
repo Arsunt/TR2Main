@@ -72,6 +72,10 @@ static __int16 ReqSelGour2[9] = {
 	0x2000, 0x1400, 0x2000,
 };
 
+#ifdef FEATURE_ASSAULT_SAVE
+extern void SaveAssault();
+#endif // FEATURE_ASSAULT_SAVE
+
 void __cdecl Init_Requester(REQUEST_INFO *req) {
 	req->headingText1  = NULL;
 	req->headingText2  = NULL;
@@ -513,6 +517,9 @@ BOOL __cdecl AddAssaultTime(DWORD newTime) {
 	Assault.bestTime[i] = newTime;
 	Assault.bestFinish[i] = ++Assault.finishCount;
 
+#ifdef FEATURE_ASSAULT_SAVE
+	SaveAssault();
+#endif // FEATURE_ASSAULT_SAVE
 	return TRUE;
 }
 

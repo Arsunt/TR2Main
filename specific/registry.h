@@ -78,6 +78,7 @@
 
 // BINARY value names
 #define REG_GAME_LAYOUT		"Layout"
+#define REG_GAME_ASSAULT	"Assault"
 
 // GUID string size
 #define GUID_STRING_SIZE (sizeof("{00112233-4455-6677-8899AABBCCDDEEFF}"))

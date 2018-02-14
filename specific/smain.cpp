@@ -63,6 +63,14 @@ extern double WaterFogBeginFactor;
 extern double WaterFogEndFactor;
 #endif // FEATURE_FOG_DISTANCE
 
+#ifdef FEATURE_ASSAULT_SAVE
+void SaveAssault() {
+	OpenGameRegistryKey(REG_GAME_KEY);
+	SetRegistryBinaryValue(REG_GAME_ASSAULT, (LPBYTE)&Assault, sizeof(ASSAULT_STATS));
+	CloseGameRegistryKey();
+}
+#endif // FEATURE_ASSAULT_SAVE
+
 BOOL __cdecl GameMain() {
 	__int16 gfOption, gfDirection, gfParameter;
 	bool isFrontendFail, isLoopContinue;
@@ -408,6 +416,10 @@ void __cdecl S_LoadSettings() {
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	GetRegistryDwordValue(REG_INVBGND_MODE, &InvBackgroundMode, 1);
 #endif // FEATURE_BACKGROUND_IMPROVED
+
+#ifdef FEATURE_ASSAULT_SAVE
+	GetRegistryBinaryValue(REG_GAME_ASSAULT, (LPBYTE)&Assault, sizeof(ASSAULT_STATS), NULL);
+#endif // FEATURE_ASSAULT_SAVE
 
 	CloseGameRegistryKey();
 
