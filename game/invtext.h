@@ -40,8 +40,7 @@ void __cdecl AddRequesterItem(REQUEST_INFO *req, const char *string1, DWORD flag
 void __cdecl SetPCRequesterSize(REQUEST_INFO *req, int maxLines, __int16 yPos); // 0x00426250
 BOOL __cdecl AddAssaultTime(DWORD newTime); // 0x00426290
 void __cdecl ShowGymStatsText(); // 0x00426320
-
-#define ShowStatsText ((void(__cdecl*)(char *,BOOL)) 0x00426500)
-#define ShowEndStatsText ((void(__cdecl*)(void)) 0x004268A0)
+void __cdecl ShowStatsText(char *timeString, BOOL removeOnDeselect); // 0x00426500
+void __cdecl ShowEndStatsText(); // 0x004268A0
 
 #endif // INVTEXT_H_INCLUDED

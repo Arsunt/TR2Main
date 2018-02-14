@@ -451,8 +451,8 @@ x function is unused / included in another function
 0x00426250:	+	SetPCRequesterSize
 0x00426290:	+	AddAssaultTime
 0x00426320:	+	ShowGymStatsText
-0x00426500:	 *	ShowStatsText
-0x004268A0:	 *	ShowEndStatsText
+0x00426500:	+	ShowStatsText
+0x004268A0:	+	ShowEndStatsText
 
 	game/items.cpp
 0x00426CD0:	+	InitialiseItemArray

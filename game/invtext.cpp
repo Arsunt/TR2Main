@@ -574,6 +574,225 @@ void __cdecl ShowGymStatsText() {
 	}
 }
 
+void __cdecl ShowStatsText(char *timeString, BOOL removeOnDeselect) {
+	static bool isStatsTextReady = false;
+	bool isSecret1, isSecret2, isSecret3;
+	int bufLen, distance;
+	char bufStr[32];
+
+	if( !isStatsTextReady ) {
+		StatsRequester.reqFlags |= 1;
+		SetPCRequesterSize(&StatsRequester, STATS_LN_COUNT, STATS_Y_POS);
+
+		StatsRequester.lineHeight = REQ_LN_HEIGHT;
+		StatsRequester.itemsCount = 0;
+		StatsRequester.selected = 0;
+		StatsRequester.lineOffset = 0;
+		StatsRequester.lineOldOffset = 0;
+		StatsRequester.pixWidth = STATS_WIDTH;
+		StatsRequester.xPos = 0;
+		StatsRequester.zPos = 0;
+		StatsRequester.lpItemStrings1 = (char *)SaveGameStrings1;
+		StatsRequester.lpItemStrings2 = (char *)SaveGameStrings2;
+		StatsRequester.itemStringLen = 50;
+
+		Init_Requester(&StatsRequester);
+		SetRequesterHeading(&StatsRequester, GF_LevelNamesStringTable[CurrentLevel], 0, NULL, 0);
+
+		// Time taken
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_TimeTaken], 2, timeString, 4);
+
+		// Secrets found
+		if( GF_NumSecrets > 0 ) {
+			isSecret1 = CHK_ANY(SaveGame.statistics.secrets, 1);
+			isSecret2 = CHK_ANY(SaveGame.statistics.secrets, 2);
+			isSecret3 = CHK_ANY(SaveGame.statistics.secrets, 4);
+
+			if( isSecret1 || isSecret2 || isSecret3 ) {
+				bufLen = 0;
+
+				if( isSecret1 ) {
+					bufStr[bufLen++] = 0x7F; // Secret 1 sprite
+				} else {
+					bufStr[bufLen++] = ' ';
+					bufStr[bufLen++] = ' ';
+					bufStr[bufLen++] = ' ';
+				}
+
+				if( isSecret2 ) {
+					bufStr[bufLen++] = 0x80; // Secret 2 sprite
+				} else {
+					bufStr[bufLen++] = ' ';
+					bufStr[bufLen++] = ' ';
+					bufStr[bufLen++] = ' ';
+				}
+
+				if( isSecret3 ) {
+					bufStr[bufLen++] = 0x81; // Secret 3 sprite
+				} else {
+					bufStr[bufLen++] = ' ';
+					bufStr[bufLen++] = ' ';
+					bufStr[bufLen++] = ' ';
+				}
+
+				bufStr[bufLen] = 0;
+			} else {
+				sprintf(bufStr, GF_GameStringTable[GSI_String_None]);
+			}
+			AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_SecretsFound], 2, bufStr, 4);
+		}
+
+		// Kills
+		sprintf(bufStr, "%d", (int)SaveGame.statistics.kills);
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_Kills], 2, bufStr, 4);
+
+		// Ammo used
+		sprintf(bufStr, "%d", (int)SaveGame.statistics.shots);
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_AmmoUsed], 2, bufStr, 4);
+
+		// Hits
+		sprintf(bufStr, "%d", (int)SaveGame.statistics.hits);
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_Hits], 2, bufStr, 4);
+
+		// HealthPacks used
+		if( (SaveGame.statistics.mediPacks % 2) == 0 ) {
+			sprintf(bufStr, "%d.0", (int)(SaveGame.statistics.mediPacks / 2) );
+		} else {
+			sprintf(bufStr, "%d.5", (int)(SaveGame.statistics.mediPacks / 2) );
+		}
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_HealthPacksUsed], 2, bufStr, 4);
+
+		// Distance travelled
+		distance = SaveGame.statistics.distance / 445;
+		if( distance < 1000 ) {
+			sprintf(bufStr, "%dm", distance);
+		} else {
+			sprintf(bufStr, "%d.%02dkm", (distance / 1000), (distance % 100));
+		}
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_DistanceTravelled], 2, bufStr, 4);
+
+		isStatsTextReady = true;
+	} else {
+		ChangeRequesterItem(&StatsRequester, 0, GF_GameStringTable[GSI_String_TimeTaken], 2, timeString, 4);
+		if( Display_Requester(&StatsRequester, removeOnDeselect, TRUE) ) {
+			isStatsTextReady = false;
+		} else {
+			InputDB = 0;
+			InputStatus = 0;
+		}
+	}
+}
+
+void __cdecl ShowEndStatsText() {
+	static bool isStatsTextReady = false;
+	int i, numLevels;
+	int total, maxTotal;
+	int hours, minutes, seconds;
+	char bufStr[32];
+
+	numLevels = GF_GameFlow.num_Levels - GF_GameFlow.num_Demos;
+
+	if( !isStatsTextReady ) {
+		StatsRequester.reqFlags |= 1;
+		SetPCRequesterSize(&StatsRequester, STATS_LN_COUNT, STATS_Y_POS);
+
+		StatsRequester.lineHeight = REQ_LN_HEIGHT;
+		StatsRequester.itemsCount = 0;
+		StatsRequester.selected = 0;
+		StatsRequester.lineOffset = 0;
+		StatsRequester.lineOldOffset = 0;
+		StatsRequester.pixWidth = STATS_WIDTH;
+		StatsRequester.xPos = 0;
+		StatsRequester.zPos = 0;
+		StatsRequester.lpItemStrings1 = (char *)SaveGameStrings1;
+		StatsRequester.lpItemStrings2 = (char *)SaveGameStrings2;
+		StatsRequester.itemStringLen = 50;
+
+		Init_Requester(&StatsRequester);
+		SetRequesterHeading(&StatsRequester, GF_GameStringTable[GSI_String_FinalStatistics], 0, NULL, 0);
+
+		// Time taken
+		total = 0;
+		for( i = 1; i < numLevels; ++i ) {
+			total += SaveGame.start[i].statistics.timer;
+		}
+		seconds = total / 30 % 60;
+		minutes = total / 30 / 60 % 60;
+		hours   = total / 30 / 60 / 60;
+		sprintf(bufStr, "%02d:%02d:%02d", hours, minutes, seconds);
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_TimeTaken], 2, bufStr, 4);
+
+		// Secrets found
+		total = 0;
+		maxTotal = 0;
+		// There are no secrets in the last two levels, so (numLevels - 2)
+		for( i = 1; i < (numLevels - 2); ++i ) {
+			total += CHK_ANY(SaveGame.start[i].statistics.secrets, 1) ? 1 : 0;
+			total += CHK_ANY(SaveGame.start[i].statistics.secrets, 2) ? 1 : 0;
+			total += CHK_ANY(SaveGame.start[i].statistics.secrets, 4) ? 1 : 0;
+			maxTotal += 3;
+		}
+		sprintf(bufStr, "%d %s %d", total, GF_GameStringTable[GSI_String_Of], maxTotal);
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_SecretsFound], 2, bufStr, 4);
+
+		// Kills
+		total = 0;
+		for( i = 1; i < numLevels; ++i ) {
+			total += SaveGame.start[i].statistics.kills;
+		}
+		sprintf(bufStr, "%d", total);
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_Kills], 2, bufStr, 4);
+
+		// Ammo used
+		total = 0;
+		for( i = 1; i < numLevels; ++i ) {
+			total += SaveGame.start[i].statistics.shots;
+		}
+		sprintf(bufStr, "%d", total);
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_AmmoUsed], 2, bufStr, 4);
+
+		// Hits
+		total = 0;
+		for( i = 1; i < numLevels; ++i ) {
+			total += SaveGame.start[i].statistics.hits;
+		}
+		sprintf(bufStr, "%d", total);
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_Hits], 2, bufStr, 4);
+
+		// HealthPacks used
+		total = 0;
+		for( i = 1; i < numLevels; ++i ) {
+			total += SaveGame.start[i].statistics.mediPacks;
+		}
+		if( (total % 2) == 0 ) {
+			sprintf(bufStr, "%d.0", (total / 2));
+		} else {
+			sprintf(bufStr, "%d.5", (total / 2));
+		}
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_HealthPacksUsed], 2, bufStr, 4);
+
+		// Distance travelled
+		total = 0;
+		for( i = 1; i < numLevels; ++i ) {
+			total += SaveGame.start[i].statistics.distance;
+		}
+		total /= 445;
+		if( total < 1000 )
+			sprintf(bufStr, "%dm", total);
+		else
+			sprintf(bufStr, "%d.%02dkm", total / 1000, total % 100);
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_DistanceTravelled], 2, bufStr, 4);
+
+		isStatsTextReady = true;
+	}
+	else if( Display_Requester(&StatsRequester, FALSE, TRUE) ) {
+		isStatsTextReady = false;
+	} else {
+		InputDB = 0;
+		InputStatus = 0;
+	}
+}
+
 /*
  * Inject function
  */
@@ -591,7 +810,6 @@ void Inject_InvText() {
 	INJECT(0x00426250, SetPCRequesterSize);
 	INJECT(0x00426290, AddAssaultTime);
 	INJECT(0x00426320, ShowGymStatsText);
-
-//	INJECT(0x00426500, ShowStatsText);
-//	INJECT(0x004268A0, ShowEndStatsText);
+	INJECT(0x00426500, ShowStatsText);
+	INJECT(0x004268A0, ShowEndStatsText);
 }

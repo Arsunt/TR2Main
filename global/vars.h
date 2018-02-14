@@ -57,6 +57,7 @@
 #define PerspectiveDistance			VAR_I_(0x00464060, DWORD,			0x3000000)
 #define RhwFactor 					VAR_I_(0x0046408C, float,			0x14000000.p0)
 #define CD_TrackID					VAR_I_(0x004640BC, __int16,			-1)
+#define GF_NumSecrets				VAR_I_(0x004642E8, __int16,			3)
 #define OverlayStatus				VAR_I_(0x004644E0, int,				1)
 #define InvMainObjectsCount			VAR_I_(0x004654E0, __int16,			8)
 #define InventoryChosen				VAR_I_(0x00465A50, __int16,			-1)
