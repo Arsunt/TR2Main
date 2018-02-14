@@ -38,10 +38,9 @@ void __cdecl RemoveAllReqItems(REQUEST_INFO *req); // 0x004260C0
 void __cdecl ChangeRequesterItem(REQUEST_INFO *req, DWORD itemIdx, const char *string1, DWORD flags1, const char *string2, DWORD flags2); // 0x004260E0
 void __cdecl AddRequesterItem(REQUEST_INFO *req, const char *string1, DWORD flags1, const char *string2, DWORD flags2); // 0x004261A0
 void __cdecl SetPCRequesterSize(REQUEST_INFO *req, int maxLines, __int16 yPos); // 0x00426250
+BOOL __cdecl AddAssaultTime(DWORD newTime); // 0x00426290
+void __cdecl ShowGymStatsText(); // 0x00426320
 
-// 0x00426290:		AddAssaultTime
-
-#define ShowGymStatsText ((void(__cdecl*)()) 0x00426320)
 #define ShowStatsText ((void(__cdecl*)(char *,BOOL)) 0x00426500)
 #define ShowEndStatsText ((void(__cdecl*)(void)) 0x004268A0)
 

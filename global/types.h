@@ -1687,6 +1687,12 @@ typedef struct InventorySprite_t {
 	UINT16 invColour;
 } INVENTORY_SPRITE;
 
+typedef struct AssaultStats_t {
+	DWORD bestTime[10];
+	DWORD bestFinish[10];
+	DWORD finishCount;
+} ASSAULT_STATS;
+
 #pragma pack(pop)
 
 #endif // GLOBAL_TYPES_H_INCLUDED

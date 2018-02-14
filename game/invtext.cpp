@@ -30,6 +30,10 @@
 #define REQ_FARZ		(48)
 
 #define REQ_LN_HEIGHT	(18)
+#define STATS_LN_COUNT	(7)
+// Y coordinates relative to the bottom of the screen
+#define STATS_Y_POS		(-32)
+#define STATS_WIDTH		(304)
 
 // These gouraud arrays are not used in the game (apparently were not ready for release)
 static __int16 ReqBgndGour1[16] = {
@@ -484,6 +488,85 @@ void __cdecl SetPCRequesterSize(REQUEST_INFO *req, int maxLines, __int16 yPos) {
 		req->visibleCount = maxLines;
 }
 
+BOOL __cdecl AddAssaultTime(DWORD newTime) {
+	int i, j;
+
+	for( i = 0; i < 10; ++i ) {
+		if( Assault.bestTime[i] == 0 || newTime < Assault.bestTime[i] ) {
+			break;
+		}
+	}
+
+	if( i > 9 ) { // Not best time at all
+		// NOTE: finishCount is not incremented in the original code in case of bad time
+		// but in my opinion, bad finish should be counted here, as well as good.
+		++Assault.finishCount;
+		return FALSE;
+	}
+
+	// Insertion required if the finish slot is not the last one
+	for( j = 9; j > i; --j ) {
+		Assault.bestTime[j] = Assault.bestTime[j - 1];
+		Assault.bestFinish[j] = Assault.bestFinish[j - 1];
+	}
+
+	Assault.bestTime[i] = newTime;
+	Assault.bestFinish[i] = ++Assault.finishCount;
+
+	return TRUE;
+}
+
+void __cdecl ShowGymStatsText() {
+	static bool isStatsTextReady = false;
+	int minutes, seconds, deciseconds;
+	char statStr1[32];
+	char statStr2[32];
+
+	if( !isStatsTextReady ) {
+		StatsRequester.reqFlags |= 1;
+		SetPCRequesterSize(&StatsRequester, STATS_LN_COUNT, STATS_Y_POS);
+
+		StatsRequester.lineHeight = REQ_LN_HEIGHT;
+		StatsRequester.itemsCount = 0;
+		StatsRequester.selected = 0;
+		StatsRequester.lineOffset = 0;
+		StatsRequester.lineOldOffset = 0;
+		StatsRequester.pixWidth = STATS_WIDTH;
+		StatsRequester.xPos = 0;
+		StatsRequester.zPos = 0;
+		StatsRequester.lpItemStrings1 = (char *)SaveGameStrings1;
+		StatsRequester.lpItemStrings2 = (char *)SaveGameStrings2;
+		StatsRequester.itemStringLen = 50;
+
+		Init_Requester(&StatsRequester);
+		SetRequesterHeading(&StatsRequester, GF_GameStringTable[GSI_String_BestTimes], 0, NULL, 0);
+
+		for( int i = 0; i < 10; ++i ) {
+			if( Assault.bestTime[i] == 0 ) {
+				if( i == 0 ) {
+					AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_NoTimesSet], 0, NULL, 0);
+				}
+				break;
+			}
+			deciseconds = Assault.bestTime[i] % 30 / 3;
+			seconds = Assault.bestTime[i] / 30 % 60;
+			minutes = Assault.bestTime[i] / 30 / 60;
+			sprintf(statStr1, "%2d: %s %d", (i + 1), GF_GameStringTable[GSI_String_Finish], (int)Assault.bestFinish[i]);
+			sprintf(statStr2, "%02d:%02d.%-2d", minutes, seconds, deciseconds);
+			AddRequesterItem(&StatsRequester, statStr1, 2, statStr2, 4);
+		}
+
+		isStatsTextReady = true;
+	}
+	else if( Display_Requester(&StatsRequester, TRUE, TRUE) ) {
+		isStatsTextReady = false;
+	}
+	else {
+		InputDB = 0;
+		InputStatus = 0;
+	}
+}
+
 /*
  * Inject function
  */
@@ -499,9 +582,9 @@ void Inject_InvText() {
 	INJECT(0x004260E0, ChangeRequesterItem);
 	INJECT(0x004261A0, AddRequesterItem);
 	INJECT(0x00426250, SetPCRequesterSize);
+	INJECT(0x00426290, AddAssaultTime);
+	INJECT(0x00426320, ShowGymStatsText);
 
-//	INJECT(0x00426290, AddAssaultTime);
-//	INJECT(0x00426320, ShowGymStatsText);
 //	INJECT(0x00426500, ShowStatsText);
 //	INJECT(0x004268A0, ShowEndStatsText);
 }
