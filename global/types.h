@@ -873,6 +873,13 @@ typedef enum {
 	ICLR_Magenta,
 } INV_COLOURS;
 
+typedef enum {
+	LWS_AboveWater,
+	LWS_Underwater,
+	LWS_Surface,
+	LWS_Cheat,
+} LARA_WATER_STATES;
+
 /*
  * Structs
  */
@@ -1692,6 +1699,11 @@ typedef struct AssaultStats_t {
 	DWORD bestFinish[10];
 	DWORD finishCount;
 } ASSAULT_STATS;
+
+typedef struct PickupInfo_t {
+	__int16 timer;
+	__int16 sprite;
+} PICKUP_INFO;
 
 #pragma pack(pop)
 

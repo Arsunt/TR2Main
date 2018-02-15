@@ -149,9 +149,11 @@
 #define StopInventory				VAR_U_(0x004D7794, BOOL)
 #define IsDemoLevelType				VAR_U_(0x004D779C, BOOL)
 #define IsDemoLoaded				VAR_U_(0x004D77A0, BOOL)
+#define IsAssaultTimerDisplay		VAR_U_(0x004D77D0, BOOL)
 #define IsTitleFinished				VAR_U_(0x004D77FC, bool)
-#define DisplayModeStringInfo		VAR_U_(0x004D7920, TEXT_STR_INFO*)
-#define DisplayModeInfoTimeout		VAR_U_(0x004D7924, DWORD)
+#define AmmoTextInfo				VAR_U_(0x004D791C, TEXT_STR_INFO*)
+#define DisplayModeTextInfo			VAR_U_(0x004D7920, TEXT_STR_INFO*)
+#define DisplayModeInfoTimer		VAR_U_(0x004D7924, DWORD)
 #define InvMainCurrent				VAR_U_(0x004D7928, UINT16)
 #define InvKeyObjectsCount			VAR_U_(0x004D792C, UINT16)
 #define InvKeysCurrent				VAR_U_(0x004D7930, UINT16)
@@ -164,6 +166,7 @@
 #define StatsRequester				VAR_U_(0x004D79B0, REQUEST_INFO)
 #define Assault						VAR_U_(0x004D7BC8, ASSAULT_STATS)
 #define LevelItemCount				VAR_U_(0x004D7C28, int)
+#define HealthBarTimer				VAR_U_(0x004D7C2C, int)
 #define CameraCount					VAR_U_(0x004D7C64, DWORD)
 #define BGND_PictureIsReady			VAR_U_(0x004D7E78, bool)
 #define _Direct3DDevice2			VAR_U_(0x004D7EAC, LPDIRECT3DDEVICE2)
@@ -315,9 +318,12 @@
 #define SampleInfos					VAR_U_(0x0051E9C4, SAMPLE_INFO*)
 #define SaveGame					VAR_U_(0x0051E9E0, SAVEGAME_INFO)
 #define Lara_ItemNumber				VAR_U_(0x005206E0, __int16)	// TODO: redefine
+#define Lara_GunStatus				VAR_U_(0x005206E2, __int16)	// TODO: redefine
 #define Lara_CurrentGunType			VAR_U_(0x005206E4, __int16)	// TODO: redefine
 #define Lara_RequestGunType			VAR_U_(0x005206E6, __int16)	// TODO: redefine
 #define Lara_GunType				VAR_U_(0x005206E8, __int16)	// TODO: redefine
+#define Lara_WaterStatus			VAR_U_(0x005206EC, __int16)	// TODO: redefine
+#define Lara_Air					VAR_U_(0x005206F6, __int16)	// TODO: redefine
 #define Lara_TorsoObject			VAR_U_(0x00520706, __int16)	// TODO: redefine
 #define Lara_MoveAngle				VAR_U_(0x0052076A, __int16)	// TODO: redefine
 #define PistolAmmo					VAR_U_(0x0052079C, DWORD)
@@ -492,6 +498,7 @@
 #define SaveGameStrings2			ARRAY_(0x00521720, STRING_FIXED50, 24)
 #define SaveGameItemFlags2			ARRAY_(0x00521BE0, DWORD, 24)
 #define SaveGameItemFlags1			ARRAY_(0x00521C40, DWORD, 24)
+#define PickupInfos					ARRAY_(0x00521CA0, PICKUP_INFO, 12)
 #define Objects						ARRAY_(0x00522000, OBJECT_INFO, 265)
 #define DynamicLights				ARRAY_(0x005251C0, LIGHT_INFO, 10)
 #define StaticObjects				ARRAY_(0x00525C00, STATIC_INFO, 50)

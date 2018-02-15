@@ -385,18 +385,18 @@ x function is unused / included in another function
 0x00421900:		DrawHair
 
 	game/health.cpp
-0x00421980:		FlashIt
-0x004219B0:		DrawAssaultTimer
-0x00421B00:		DrawGameInfo
-0x00421B50:		DrawHealthBar
-0x00421C00:		DrawAirBar
-0x00421CA0:		MakeAmmoString
-0x00421CD0:		DrawAmmoInfo
-0x00421E20:		InitialisePickUpDisplay
-0x00421E40:		DrawPickups
-0x00421F40:		AddDisplayPickup
+0x00421980:	+	FlashIt
+0x004219B0:	+	DrawAssaultTimer
+0x00421B00:	+	DrawGameInfo
+0x00421B50:	+	DrawHealthBar
+0x00421C00:	+	DrawAirBar
+0x00421CA0:	+	MakeAmmoString
+0x00421CD0:	+	DrawAmmoInfo
+0x00421E20:	+	InitialisePickUpDisplay
+0x00421E40:	+	DrawPickups
+0x00421F40:	+	AddDisplayPickup
 0x00421FB0:	+	DisplayModeInfo
-0x00422030:		DrawModeInfo
+0x00422030:	+	DrawModeInfo
 
 	game/inventory.cpp
 0x00422060:	 *	Display_Inventory
