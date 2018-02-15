@@ -41,8 +41,9 @@ BOOL __cdecl FlashIt() {
 }
 
 void __cdecl DrawAssaultTimer() {
-	int xPos;
+	int xPos, yPos, d0, d1, d2;
 	int minutes, seconds, deciseconds;
+	DWORD scaleH, scaleV;
 	char timeString[8];
 
 	// Exit if current level is not Assault or the timer is hidden
@@ -54,25 +55,41 @@ void __cdecl DrawAssaultTimer() {
 	minutes = SaveGame.statistics.timer / 30 / 60;
 	sprintf(timeString, "%d:%02d.%d", minutes, seconds, deciseconds);
 
+#ifdef FEATURE_FOV_FIX
+	scaleH = GetRenderScale(PHD_ONE);
+	scaleV = GetRenderScale(PHD_ONE);
+	xPos = PhdWinMaxX / 2 - GetRenderScale(50);
+	yPos = GetRenderScale(36);
+	d0 = GetRenderScale(20);
+	d1 = GetRenderScale(-6);
+	d2 = GetRenderScale(14);
+#else // !FEATURE_FOV_FIX
+	scaleH = PHD_ONE;
+	scaleV = PHD_ONE;
 	xPos = PhdWinMaxX / 2 - 50;
+	yPos = 36;
+	d0 = 20;
+	d1 = -6;
+	d2 = 14;
+#endif // FEATURE_FOV_FIX
 
 	for( char *str = timeString; *str != 0; ++str ) {
 		switch( *str ) {
 			case ':' : // colon
-				xPos -= 6;
-				S_DrawScreenSprite2d(xPos, 36, 0, PHD_ONE, PHD_ONE, (Objects[ID_ASSAULT_DIGITS].meshIndex + 10), 0x1000, 0);
-				xPos += 14;
+				xPos += d1;
+				S_DrawScreenSprite2d(xPos, yPos, 0, scaleH, scaleV, (Objects[ID_ASSAULT_DIGITS].meshIndex + 10), 0x1000, 0);
+				xPos += d2;
 				break;
 
 			case '.' : // period
-				xPos -= 6;
-				S_DrawScreenSprite2d(xPos, 36, 0, PHD_ONE, PHD_ONE, (Objects[ID_ASSAULT_DIGITS].meshIndex + 11), 0x1000, 0);
-				xPos += 14;
+				xPos += d1;
+				S_DrawScreenSprite2d(xPos, yPos, 0, scaleH, scaleV, (Objects[ID_ASSAULT_DIGITS].meshIndex + 11), 0x1000, 0);
+				xPos += d2;
 				break;
 
 			default : // any digit
-				S_DrawScreenSprite2d(xPos, 36, 0, PHD_ONE, PHD_ONE, (Objects[ID_ASSAULT_DIGITS].meshIndex + (*str - '0')), 0x1000, 0);
-				xPos += 20;
+				S_DrawScreenSprite2d(xPos, yPos, 0, scaleH, scaleV, (Objects[ID_ASSAULT_DIGITS].meshIndex + (*str - '0')), 0x1000, 0);
+				xPos += d0;
 				break;
 		}
 	}
@@ -210,7 +227,11 @@ void __cdecl DrawPickups(BOOL pickupState) {
 	if( time <= 0 || time >= 60 ) // 0..2 seconds
 		return;
 
+#ifdef FEATURE_FOV_FIX
+	cellH = min(PhdWinWidth, PhdWinHeight*320/200) / 10;
+#else // !FEATURE_FOV_FIX
 	cellH = PhdWinWidth / 10;
+#endif // FEATURE_FOV_FIX
 	cellV = cellH * 2 / 3;
 
 	x = PhdWinWidth - cellH;
