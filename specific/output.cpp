@@ -545,7 +545,7 @@ void __cdecl S_DrawHealthBar(int percent) {
 	int x1 = x0 + barWidth;
 	int y1 = y0 + barHeight;
 
-	int bar = barWidth * percent / 100;
+	int bar = barWidth * percent / PHD_ONE;
 
 	// Disable underwater shading
 	IsShadeEffect = false;
@@ -613,7 +613,7 @@ void __cdecl S_DrawAirBar(int percent) {
 	int y0 = PhdWinMinY + barOffset;
 	int y1 = y0 + barHeight;
 
-	int bar = barWidth * percent / 100;
+	int bar = barWidth * percent / PHD_ONE;
 
 	// Disable underwater shading
 	IsShadeEffect = false;

@@ -128,11 +128,19 @@ void __cdecl DrawHealthBar(BOOL flashState) {
 		if( flashState == 0 ) {
 			S_DrawHealthBar(0);
 		} else {
+#ifdef FEATURE_HEALTHBAR_IMPROVED
+			S_DrawHealthBar(PHD_ONE * hitPoints / 1000);
+#else // !FEATURE_HEALTHBAR_IMPROVED
 			S_DrawHealthBar(hitPoints / 10);
+#endif // FEATURE_HEALTHBAR_IMPROVED
 		}
 	}
 	else if( HealthBarTimer > 0 || hitPoints <= 0 || Lara_GunStatus == LGS_Ready ) {
+#ifdef FEATURE_HEALTHBAR_IMPROVED
+		S_DrawHealthBar(PHD_ONE * hitPoints / 1000);
+#else // !FEATURE_HEALTHBAR_IMPROVED
 		S_DrawHealthBar(hitPoints / 10);
+#endif // FEATURE_HEALTHBAR_IMPROVED
 	}
 }
 
@@ -148,7 +156,11 @@ void __cdecl DrawAirBar(BOOL flashState) {
 	if( air <= 450 && flashState == 0 ) {
 		S_DrawAirBar(0);
 	} else {
+#ifdef FEATURE_HEALTHBAR_IMPROVED
+		S_DrawAirBar(PHD_ONE * air / 1800);
+#else // !FEATURE_HEALTHBAR_IMPROVED
 		S_DrawAirBar(100 * air / 1800);
+#endif // FEATURE_HEALTHBAR_IMPROVED
 	}
 }
 
