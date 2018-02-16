@@ -45,6 +45,7 @@
 
 #ifdef FEATURE_HEALTHBAR_IMPROVED
 extern bool PsxBarsEnabled;
+extern bool PsxBarPosEnabled;
 #endif // FEATURE_HEALTHBAR_IMPROVED
 
 #ifdef FEATURE_FOV_FIX
@@ -407,6 +408,7 @@ void __cdecl S_LoadSettings() {
 
 #ifdef FEATURE_HEALTHBAR_IMPROVED
 	GetRegistryBoolValue(REG_PSXBAR_ENABLE, &PsxBarsEnabled, false);
+	GetRegistryBoolValue(REG_PSXBARPOS_ENABLE, &PsxBarPosEnabled, false);
 #endif // FEATURE_HEALTHBAR_IMPROVED
 
 #ifdef FEATURE_FOV_FIX

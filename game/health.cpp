@@ -27,6 +27,16 @@
 #include "specific/sndpc.h"
 #include "global/vars.h"
 
+#define AMMO_XPOS_PC	(-10)
+#define AMMO_YPOS_PC	(35)
+
+#define AMMO_XPOS_PS	(-16)
+#define AMMO_YPOS_PS	(64)
+
+#ifdef FEATURE_HEALTHBAR_IMPROVED
+extern bool PsxBarPosEnabled;
+#endif // FEATURE_HEALTHBAR_IMPROVED
+
 BOOL __cdecl FlashIt() {
 	static int counter = 0;
 	static BOOL state = FALSE;
@@ -220,7 +230,15 @@ void __cdecl DrawAmmoInfo() {
 	MakeAmmoString(ammoString);
 
 	if( AmmoTextInfo == NULL ) {
-		AmmoTextInfo = T_Print(-10, 35, 0, ammoString);
+#ifdef FEATURE_HEALTHBAR_IMPROVED
+		if( PsxBarPosEnabled ) {
+			AmmoTextInfo = T_Print(AMMO_XPOS_PS, AMMO_YPOS_PS, 0, ammoString);
+		} else {
+			AmmoTextInfo = T_Print(AMMO_XPOS_PC, AMMO_YPOS_PC, 0, ammoString);
+		}
+#else // !FEATURE_HEALTHBAR_IMPROVED
+		AmmoTextInfo = T_Print(AMMO_XPOS_PC, AMMO_YPOS_PC, 0, ammoString);
+#endif // FEATURE_HEALTHBAR_IMPROVED
 		T_RightAlign(AmmoTextInfo, 1);
 	} else {
 		T_ChangeText(AmmoTextInfo, ammoString);

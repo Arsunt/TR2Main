@@ -39,6 +39,7 @@
 #include "modding/psx_bar.h"
 
 bool PsxBarsEnabled;
+bool PsxBarPosEnabled;
 #endif // FEATURE_HEALTHBAR_IMPROVED
 
 #ifdef FEATURE_FOG_DISTANCE
@@ -537,12 +538,20 @@ void __cdecl S_DrawHealthBar(int percent) {
 #ifdef FEATURE_HEALTHBAR_IMPROVED
 	int barWidth = GetRenderScale(100);
 	int barHeight = GetRenderScale(5);
-	int barOffset = GetRenderScale(8);
+	int barXOffset = GetRenderScale(PsxBarPosEnabled ? 20 : 8);
+	int barYOffset = GetRenderScale(PsxBarPosEnabled ? 18 : 8);
 	int pixel = GetRenderScale(1);
+	int x0, x1;
 
-	int x0 = PhdWinMinX + barOffset;
-	int y0 = PhdWinMinY + barOffset;
-	int x1 = x0 + barWidth;
+	if( PsxBarPosEnabled ) {
+		x1 = PhdWinMinX + DumpWidth - barXOffset;
+		x0 = x1 - barWidth;
+	} else {
+		x0 = PhdWinMinX + barXOffset;
+		x1 = x0 + barWidth;
+	}
+
+	int y0 = PhdWinMinY + barYOffset;
 	int y1 = y0 + barHeight;
 
 	int bar = barWidth * percent / PHD_ONE;
@@ -605,12 +614,13 @@ void __cdecl S_DrawAirBar(int percent) {
 #ifdef FEATURE_HEALTHBAR_IMPROVED
 	int barWidth = GetRenderScale(100);
 	int barHeight = GetRenderScale(5);
-	int barOffset = GetRenderScale(8);
+	int barXOffset = GetRenderScale(PsxBarPosEnabled ? 20 : 8);
+	int barYOffset = GetRenderScale(PsxBarPosEnabled ? 32 : 8);
 	int pixel = GetRenderScale(1);
 
-	int x1 = PhdWinMinX + DumpWidth - barOffset;
+	int x1 = PhdWinMinX + DumpWidth - barXOffset;
 	int x0 = x1 - barWidth;
-	int y0 = PhdWinMinY + barOffset;
+	int y0 = PhdWinMinY + barYOffset;
 	int y1 = y0 + barHeight;
 
 	int bar = barWidth * percent / PHD_ONE;
