@@ -42,13 +42,24 @@ bool PsxBarsEnabled;
 bool PsxBarPosEnabled;
 #endif // FEATURE_HEALTHBAR_IMPROVED
 
+#ifdef FEATURE_FOV_FIX
+double GuiRenderScale = 1.0;
+#endif // FEATURE_FOV_FIX
+
 #ifdef FEATURE_FOG_DISTANCE
 extern int CalculateFogShade(int depth);
 #endif // FEATURE_FOG_DISTANCE
 
 int __cdecl GetRenderScale(int unit) {
-	int scaleX = (PhdWinWidth > 640) ? MulDiv(PhdWinWidth, unit, 640) : unit;
-	int scaleY = (PhdWinHeight > 480) ? MulDiv(PhdWinHeight, unit, 480) : unit;
+#ifdef FEATURE_FOV_FIX
+	int baseWidth = 640 / GuiRenderScale;
+	int baseHeight = 480 / GuiRenderScale;
+#else // !FEATURE_FOV_FIX
+	int baseWidth = 640;
+	int baseHeight = 480;
+#endif // FEATURE_FOV_FIX
+	int scaleX = (PhdWinWidth > baseWidth) ? MulDiv(PhdWinWidth, unit, baseWidth) : unit;
+	int scaleY = (PhdWinHeight > baseHeight) ? MulDiv(PhdWinHeight, unit, baseHeight) : unit;
 	return min(scaleX, scaleY);
 }
 
