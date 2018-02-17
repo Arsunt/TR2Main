@@ -50,6 +50,7 @@
 #define REG_SOUND_VOLUME		"SoundFXVolume"
 #define REG_DETAIL_LEVEL		"DetailLevel"
 #define REG_INVBGND_MODE		"InvBackgroundMode"
+#define REG_HEALTHBAR_MODE		"HealthBarMode"
 
 // BOOL value names
 #define REG_PERSPECTIVE			"PerspectiveCorrect"
@@ -65,7 +66,6 @@
 #define REG_SORT_DISABLE		"DontSortPrimitives"
 #define REG_FLIP_BROKEN			"FlipBroken"
 #define REG_FMV_DISABLE			"DisableFMV"
-#define REG_PSXBAR_ENABLE		"EnablePsxBars"
 #define REG_PSXBARPOS_ENABLE	"EnablePsxBarPos"
 #define REG_PSXFOV_ENABLE		"EnablePsxFov"
 

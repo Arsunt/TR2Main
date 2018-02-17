@@ -38,7 +38,7 @@
 #ifdef FEATURE_HEALTHBAR_IMPROVED
 #include "modding/psx_bar.h"
 
-bool PsxBarsEnabled;
+DWORD HealthBarMode;
 bool PsxBarPosEnabled;
 #endif // FEATURE_HEALTHBAR_IMPROVED
 
@@ -570,7 +570,7 @@ void __cdecl S_DrawHealthBar(int percent) {
 	// Disable underwater shading
 	IsShadeEffect = false;
 
-	if( PsxBarsEnabled && SavedAppSettings.RenderMode == RM_Hardware && SavedAppSettings.ZBuffer ) {
+	if( HealthBarMode != 0 && SavedAppSettings.RenderMode == RM_Hardware && SavedAppSettings.ZBuffer ) {
 		PSX_DrawHealthBar(x0, y0, x1, y1, bar, pixel);
 		return;
 	}
@@ -639,7 +639,7 @@ void __cdecl S_DrawAirBar(int percent) {
 	// Disable underwater shading
 	IsShadeEffect = false;
 
-	if( PsxBarsEnabled && SavedAppSettings.RenderMode == RM_Hardware && SavedAppSettings.ZBuffer ) {
+	if( HealthBarMode != 0 && SavedAppSettings.RenderMode == RM_Hardware && SavedAppSettings.ZBuffer ) {
 		PSX_DrawAirBar(x0, y0, x1, y1, bar, pixel);
 		return;
 	}

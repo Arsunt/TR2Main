@@ -25,6 +25,7 @@
 #include "global/vars.h"
 
 #ifdef FEATURE_HEALTHBAR_IMPROVED
+extern DWORD HealthBarMode;
 
 static D3DCOLOR InterpolateColor(D3DCOLOR color0, D3DCOLOR color1, DWORD value, DWORD range) {
 	if( value == 0 )
@@ -86,9 +87,12 @@ static void __cdecl DrawCololoredRect(float sx0, float sy0, float sx1, float sy1
 }
 
 static void PSX_DrawBar(int x0, int y0, int x1, int y1, int bar, int pixel, D3DCOLOR *left, D3DCOLOR *right, D3DCOLOR *frame) {
-	// The frame
-	DrawCololoredRect(x0-pixel*3, y0-pixel*1, x1+pixel*3, y1+pixel*1, PhdNearZ + 40, frame[4], frame[5], frame[5], frame[4]);
+	// Extra frame (dark gray)
+	if( HealthBarMode == 2 ) // draw extra frame only if full PSX style enabled
+		DrawCololoredRect(x0-pixel*3, y0-pixel*1, x1+pixel*3, y1+pixel*1, PhdNearZ + 40, frame[4], frame[5], frame[5], frame[4]);
+	// Outer frame (light gray)
 	DrawCololoredRect(x0-pixel*2, y0-pixel*2, x1+pixel*2, y1+pixel*2, PhdNearZ + 30, frame[2], frame[3], frame[3], frame[2]);
+	// Inner frame (black)
 	DrawCololoredRect(x0-pixel*1, y0-pixel*1, x1+pixel*1, y1+pixel*1, PhdNearZ + 20, frame[0], frame[1], frame[1], frame[0]);
 
 	// The bar

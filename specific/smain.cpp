@@ -44,7 +44,7 @@
 #include "global/vars.h"
 
 #ifdef FEATURE_HEALTHBAR_IMPROVED
-extern bool PsxBarsEnabled;
+extern DWORD HealthBarMode;
 extern bool PsxBarPosEnabled;
 #endif // FEATURE_HEALTHBAR_IMPROVED
 
@@ -408,7 +408,7 @@ void __cdecl S_LoadSettings() {
 	GetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)Layout[CTRL_Custom].key, sizeof(UINT16)*14, NULL);
 
 #ifdef FEATURE_HEALTHBAR_IMPROVED
-	GetRegistryBoolValue(REG_PSXBAR_ENABLE, &PsxBarsEnabled, false);
+	GetRegistryDwordValue(REG_HEALTHBAR_MODE, &HealthBarMode, 0);
 	GetRegistryBoolValue(REG_PSXBARPOS_ENABLE, &PsxBarPosEnabled, false);
 #endif // FEATURE_HEALTHBAR_IMPROVED
 
