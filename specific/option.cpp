@@ -825,16 +825,20 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 
 void __cdecl S_ShowControls() {
 	int i, x0, x1, xCenter;
+	bool isCompact;
 
 #ifdef FEATURE_FOV_FIX
 	xCenter = GetRenderWidthDownscaled() / 2;
+	isCompact = (xCenter < 240);
 #else // !FEATURE_FOV_FIX
 	xCenter = GetRenderWidth() / 2;
 	CLAMPG(xCenter, 320);
+	isCompact = (xCenter < 320);
 #endif // FEATURE_FOV_FIX
 
+
 	if( CtrlTextB[0] == NULL ) {
-		if( xCenter < 320 ) {
+		if( isCompact ) {
 			x0 = xCenter - (CONTROL_WIDTH_LOW / 2) + CONTROL_COLUMN_B;
 		} else {
 			x0 = xCenter - (CONTROL_WIDTH_HIGH / 2) + CONTROL_COLUMN_B;
@@ -865,7 +869,7 @@ void __cdecl S_ShowControls() {
 	}
 
 	if( CtrlTextA[0] == NULL ) {
-		if( xCenter < 320 ) {
+		if( isCompact ) {
 			x0 = xCenter - (CONTROL_WIDTH_LOW / 2) + CONTROL_COLUMN_A;
 		} else {
 			x0 = xCenter - (CONTROL_WIDTH_HIGH / 2) + CONTROL_COLUMN_A;
@@ -898,14 +902,14 @@ void __cdecl S_ShowControls() {
 	T_CentreH(ControlTextInfo[1], 1);
 	T_AddOutline(ControlTextInfo[1], TRUE, ICLR_Blue, NULL, 0);
 
-	if( xCenter >= 320 ) {
-		T_AddBackground(ControlTextInfo[1], CONTROL_WIDTH_HIGH, CONTROL_HEIGHT_HIGH, 0, 0, CONTROL_FARZ, ICLR_Black, NULL, 0);
-	} else {
+	if( isCompact ) {
 		for( i=0; i<14; ++i ) {
 			T_SetScale(CtrlTextB[i], PHD_ONE/2, PHD_ONE);
 			T_SetScale(CtrlTextA[i], PHD_ONE/2, PHD_ONE);
 		}
 		T_AddBackground(ControlTextInfo[1], CONTROL_WIDTH_LOW, CONTROL_HEIGHT_LOW, 0, 0, CONTROL_FARZ, ICLR_Black, NULL, 0);
+	} else {
+		T_AddBackground(ControlTextInfo[1], CONTROL_WIDTH_HIGH, CONTROL_HEIGHT_HIGH, 0, 0, CONTROL_FARZ, ICLR_Black, NULL, 0);
 	}
 }
 
