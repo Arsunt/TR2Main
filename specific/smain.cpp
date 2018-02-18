@@ -50,7 +50,8 @@ extern bool PsxBarPosEnabled;
 
 #ifdef FEATURE_FOV_FIX
 extern bool PsxFovEnabled;
-extern double GuiRenderScale;
+extern double GameGUI_Scale;
+extern double InvGUI_Scale;
 #endif // FEATURE_FOV_FIX
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
@@ -414,8 +415,10 @@ void __cdecl S_LoadSettings() {
 
 #ifdef FEATURE_FOV_FIX
 	GetRegistryBoolValue(REG_PSXFOV_ENABLE, &PsxFovEnabled, false);
-	GetRegistryFloatValue(REG_GAME_GUI_SCALE, &GuiRenderScale, 1.0);
-	CLAMP(GuiRenderScale, 1.0, 2.0);
+	GetRegistryFloatValue(REG_GAME_GUI_SCALE, &GameGUI_Scale, 1.0);
+	GetRegistryFloatValue(REG_INV_GUI_SCALE, &InvGUI_Scale, 1.0);
+	CLAMP(GameGUI_Scale, 1.0, 2.0);
+	CLAMP(InvGUI_Scale, 1.0, 2.0);
 #endif // FEATURE_FOV_FIX
 
 #ifdef FEATURE_BACKGROUND_IMPROVED

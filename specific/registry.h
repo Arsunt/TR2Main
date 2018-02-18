@@ -76,7 +76,8 @@
 #define REG_FOG_END			"FogEnd"
 #define REG_UW_FOG_BEGIN	"UwFogBegin"
 #define REG_UW_FOG_END		"UwFogEnd"
-#define REG_GAME_GUI_SCALE	"GuiScale"
+#define REG_GAME_GUI_SCALE	"GameGUIScale"
+#define REG_INV_GUI_SCALE	"InvGUIScale"
 
 // BINARY value names
 #define REG_GAME_LAYOUT		"Layout"

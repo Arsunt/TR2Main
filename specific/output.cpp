@@ -43,7 +43,8 @@ bool PsxBarPosEnabled;
 #endif // FEATURE_HEALTHBAR_IMPROVED
 
 #ifdef FEATURE_FOV_FIX
-double GuiRenderScale = 1.0;
+double GameGUI_Scale = 1.0;
+double InvGUI_Scale = 1.0;
 #endif // FEATURE_FOV_FIX
 
 #ifdef FEATURE_FOG_DISTANCE
@@ -52,8 +53,8 @@ extern int CalculateFogShade(int depth);
 
 int __cdecl GetRenderScale(int unit) {
 #ifdef FEATURE_FOV_FIX
-	int baseWidth = 640 / GuiRenderScale;
-	int baseHeight = 480 / GuiRenderScale;
+	int baseWidth = 640 / (IsVidSizeLock ? InvGUI_Scale : GameGUI_Scale);
+	int baseHeight = 480 / (IsVidSizeLock ? InvGUI_Scale : GameGUI_Scale);
 #else // !FEATURE_FOV_FIX
 	int baseWidth = 640;
 	int baseHeight = 480;
