@@ -263,6 +263,7 @@ int __cdecl LevelStats(int levelID) {
 int __cdecl GameStats() {
 	SaveGame.start[CurrentLevel].statistics = SaveGame.statistics;
 
+	TempVideoAdjust(HiRes, 1.0); // NOTE: this line was not in the original code
 	T_InitPrint();
 
 	while( CHK_ANY(InputStatus, IN_SELECT) )
@@ -288,6 +289,7 @@ int __cdecl GameStats() {
 	}
 	SaveGame.currentLevel = 1;
 	S_DontDisplayPicture();
+	TempVideoRemove(); // NOTE: this line was not in the original code
 	return 0;
 }
 
@@ -337,6 +339,7 @@ void __cdecl DisplayCredits() {
 	RGB palette[256];
 	char fileName[64] = "data\\credit0?.pcx";
 
+	TempVideoAdjust(HiRes, 1.0); // NOTE: this line was not in the original code
 	S_FadeToBlack();
 	S_UnloadLevelFile();
 
@@ -394,6 +397,7 @@ void __cdecl DisplayCredits() {
 	S_Wait(300, FALSE); // wait 300 ticks / 150 frames / 5 seconds
 	FadeToPal(30, GamePalette8);
 	IsVidModeLock = false;
+	TempVideoRemove(); // NOTE: this line was not in the original code
 
 	// NOTE: here is no game_free for game_malloc. Memory will be free in S_DisplayPicture by init_game_malloc call
 }
