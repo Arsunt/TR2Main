@@ -550,8 +550,8 @@ void __cdecl S_DrawHealthBar(int percent) {
 #ifdef FEATURE_HEALTHBAR_IMPROVED
 	int barWidth = GetRenderScale(100);
 	int barHeight = GetRenderScale(5);
-	int barXOffset = GetRenderScale(PsxBarPosEnabled ? 20 : 8);
-	int barYOffset = GetRenderScale(PsxBarPosEnabled ? 18 : 8);
+	int barXOffset = GetRenderScale((PsxBarPosEnabled && !IsInventoryActive ) ? 20 : 8);
+	int barYOffset = GetRenderScale((PsxBarPosEnabled && !IsInventoryActive ) ? 18 : 8);
 	int pixel = GetRenderScale(1);
 	int x0, x1;
 
