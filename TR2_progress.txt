@@ -410,32 +410,32 @@ x function is unused / included in another function
 
 	game/invfunc.cpp
 0x00423B10:	+	InitColours
-0x00423C20:		RingIsOpen
-0x00423D90:		RingIsNotOpen
-0x00423E20:		RingNotActive
-0x00424290:		RingActive
+0x00423C20:	+	RingIsOpen
+0x00423D90:	+	RingIsNotOpen
+0x00423E20:	+	RingNotActive
+0x00424290:	+	RingActive
 0x004242D0:	+	Inv_AddItem
 0x00424AE0:	+	Inv_InsertItem
 0x00424C10:	+	Inv_RequestItem
 0x00424C90:	+	Inv_RemoveAllItems
 0x00424CB0:	+	Inv_RemoveItem
 0x00424DC0:	+	Inv_GetItemOption
-0x00424FB0:		RemoveInventoryText
-0x00424FE0:		Inv_RingInit
-0x004250F0:		Inv_RingGetView
-0x00425150:		Inv_RingLight
-0x00425190:		Inv_RingCalcAdders
-0x004251C0:		Inv_RingDoMotions
-0x00425300:		Inv_RingRotateLeft
-0x00425330:		Inv_RingRotateRight
-0x00425360:		Inv_RingMotionInit
-0x004253D0:		Inv_RingMotionSetup
-0x00425400:		Inv_RingMotionRadius
-0x00425430:		Inv_RingMotionRotation
-0x00425460:		Inv_RingMotionCameraPos
-0x00425490:		Inv_RingMotionCameraPitch
-0x004254B0:		Inv_RingMotionItemSelect
-0x00425510:		Inv_RingMotionItemDeselect
+0x00424FB0:	+	RemoveInventoryText
+0x00424FE0:	+	Inv_RingInit
+0x004250F0:	+	Inv_RingGetView
+0x00425150:	+	Inv_RingLight
+0x00425190:	+	Inv_RingCalcAdders
+0x004251C0:	+	Inv_RingDoMotions
+0x00425300:	+	Inv_RingRotateLeft
+0x00425330:	+	Inv_RingRotateRight
+0x00425360:	+	Inv_RingMotionInit
+0x004253D0:	+	Inv_RingMotionSetup
+0x00425400:	+	Inv_RingMotionRadius
+0x00425430:	+	Inv_RingMotionRotation
+0x00425460:	+	Inv_RingMotionCameraPos
+0x00425490:	+	Inv_RingMotionCameraPitch
+0x004254B0:	+	Inv_RingMotionItemSelect
+0x00425510:	+	Inv_RingMotionItemDeselect
 
 	game/invtext.cpp
 0x00425580:	+	Init_Requester

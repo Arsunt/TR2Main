@@ -880,6 +880,12 @@ typedef enum {
 	LWS_Cheat,
 } LARA_WATER_STATES;
 
+typedef enum {
+	RING_Main,
+	RING_Option,
+	RING_Keys,
+} RING_TYPE;
+
 /*
  * Structs
  */
@@ -1704,6 +1710,49 @@ typedef struct PickupInfo_t {
 	__int16 timer;
 	__int16 sprite;
 } PICKUP_INFO;
+
+typedef struct InvMotionInfo_t {
+	__int16 framesCount;
+	__int16 status;
+	__int16 statusTarget;
+	__int16 radiusTarget;
+	__int16 radiusRate;
+	__int16 cameraTarget_y;
+	__int16 cameraRate_y;
+	__int16 cameraTarget_pitch;
+	__int16 cameraRate_pitch;
+	__int16 rotateTarget;
+	__int16 rotateRate;
+	__int16 itemTarget_xRotPt;
+	__int16 itemRate_xRotPt;
+	__int16 itemTarget_xRot;
+	__int16 itemRate_xRot;
+	int itemTarget_yTrans;
+	int itemRate_yTrans;
+	int itemTarget_zTrans;
+	int itemRate_zTrans;
+	int misc;
+} INV_MOTION_INFO;
+
+typedef struct RingInfo_t {
+	INVENTORY_ITEM **itemList;
+	__int16 type;
+	__int16 radius;
+	__int16 cameraPitch;
+	__int16 isRotating;
+	__int16 rotCount;
+	__int16 currentObj;
+	__int16 targetObj;
+	__int16 objCount;
+	__int16 angleAdder;
+	__int16 rotAdder;
+	__int16 rotAdderL;
+	__int16 rotAdderR;
+	PHD_3DPOS ringPos;
+	PHD_3DPOS camera;
+	PHD_VECTOR light;
+	INV_MOTION_INFO *motionInfo;
+} RING_INFO;
 
 #pragma pack(pop)
 

@@ -28,34 +28,31 @@
  * Function list
  */
 void __cdecl InitColours(); // 0x00423B10
-
-// 0x00423C20:		RingIsOpen
-// 0x00423D90:		RingIsNotOpen
-// 0x00423E20:		RingNotActive
-// 0x00424290:		RingActive
-
+void __cdecl RingIsOpen(RING_INFO *ring); // 0x00423C20
+void __cdecl RingIsNotOpen(); // 0x00423D90
+void __cdecl RingNotActive(INVENTORY_ITEM *item); // 0x00423E20
+void __cdecl RingActive(); // 0x00424290
 BOOL __cdecl Inv_AddItem(GAME_OBJECT_ID itemID); // 0x004242D0
 void __cdecl Inv_InsertItem(INVENTORY_ITEM *item); // 0x00424AE0
 int __cdecl Inv_RequestItem(GAME_OBJECT_ID itemID); // 0x00424C10
 void __cdecl Inv_RemoveAllItems(); // 0x00424C90
 BOOL __cdecl Inv_RemoveItem(GAME_OBJECT_ID itemID); // 0x00424CB0
 GAME_OBJECT_ID __cdecl Inv_GetItemOption(GAME_OBJECT_ID itemID); // 0x00424DC0
-
-// 0x00424FB0:		RemoveInventoryText
-// 0x00424FE0:		Inv_RingInit
-// 0x004250F0:		Inv_RingGetView
-// 0x00425150:		Inv_RingLight
-// 0x00425190:		Inv_RingCalcAdders
-// 0x004251C0:		Inv_RingDoMotions
-// 0x00425300:		Inv_RingRotateLeft
-// 0x00425330:		Inv_RingRotateRight
-// 0x00425360:		Inv_RingMotionInit
-// 0x004253D0:		Inv_RingMotionSetup
-// 0x00425400:		Inv_RingMotionRadius
-// 0x00425430:		Inv_RingMotionRotation
-// 0x00425460:		Inv_RingMotionCameraPos
-// 0x00425490:		Inv_RingMotionCameraPitch
-// 0x004254B0:		Inv_RingMotionItemSelect
-// 0x00425510:		Inv_RingMotionItemDeselect
+void __cdecl RemoveInventoryText(); // 0x00424FB0
+void __cdecl Inv_RingInit(RING_INFO *ring, __int16 type, INVENTORY_ITEM **itemList, __int16 objCount, __int16 currentObj, INV_MOTION_INFO *motionInfo); // 0x00424FE0
+void __cdecl Inv_RingGetView(RING_INFO *ring, PHD_3DPOS *view); // 0x004250F0
+void __cdecl Inv_RingLight(RING_INFO *ring); // 0x00425150
+void __cdecl Inv_RingCalcAdders(RING_INFO *ring, __int16 rotDuration); // 0x00425190
+void __cdecl Inv_RingDoMotions(RING_INFO *ring); // 0x004251C0
+void __cdecl Inv_RingRotateLeft(RING_INFO *ring); // 0x00425300
+void __cdecl Inv_RingRotateRight(RING_INFO *ring); // 0x00425330
+void __cdecl Inv_RingMotionInit(RING_INFO *ring, __int16 framesCount, __int16 status, __int16 statusTarget); // 0x00425360
+void __cdecl Inv_RingMotionSetup(RING_INFO *ring, __int16 status, __int16 statusTarget, __int16 framesCount); // 0x004253D0
+void __cdecl Inv_RingMotionRadius(RING_INFO *ring, __int16 target); // 0x00425400
+void __cdecl Inv_RingMotionRotation(RING_INFO *ring, __int16 rotation, __int16 target); // 0x00425430
+void __cdecl Inv_RingMotionCameraPos(RING_INFO *ring, __int16 target); // 0x00425460
+void __cdecl Inv_RingMotionCameraPitch(RING_INFO *ring, __int16 target); // 0x00425490
+void __cdecl Inv_RingMotionItemSelect(RING_INFO *ring, INVENTORY_ITEM *item); // 0x004254B0
+void __cdecl Inv_RingMotionItemDeselect(RING_INFO *ring, INVENTORY_ITEM *item); // 0x00425510
 
 #endif // INVFUNC_H_INCLUDED
