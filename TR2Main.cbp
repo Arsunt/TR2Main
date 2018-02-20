@@ -50,6 +50,8 @@
 			<Add directory="../DX7_SDK/include" />
 		</Compiler>
 		<Linker>
+			<Add option="-static-libstdc++" />
+			<Add option="-static-libgcc" />
 			<Add option="-m32" />
 			<Add option="-Wl,--kill-at" />
 			<Add library="user32" />
