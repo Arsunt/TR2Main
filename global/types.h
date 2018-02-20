@@ -71,6 +71,8 @@ typedef struct {
 #define PHD_DEGREE			(PHD_ONE/360)
 
 // Math macros
+#define MIN(a,b)			(((a)<(b))?(a):(b))
+#define MAX(a,b)			(((a)>(b))?(a):(b))
 #define ABS(a)				(((a)<0)?-(a):(a))
 #define SQR(a)				((a)*(a))
 #define CLAMPL(a,b)			{if((a)<(b)) (a)=(b);}

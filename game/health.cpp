@@ -258,7 +258,7 @@ void __cdecl DrawPickups(BOOL pickupState) {
 		return;
 
 #ifdef FEATURE_FOV_FIX
-	cellH = min(PhdWinWidth, PhdWinHeight*320/200) / 10;
+	cellH = MIN(PhdWinWidth, PhdWinHeight*320/200) / 10;
 #else // !FEATURE_FOV_FIX
 	cellH = PhdWinWidth / 10;
 #endif // FEATURE_FOV_FIX

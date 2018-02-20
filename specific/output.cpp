@@ -61,7 +61,7 @@ int __cdecl GetRenderScale(int unit) {
 #endif // FEATURE_FOV_FIX
 	int scaleX = (PhdWinWidth > baseWidth) ? MulDiv(PhdWinWidth, unit, baseWidth) : unit;
 	int scaleY = (PhdWinHeight > baseHeight) ? MulDiv(PhdWinHeight, unit, baseHeight) : unit;
-	return min(scaleX, scaleY);
+	return MIN(scaleX, scaleY);
 }
 
 int __cdecl GetRenderHeightDownscaled() {
