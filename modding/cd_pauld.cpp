@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * CD Audio solution in this file was designed by PaulD.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
@@ -102,10 +102,10 @@ bool __cdecl PaulD_CD_Init() {
 PARSE_END :
 	free(buf);
 
-	wsprintf(cmdString, "open %s type %s alias "CD_ALIAS, audioFiles[audioType], audioTypes[audioType]);
+	wsprintf(cmdString, "open %s type %s alias " CD_ALIAS, audioFiles[audioType], audioTypes[audioType]);
 	rc = mciSendString(cmdString, NULL, 0, 0);
 	if( rc == 0 ) {
-		mciSendString("set "CD_ALIAS" time format ms", NULL, 0, 0);
+		mciSendString("set " CD_ALIAS " time format ms", NULL, 0, 0);
 		isCDAudioEnabled = true;
 	}
 	return true;
@@ -114,7 +114,7 @@ PARSE_END :
 void __cdecl PaulD_CD_Cleanup() {
 	if( isCDAudioEnabled ) {
 		PaulD_CDStop();
-		mciSendString("close "CD_ALIAS, NULL, 0, 0);
+		mciSendString("close " CD_ALIAS, NULL, 0, 0);
 		isCDAudioEnabled = false;
 	}
 }
@@ -128,10 +128,10 @@ void __cdecl PaulD_CDLoop() {
 		return;
 
 	CD_LoopCounter = 0;
-	rc = mciSendString("status "CD_ALIAS" mode", statusString, sizeof(statusString), 0);
+	rc = mciSendString("status " CD_ALIAS " mode", statusString, sizeof(statusString), 0);
 
 	if( (rc == 0) && !strncmp(statusString, "stopped", sizeof(statusString)) ) {
-		wsprintf(cmdString, "play "CD_ALIAS" from %lu to %lu", Tracks[CD_LoopTrack-1].from, Tracks[CD_LoopTrack-1].to);
+		wsprintf(cmdString, "play " CD_ALIAS " from %lu to %lu", Tracks[CD_LoopTrack-1].from, Tracks[CD_LoopTrack-1].to);
 		mciSendString(cmdString, NULL, 0, 0);
 	}
 }
@@ -149,7 +149,7 @@ void __cdecl PaulD_CDPlay(__int16 trackID, BOOL isLooped) {
 
 	CD_TrackID = trackID;
 
-	wsprintf(cmdString, "play "CD_ALIAS" from %lu to %lu", Tracks[track-1].from, Tracks[track-1].to);
+	wsprintf(cmdString, "play " CD_ALIAS " from %lu to %lu", Tracks[track-1].from, Tracks[track-1].to);
 	mciSendString(cmdString, NULL, 0, 0);
 
 	if( isLooped ) {
@@ -160,7 +160,7 @@ void __cdecl PaulD_CDPlay(__int16 trackID, BOOL isLooped) {
 
 void __cdecl PaulD_CDStop() {
 	if( CD_TrackID > 0 ) {
-		mciSendString("stop "CD_ALIAS, NULL, 0, 0);
+		mciSendString("stop " CD_ALIAS, NULL, 0, 0);
 		CD_TrackID = 0;
 		CD_LoopTrack = 0;
 	}
@@ -175,10 +175,10 @@ BOOL __cdecl PaulD_StartSyncedAudio(int trackID) {
 		return FALSE;
 
 	CD_TrackID = trackID;
-	if( 0 != mciSendString("set "CD_ALIAS" time format ms", NULL, 0, 0) )
+	if( 0 != mciSendString("set " CD_ALIAS " time format ms", NULL, 0, 0) )
 		return FALSE;
 
-	wsprintf(cmdString, "play "CD_ALIAS" from %lu to %lu", Tracks[track-1].from, Tracks[track-1].to);
+	wsprintf(cmdString, "play " CD_ALIAS " from %lu to %lu", Tracks[track-1].from, Tracks[track-1].to);
 	return ( 0 == mciSendString(cmdString, NULL, 0, 0) );
 }
 
@@ -186,7 +186,7 @@ DWORD __cdecl PaulD_CDGetLoc() {
 	__int16 track;
 	char statusString[32];
 
-	if( 0 != mciSendString("status "CD_ALIAS" position", statusString, sizeof(statusString), 0) )
+	if( 0 != mciSendString("status " CD_ALIAS " position", statusString, sizeof(statusString), 0) )
 		return 0;
 
 	track = GetRealTrack(CD_TrackID);
@@ -200,7 +200,7 @@ void __cdecl PaulD_CDVolume(DWORD volume) {
 	if( volume > 0 )
 		volume = (volume - 5) * 4; // 0..255 -> 0..1000
 
-	wsprintf(cmdString, "setaudio "CD_ALIAS" volume to %lu", volume);
+	wsprintf(cmdString, "setaudio " CD_ALIAS " volume to %lu", volume);
 	mciSendString(cmdString, NULL, 0, 0);
 }
 
