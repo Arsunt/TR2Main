@@ -37,7 +37,7 @@
 // Variable macros
 #define VAR_U_(address, type)			(*(type*)(address)) // uninitialized variable
 #define VAR_I_(address, type, value)	(*(type*)(address)) // initialized variable (value is just for info)
-#define ARRAY_(address, type, length)	(*(type(*)[length])(address)) // array
+#define ARRAY_(address, type, length)	(*(type(*)length)(address)) // array (can be multidimensional)
 
 /*
  * General Variables
@@ -366,7 +366,7 @@
 #define BoxesCount					VAR_U_(0x005263D0, DWORD)
 
 // Initialized arrays
-#define InvSpriteMusicVolume		ARRAY_(0x00464718, INVENTORY_SPRITE, 9) /* = {
+#define InvSpriteMusicVolume		ARRAY_(0x00464718, INVENTORY_SPRITE, [9]) /* = {
 	{2, -66, -80, 32, 132,  0, 0x004645DC, ICLR_Gray},
 	{2, -66, -65, 32, 132,  0, 0x004645E0, ICLR_Gray},
 	{2, -66, -80, 32,   0, 16, 0x004645DC, ICLR_Gray},
@@ -377,7 +377,7 @@
 	{4, -63, -77, 33, 127, 10, NULL, 0},
 	{0,   0,   0,  0,   0,  0, NULL, 0},
 }; */
-#define InvSpriteSoundVolume		ARRAY_(0x004647E0, INVENTORY_SPRITE, 9) /* = {
+#define InvSpriteSoundVolume		ARRAY_(0x004647E0, INVENTORY_SPRITE, [9]) /* = {
 	{2, -66, -56, 32, 132,  0, 0x004645DC, ICLR_Gray},
 	{2, -66, -41, 32, 132,  0, 0x004645E0, ICLR_Gray},
 	{2, -66, -56, 32,   0, 16, 0x004645DC, ICLR_Gray},
@@ -388,7 +388,7 @@
 	{4, -63, -53, 33, 127, 10, NULL, 0},
 	{0,   0,   0,  0,   0,  0, NULL, 0},
 }; */
-#define InvSpriteMusicVolumeLow		ARRAY_(0x004648A8, INVENTORY_SPRITE, 9) /* = {
+#define InvSpriteMusicVolumeLow		ARRAY_(0x004648A8, INVENTORY_SPRITE, [9]) /* = {
 	{2, -66, -80, 32, 132,  0, 0x00464610, ICLR_Gray},
 	{2, -66, -65, 32, 132,  0, 0x00464614, ICLR_Gray},
 	{2, -66, -80, 32,   0, 16, 0x00464610, ICLR_Gray},
@@ -399,7 +399,7 @@
 	{4, -63, -77, 33, 127, 10, NULL, 0},
 	{0,   0,   0,  0,   0,  0, NULL, 0},
 }; */
-#define InvSpriteSoundVolumeLow		ARRAY_(0x00464970, INVENTORY_SPRITE, 9) /* = {
+#define InvSpriteSoundVolumeLow		ARRAY_(0x00464970, INVENTORY_SPRITE, [9]) /* = {
 	{2, -66, -56, 32, 132,  0, 0x00464610, ICLR_Gray},
 	{2, -66, -41, 32, 132,  0, 0x00464614, ICLR_Gray},
 	{2, -66, -56, 32,   0, 16, 0x00464610, ICLR_Gray},
@@ -410,8 +410,8 @@
 	{4, -63, -53, 33, 127, 10, NULL, 0},
 	{0,   0,   0,  0,   0,  0, NULL, 0},
 }; */
-#define SaveSlotFlags				ARRAY_(0x00466B80, __int16, 16) /* = {-1, 0}; */
-#define Layout						ARRAY_(0x00466F58, CONTROL_LAYOUT, 2) /* = {
+#define SaveSlotFlags				ARRAY_(0x00466B80, __int16, [16]) /* = {-1, 0}; */
+#define Layout						ARRAY_(0x00466F58, CONTROL_LAYOUT, [2]) /* = {
 	{	// Default Layout
 		DIK_UP,
 		DIK_DOWN,
@@ -447,67 +447,67 @@
 }; */
 
 // Uninitialized arrays
-#define GouraudTable				ARRAY_(0x0046C300, GOURAUD_ENTRY, 256)
-#define PhdSpriteInfo				ARRAY_(0x0046E308, PHD_SPRITE, 512)
-#define SortBuffer					ARRAY_(0x00470338, SORT_ITEM, 4000)
-#define Info3dBuffer				ARRAY_(0x00478060, __int16, 120000)
-#define RandomTable					ARRAY_(0x004B2A28, int, 32)
-#define PhdTextureInfo				ARRAY_(0x004B2AF0, PHD_TEXTURE, 0x800)
-#define ShadesTable					ARRAY_(0x004BCB00, __int16, 32)
-#define MatrixStack					ARRAY_(0x004BCB48, PHD_MATRIX, 40)
-#define DepthQTable					ARRAY_(0x004BD2C8, DEPTHQ_ENTRY, 32)
-#define DepthQIndex					ARRAY_(0x004BF2C8, BYTE, 256)
-#define PhdVBuf						ARRAY_(0x004BF3D0, PHD_VBUF, 1500)
-#define XBuffer						ARRAY_(0x004CAF50, int, 12000) // NOTE: this means that SW renderer maximum safe resolution is 1200 pixels
-#define TexturePageBuffer8			ARRAY_(0x004D6AD0, BYTE*, 32)
-#define WibbleTable					ARRAY_(0x004D6B68, float, 32)
-#define VBuffer						ARRAY_(0x004D6CC8, VERTEX_INFO, 20)
-#define VBufferD3D					ARRAY_(0x004D6F70, D3DTLVERTEX, 32)
-#define GamePalette16				ARRAY_(0x004D7370, PALETTEENTRY, 256)
-#define InvItemText					ARRAY_(0x004D7938, TEXT_STR_INFO*, 2)
-#define InventoryExtraData			ARRAY_(0x004D7970, int, 8)
-#define SfxInfos					ARRAY_(0x004D7C68, SFX_INFO, 32)
-#define BGND_TexturePageIndexes		ARRAY_(0x004D7E80, int, 5)
-#define BGND_PageHandles			ARRAY_(0x004D7E98, D3DTEXTUREHANDLE, 5)
-#define SampleFreqs					ARRAY_(0x004D8560, DWORD, 256)
-#define SampleBuffers				ARRAY_(0x004D8970, LPDIRECTSOUNDBUFFER, 256)
-#define ChannelSamples				ARRAY_(0x004D8D78, DWORD, 32)
-#define ChannelBuffers				ARRAY_(0x004D8DF8, LPDIRECTSOUNDBUFFER, 32)
-#define WinVidPalette				ARRAY_(0x004D8EA8, PALETTEENTRY, 256)
-#define LabTextureUVFlags			ARRAY_(0x004D93E0, BYTE, 0x800)
-#define LevelFileName				ARRAY_(0x004D9D88, char, 256)
-#define HWR_VertexBuffer			ARRAY_(0x004D9EC8, D3DTLVERTEX, 0x2000)
-#define HWR_PageHandles				ARRAY_(0x00519ED0, D3DTEXTUREHANDLE, 32)
-#define HWR_TexturePageIndexes		ARRAY_(0x00519F68, int, 32)
-#define ConflictLayout				ARRAY_(0x0051A0C0, BOOL, 14)
-#define DIKeys						ARRAY_(0x0051A0F8, BYTE, 256)
-#define DetailTextInfo				ARRAY_(0x0051A2C8, TEXT_STR_INFO*, 5)
-#define SoundTextInfo				ARRAY_(0x0051A2E0, TEXT_STR_INFO*, 4)
-#define ControlTextInfo				ARRAY_(0x0051A2F0, TEXT_STR_INFO*, 2)
-#define RoomLightTables				ARRAY_(0x0051A2F8, ROOM_LIGHT_TABLE, 32)
-#define WaterPalette				ARRAY_(0x0051B2F8, RGB888, 256)
-#define PicPalette					ARRAY_(0x0051B5F8, RGB888, 256)
-#define RoomLightShades				ARRAY_(0x0051B8F8, int, 4)
-#define GamePalette8				ARRAY_(0x0051B920, RGB888, 256)
-#define StringToShow				ARRAY_(0x0051BD10, char, 128)
-#define TexturePages				ARRAY_(0x0051BDA8, TEXPAGE_DESC, 32)
-#define DDrawPalettes				ARRAY_(0x0051C200, LPDIRECTDRAWPALETTE, 16)
-#define TextInfoTable				ARRAY_(0x0051C820, TEXT_STR_INFO, 64)
-#define TheStrings					ARRAY_(0x0051D6C0, STRING_FIXED64, 64)
-#define SampleLut					ARRAY_(0x0051E6E0, __int16, 370)
-#define SaveGameStrings1			ARRAY_(0x005207E0, STRING_FIXED50, 24)
-#define RequesterItemFlags2			ARRAY_(0x00520CA0, DWORD, 24)
-#define RequesterItemFlags1			ARRAY_(0x00520D00, DWORD, 24)
-#define InvColours					ARRAY_(0x005216E0, UINT16, 17)
-#define SaveGameStrings2			ARRAY_(0x00521720, STRING_FIXED50, 24)
-#define SaveGameItemFlags2			ARRAY_(0x00521BE0, DWORD, 24)
-#define SaveGameItemFlags1			ARRAY_(0x00521C40, DWORD, 24)
-#define PickupInfos					ARRAY_(0x00521CA0, PICKUP_INFO, 12)
-#define Objects						ARRAY_(0x00522000, OBJECT_INFO, 265)
-#define DynamicLights				ARRAY_(0x005251C0, LIGHT_INFO, 10)
-#define StaticObjects				ARRAY_(0x00525C00, STATIC_INFO, 50)
-#define GroundZones					ARRAY_(0x005263A0, __int16*, 8)
-#define FlyZones					ARRAY_(0x005263C0, __int16*, 2)
+#define GouraudTable				ARRAY_(0x0046C300, GOURAUD_ENTRY, [256])
+#define PhdSpriteInfo				ARRAY_(0x0046E308, PHD_SPRITE, [512])
+#define SortBuffer					ARRAY_(0x00470338, SORT_ITEM, [4000])
+#define Info3dBuffer				ARRAY_(0x00478060, __int16, [120000])
+#define RandomTable					ARRAY_(0x004B2A28, int, [32])
+#define PhdTextureInfo				ARRAY_(0x004B2AF0, PHD_TEXTURE, [0x800])
+#define ShadesTable					ARRAY_(0x004BCB00, __int16, [32])
+#define MatrixStack					ARRAY_(0x004BCB48, PHD_MATRIX, [40])
+#define DepthQTable					ARRAY_(0x004BD2C8, DEPTHQ_ENTRY, [32])
+#define DepthQIndex					ARRAY_(0x004BF2C8, BYTE, [256])
+#define PhdVBuf						ARRAY_(0x004BF3D0, PHD_VBUF, [1500])
+#define XBuffer						ARRAY_(0x004CAF50, int, [12000]) // NOTE: this means that SW renderer maximum safe resolution is 1200 pixels
+#define TexturePageBuffer8			ARRAY_(0x004D6AD0, BYTE*, [32])
+#define WibbleTable					ARRAY_(0x004D6B68, float, [32])
+#define VBuffer						ARRAY_(0x004D6CC8, VERTEX_INFO, [20])
+#define VBufferD3D					ARRAY_(0x004D6F70, D3DTLVERTEX, [32])
+#define GamePalette16				ARRAY_(0x004D7370, PALETTEENTRY, [256])
+#define InvItemText					ARRAY_(0x004D7938, TEXT_STR_INFO*, [2])
+#define InventoryExtraData			ARRAY_(0x004D7970, int, [8])
+#define SfxInfos					ARRAY_(0x004D7C68, SFX_INFO, [32])
+#define BGND_TexturePageIndexes		ARRAY_(0x004D7E80, int, [5])
+#define BGND_PageHandles			ARRAY_(0x004D7E98, D3DTEXTUREHANDLE, [5])
+#define SampleFreqs					ARRAY_(0x004D8560, DWORD, [256])
+#define SampleBuffers				ARRAY_(0x004D8970, LPDIRECTSOUNDBUFFER, [256])
+#define ChannelSamples				ARRAY_(0x004D8D78, DWORD, [32])
+#define ChannelBuffers				ARRAY_(0x004D8DF8, LPDIRECTSOUNDBUFFER, [32])
+#define WinVidPalette				ARRAY_(0x004D8EA8, PALETTEENTRY, [256])
+#define LabTextureUVFlags			ARRAY_(0x004D93E0, BYTE, [0x800])
+#define LevelFileName				ARRAY_(0x004D9D88, char, [256])
+#define HWR_VertexBuffer			ARRAY_(0x004D9EC8, D3DTLVERTEX, [0x2000])
+#define HWR_PageHandles				ARRAY_(0x00519ED0, D3DTEXTUREHANDLE, [32])
+#define HWR_TexturePageIndexes		ARRAY_(0x00519F68, int, [32])
+#define ConflictLayout				ARRAY_(0x0051A0C0, BOOL, [14])
+#define DIKeys						ARRAY_(0x0051A0F8, BYTE, [256])
+#define DetailTextInfo				ARRAY_(0x0051A2C8, TEXT_STR_INFO*, [5])
+#define SoundTextInfo				ARRAY_(0x0051A2E0, TEXT_STR_INFO*, [4])
+#define ControlTextInfo				ARRAY_(0x0051A2F0, TEXT_STR_INFO*, [2])
+#define RoomLightTables				ARRAY_(0x0051A2F8, ROOM_LIGHT_TABLE, [32])
+#define WaterPalette				ARRAY_(0x0051B2F8, RGB888, [256])
+#define PicPalette					ARRAY_(0x0051B5F8, RGB888, [256])
+#define RoomLightShades				ARRAY_(0x0051B8F8, int, [4])
+#define GamePalette8				ARRAY_(0x0051B920, RGB888, [256])
+#define StringToShow				ARRAY_(0x0051BD10, char, [128])
+#define TexturePages				ARRAY_(0x0051BDA8, TEXPAGE_DESC, [32])
+#define DDrawPalettes				ARRAY_(0x0051C200, LPDIRECTDRAWPALETTE, [16])
+#define TextInfoTable				ARRAY_(0x0051C820, TEXT_STR_INFO, [64])
+#define TheStrings					ARRAY_(0x0051D6C0, STRING_FIXED64, [64])
+#define SampleLut					ARRAY_(0x0051E6E0, __int16, [370])
+#define SaveGameStrings1			ARRAY_(0x005207E0, STRING_FIXED50, [24])
+#define RequesterItemFlags2			ARRAY_(0x00520CA0, DWORD, [24])
+#define RequesterItemFlags1			ARRAY_(0x00520D00, DWORD, [24])
+#define InvColours					ARRAY_(0x005216E0, UINT16, [17])
+#define SaveGameStrings2			ARRAY_(0x00521720, STRING_FIXED50, [24])
+#define SaveGameItemFlags2			ARRAY_(0x00521BE0, DWORD, [24])
+#define SaveGameItemFlags1			ARRAY_(0x00521C40, DWORD, [24])
+#define PickupInfos					ARRAY_(0x00521CA0, PICKUP_INFO, [12])
+#define Objects						ARRAY_(0x00522000, OBJECT_INFO, [265])
+#define DynamicLights				ARRAY_(0x005251C0, LIGHT_INFO, [10])
+#define StaticObjects				ARRAY_(0x00525C00, STATIC_INFO, [50])
+#define GroundZones					ARRAY_(0x005263A0, __int16*, [8])
+#define FlyZones					ARRAY_(0x005263C0, __int16*, [2])
 
 /*
  * GameFlow/Inventory Variables
@@ -591,8 +591,8 @@
 #define GF_Key4StringBuffer			VAR_U_(0x00521E7C, char*)
 
 // GameFlow/Inventory arrays
-#define InvMainQtys					ARRAY_(0x004654E8, UINT16, 23) /* = {1, 1, 1, 1, 1, 1, 1, 1, 1, 0}; */
-#define InvMainList					ARRAY_(0x00465518, INVENTORY_ITEM*, 23) /* = {
+#define InvMainQtys					ARRAY_(0x004654E8, UINT16, [23]) /* = {1, 1, 1, 1, 1, 1, 1, 1, 1, 0}; */
+#define InvMainList					ARRAY_(0x00465518, INVENTORY_ITEM*, [23]) /* = {
 	&InvCompassOption,
 	&InvFlareOption,
 	&InvPistolOption,
@@ -606,8 +606,8 @@
 	&InvSmallMedipackOption,
 	NULL,
 }; */
-#define InvKeysQtys					ARRAY_(0x00465578, UINT16, 23) /* = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0}; */
-#define InvKeysList					ARRAY_(0x004655A8, INVENTORY_ITEM*, 23) /* = {
+#define InvKeysQtys					ARRAY_(0x00465578, UINT16, [23]) /* = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0}; */
+#define InvKeysList					ARRAY_(0x004655A8, INVENTORY_ITEM*, [23]) /* = {
 	&InvPuzzle1Option,
 	&InvPuzzle2Option,
 	&InvPuzzle3Option,
@@ -620,9 +620,9 @@
 	&InvPickup2Option,
 	NULL,
 }; */
-#define CtrlTextA					ARRAY_(0x0051A248, TEXT_STR_INFO*, 14)
-#define CtrlTextB					ARRAY_(0x0051A280, TEXT_STR_INFO*, 14)
-#define GF_ScriptTable				ARRAY_(0x00521EE0, __int16*, 24)
-#define GF_DemoLevels				ARRAY_(0x00521F60, UINT16, 24)
+#define CtrlTextA					ARRAY_(0x0051A248, TEXT_STR_INFO*, [14])
+#define CtrlTextB					ARRAY_(0x0051A280, TEXT_STR_INFO*, [14])
+#define GF_ScriptTable				ARRAY_(0x00521EE0, __int16*, [24])
+#define GF_DemoLevels				ARRAY_(0x00521F60, UINT16, [24])
 
 #endif // GLOBAL_VARS_H_INCLUDED
