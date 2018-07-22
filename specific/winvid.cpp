@@ -1089,7 +1089,7 @@ void __cdecl WinVidResizeGameWindow(HWND hWnd, int edge, LPRECT rect) {
 bool __cdecl WinVidCheckGameWindowPalette(HWND hWnd) {
 	HDC hdc;
 	PALETTEENTRY sysPalette[256];
-	RGB bufPalette[256];
+	RGB888 bufPalette[256];
 
 	hdc = GetDC(hWnd);
 	if( hdc == NULL )

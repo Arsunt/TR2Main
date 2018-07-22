@@ -898,11 +898,11 @@ typedef struct SortItem_t {
   int _1;
 } SORT_ITEM;
 
-typedef struct RGB_t {
+typedef struct RGB888_t {
 	BYTE red;
 	BYTE green;
 	BYTE blue;
-} RGB;
+} RGB888;
 
 typedef struct DepthQEntry_t {
 	BYTE index[256];
@@ -1127,7 +1127,7 @@ typedef struct PcxHeader_t {
 	UINT16 yMax;
 	UINT16 h_dpi;
 	UINT16 v_dpi;
-	RGB headerPalette[16];
+	RGB888 headerPalette[16];
 	BYTE reserved;
 	BYTE planes;
 	UINT16 bytesPerLine;

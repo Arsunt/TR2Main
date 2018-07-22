@@ -55,10 +55,10 @@ void __cdecl S_SyncPictureBufferPalette(); // 0x00451FB0
 void __cdecl S_DontDisplayPicture(); // 0x00452030
 void __cdecl ScreenDump(); // 0x00452040
 void __cdecl ScreenPartialDump(); // 0x00452050
-void __cdecl FadeToPal(int fadeValue, RGB *palette); // 0x00452060
+void __cdecl FadeToPal(int fadeValue, RGB888 *palette); // 0x00452060
 void __cdecl ScreenClear(bool isPhdWinSize); // 0x00452230
 void __cdecl S_CopyScreenToBuffer(); // 0x00452260
 void __cdecl S_CopyBufferToScreen(); // 0x00452310
-BOOL __cdecl DecompPCX(BYTE *pcx, DWORD pcxSize, BYTE *pic, RGB *pal); // 0x00452360
+BOOL __cdecl DecompPCX(BYTE *pcx, DWORD pcxSize, BYTE *pic, RGB888 *pal); // 0x00452360
 
 #endif // OUTPUT_H_INCLUDED

@@ -36,7 +36,7 @@ void __cdecl HWR_EnableColorKey(bool state); // 0x0044D2D0
 void __cdecl HWR_EnableZBuffer(bool ZWriteEnable, bool ZEnable); // 0x0044D320
 void __cdecl HWR_BeginScene(); // 0x0044D3B0
 void __cdecl HWR_DrawPolyList(); // 0x0044D3E0
-void __cdecl HWR_LoadTexturePages(int pagesCount, LPVOID pagesBuffer, RGB *palette); // 0x0044D560
+void __cdecl HWR_LoadTexturePages(int pagesCount, LPVOID pagesBuffer, RGB888 *palette); // 0x0044D560
 void __cdecl HWR_FreeTexturePages(); // 0x0044D5F0
 void __cdecl HWR_GetPageHandles(); // 0x0044D640
 bool __cdecl HWR_VertexBufferFull(); // 0x0044D680

@@ -91,7 +91,7 @@ void __cdecl S_FinishInventory() {
 }
 
 void __cdecl S_FadeToBlack() {
-	memset(GamePalette8, 0, sizeof(RGB)*256);
+	memset(GamePalette8, 0, sizeof(RGB888)*256);
 	FadeToPal(10, GamePalette8);
 	FadeWait();
 
@@ -336,7 +336,7 @@ void __cdecl DisplayCredits() {
 	BYTE *fileData[9];
 	BYTE *bitmapData;
 	LPCSTR fullPath;
-	RGB palette[256];
+	RGB888 palette[256];
 	char fileName[64] = "data\\credit0?.pcx";
 
 	TempVideoAdjust(HiRes, 1.0); // NOTE: this line was not in the original code
@@ -346,8 +346,8 @@ void __cdecl DisplayCredits() {
 	if( !InitialiseLevel(0, 0) ) // init title level
 		return;
 
-	memcpy(palette, GamePalette8, sizeof(RGB)*256);
-	memset(GamePalette8, 0, sizeof(RGB)*256);
+	memcpy(palette, GamePalette8, sizeof(RGB888)*256);
+	memset(GamePalette8, 0, sizeof(RGB888)*256);
 
 	IsVidModeLock = true;
 	FadeToPal(0, GamePalette8);
@@ -393,7 +393,7 @@ void __cdecl DisplayCredits() {
 			break;
 	}
 
-	memcpy(GamePalette8, palette, sizeof(RGB)*256);
+	memcpy(GamePalette8, palette, sizeof(RGB888)*256);
 	S_Wait(300, FALSE); // wait 300 ticks / 150 frames / 5 seconds
 	FadeToPal(30, GamePalette8);
 	IsVidModeLock = false;

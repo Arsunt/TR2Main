@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -27,10 +27,10 @@
 /*
  * Function list
  */
-void __cdecl CopyBitmapPalette(RGB *srcPal, BYTE *srcBitmap, int bitmapSize, RGB *destPal); // 0x00455990
-BYTE __cdecl FindNearestPaletteEntry(RGB *palette, int red, int green, int blue, bool ignoreSysPalette); // 0x00455AD0
-void __cdecl SyncSurfacePalettes(void *srcData, int width, int height, int srcPitch, RGB *srcPalette, void *dstData, int dstPitch, RGB *dstPalette, bool preserveSysPalette); // 0x00455BA0
-int __cdecl CreateTexturePalette(RGB *pal); // 0x00455C50
+void __cdecl CopyBitmapPalette(RGB888 *srcPal, BYTE *srcBitmap, int bitmapSize, RGB888 *destPal); // 0x00455990
+BYTE __cdecl FindNearestPaletteEntry(RGB888 *palette, int red, int green, int blue, bool ignoreSysPalette); // 0x00455AD0
+void __cdecl SyncSurfacePalettes(void *srcData, int width, int height, int srcPitch, RGB888 *srcPalette, void *dstData, int dstPitch, RGB888 *dstPalette, bool preserveSysPalette); // 0x00455BA0
+int __cdecl CreateTexturePalette(RGB888 *pal); // 0x00455C50
 int __cdecl GetFreePaletteIndex(); // 0x00455CE0
 void __cdecl FreePalette(int paletteIndex); // 0x00455D00
 void __cdecl SafeFreePalette(int paletteIndex); // 0x00455D30

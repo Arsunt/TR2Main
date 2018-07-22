@@ -160,7 +160,7 @@ void __cdecl HWR_DrawPolyList() {
 	}
 }
 
-void __cdecl HWR_LoadTexturePages(int pagesCount, LPVOID pagesBuffer, RGB *palette) {
+void __cdecl HWR_LoadTexturePages(int pagesCount, LPVOID pagesBuffer, RGB888 *palette) {
 	int pageIndex = -1;
 	BYTE *bufferPtr = (BYTE *)pagesBuffer;
 

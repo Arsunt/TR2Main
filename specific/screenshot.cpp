@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -151,14 +151,14 @@ static void __cdecl ScreenShotTGA(LPDIRECTDRAWSURFACE3 screen, BYTE tgaBpp) {
 	} else {
 		for( i=0; i < height; ++i ) {
 			if( desc.ddpfPixelFormat.dwRGBBitCount == 24 ) {
-				memcpy(dst, src, sizeof(RGB)*width);
+				memcpy(dst, src, sizeof(RGB888)*width);
 			} else {
 				for( j=0; j < width; ++j ) {
-					((RGB *)dst)[j] = *(RGB*)(src + j * (desc.ddpfPixelFormat.dwRGBBitCount / 8));
+					((RGB888 *)dst)[j] = *(RGB888*)(src + j * (desc.ddpfPixelFormat.dwRGBBitCount / 8));
 				}
 			}
 			src -= desc.lPitch;
-			dst += sizeof(RGB)*width;
+			dst += sizeof(RGB888)*width;
 		}
 	}
 	WriteFile(hFile, tgaPic, width*height*(tgaBpp/8), &bytesWritten, NULL);
@@ -227,12 +227,12 @@ void __cdecl ScreenShotPCX() {
 }
 
 
-DWORD __cdecl CompPCX(BYTE *bitmap, DWORD width, DWORD height, RGB *palette, BYTE **pcxData) {
+DWORD __cdecl CompPCX(BYTE *bitmap, DWORD width, DWORD height, RGB888 *palette, BYTE **pcxData) {
 	DWORD i;
 	PCX_HEADER *pcxHeader;
 	BYTE *picData;
 
-	*pcxData = (BYTE *)GlobalAlloc(GMEM_FIXED, width*height*2 + sizeof(PCX_HEADER) + sizeof(RGB)*256);
+	*pcxData = (BYTE *)GlobalAlloc(GMEM_FIXED, width*height*2 + sizeof(PCX_HEADER) + sizeof(RGB888)*256);
 	if( *pcxData == NULL )
 		return 0;
 
@@ -259,9 +259,9 @@ DWORD __cdecl CompPCX(BYTE *bitmap, DWORD width, DWORD height, RGB *palette, BYT
 	}
 
 	*(picData++) = 0x0C;
-	memcpy(picData, palette, sizeof(RGB)*256);
+	memcpy(picData, palette, sizeof(RGB888)*256);
 
-	return (DWORD)(picData - *pcxData + sizeof(RGB)*256); // pcx data size
+	return (DWORD)(picData - *pcxData + sizeof(RGB888)*256); // pcx data size
 }
 
 

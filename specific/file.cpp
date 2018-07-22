@@ -414,7 +414,7 @@ BOOL __cdecl LoadItems(HANDLE hFile) {
 BOOL __cdecl LoadDepthQ(HANDLE hFile) {
 	int i, j;
 	DWORD bytesRead;
-	RGB paletteBuffer[256];
+	RGB888 paletteBuffer[256];
 
 	ReadFileSync(hFile, DepthQTable, 32*sizeof(DEPTHQ_ENTRY), &bytesRead, NULL);
 
@@ -424,7 +424,7 @@ BOOL __cdecl LoadDepthQ(HANDLE hFile) {
 	if( GameVid_IsWindowedVga ) {
 		CopyBitmapPalette(GamePalette8, DepthQTable[0].index, 32*sizeof(DEPTHQ_ENTRY), paletteBuffer);
 		SyncSurfacePalettes(DepthQTable, 256, 32, 256, GamePalette8, DepthQTable, 256, paletteBuffer, true);
-		memcpy(GamePalette8, paletteBuffer, sizeof(RGB)*256);
+		memcpy(GamePalette8, paletteBuffer, sizeof(RGB888)*256);
 		for( i=0; i<256; ++i ) {
 			DepthQIndex[i] = S_COLOUR(GamePalette8[i].red, GamePalette8[i].green, GamePalette8[i].blue);
 		}
@@ -451,7 +451,7 @@ BOOL __cdecl LoadDepthQ(HANDLE hFile) {
 BOOL __cdecl LoadPalettes(HANDLE hFile) {
 	DWORD bytesRead;
 
-	ReadFileSync(hFile, GamePalette8, 256*sizeof(RGB), &bytesRead, NULL);
+	ReadFileSync(hFile, GamePalette8, 256*sizeof(RGB888), &bytesRead, NULL);
 
 	GamePalette8[0].red = 0;
 	GamePalette8[0].green = 0;

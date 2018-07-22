@@ -27,8 +27,8 @@
 /*
  * Function list
  */
-void __cdecl BGND_Make640x480(BYTE *bitmap, RGB *palette); // 0x00443A40
-int __cdecl BGND_AddTexture(int tileIndex, BYTE *bitmap, int palIndex, RGB *bmpPal); // 0x00443C00
+void __cdecl BGND_Make640x480(BYTE *bitmap, RGB888 *palette); // 0x00443A40
+int __cdecl BGND_AddTexture(int tileIndex, BYTE *bitmap, int palIndex, RGB888 *bmpPal); // 0x00443C00
 void __cdecl BGND_GetPageHandles(); // 0x00443CC0
 void __cdecl BGND_DrawInGameBlack(); // 0x00443D00
 void __cdecl DrawQuad(float sx, float sy, float width, float height, D3DCOLOR color); // 0x00443D60

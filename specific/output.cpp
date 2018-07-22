@@ -788,7 +788,7 @@ void __cdecl S_SyncPictureBufferPalette() {
 
 	SyncSurfacePalettes(desc.lpSurface, 640, 480, desc.lPitch, PicPalette, desc.lpSurface, desc.lPitch, GamePalette8, TRUE);
 	WinVidBufferUnlock(PictureBufferSurface, &desc);
-	memcpy(PicPalette, GamePalette8, sizeof(RGB)*256);
+	memcpy(PicPalette, GamePalette8, sizeof(RGB888)*256);
 }
 
 void __cdecl S_DontDisplayPicture() {
@@ -806,7 +806,7 @@ void __cdecl ScreenPartialDump() {
 	UpdateFrame(true, &PhdWinRect);
 }
 
-void __cdecl FadeToPal(int fadeValue, RGB *palette) {
+void __cdecl FadeToPal(int fadeValue, RGB888 *palette) {
 	int i, j;
 	int palStartIdx = 0;
 	int palEndIdx = 256;
@@ -875,7 +875,7 @@ void __cdecl S_CopyScreenToBuffer() {
 		}
 		WinVidBufferUnlock(PictureBufferSurface, &desc);
 	}
-	memcpy(PicPalette, GamePalette8, sizeof(RGB)*256);
+	memcpy(PicPalette, GamePalette8, sizeof(RGB888)*256);
 }
 
 void __cdecl S_CopyBufferToScreen() {
@@ -885,7 +885,7 @@ void __cdecl S_CopyBufferToScreen() {
 	DWORD color = 0xFFFFFFFF; // vertex color (ARGB white)
 
 	if( SavedAppSettings.RenderMode == RM_Software ) {
-		if( memcmp(GamePalette8, PicPalette, sizeof(RGB)*256) ) {
+		if( memcmp(GamePalette8, PicPalette, sizeof(RGB888)*256) ) {
 			S_SyncPictureBufferPalette();
 		}
 		RenderBufferSurface->Blt(&GameVidRect, PictureBufferSurface, NULL, DDBLT_WAIT, NULL);
@@ -918,7 +918,7 @@ void __cdecl S_CopyBufferToScreen() {
 	}
 }
 
-BOOL __cdecl DecompPCX(BYTE *pcx, DWORD pcxSize, BYTE *pic, RGB *pal) {
+BOOL __cdecl DecompPCX(BYTE *pcx, DWORD pcxSize, BYTE *pic, RGB888 *pal) {
 	PCX_HEADER *header;
 	DWORD width, height, dsz;
 	BYTE *src, *dst;
@@ -956,7 +956,7 @@ BOOL __cdecl DecompPCX(BYTE *pcx, DWORD pcxSize, BYTE *pic, RGB *pal) {
 	}
 
 	if( pal != NULL)
-		memcpy(pal, pcx + pcxSize - sizeof(RGB)*256, sizeof(RGB)*256);
+		memcpy(pal, pcx + pcxSize - sizeof(RGB888)*256, sizeof(RGB888)*256);
 
 	return TRUE;
 }

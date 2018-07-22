@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -27,7 +27,7 @@
 #include "global/vars.h"
 #include <limits.h>
 
-void __cdecl CopyBitmapPalette(RGB *srcPal, BYTE *srcBitmap, int bitmapSize, RGB *destPal) {
+void __cdecl CopyBitmapPalette(RGB888 *srcPal, BYTE *srcBitmap, int bitmapSize, RGB888 *destPal) {
 	int i, j;
 	HDC hdc;
 	PALETTEENTRY firstSysPalEntries[10];
@@ -55,7 +55,7 @@ void __cdecl CopyBitmapPalette(RGB *srcPal, BYTE *srcBitmap, int bitmapSize, RGB
 		destPal[i].green = firstSysPalEntries[i].peGreen;
 		destPal[i].blue  = firstSysPalEntries[i].peBlue;
 	}
-	memset(&destPal[8], 0, 2*sizeof(RGB));
+	memset(&destPal[8], 0, 2*sizeof(RGB888));
 
 	// middle palette entries
 	for( i=0, j=10; i<236; ++i, ++j ) {
@@ -63,7 +63,7 @@ void __cdecl CopyBitmapPalette(RGB *srcPal, BYTE *srcBitmap, int bitmapSize, RGB
 	}
 
 	// last palette entries
-	memset(&destPal[246], 0, 1*sizeof(RGB));
+	memset(&destPal[246], 0, 1*sizeof(RGB888));
 	for( i=1, j=247; i<10; ++i, ++j ) {
 		destPal[j].red   = lastSysPalEntries[i].peRed;
 		destPal[j].green = lastSysPalEntries[i].peGreen;
@@ -71,7 +71,7 @@ void __cdecl CopyBitmapPalette(RGB *srcPal, BYTE *srcBitmap, int bitmapSize, RGB
 	}
 }
 
-BYTE __cdecl FindNearestPaletteEntry(RGB *palette, int red, int green, int blue, bool ignoreSysPalette) {
+BYTE __cdecl FindNearestPaletteEntry(RGB888 *palette, int red, int green, int blue, bool ignoreSysPalette) {
 	int i;
 	int diffRed, diffGreen, diffBlue, diffTotal;
 	int diffMin = INT_MAX;
@@ -99,7 +99,7 @@ BYTE __cdecl FindNearestPaletteEntry(RGB *palette, int red, int green, int blue,
 	return result;
 }
 
-void __cdecl SyncSurfacePalettes(void *srcData, int width, int height, int srcPitch, RGB *srcPalette, void *dstData, int dstPitch, RGB *dstPalette, bool preserveSysPalette) {
+void __cdecl SyncSurfacePalettes(void *srcData, int width, int height, int srcPitch, RGB888 *srcPalette, void *dstData, int dstPitch, RGB888 *dstPalette, bool preserveSysPalette) {
 	int i, j;
 	BYTE *src, *dst;
 	BYTE bufPalette[256];
@@ -120,7 +120,7 @@ void __cdecl SyncSurfacePalettes(void *srcData, int width, int height, int srcPi
 	}
 }
 
-int __cdecl CreateTexturePalette(RGB *pal) {
+int __cdecl CreateTexturePalette(RGB888 *pal) {
 	int palIndex;
 	PALETTEENTRY palEntries[256];
 

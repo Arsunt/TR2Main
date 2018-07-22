@@ -34,7 +34,7 @@
 DWORD InvBackgroundMode;
 #endif // FEATURE_BACKGROUND_IMPROVED
 
-void __cdecl BGND_Make640x480(BYTE *bitmap, RGB *palette) {
+void __cdecl BGND_Make640x480(BYTE *bitmap, RGB888 *palette) {
 	// NOTE: 8 bit bitmap may be converted to 16 bit right in the tmpBuffer
 	// so we need to allocate memory for 16 bit bitmap anyway
 	DWORD tmpBufSize = 256*256*2;
@@ -63,7 +63,7 @@ void __cdecl BGND_Make640x480(BYTE *bitmap, RGB *palette) {
 	BGND_PictureIsReady = true;
 }
 
-int __cdecl BGND_AddTexture(int tileIndex, BYTE *bitmap, int palIndex, RGB *bmpPal) {
+int __cdecl BGND_AddTexture(int tileIndex, BYTE *bitmap, int palIndex, RGB888 *bmpPal) {
 	int pageIndex;
 	BYTE *bmpSrc;
 	UINT16 *bmpDst;
@@ -75,7 +75,7 @@ int __cdecl BGND_AddTexture(int tileIndex, BYTE *bitmap, int palIndex, RGB *bmpP
 
 		// Translating bitmap data from 8 bit bitmap end to 16 bit bitmap end
 		for( int i=256*256; i>0; --i ) {
-			RGB *color = &bmpPal[*(--bmpSrc)]; // get RGB color from palette
+			RGB888 *color = &bmpPal[*(--bmpSrc)]; // get RGB color from palette
 			*(--bmpDst) = (1 << 15) // convert RGB to 16 bit
 						| (((UINT16)color->red   >> 3) << 10)
 						| (((UINT16)color->green >> 3) << 5)
