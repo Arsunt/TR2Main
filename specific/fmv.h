@@ -27,6 +27,8 @@
 /*
  * Function list
  */
+bool __cdecl FMV_Init();
+void __cdecl FMV_Cleanup();
 bool __cdecl PlayFMV(LPCTSTR fileName); // 0x0044BE50
 void __cdecl WinPlayFMV(LPCSTR fileName, bool isPlayback); // 0x0044BED0
 void __cdecl WinStopFMV(bool isPlayback); // 0x0044C1B0

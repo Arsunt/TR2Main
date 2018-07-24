@@ -33,11 +33,8 @@
 	if( proc == NULL ) throw #proc; \
 }
 
-// FMV Player DLL name
-#define FMV_PLAYER_DLL_NAME "winplay.dll"
-
-// FMV Player
-static HMODULE hPlayer = NULL;
+#define ESCAPE_DLL_NAME "winplay.dll"
+static HMODULE hEscapePlay = NULL;
 
 // Imports from winplay.dll
 static int (__cdecl *Movie_GetCurrentFrame)(LPVOID);
@@ -67,63 +64,65 @@ static int (__cdecl *Player_ShutDownVideo)(LPVOID);
 static int (__cdecl *Player_StartTimer)(LPVOID);
 static int (__cdecl *Player_StopTimer)(LPVOID);
 
-
-static bool FmvPlayerInit() {
-	static int initStatus = 0;
-
-	if( initStatus > 0 )
+bool __cdecl FMV_Init() {
+	if( hEscapePlay != NULL ) {
 		return true;
-	else if( initStatus < 0 )
-		return false;
+	}
 
-	hPlayer = GetModuleHandle(FMV_PLAYER_DLL_NAME);
-	if( hPlayer == NULL ) {
+	hEscapePlay = LoadLibrary(ESCAPE_DLL_NAME);
+	if( hEscapePlay == NULL ) {
 		// failed to load DLL
-		initStatus = -1;
 		return false;
 	}
 
 	try {
-		GET_DLL_PROC(hPlayer, Movie_GetCurrentFrame);
-		GET_DLL_PROC(hPlayer, Movie_GetFormat);
-		GET_DLL_PROC(hPlayer, Movie_GetSoundChannels);
-		GET_DLL_PROC(hPlayer, Movie_GetSoundPrecision);
-		GET_DLL_PROC(hPlayer, Movie_GetSoundRate);
-		GET_DLL_PROC(hPlayer, Movie_GetTotalFrames);
-		GET_DLL_PROC(hPlayer, Movie_GetXSize);
-		GET_DLL_PROC(hPlayer, Movie_GetYSize);
-		GET_DLL_PROC(hPlayer, Movie_SetSyncAdjust);
-		GET_DLL_PROC(hPlayer, Player_BlankScreen);
-		GET_DLL_PROC(hPlayer, Player_GetDSErrorCode);
-		GET_DLL_PROC(hPlayer, Player_InitMovie);
-		GET_DLL_PROC(hPlayer, Player_InitMoviePlayback);
-		GET_DLL_PROC(hPlayer, Player_InitPlaybackMode);
-		GET_DLL_PROC(hPlayer, Player_InitSound);
-		GET_DLL_PROC(hPlayer, Player_InitSoundSystem);
-		GET_DLL_PROC(hPlayer, Player_InitVideo);
-		GET_DLL_PROC(hPlayer, Player_PassInDirectDrawObject);
-		GET_DLL_PROC(hPlayer, Player_PlayFrame);
-		GET_DLL_PROC(hPlayer, Player_ReturnPlaybackMode);
-		GET_DLL_PROC(hPlayer, Player_ShutDownMovie);
-		GET_DLL_PROC(hPlayer, Player_ShutDownSound);
-		GET_DLL_PROC(hPlayer, Player_ShutDownSoundSystem);
-		GET_DLL_PROC(hPlayer, Player_ShutDownVideo);
-		GET_DLL_PROC(hPlayer, Player_StartTimer);
-		GET_DLL_PROC(hPlayer, Player_StopTimer);
+		GET_DLL_PROC(hEscapePlay, Movie_GetCurrentFrame);
+		GET_DLL_PROC(hEscapePlay, Movie_GetFormat);
+		GET_DLL_PROC(hEscapePlay, Movie_GetSoundChannels);
+		GET_DLL_PROC(hEscapePlay, Movie_GetSoundPrecision);
+		GET_DLL_PROC(hEscapePlay, Movie_GetSoundRate);
+		GET_DLL_PROC(hEscapePlay, Movie_GetTotalFrames);
+		GET_DLL_PROC(hEscapePlay, Movie_GetXSize);
+		GET_DLL_PROC(hEscapePlay, Movie_GetYSize);
+		GET_DLL_PROC(hEscapePlay, Movie_SetSyncAdjust);
+		GET_DLL_PROC(hEscapePlay, Player_BlankScreen);
+		GET_DLL_PROC(hEscapePlay, Player_GetDSErrorCode);
+		GET_DLL_PROC(hEscapePlay, Player_InitMovie);
+		GET_DLL_PROC(hEscapePlay, Player_InitMoviePlayback);
+		GET_DLL_PROC(hEscapePlay, Player_InitPlaybackMode);
+		GET_DLL_PROC(hEscapePlay, Player_InitSound);
+		GET_DLL_PROC(hEscapePlay, Player_InitSoundSystem);
+		GET_DLL_PROC(hEscapePlay, Player_InitVideo);
+		GET_DLL_PROC(hEscapePlay, Player_PassInDirectDrawObject);
+		GET_DLL_PROC(hEscapePlay, Player_PlayFrame);
+		GET_DLL_PROC(hEscapePlay, Player_ReturnPlaybackMode);
+		GET_DLL_PROC(hEscapePlay, Player_ShutDownMovie);
+		GET_DLL_PROC(hEscapePlay, Player_ShutDownSound);
+		GET_DLL_PROC(hEscapePlay, Player_ShutDownSoundSystem);
+		GET_DLL_PROC(hEscapePlay, Player_ShutDownVideo);
+		GET_DLL_PROC(hEscapePlay, Player_StartTimer);
+		GET_DLL_PROC(hEscapePlay, Player_StopTimer);
 	} catch (LPCTSTR procName) {
 		// failed to load one of the procs
-		initStatus = -1;
+		FreeLibrary(hEscapePlay);
+		hEscapePlay = NULL;
 		return false;
 	}
 
-	initStatus = 1;
-    return true;
+	return true;
+}
+
+void __cdecl FMV_Cleanup() {
+	if( hEscapePlay != NULL ) {
+		FreeLibrary(hEscapePlay);
+		hEscapePlay = NULL;
+	}
 }
 
 bool __cdecl PlayFMV(LPCTSTR fileName) {
 	LPCTSTR fullPath;
 
-	if( SavedAppSettings.DisableFMV || !FmvPlayerInit() )
+	if( SavedAppSettings.DisableFMV )
 		return IsGameToExit;
 
 	S_CDStop();
@@ -148,6 +147,10 @@ void __cdecl WinPlayFMV(LPCTSTR fileName, bool isPlayback) {
 	int soundPrecision, soundRate, soundChannels, soundFormat;
 	bool isUncompressed;
 	RECT rect = {0, 0, 640, 480};
+
+	if( hEscapePlay == NULL ) {
+		return;
+	}
 
 	if( 0 != Player_PassInDirectDrawObject(_DirectDraw2) ||
 		0 != Player_InitMovie(&MovieContext, 0, 0, fileName, 0x200000) ||
@@ -180,15 +183,13 @@ void __cdecl WinPlayFMV(LPCTSTR fileName, bool isPlayback) {
 	soundChannels = Movie_GetSoundChannels(MovieContext);
 	isUncompressed = ( soundPrecision != 4 );
 	soundFormat = isUncompressed ? 1 : 4;
-	if( 0 != Player_InitSound(&FmvSoundContext, 16384, soundFormat, isUncompressed, 4096, soundChannels, soundRate, soundPrecision, 2) )
-	{
+	if( 0 != Player_InitSound(&FmvSoundContext, 16384, soundFormat, isUncompressed, 4096, soundChannels, soundRate, soundPrecision, 2) ) {
 		return;
 	}
 
 	Movie_SetSyncAdjust(MovieContext, FmvSoundContext, 4);
 
-	if( 0 != Player_InitMoviePlayback(MovieContext, FmvContext, FmvSoundContext) )
-	{
+	if( 0 != Player_InitMoviePlayback(MovieContext, FmvContext, FmvSoundContext) ) {
 		return;
 	}
 
@@ -205,21 +206,24 @@ void __cdecl WinPlayFMV(LPCTSTR fileName, bool isPlayback) {
 	}
 }
 
-void __cdecl WinStopFMV(bool isPlayback)
-{
+void __cdecl WinStopFMV(bool isPlayback) {
+	if( hEscapePlay == NULL ) {
+		return;
+	}
 	Player_StopTimer(MovieContext);
 	Player_ShutDownSound(&FmvSoundContext);
 	Player_ShutDownVideo(&FmvContext);
 	Player_ShutDownMovie(&MovieContext);
 	Player_ShutDownSoundSystem();
-	if( isPlayback )
+	if( isPlayback ) {
 		Player_ReturnPlaybackMode(isPlayback);
+	}
 }
 
 bool __cdecl IntroFMV(LPCTSTR fileName1, LPCTSTR fileName2) {
 	LPCTSTR fullPath;
 
-	if( SavedAppSettings.DisableFMV || !FmvPlayerInit() )
+	if( SavedAppSettings.DisableFMV )
 		return IsGameToExit;
 
 	ShowCursor(FALSE);

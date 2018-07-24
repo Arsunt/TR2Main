@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -22,6 +22,7 @@
 #include "global/precompiled.h"
 #include "specific/winmain.h"
 #include "specific/background.h"
+#include "specific/fmv.h"
 #include "specific/hwr.h"
 #include "specific/init.h"
 #include "specific/init_3d.h"
@@ -140,6 +141,7 @@ int __cdecl Init(bool skipCDInit) {
 		HWR_Init() &&
 		BGND_Init() )
 	{
+		FMV_Init(); // FMV Init is not critical to fail whole game
 		return 1;
 	}
 	return 0;
@@ -148,6 +150,7 @@ int __cdecl Init(bool skipCDInit) {
 void __cdecl WinCleanup() {
 	WinVidFreeWindow();
 	CD_Cleanup();
+	FMV_Cleanup();
 }
 
 int __cdecl WinGameStart() {
