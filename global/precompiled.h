@@ -25,6 +25,7 @@
 #include "features.h"
 #include <stdio.h>
 #include <windows.h>
+#include <shlwapi.h>
 #include <ddraw.h>
 #include <d3d.h>
 #include <dinput.h>

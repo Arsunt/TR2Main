@@ -57,6 +57,7 @@
 			<Add library="user32" />
 			<Add library="gdi32" />
 			<Add library="comctl32" />
+			<Add library="shlwapi" />
 			<Add library="winmm" />
 			<Add library="../DX7_SDK/lib/dxguid.lib" />
 			<Add library="../DX7_SDK/lib/ddraw.lib" />
