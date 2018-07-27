@@ -24,7 +24,11 @@
 #include "specific/hwr.h"
 #include "global/vars.h"
 
-static VERTEX_INFO VBuffer[20];
+#ifdef FEATURE_SHADOW_IMPROVED
+extern DWORD ShadowMode;
+#endif // FEATURE_SHADOW_IMPROVED
+
+static VERTEX_INFO VBuffer[40]; // NOTE: original size was 20
 static D3DTLVERTEX VBufferD3D[32];
 
 static D3DCOLOR shadeColor(DWORD red, DWORD green, DWORD blue, DWORD alpha, DWORD shade) {
@@ -1054,7 +1058,7 @@ __int16 *__cdecl InsertObjectG3(__int16 *ptrObj, int number, SORTTYPE sortType) 
 
 int __cdecl XYClipper(int vtxCount, VERTEX_INFO *vtx) {
 	// NOTE: the original function ignores rhw clipping that produces bugs for Z Buffer
-	static VERTEX_INFO vtx_buf[20];
+	static VERTEX_INFO vtx_buf[40]; // NOTE: original size was 20
 	VERTEX_INFO *vtx1, *vtx2;
 	float clip;
 	int i, j;
@@ -1161,8 +1165,13 @@ void __cdecl InsertTrans8(PHD_VBUF *vbuf, __int16 shade) {
 	int i, nPoints, polyZ;
 	char clipOR = 0x00;
 	char clipAND = 0xFF;
+#ifdef FEATURE_SHADOW_IMPROVED
+	int nVtx = ( ShadowMode == 1 ) ? 32 : 8;
+#else // FEATURE_SHADOW_IMPROVED
+	int nVtx = 8;
+#endif // FEATURE_SHADOW_IMPROVED
 
-	for( i=0; i<8; ++i ) {
+	for( i = 0; i < nVtx; ++i ) {
 		clipOR  |= LOBYTE(vbuf[i].clip);
 		clipAND &= LOBYTE(vbuf[i].clip);
 	}
@@ -1170,12 +1179,12 @@ void __cdecl InsertTrans8(PHD_VBUF *vbuf, __int16 shade) {
 	if( (clipOR < 0) || (clipAND != 0) || !VBUF_VISIBLE(vbuf[0], vbuf[1], vbuf[2]) )
 		return;
 
-	for( i = 0; i < 8; ++i ) {
+	for( i = 0; i < nVtx; ++i ) {
 		VBuffer[i].x = vbuf[i].xs;
 		VBuffer[i].y = vbuf[i].ys;
 	}
 
-	nPoints = 8;
+	nPoints = nVtx;
 
 	if( clipOR != 0 ) {
 		FltWinLeft = 0.0;
@@ -1188,10 +1197,10 @@ void __cdecl InsertTrans8(PHD_VBUF *vbuf, __int16 shade) {
 	}
 
 	polyZ = 0;
-	for( i = 0; i < 8; ++i ) {
+	for( i = 0; i < nVtx; ++i ) {
 		polyZ += vbuf[i].zv;
 	}
-	polyZ /= 8;
+	polyZ /= nVtx;
 
 	Sort3dPtr->_0 = (int)Info3dPtr;
 	Sort3dPtr->_1 = polyZ;
@@ -2513,8 +2522,13 @@ void __cdecl InsertTrans8_Sorted(PHD_VBUF *vbuf, __int16 shade) {
 	int i, nPoints, polyZ;
 	char clipOR = 0x00;
 	char clipAND = 0xFF;
+#ifdef FEATURE_SHADOW_IMPROVED
+	int nVtx = ( ShadowMode == 1 ) ? 32 : 8;
+#else // FEATURE_SHADOW_IMPROVED
+	int nVtx = 8;
+#endif // FEATURE_SHADOW_IMPROVED
 
-	for( i=0; i<8; ++i ) {
+	for( i = 0; i < nVtx; ++i ) {
 		clipOR  |= LOBYTE(vbuf[i].clip);
 		clipAND &= LOBYTE(vbuf[i].clip);
 	}
@@ -2522,13 +2536,13 @@ void __cdecl InsertTrans8_Sorted(PHD_VBUF *vbuf, __int16 shade) {
 	if( (clipOR < 0) || (clipAND != 0) || !VBUF_VISIBLE(vbuf[0], vbuf[1], vbuf[2]) )
 		return;
 
-	for( i=0; i<8; ++i ) {
+	for( i = 0; i < nVtx; ++i ) {
 		VBuffer[i].x = vbuf[i].xs;
 		VBuffer[i].y = vbuf[i].ys;
 		VBuffer[i].rhw = RhwFactor / (double)(vbuf[i].zv - 0x20000);
 	}
 
-	nPoints = 8;
+	nPoints = nVtx;
 
 	if( clipOR != 0 ) {
 		FltWinLeft = 0.0;
@@ -2541,10 +2555,10 @@ void __cdecl InsertTrans8_Sorted(PHD_VBUF *vbuf, __int16 shade) {
 	}
 
 	polyZ = 0;
-	for( i = 0; i < 8; ++i ) {
+	for( i = 0; i < nVtx; ++i ) {
 		polyZ += vbuf[i].zv;
 	}
-	polyZ /= 8;
+	polyZ /= nVtx;
 
 	InsertPoly_Gouraud(nPoints, (float)(polyZ - 0x20000), 0, 0, 0, POLY_HWR_trans);
 }

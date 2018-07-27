@@ -51,6 +51,10 @@ double InvGUI_Scale = 1.0;
 extern int CalculateFogShade(int depth);
 #endif // FEATURE_FOG_DISTANCE
 
+#ifdef FEATURE_SHADOW_IMPROVED
+DWORD ShadowMode = 0;
+#endif // FEATURE_SHADOW_IMPROVED
+
 typedef struct ShadowInfo_t {
 	__int16 x;
 	__int16 y;
@@ -58,7 +62,7 @@ typedef struct ShadowInfo_t {
 	__int16 radius;
 	__int16 polyCount;
 	__int16 vertexCount;
-	POS_3D vertex[8];
+	POS_3D vertex[32]; // original size was 8
 } SHADOW_INFO;
 
 int __cdecl GetRenderScale(int unit) {
@@ -289,23 +293,37 @@ void __cdecl S_PrintShadow(__int16 radius, __int16 *bPtr, ITEM_INFO *item) {
 	midZ = (z0 + z1) / 2;
 	zAdd = (z1 - z0) * radius / 0x400;
 
-	// The shadow is a regular octagon
-	ShadowInfo.vertex[0].x = midX - xAdd;
-	ShadowInfo.vertex[0].z = midZ + zAdd * 2;
-	ShadowInfo.vertex[1].x = midX + xAdd;
-	ShadowInfo.vertex[1].z = midZ + zAdd * 2;
-	ShadowInfo.vertex[2].x = midX + xAdd * 2;
-	ShadowInfo.vertex[2].z = midZ + zAdd;
-	ShadowInfo.vertex[3].x = midX + xAdd * 2;
-	ShadowInfo.vertex[3].z = midZ - zAdd;
-	ShadowInfo.vertex[4].x = midX + xAdd;
-	ShadowInfo.vertex[4].z = midZ - zAdd * 2;
-	ShadowInfo.vertex[5].x = midX - xAdd;
-	ShadowInfo.vertex[5].z = midZ - zAdd * 2;
-	ShadowInfo.vertex[6].x = midX - xAdd * 2;
-	ShadowInfo.vertex[6].z = midZ - zAdd;
-	ShadowInfo.vertex[7].x = midX - xAdd * 2;
-	ShadowInfo.vertex[7].z = midZ + zAdd;
+#ifdef FEATURE_SHADOW_IMPROVED
+	if( ShadowMode == 1 ) {
+		// The shadow is a circle
+		ShadowInfo.vertexCount = 32;
+		for( int i = 0; i < ShadowInfo.vertexCount; ++i ) {
+			int angle = (PHD_180 + i * PHD_360) / ShadowInfo.vertexCount;
+			ShadowInfo.vertex[i].x = midX + (xAdd * 2) * phd_sin(angle) / (PHD_IONE / 2);
+			ShadowInfo.vertex[i].z = midZ + (zAdd * 2) * phd_cos(angle) / (PHD_IONE / 2);
+		}
+	} else
+#endif // FEATURE_SHADOW_IMPROVED
+	{
+		// The shadow is an octagon
+		ShadowInfo.vertexCount = 8;
+		ShadowInfo.vertex[0].x = midX - xAdd;
+		ShadowInfo.vertex[0].z = midZ + zAdd * 2;
+		ShadowInfo.vertex[1].x = midX + xAdd;
+		ShadowInfo.vertex[1].z = midZ + zAdd * 2;
+		ShadowInfo.vertex[2].x = midX + xAdd * 2;
+		ShadowInfo.vertex[2].z = midZ + zAdd;
+		ShadowInfo.vertex[3].x = midX + xAdd * 2;
+		ShadowInfo.vertex[3].z = midZ - zAdd;
+		ShadowInfo.vertex[4].x = midX + xAdd;
+		ShadowInfo.vertex[4].z = midZ - zAdd * 2;
+		ShadowInfo.vertex[5].x = midX - xAdd;
+		ShadowInfo.vertex[5].z = midZ - zAdd * 2;
+		ShadowInfo.vertex[6].x = midX - xAdd * 2;
+		ShadowInfo.vertex[6].z = midZ - zAdd;
+		ShadowInfo.vertex[7].x = midX - xAdd * 2;
+		ShadowInfo.vertex[7].z = midZ + zAdd;
+	}
 
 	// Update screen parameters
 	FltWinLeft		= (double)(PhdWinMinX + PhdWinLeft);

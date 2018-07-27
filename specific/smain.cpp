@@ -58,6 +58,10 @@ extern double InvGUI_Scale;
 extern DWORD InvBackgroundMode;
 #endif // FEATURE_BACKGROUND_IMPROVED
 
+#ifdef FEATURE_SHADOW_IMPROVED
+extern DWORD ShadowMode;
+#endif // FEATURE_SHADOW_IMPROVED
+
 #ifdef FEATURE_FOG_DISTANCE
 extern double ViewDistanceFactor;
 extern double FogBeginFactor;
@@ -424,6 +428,10 @@ void __cdecl S_LoadSettings() {
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	GetRegistryDwordValue(REG_INVBGND_MODE, &InvBackgroundMode, 1);
 #endif // FEATURE_BACKGROUND_IMPROVED
+
+#ifdef FEATURE_SHADOW_IMPROVED
+	GetRegistryDwordValue(REG_SHADOW_MODE, &ShadowMode, 0);
+#endif // FEATURE_SHADOW_IMPROVED
 
 #ifdef FEATURE_ASSAULT_SAVE
 	GetRegistryBinaryValue(REG_GAME_ASSAULT, (LPBYTE)&Assault, sizeof(ASSAULT_STATS), NULL);
