@@ -24,6 +24,9 @@
 #include "specific/hwr.h"
 #include "global/vars.h"
 
+static VERTEX_INFO VBuffer[20];
+static D3DTLVERTEX VBufferD3D[32];
+
 static D3DCOLOR shadeColor(DWORD red, DWORD green, DWORD blue, DWORD alpha, DWORD shade) {
 	CLAMPG(shade, 0x1FFF);
 

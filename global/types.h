@@ -1582,16 +1582,6 @@ typedef struct PointInfo_t {
 	float g;
 } POINT_INFO;
 
-typedef struct ShadowInfo_t {
-	__int16 x;
-	__int16 y;
-	__int16 z;
-	__int16 radius;
-	__int16 polyCount;
-	__int16 vertexCount;
-	POS_3D vertex[8];
-} SHADOW_INFO;
-
 typedef struct VertexInfo_t {
 	float x;
 	float y;

@@ -51,6 +51,16 @@ double InvGUI_Scale = 1.0;
 extern int CalculateFogShade(int depth);
 #endif // FEATURE_FOG_DISTANCE
 
+typedef struct ShadowInfo_t {
+	__int16 x;
+	__int16 y;
+	__int16 z;
+	__int16 radius;
+	__int16 polyCount;
+	__int16 vertexCount;
+	POS_3D vertex[8];
+} SHADOW_INFO;
+
 int __cdecl GetRenderScale(int unit) {
 #ifdef FEATURE_FOV_FIX
 	int baseWidth = 640 / (IsVidSizeLock ? InvGUI_Scale : GameGUI_Scale);
@@ -258,6 +268,15 @@ void __cdecl S_InsertBackPolygon(int x0, int y0, int x1, int y1) {
 }
 
 void __cdecl S_PrintShadow(__int16 radius, __int16 *bPtr, ITEM_INFO *item) {
+	static SHADOW_INFO ShadowInfo = {
+		.x = 0,
+		.y = 0,
+		.z = 0,
+		.radius = 0x7FFF,
+		.polyCount = 1,
+		.vertexCount = 8,
+		.vertex = {{0,0,0}},
+	};
 	int x0, x1, z0, z1, midX, midZ, xAdd, zAdd;
 
 	x0 = bPtr[0];

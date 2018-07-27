@@ -78,18 +78,6 @@
 #define DumpWidth					VAR_I_(0x00466BE8, __int16,			50)
 #define DumpHeight					VAR_I_(0x00466BEA, __int16,			0)
 #define DetailLevel					VAR_I_(0x00467724, DWORD,			1)
-#define ShadowInfo					VAR_I_(0x00467750, SHADOW_INFO, "...") /* = {
-	0, 0, 0, 0x7FFF,
-	1, 8,
-	{0, 0, 0},
-	{0, 0, 0},
-	{0, 0, 0},
-	{0, 0, 0},
-	{0, 0, 0},
-	{0, 0, 0},
-	{0, 0, 0},
-	{0, 0, 0}
-}; */
 #define MidSort						VAR_I_(0x0046C2F0, DWORD,			0)
 #define FltViewAspect				VAR_I_(0x0046C2F4, float,			0.0)
 #define XGen_y0						VAR_I_(0x0046C2F8, int,				0)
@@ -461,8 +449,6 @@
 #define XBuffer						ARRAY_(0x004CAF50, int, [12000]) // NOTE: this means that SW renderer maximum safe resolution is 1200 pixels
 #define TexturePageBuffer8			ARRAY_(0x004D6AD0, BYTE*, [32])
 #define WibbleTable					ARRAY_(0x004D6B68, float, [32])
-#define VBuffer						ARRAY_(0x004D6CC8, VERTEX_INFO, [20])
-#define VBufferD3D					ARRAY_(0x004D6F70, D3DTLVERTEX, [32])
 #define GamePalette16				ARRAY_(0x004D7370, PALETTEENTRY, [256])
 #define InvItemText					ARRAY_(0x004D7938, TEXT_STR_INFO*, [2])
 #define InventoryExtraData			ARRAY_(0x004D7970, int, [8])
