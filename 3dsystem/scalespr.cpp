@@ -70,7 +70,7 @@ void __cdecl S_DrawSprite(DWORD flags, int x, int y, int z, __int16 spriteIdx, _
 	x2 = PhdSpriteInfo[spriteIdx].x2;
 	y2 = PhdSpriteInfo[spriteIdx].y2;
 
-	if( (flags & 0x04000000) != 0 ) {
+	if( (flags & 0x04000000) != 0 ) { // scaling required
 		x1 = x1 * scale / PHD_ONE;
 		y1 = y1 * scale / PHD_ONE;
 		x2 = x2 * scale / PHD_ONE;
@@ -100,16 +100,22 @@ void __cdecl S_DrawSprite(DWORD flags, int x, int y, int z, __int16 spriteIdx, _
 	if( y2 < 0 )
 		return;
 
-	if( (flags & 0x08000000) != 0 ) {
+	if( (flags & 0x08000000) != 0 ) { // shading required
 		depth = zv >> W2V_SHIFT;
 #ifdef FEATURE_FOG_DISTANCE
-		shade += CalculateFogShade(depth);
-#else // !FEATURE_FOG_DISTANCE
-		if( depth > DEPTHQ_START )
-			shade += depth - DEPTHQ_START;
-#endif // FEATURE_FOG_DISTANCE
-		if( shade > 0x1FFF )
+		if( depth > PhdViewDistance )
 			return;
+
+		shade += CalculateFogShade(depth);
+		CLAMP(shade, 0, 0x1FFF);
+#else // !FEATURE_FOG_DISTANCE
+		if( depth > DEPTHQ_START ) {
+			shade += depth - DEPTHQ_START;
+			if( shade > 0x1FFF ) {
+				return;
+			}
+		}
+#endif // FEATURE_FOG_DISTANCE
 	} else {
 		shade = 0x1000;
 	}
