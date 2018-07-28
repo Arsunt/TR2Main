@@ -833,17 +833,9 @@ void __cdecl phd_PushMatrix() {
 
 void __cdecl phd_PushUnitMatrix() {
 	++PhdMatrixPtr;
-
+	memset(PhdMatrixPtr, 0, sizeof(PHD_MATRIX));
 	PhdMatrixPtr->_00 = W2V_SCALE;
-	PhdMatrixPtr->_01 = 0;
-	PhdMatrixPtr->_02 = 0;
-
-	PhdMatrixPtr->_10 = 0;
 	PhdMatrixPtr->_11 = W2V_SCALE;
-	PhdMatrixPtr->_12 = 0;
-
-	PhdMatrixPtr->_20 = 0;
-	PhdMatrixPtr->_21 = 0;
 	PhdMatrixPtr->_22 = W2V_SCALE;
 }
 

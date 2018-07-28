@@ -467,7 +467,7 @@ void __cdecl S_CalculateLight(int x, int y, int z, __int16 roomNumber) {
 void __cdecl S_CalculateStaticLight(__int16 adder) {
 	int depth;
 
-	LsAdder = adder - 16*256;
+	LsAdder = adder - 0x1000;
 	depth = PhdMatrixPtr->_23 >> W2V_SHIFT;
 #ifdef FEATURE_FOG_DISTANCE
 	LsAdder += CalculateFogShade(depth);
