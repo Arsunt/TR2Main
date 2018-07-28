@@ -29,8 +29,10 @@
 void __cdecl DrawSpriteItem(ITEM_INFO *item) {
 	OBJECT_INFO *obj;
 
+	phd_PushUnitMatrix(); // NOTE: this push is workaround for sprites with no matrix
 	S_CalculateStaticMeshLight(item->pos.x, item->pos.y, item->pos.z,
 		item->shade1, item->shade2, &RoomInfo[item->roomNumber]);
+	phd_PopMatrix(); // NOTE: this pop is workaround for sprites with no matrix
 
 	obj = &Objects[item->objectID];
 
