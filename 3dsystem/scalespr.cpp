@@ -32,7 +32,7 @@ void __cdecl S_DrawSprite(DWORD flags, int x, int y, int z, __int16 spriteIdx, _
 	int xv, yv, zv, zp, depth;
 	int x1, y1, x2, y2;
 
-	if( (flags & 0x01000000) != 0 ) { // absolute coords
+	if( CHK_ANY(flags, SPR_ABS) ) { // absolute coords
 		x -= MatrixW2V._03;
 		y -= MatrixW2V._13;
 		z -= MatrixW2V._23;
@@ -70,7 +70,7 @@ void __cdecl S_DrawSprite(DWORD flags, int x, int y, int z, __int16 spriteIdx, _
 	x2 = PhdSpriteInfo[spriteIdx].x2;
 	y2 = PhdSpriteInfo[spriteIdx].y2;
 
-	if( (flags & 0x04000000) != 0 ) { // scaling required
+	if( CHK_ANY(flags, SPR_SCALE) ) { // scaling required
 		x1 = x1 * scale / PHD_ONE;
 		y1 = y1 * scale / PHD_ONE;
 		x2 = x2 * scale / PHD_ONE;
@@ -100,7 +100,7 @@ void __cdecl S_DrawSprite(DWORD flags, int x, int y, int z, __int16 spriteIdx, _
 	if( y2 < 0 )
 		return;
 
-	if( (flags & 0x08000000) != 0 ) { // shading required
+	if( CHK_ANY(flags, SPR_SHADE) ) { // shading required
 		depth = zv >> W2V_SHIFT;
 #ifdef FEATURE_FOG_DISTANCE
 		if( depth > PhdViewDistance )

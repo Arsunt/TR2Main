@@ -203,6 +203,12 @@ typedef struct {
 #define SFX_UNDERWATER		(1)
 #define SFX_ALWAYS			(2)
 
+// Sprite flags
+#define SPR_ABS			0x01000000
+#define SPR_SEMITRANS	0x02000000
+#define SPR_SCALE		0x04000000
+#define SPR_SHADE		0x08000000
+
 /*
  * Enums
  */

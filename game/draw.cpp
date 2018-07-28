@@ -22,7 +22,26 @@
 #include "global/precompiled.h"
 #include "game/draw.h"
 #include "3dsystem/3d_gen.h"
+#include "3dsystem/scalespr.h"
+#include "specific/output.h"
 #include "global/vars.h"
+
+void __cdecl DrawSpriteItem(ITEM_INFO *item) {
+	OBJECT_INFO *obj;
+
+	S_CalculateStaticMeshLight(item->pos.x, item->pos.y, item->pos.z,
+		item->shade1, item->shade2, &RoomInfo[item->roomNumber]);
+
+	obj = &Objects[item->objectID];
+
+	S_DrawSprite(SPR_ABS | SPR_SHADE | (CHK_ANY(obj->flags, 0x40) ? SPR_SEMITRANS : 0),
+				 item->pos.x, item->pos.y, item->pos.z,
+				 obj->meshIndex - item->frameNumber,
+				 LsAdder + 0x1000, 0);
+}
+
+void __cdecl DrawDummyItem(ITEM_INFO *item) {
+}
 
 void __cdecl phd_RotYXZsuperpack(UINT16 **pptr, int index) {
 	for( int i = 0; i < index; ++i ) {
@@ -65,7 +84,9 @@ void Inject_Draw() {
 //	INJECT(0x00419580, PrintRooms);
 //	INJECT(0x00419640, PrintObjects);
 //	INJECT(0x00419870, DrawEffect);
-//	INJECT(0x004199C0, DrawSpriteItem);
+
+	INJECT(0x004199C0, DrawSpriteItem);
+
 //	INJECT(----------, DrawDummyItem);
 //	INJECT(0x00419A50, DrawAnimatingItem);
 //	INJECT(0x00419DD0, DrawLara);

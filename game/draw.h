@@ -38,8 +38,9 @@
 // 0x00419580:		PrintRooms
 // 0x00419640:		PrintObjects
 // 0x00419870:		DrawEffect
-// 0x004199C0:		DrawSpriteItem
-// ----------:		DrawDummyItem
+
+void __cdecl DrawSpriteItem(ITEM_INFO *item); // 0x004199C0
+void __cdecl DrawDummyItem(ITEM_INFO *item);
 
 #define DrawAnimatingItem ((void(__cdecl*)(ITEM_INFO*)) 0x00419A50)
 
