@@ -38,20 +38,13 @@ void __cdecl DInputRelease() {
 }
 
 void __cdecl WinInReadKeyboard(LPVOID lpInputData) {
-#if defined FEATURE_INPUT_KB_RECOVER_FIX
+	// NOTE: the original code did check only DIERR_INPUTLOST. Any FAILED state must be check to call Acquire
 	while FAILED(IDID_SysKeyboard->GetDeviceState(256, lpInputData)) {
 		if FAILED(IDID_SysKeyboard->Acquire()) {
 			memset(lpInputData, 0, 256);
 			break;
 		}
 	}
-#else // !FEATURE_INPUT_KB_RECOVER_FIX
-	if( DIERR_INPUTLOST == IDID_SysKeyboard->GetDeviceState(256, lpInputData) ) {
-		if( FAILED(IDID_SysKeyboard->Acquire()) || FAILED(IDID_SysKeyboard->GetDeviceState(256, lpInputData)) ) {
-			memset(lpInputData, 0, 256);
-		}
-	}
-#endif // FEATURE_INPUT_KB_RECOVER_FIX
 }
 
 DWORD __cdecl WinInReadJoystick(int *xPos, int *yPos) {

@@ -439,11 +439,10 @@ void __cdecl S_LoadSettings() {
 
 	CloseGameRegistryKey();
 
-#ifdef FEATURE_INPUT_CONFLICTS_FIX
+	// NOTE: There was no such call in the original code, which produces control configuration bugs
 	DefaultConflict();
-#endif // FEATURE_INPUT_CONFLICTS_FIX
 
-// NOTE: There was no such volume range check in the original game
+	// NOTE: There was no such volume range check in the original game
 	SoundVolume = (soundVol > 10) ? 10 : soundVol;
 	MusicVolume = (musicVol > 10) ? 10 : musicVol;
 	S_SoundSetMasterVolume(6 * SoundVolume + 4);	// 4,  10,  16,  22,  28,  34,  40,  46,  52,  58,  64
