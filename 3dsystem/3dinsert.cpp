@@ -1196,11 +1196,19 @@ void __cdecl InsertTrans8(PHD_VBUF *vbuf, __int16 shade) {
 		if( nPoints == 0) return;
 	}
 
+#ifdef FEATURE_SHADOW_IMPROVED
+	double polyZflt = 0.0;
+	for( i = 0; i < nVtx; ++i ) {
+		polyZflt += (double)vbuf[i].zv / (double)nVtx;
+	}
+	polyZ = polyZflt;
+#else // FEATURE_SHADOW_IMPROVED
 	polyZ = 0;
 	for( i = 0; i < nVtx; ++i ) {
 		polyZ += vbuf[i].zv;
 	}
 	polyZ /= nVtx;
+#endif // FEATURE_SHADOW_IMPROVED
 
 	Sort3dPtr->_0 = (int)Info3dPtr;
 	Sort3dPtr->_1 = polyZ;
@@ -2554,11 +2562,19 @@ void __cdecl InsertTrans8_Sorted(PHD_VBUF *vbuf, __int16 shade) {
 		if( nPoints == 0) return;
 	}
 
+#ifdef FEATURE_SHADOW_IMPROVED
+	double polyZflt = 0.0;
+	for( i = 0; i < nVtx; ++i ) {
+		polyZflt += (double)vbuf[i].zv / (double)nVtx;
+	}
+	polyZ = polyZflt;
+#else // FEATURE_SHADOW_IMPROVED
 	polyZ = 0;
 	for( i = 0; i < nVtx; ++i ) {
 		polyZ += vbuf[i].zv;
 	}
 	polyZ /= nVtx;
+#endif // FEATURE_SHADOW_IMPROVED
 
 	InsertPoly_Gouraud(nPoints, (float)(polyZ - 0x20000), 0, 0, 0, POLY_HWR_trans);
 }
