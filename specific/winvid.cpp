@@ -660,6 +660,16 @@ HRESULT WINAPI EnumDisplayModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOID 
 	if( (lpDDSurfaceDesc->ddpfPixelFormat.dwFlags & DDPF_PALETTEINDEXED8) != 0 &&
 		lpDDSurfaceDesc->ddpfPixelFormat.dwRGBBitCount == 8 )
 	{
+#ifdef FEATURE_VIDMODESORT
+		// Check software renderer requirements for 8 bit display modes
+		if( lpDDSurfaceDesc->dwWidth  % 8 != 0 ||
+			lpDDSurfaceDesc->dwHeight % 4 != 0 ||
+			lpDDSurfaceDesc->dwHeight > 1200 )
+		{
+			return DDENUMRET_OK;
+		}
+#endif // FEATURE_VIDMODESORT
+
 		if( (lpDDSurfaceDesc->ddsCaps.dwCaps & DDSCAPS_MODEX) != 0 ) {
 			vgaMode = VGA_ModeX;
 		} else if( (lpDDSurfaceDesc->ddsCaps.dwCaps & DDSCAPS_STANDARDVGAMODE) != 0 ) {
