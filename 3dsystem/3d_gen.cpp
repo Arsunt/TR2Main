@@ -773,7 +773,7 @@ void __cdecl phd_InitWindow(__int16 x, __int16 y, int width, int height, int nea
 	FogBeginDepth		= (int)(baseDistance * FogBeginFactor);
 	FogEndDepth			= (int)(baseDistance * FogEndFactor);
 	WaterFogBeginDepth	= (int)(baseDistance * WaterFogBeginFactor);
-	WaterFogBeginDepth	= (int)(baseDistance * WaterFogEndFactor);
+	WaterFogEndDepth	= (int)(baseDistance * WaterFogEndFactor);
 #endif // FEATURE_FOG_DISTANCE
 
 	PhdNearZ = nearZ << W2V_SHIFT;
