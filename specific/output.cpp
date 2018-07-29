@@ -778,7 +778,7 @@ void __cdecl S_AnimateTextures(int nFrames) {
 	AnimateTextures(nFrames);
 }
 
-void __cdecl S_DisplayPicture(LPCTSTR fileName, BOOL reallocGame) {
+void __cdecl S_DisplayPicture(LPCTSTR fileName, BOOL isTitle) {
 	DWORD bytesRead;
 	HANDLE hFile;
 	DWORD fileSize;
@@ -792,7 +792,7 @@ void __cdecl S_DisplayPicture(LPCTSTR fileName, BOOL reallocGame) {
 	if( hFile == INVALID_HANDLE_VALUE )
 		return;
 
-	if( !reallocGame )
+	if( !isTitle )
 		init_game_malloc();
 
 	fileSize = GetFileSize(hFile, NULL);
@@ -804,14 +804,12 @@ void __cdecl S_DisplayPicture(LPCTSTR fileName, BOOL reallocGame) {
 	bitmapData = (BYTE *)game_malloc(bitmapSize, GBUF_LoadPiccyBuffer);
 	DecompPCX(fileData, fileSize, bitmapData, PicPalette);
 
-	DecompPCX(fileData, fileSize, bitmapData, PicPalette);
-
 	if( SavedAppSettings.RenderMode == RM_Software )
 		WinVidCopyBitmapToBuffer(PictureBufferSurface, bitmapData);
 	else
 		BGND_Make640x480(bitmapData, PicPalette);
 
-	if( !reallocGame )
+	if( !isTitle )
 		CopyBitmapPalette(PicPalette, bitmapData, bitmapSize, GamePalette8);
 
 	game_free(fileSize + bitmapSize);
@@ -961,7 +959,7 @@ BOOL __cdecl DecompPCX(BYTE *pcx, DWORD pcxSize, BYTE *pic, RGB888 *pal) {
 	BYTE *src, *dst;
 
 	header = (PCX_HEADER *)pcx;
-	width	= header->xMax - header->xMin + 1;
+	width  = header->xMax - header->xMin + 1;
 	height = header->yMax - header->yMin + 1;
 
 	if( header->manufacturer != 10 ||
