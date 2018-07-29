@@ -29,7 +29,7 @@
 #include <math.h>
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
-#include "modding/psx_background.h"
+#include "modding/background_new.h"
 
 DWORD InvBackgroundMode;
 #endif // FEATURE_BACKGROUND_IMPROVED

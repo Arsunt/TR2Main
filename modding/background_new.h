@@ -19,8 +19,8 @@
  * along with TR2Main.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PSX_BACKGROUND_H_INCLUDED
-#define PSX_BACKGROUND_H_INCLUDED
+#ifndef BACKGROUND_NEW_H_INCLUDED
+#define BACKGROUND_NEW_H_INCLUDED
 
 #include "global/types.h"
 
@@ -30,4 +30,4 @@
 void PSX_Background(D3DTEXTUREHANDLE texSource, int tu, int tv, int t_width, int t_height, int halfRowCount,
 					__int16 amplitude, __int16 deformWavePhase, __int16 shortWavePhase, __int16 longWavePhase);
 
-#endif // PSX_BACKGROUND_H_INCLUDED
+#endif // BACKGROUND_NEW_H_INCLUDED

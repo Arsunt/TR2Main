@@ -20,7 +20,7 @@
  */
 
 #include "global/precompiled.h"
-#include "modding/psx_background.h"
+#include "modding/background_new.h"
 #include "3dsystem/phd_math.h"
 #include "specific/hwr.h"
 #include "global/vars.h"
