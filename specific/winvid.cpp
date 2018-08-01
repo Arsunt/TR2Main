@@ -363,6 +363,8 @@ HRESULT __cdecl DDrawSurfaceCreate(LPDDSURFACEDESC dsp, LPDIRECTDRAWSURFACE3 *su
 }
 
 HRESULT __cdecl DDrawSurfaceRestoreLost(LPDIRECTDRAWSURFACE3 surface1, LPDIRECTDRAWSURFACE3 surface2, bool blank) {
+	if( surface1 == NULL ) // NOTE: additional check just in case
+		return 0;
 
 	HRESULT rc = surface1->IsLost();
 	if( rc != DDERR_SURFACELOST )
@@ -377,6 +379,9 @@ HRESULT __cdecl DDrawSurfaceRestoreLost(LPDIRECTDRAWSURFACE3 surface1, LPDIRECTD
 
 bool __cdecl WinVidClearBuffer(LPDIRECTDRAWSURFACE3 surface, LPRECT rect, DWORD fillColor) {
 	DDBLTFX bltFx;
+
+	if( surface == NULL ) // NOTE: additional check just in case
+		return 0;
 
 	memset(&bltFx, 0, sizeof(DDBLTFX));
 	bltFx.dwSize = sizeof(DDBLTFX);
@@ -408,6 +413,8 @@ bool __cdecl WinVidCopyBitmapToBuffer(LPDIRECTDRAWSURFACE3 surface, BYTE *bitmap
 	DWORD i;
 	BYTE *src, *dst;
 	DDSURFACEDESC desc;
+	if( surface == NULL || bitmap == NULL ) // NOTE: additional check just in case
+		return false;
 
 	if FAILED(WinVidBufferLock(surface, &desc, DDLOCK_WRITEONLY|DDLOCK_WAIT))
 		return false;
@@ -549,6 +556,11 @@ bool __cdecl WinVidGoWindowed(int width, int height, DISPLAY_MODE *dispMode) {
 	maxWidth = dispMode->width;
 	maxHeight = CalculateWindowHeight(dispMode->width, dispMode->height);
 
+#ifdef FEATURE_VIDMODESORT
+	CLAMPG(maxWidth, MAX_SURFACE_SIZE);
+	CLAMPG(maxHeight, MAX_SURFACE_SIZE);
+#endif // FEATURE_VIDMODESORT
+
 	if( maxHeight > dispMode->height ) {
 		maxHeight = dispMode->height;
 		maxWidth = CalculateWindowWidth(dispMode->width, dispMode->height);
@@ -656,6 +668,15 @@ HRESULT WINAPI EnumDisplayModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOID 
 	{
 		return DDENUMRET_OK;
 	}
+
+#ifdef FEATURE_VIDMODESORT
+	// Check that display mode is supported
+	if( lpDDSurfaceDesc->dwWidth  > MAX_SURFACE_SIZE ||
+		lpDDSurfaceDesc->dwHeight > MAX_SURFACE_SIZE )
+	{
+		return DDENUMRET_OK;
+	}
+#endif // FEATURE_VIDMODESORT
 
 	if( (lpDDSurfaceDesc->ddpfPixelFormat.dwFlags & DDPF_PALETTEINDEXED8) != 0 &&
 		lpDDSurfaceDesc->ddpfPixelFormat.dwRGBBitCount == 8 )

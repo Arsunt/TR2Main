@@ -824,7 +824,11 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 	EnableWindow(hItem, windowedModeListAvailable);
 	if( windowedSizeAvailable ) {
 		int minPosition = 0;
-		int maxPosition = ((preferred->screenWidth - 320 ) / 32) & 0xFFFF;
+		int maxWidth = preferred->screenWidth;
+#ifdef FEATURE_VIDMODESORT
+		CLAMPG(maxWidth, MAX_SURFACE_SIZE);
+#endif // FEATURE_VIDMODESORT
+		int maxPosition = ((maxWidth - 320 ) / 32) & 0xFFFF;
 
 		SendMessage(hItem, TBM_SETRANGE, 1, ((maxPosition<<0x10)|minPosition));
 		DWORD sliderPosition = SendMessage(hItem, TBM_GETPOS, 0, 0);
@@ -838,7 +842,11 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 				ChangedAppSettings.WindowHeight = ChangedAppSettings.WindowWidth*9/16;
 				break;
 			case AM_Any :
+#ifdef FEATURE_VIDMODESORT
+				ChangedAppSettings.WindowHeight = ChangedAppSettings.WindowWidth*3/4;
+#else // !FEATURE_VIDMODESORT
 				ChangedAppSettings.WindowHeight = ChangedAppSettings.WindowWidth;
+#endif // FEATURE_VIDMODESORT
 				break;
 		}
 	}

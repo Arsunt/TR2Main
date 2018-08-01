@@ -920,6 +920,9 @@ void __cdecl S_CopyBufferToScreen() {
 	DWORD color = 0xFFFFFFFF; // vertex color (ARGB white)
 
 	if( SavedAppSettings.RenderMode == RM_Software ) {
+		if( PictureBufferSurface == NULL ) { // NOTE: additional check just in case
+			return;
+		}
 		if( memcmp(GamePalette8, PicPalette, sizeof(RGB888)*256) ) {
 			S_SyncPictureBufferPalette();
 		}
