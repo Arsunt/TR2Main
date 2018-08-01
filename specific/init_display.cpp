@@ -32,6 +32,13 @@
 #include "specific/winvid.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_BACKGROUND_IMPROVED
+#include "modding/background_new.h"
+
+extern DWORD BGND_PictureWidth;
+extern DWORD BGND_PictureHeight;
+#endif // FEATURE_BACKGROUND_IMPROVED
+
 // Related to ERROR_CODE enum
 static LPCTSTR ErrorStringTable[] = {
 	"OK",
@@ -241,8 +248,13 @@ void __cdecl CreatePictureBuffer() {
 	dsp.dwSize = sizeof(DDSURFACEDESC);
 	dsp.dwFlags = DDSD_WIDTH|DDSD_HEIGHT|DDSD_CAPS;
 	dsp.ddsCaps.dwCaps = DDSCAPS_SYSTEMMEMORY|DDSCAPS_OFFSCREENPLAIN;
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	dsp.dwWidth = BGND_PictureWidth;
+	dsp.dwHeight = BGND_PictureHeight;
+#else // !FEATURE_BACKGROUND_IMPROVED
 	dsp.dwWidth = 640;
 	dsp.dwHeight = 480;
+#endif // FEATURE_BACKGROUND_IMPROVED
 
 	if FAILED(DDrawSurfaceCreate(&dsp, &PictureBufferSurface))
 		throw ERR_CreatePictureBuffer;
@@ -299,8 +311,13 @@ void __cdecl ClearBuffers(DWORD flags, DWORD fillColor) {
 	if( (flags & CLRB_PictureBuffer) != 0 ) {
 		winRect.left = 0;
 		winRect.top  = 0;
+#ifdef FEATURE_BACKGROUND_IMPROVED
+		winRect.right = BGND_PictureWidth;
+		winRect.bottom = BGND_PictureHeight;
+#else // !FEATURE_BACKGROUND_IMPROVED
 		winRect.right = 640;
 		winRect.bottom = 480;
+#endif // FEATURE_BACKGROUND_IMPROVED
 		WinVidClearBuffer(PictureBufferSurface, &winRect, fillColor);
 	}
 

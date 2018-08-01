@@ -55,6 +55,14 @@ extern int CalculateFogShade(int depth);
 DWORD ShadowMode = 0;
 #endif // FEATURE_SHADOW_IMPROVED
 
+#ifdef FEATURE_BACKGROUND_IMPROVED
+#include "modding/background_new.h"
+
+extern DWORD BGND_PictureWidth;
+extern DWORD BGND_PictureHeight;
+extern DWORD BGND_TextureSide;
+#endif // FEATURE_BACKGROUND_IMPROVED
+
 typedef struct ShadowInfo_t {
 	__int16 x;
 	__int16 y;
@@ -779,6 +787,12 @@ void __cdecl S_AnimateTextures(int nFrames) {
 }
 
 void __cdecl S_DisplayPicture(LPCTSTR fileName, BOOL isTitle) {
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	if( !isTitle ) {
+		init_game_malloc();
+	}
+	BGND2_LoadPicture(fileName, isTitle);
+#else // !FEATURE_BACKGROUND_IMPROVED
 	DWORD bytesRead;
 	HANDLE hFile;
 	DWORD fileSize;
@@ -800,7 +814,7 @@ void __cdecl S_DisplayPicture(LPCTSTR fileName, BOOL isTitle) {
 	ReadFile(hFile, fileData, fileSize, &bytesRead, NULL);
 	CloseHandle(hFile);
 
-	bitmapSize = 640*480*1;
+	bitmapSize = 640*480;
 	bitmapData = (BYTE *)game_malloc(bitmapSize, GBUF_LoadPiccyBuffer);
 	DecompPCX(fileData, fileSize, bitmapData, PicPalette);
 
@@ -813,15 +827,23 @@ void __cdecl S_DisplayPicture(LPCTSTR fileName, BOOL isTitle) {
 		CopyBitmapPalette(PicPalette, bitmapData, bitmapSize, GamePalette8);
 
 	game_free(fileSize + bitmapSize);
+#endif // FEATURE_BACKGROUND_IMPROVED
 }
 
 void __cdecl S_SyncPictureBufferPalette() {
 	DDSURFACEDESC desc;
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	int width = BGND_PictureWidth;
+	int height = BGND_PictureHeight;
+#else // !FEATURE_BACKGROUND_IMPROVED
+	int width = 640;
+	int height = 480;
+#endif // FEATURE_BACKGROUND_IMPROVED
 
 	if( PictureBufferSurface == NULL || FAILED(WinVidBufferLock(PictureBufferSurface, &desc, DDLOCK_WRITEONLY|DDLOCK_WAIT)) )
 		return;
 
-	SyncSurfacePalettes(desc.lpSurface, 640, 480, desc.lPitch, PicPalette, desc.lpSurface, desc.lPitch, GamePalette8, TRUE);
+	SyncSurfacePalettes(desc.lpSurface, width, height, desc.lPitch, PicPalette, desc.lpSurface, desc.lPitch, GamePalette8, TRUE);
 	WinVidBufferUnlock(PictureBufferSurface, &desc);
 	memcpy(PicPalette, GamePalette8, sizeof(RGB888)*256);
 }
@@ -893,6 +915,29 @@ void __cdecl ScreenClear(bool isPhdWinSize) {
 
 void __cdecl S_CopyScreenToBuffer() {
 	DDSURFACEDESC desc;
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	DWORD width = PhdWinWidth;
+	DWORD height = PhdWinHeight;
+
+	if( PictureBufferSurface != NULL &&
+		(BGND_PictureWidth != width || BGND_PictureHeight != height) )
+	{
+		PictureBufferSurface->Release();
+		PictureBufferSurface = NULL;
+	}
+	if( PictureBufferSurface == NULL ) {
+		BGND_PictureWidth = width;
+		BGND_PictureHeight = height;
+		try {
+			CreatePictureBuffer();
+		} catch(...) {
+			return;
+		}
+	}
+#else // !FEATURE_BACKGROUND_IMPROVED
+	DWORD width = 640;
+	DWORD height = 480;
+#endif // FEATURE_BACKGROUND_IMPROVED
 
 	if( SavedAppSettings.RenderMode != RM_Software )
 		return;
@@ -902,8 +947,8 @@ void __cdecl S_CopyScreenToBuffer() {
 	if SUCCEEDED(WinVidBufferLock(PictureBufferSurface, &desc, DDLOCK_WRITEONLY|DDLOCK_WAIT)) {
 		BYTE *surface = (BYTE *)desc.lpSurface;
 
-		for( int i=0; i<480; ++i ) {
-			for( int j=0; j<640; ++j ) {
+		for( DWORD i = 0; i < height; ++i ) {
+			for( DWORD j = 0; j < width; ++j ) {
 				surface[j] = DepthQIndex[surface[j]];
 			}
 			surface += desc.lPitch;
@@ -914,9 +959,6 @@ void __cdecl S_CopyScreenToBuffer() {
 }
 
 void __cdecl S_CopyBufferToScreen() {
-	static const int tileX[4] = {0, 256, 512, 640};
-	static const int tileY[3] = {0, 256, 480};
-	int i, x[4], y[3];
 	DWORD color = 0xFFFFFFFF; // vertex color (ARGB white)
 
 	if( SavedAppSettings.RenderMode == RM_Software ) {
@@ -930,13 +972,22 @@ void __cdecl S_CopyBufferToScreen() {
 	}
 	else if( BGND_PictureIsReady ) {
 		BGND_GetPageHandles();
+		HWR_EnableZBuffer(false, false);
+#ifdef FEATURE_BACKGROUND_IMPROVED
+		BGND2_DrawTexture(0, 0, PhdWinWidth, PhdWinHeight, BGND_PageHandles[0],
+						  0, 0, BGND_PictureWidth, BGND_PictureHeight,
+						  BGND_TextureSide, color, color, color, color);
+
+#else // !FEATURE_BACKGROUND_IMPROVED
+		static const int tileX[4] = {0, 256, 512, 640};
+		static const int tileY[3] = {0, 256, 480};
+		int i, x[4], y[3];
 
 		for( i = 0; i < 4; ++i )
 			 x[i] = tileX[i] * PhdWinWidth / 640 + PhdWinMinX;
 		for( i = 0; i < 3; ++i )
 			 y[i] = tileY[i] * PhdWinHeight / 480 + PhdWinMinY;
 
-		HWR_EnableZBuffer(false, false);
 		DrawTextureTile(x[0], y[0], x[1]-x[0], y[1]-y[0], BGND_PageHandles[0],
 						0, 0, 256, 256, color, color, color, color);
 		DrawTextureTile(x[1], y[0], x[2]-x[1], y[1]-y[0], BGND_PageHandles[1],
@@ -949,6 +1000,7 @@ void __cdecl S_CopyBufferToScreen() {
 						0, 0, 256, 224, color, color, color, color);
 		DrawTextureTile(x[2], y[1], x[3]-x[2], y[2]-y[1], BGND_PageHandles[2],
 						128, 0, 128, 224, color, color, color, color);
+#endif // FEATURE_BACKGROUND_IMPROVED
 		HWR_EnableZBuffer(true, true);
 	}
 	else {

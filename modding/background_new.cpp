@@ -22,10 +22,21 @@
 #include "global/precompiled.h"
 #include "modding/background_new.h"
 #include "3dsystem/phd_math.h"
+#include "specific/background.h"
+#include "specific/file.h"
 #include "specific/hwr.h"
+#include "specific/init_display.h"
+#include "specific/output.h"
+#include "specific/texture.h"
+#include "specific/utils.h"
+#include "specific/winvid.h"
 #include "global/vars.h"
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
+
+DWORD BGND_PictureWidth  = 640;
+DWORD BGND_PictureHeight = 480;
+DWORD BGND_TextureSide  = 1024;
 
 /// Short wave horizontal pattern step
 #define SHORT_WAVE_X_STEP	(0x3000)
@@ -190,6 +201,219 @@ void PSX_Background(D3DTEXTUREHANDLE texSource, int tu, int tv, int t_width, int
 		}
 	}
 	free(vertices);
+}
+
+static int GetPcxResolution(void *pcx, DWORD pcxSize, DWORD *width, DWORD *height) {
+	PCX_HEADER *header;
+
+	if( pcx == NULL || pcxSize <= sizeof(PCX_HEADER) || width == NULL || height == NULL ) {
+		return -1;
+	}
+
+	header  = (PCX_HEADER *)pcx;
+	*width  = header->xMax - header->xMin + 1;
+	*height = header->yMax - header->yMin + 1;
+
+	if( header->manufacturer != 10 ||
+		header->version < 5 ||
+		header->bpp != 8 ||
+		header->rle != 1 ||
+		header->planes != 1 ||
+		*width == 0 ||
+		*height == 0 )
+	{
+		return -1;
+	}
+
+	return 0;
+}
+
+static int MakeBgndTexture(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmpPal) {
+	DWORD side = 1;
+	int pageIndex;
+
+	while( side < width || side < height ) {
+		side <<= 1;
+		if( side > MAX_SURFACE_SIZE ) {
+			return -1;
+		}
+	}
+
+	BGND_PaletteIndex = (TextureFormat.bpp < 16) ? CreateTexturePalette(bmpPal) : -1;
+
+	if( BGND_PaletteIndex < 0 ) {
+		UINT16 *tmpBmp = (UINT16 *)calloc(2, SQR(side));
+		UINT16 *bmpDst = tmpBmp;
+		BYTE *bmpSrc = bitmap;
+
+		// Translating bitmap data from 8 bit bitmap to 16 bit bitmap
+		for( DWORD j = 0; j < height; ++j ) {
+			for( DWORD i = 0; i < width; ++i ) {
+				RGB888 *color = &bmpPal[bmpSrc[i]]; // get RGB color from palette
+				bmpDst[i] = (1 << 15) // convert RGB to 16 bit
+						| (((UINT16)color->red   >> 3) << 10)
+						| (((UINT16)color->green >> 3) << 5)
+						| (((UINT16)color->blue  >> 3));
+			}
+			bmpSrc += width;
+			bmpDst += side;
+		}
+		pageIndex = AddTexturePage16(side, side, (BYTE *)tmpBmp);
+		free(tmpBmp);
+	} else {
+		BYTE *tmpBmp = (BYTE *)calloc(1, SQR(side));
+		UT_MemBlt(tmpBmp, 0, 0, width, height, side, bitmap, 0, 0, width);
+		pageIndex = AddTexturePage8(side, side, tmpBmp, BGND_PaletteIndex);
+		free(tmpBmp);
+	}
+
+	if( pageIndex < 0) {
+		return -1;
+	}
+
+	BGND_PictureWidth = width;
+	BGND_PictureHeight = height;
+	BGND_TextureSide = side;
+
+	BGND_TexturePageIndexes[0] = pageIndex;
+	BGND_GetPageHandles();
+	BGND_PictureIsReady = true;
+	return 0;
+}
+
+int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle) {
+	DWORD bytesRead;
+	HANDLE hFile;
+	DWORD fileSize, bitmapSize;
+	BYTE *fileData = NULL;
+	BYTE *bitmapData = NULL;
+	DWORD width, height;
+	LPCTSTR fullPath;
+
+	if( fileName == NULL || *fileName == 0 ) {
+		goto FAIL;
+	}
+
+	fullPath = GetFullPath(fileName);
+	if( INVALID_FILE_ATTRIBUTES == GetFileAttributes(fullPath) ) {
+		goto FAIL;
+	}
+	hFile = CreateFile(fullPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if( hFile == INVALID_HANDLE_VALUE ) {
+		goto FAIL;
+	}
+	fileSize = GetFileSize(hFile, NULL);
+	fileData = (BYTE *)malloc(fileSize);
+	ReadFile(hFile, fileData, fileSize, &bytesRead, NULL);
+	CloseHandle(hFile);
+
+	if( GetPcxResolution(fileData, fileSize, &width, &height) ||
+		width > MAX_SURFACE_SIZE || height > MAX_SURFACE_SIZE )
+	{
+		goto FAIL;
+	}
+
+	bitmapSize = width * height;
+	bitmapData = (BYTE *)malloc(bitmapSize);
+	DecompPCX(fileData, fileSize, bitmapData, PicPalette);
+
+	if( PictureBufferSurface != NULL &&
+		(BGND_PictureWidth != width || BGND_PictureHeight != height) )
+	{
+		BGND_PictureWidth = width;
+		BGND_PictureHeight = height;
+		PictureBufferSurface->Release();
+		PictureBufferSurface = NULL;
+	}
+	if( PictureBufferSurface == NULL ) {
+		try {
+			CreatePictureBuffer();
+		} catch(...) {
+			goto FAIL;
+		}
+	}
+
+	if( SavedAppSettings.RenderMode == RM_Software )
+		WinVidCopyBitmapToBuffer(PictureBufferSurface, bitmapData);
+	else
+		MakeBgndTexture(width, height, bitmapData, PicPalette);
+
+	if( !isTitle )
+		CopyBitmapPalette(PicPalette, bitmapData, bitmapSize, GamePalette8);
+
+	free(bitmapData);
+	free(fileData);
+
+	return 0;
+
+FAIL:
+	if( PictureBufferSurface != NULL ) {
+		PictureBufferSurface->Release();
+		PictureBufferSurface = NULL;
+	}
+	if( bitmapData != NULL ) {
+		free(bitmapData);
+	}
+	if( fileData != NULL ) {
+		free(fileData);
+	}
+	return -1;
+}
+
+
+void __cdecl BGND2_DrawTexture(int sx, int sy, int width, int height, D3DTEXTUREHANDLE texSource,
+							   int tu, int tv, int t_width, int t_height, int t_side,
+							   D3DCOLOR color0, D3DCOLOR color1, D3DCOLOR color2, D3DCOLOR color3)
+{
+	float sx0, sy0, sx1, sy1;
+	float tu0, tv0, tu1, tv1;
+	double uvAdjust;
+	D3DTLVERTEX vertex[4];
+
+	sx0 = (double)sx;
+	sy0 = (double)sy;
+	sx1 = (double)(sx + width);
+	sy1 = (double)(sy + height);
+
+	uvAdjust = ((double)UvAdd / (double)(PHD_ONE)) * ((double)t_side / 256.0);
+	tu0 = (double)tu / (double)t_side + uvAdjust;
+	tv0 = (double)tv / (double)t_side + uvAdjust;
+	tu1 = (double)(tu + t_width)  / (double)t_side - uvAdjust;
+	tv1 = (double)(tv + t_height) / (double)t_side - uvAdjust;
+
+	vertex[0].sx = sx0;
+	vertex[0].sy = sy0;
+	vertex[0].color = color0;
+	vertex[0].tu = tu0;
+	vertex[0].tv = tv0;
+
+	vertex[1].sx = sx1;
+	vertex[1].sy = sy0;
+	vertex[1].color = color1;
+	vertex[1].tu = tu1;
+	vertex[1].tv = tv0;
+
+	vertex[2].sx = sx0;
+	vertex[2].sy = sy1;
+	vertex[2].color = color2;
+	vertex[2].tu = tu0;
+	vertex[2].tv = tv1;
+
+	vertex[3].sx = sx1;
+	vertex[3].sy = sy1;
+	vertex[3].color = color3;
+	vertex[3].tu = tu1;
+	vertex[3].tv = tv1;
+
+	for( int i=0; i<4; ++i ) {
+		vertex[i].sz = 0.995;
+		vertex[i].rhw = RhwFactor / FltFarZ;
+		vertex[i].specular = 0;
+	}
+
+	HWR_TexSource(texSource);
+	HWR_EnableColorKey(false);
+	_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DVT_TLVERTEX, &vertex, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 }
 
 #endif // FEATURE_BACKGROUND_IMPROVED

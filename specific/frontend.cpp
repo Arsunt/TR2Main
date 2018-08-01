@@ -42,6 +42,10 @@
 #include "specific/winvid.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_BACKGROUND_IMPROVED
+#include "modding/background_new.h"
+#endif // FEATURE_BACKGROUND_IMPROVED
+
 static void FadeWait() {
 	// Null function
 }
@@ -329,6 +333,10 @@ void __cdecl GetSavedGamesList(REQUEST_INFO *req) {
 
 void __cdecl DisplayCredits() {
 	int i;
+	RGB888 palette[256];
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	char fileName[64] = {0};
+#else // !FEATURE_BACKGROUND_IMPROVED
 	DWORD bytesRead;
 	HANDLE hFile;
 	DWORD fileSize[9];
@@ -336,8 +344,8 @@ void __cdecl DisplayCredits() {
 	BYTE *fileData[9];
 	BYTE *bitmapData;
 	LPCSTR fullPath;
-	RGB888 palette[256];
 	char fileName[64] = "data\\credit0?.pcx";
+#endif // FEATURE_BACKGROUND_IMPROVED
 
 	TempVideoAdjust(HiRes, 1.0); // NOTE: this line was not in the original code
 	S_FadeToBlack();
@@ -346,12 +354,35 @@ void __cdecl DisplayCredits() {
 	if( !InitialiseLevel(0, 0) ) // init title level
 		return;
 
-	memcpy(palette, GamePalette8, sizeof(RGB888)*256);
-	memset(GamePalette8, 0, sizeof(RGB888)*256);
+	memcpy(palette, GamePalette8, sizeof(GamePalette8));
+	memset(GamePalette8, 0, sizeof(GamePalette8));
 
 	IsVidModeLock = true;
 	FadeToPal(0, GamePalette8);
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	S_CDPlay(52, FALSE);
 
+	// slideshow loop
+	for( i=1; i<99; ++i ) {
+		snprintf(fileName, sizeof(fileName), "data\\credit%02d.pcx", i);
+		if( BGND2_LoadPicture(fileName, FALSE) ) {
+			continue;
+		}
+
+		S_InitialisePolyList(FALSE);
+		S_CopyBufferToScreen();
+		S_OutputPolyList();
+		S_DumpScreen();
+
+		FadeToPal(30, GamePalette8);
+		S_Wait(450, FALSE); // wait 450 ticks / 225 frames / 7.5 seconds (disable keyboard)
+		S_FadeToBlack();
+		S_DontDisplayPicture();
+
+		if( IsGameToExit )
+			break;
+	}
+#else // !FEATURE_BACKGROUND_IMPROVED
 	// credit files load loop (damn, all files loaded at once!)
 	for( i=0; i<9; ++i ) {
 		fileName[12] = '0'+i+1;
@@ -365,7 +396,7 @@ void __cdecl DisplayCredits() {
 		}
 	}
 
-	bitmapSize = 640*480*1;
+	bitmapSize = 640*480;
 	bitmapData = (BYTE *)game_malloc(bitmapSize, GBUF_LoadPiccyBuffer);
 	S_CDPlay(52, FALSE);
 
@@ -385,15 +416,16 @@ void __cdecl DisplayCredits() {
 		S_DumpScreen();
 
 		FadeToPal(30, GamePalette8);
-		S_Wait(450, FALSE); // wait 450 ticks / 225 frames / 7.5 seconds
+		S_Wait(450, FALSE); // wait 450 ticks / 225 frames / 7.5 seconds (disable keyboard)
 		S_FadeToBlack();
 		S_DontDisplayPicture();
 
 		if( IsGameToExit )
 			break;
 	}
+#endif // FEATURE_BACKGROUND_IMPROVED
 
-	memcpy(GamePalette8, palette, sizeof(RGB888)*256);
+	memcpy(GamePalette8, palette, sizeof(GamePalette8));
 	S_Wait(300, FALSE); // wait 300 ticks / 150 frames / 5 seconds
 	FadeToPal(30, GamePalette8);
 	IsVidModeLock = false;
