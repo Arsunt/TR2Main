@@ -38,6 +38,8 @@ DWORD BGND_PictureWidth  = 640;
 DWORD BGND_PictureHeight = 480;
 DWORD BGND_TextureSide  = 1024;
 
+DWORD PictureStretchLimit = 10;
+
 /// Short wave horizontal pattern step
 #define SHORT_WAVE_X_STEP	(0x3000)
 /// Short wave vertical pattern step
@@ -361,7 +363,7 @@ FAIL:
 }
 
 
-void __cdecl BGND2_DrawTexture(int sx, int sy, int width, int height, D3DTEXTUREHANDLE texSource,
+void __cdecl BGND2_DrawTexture(RECT *rect, D3DTEXTUREHANDLE texSource,
 							   int tu, int tv, int t_width, int t_height, int t_side,
 							   D3DCOLOR color0, D3DCOLOR color1, D3DCOLOR color2, D3DCOLOR color3)
 {
@@ -370,10 +372,14 @@ void __cdecl BGND2_DrawTexture(int sx, int sy, int width, int height, D3DTEXTURE
 	double uvAdjust;
 	D3DTLVERTEX vertex[4];
 
-	sx0 = (double)sx;
-	sy0 = (double)sy;
-	sx1 = (double)(sx + width);
-	sy1 = (double)(sy + height);
+	if( rect == NULL ) {
+		return;
+	}
+
+	sx0 = (double)rect->left;
+	sy0 = (double)rect->top;
+	sx1 = (double)rect->right;
+	sy1 = (double)rect->bottom;
 
 	uvAdjust = ((double)UvAdd / (double)(PHD_ONE)) * ((double)t_side / 256.0);
 	tu0 = (double)tu / (double)t_side + uvAdjust;
@@ -414,6 +420,46 @@ void __cdecl BGND2_DrawTexture(int sx, int sy, int width, int height, D3DTEXTURE
 	HWR_TexSource(texSource);
 	HWR_EnableColorKey(false);
 	_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DVT_TLVERTEX, &vertex, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+}
+
+int __cdecl BGND2_CalculatePictureRect(RECT *rect) {
+	if( rect == NULL || !PhdWinWidth || !PhdWinHeight || !BGND_PictureWidth || !BGND_PictureHeight )
+		return -1;
+
+	if( PictureStretchLimit >= 100 ) {
+		*rect = PhdWinRect;
+		return 1;
+	}
+
+	DWORD stretch;
+	int x, y, w, h;
+	double windowAspect = (double)PhdWinWidth / (double)PhdWinHeight;
+	double pictureAspect = (double)BGND_PictureWidth / (double)BGND_PictureHeight;
+
+	if( windowAspect > pictureAspect ) {
+		w = (double)PhdWinHeight * pictureAspect;
+		h = PhdWinHeight;
+		x = (PhdWinWidth - w) / 2;
+		y = 0;
+		stretch = 100 * PhdWinWidth / w - 100;
+	} else {
+		w = PhdWinWidth;
+		h = (double)PhdWinWidth / pictureAspect;
+		x = 0;
+		y = (PhdWinHeight - h) / 2;
+		stretch = 100 * PhdWinHeight / h - 100;
+	}
+
+	if( stretch <= PictureStretchLimit ) {
+		*rect = PhdWinRect;
+		return 1;
+	}
+
+	rect->left = x;
+	rect->top = y;
+	rect->right = x + w;
+	rect->bottom = y + h;
+	return 0;
 }
 
 #endif // FEATURE_BACKGROUND_IMPROVED

@@ -32,8 +32,10 @@ void PSX_Background(D3DTEXTUREHANDLE texSource, int tu, int tv, int t_width, int
 
 int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle);
 
-void __cdecl BGND2_DrawTexture(int sx, int sy, int width, int height, D3DTEXTUREHANDLE texSource,
+void __cdecl BGND2_DrawTexture(RECT *rect, D3DTEXTUREHANDLE texSource,
 							   int tu, int tv, int t_width, int t_height, int t_side,
 							   D3DCOLOR color0, D3DCOLOR color1, D3DCOLOR color2, D3DCOLOR color3);
+
+int __cdecl BGND2_CalculatePictureRect(RECT *rect);
 
 #endif // BACKGROUND_NEW_H_INCLUDED

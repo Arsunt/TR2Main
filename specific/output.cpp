@@ -968,13 +968,23 @@ void __cdecl S_CopyBufferToScreen() {
 		if( memcmp(GamePalette8, PicPalette, sizeof(RGB888)*256) ) {
 			S_SyncPictureBufferPalette();
 		}
+#ifdef FEATURE_BACKGROUND_IMPROVED
+		RECT rect = PhdWinRect;
+		BGND2_CalculatePictureRect(&rect);
+		RenderBufferSurface->Blt(&rect, PictureBufferSurface, NULL, DDBLT_WAIT, NULL);
+#else // !FEATURE_BACKGROUND_IMPROVED
 		RenderBufferSurface->Blt(&GameVidRect, PictureBufferSurface, NULL, DDBLT_WAIT, NULL);
+#endif // FEATURE_BACKGROUND_IMPROVED
 	}
 	else if( BGND_PictureIsReady ) {
 		BGND_GetPageHandles();
 		HWR_EnableZBuffer(false, false);
 #ifdef FEATURE_BACKGROUND_IMPROVED
-		BGND2_DrawTexture(0, 0, PhdWinWidth, PhdWinHeight, BGND_PageHandles[0],
+		RECT rect = PhdWinRect;
+		if( !BGND2_CalculatePictureRect(&rect) ) {
+			BGND_DrawInGameBlack(); // draw black background for picture margins if required
+		}
+		BGND2_DrawTexture(&rect, BGND_PageHandles[0],
 						  0, 0, BGND_PictureWidth, BGND_PictureHeight,
 						  BGND_TextureSide, color, color, color, color);
 
