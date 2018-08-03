@@ -1020,7 +1020,7 @@ void __cdecl S_CopyBufferToScreen() {
 
 BOOL __cdecl DecompPCX(BYTE *pcx, DWORD pcxSize, BYTE *pic, RGB888 *pal) {
 	PCX_HEADER *header;
-	DWORD width, height, dsz;
+	DWORD w, h, width, height, pitch;
 	BYTE *src, *dst;
 
 	header = (PCX_HEADER *)pcx;
@@ -1039,19 +1039,30 @@ BOOL __cdecl DecompPCX(BYTE *pcx, DWORD pcxSize, BYTE *pic, RGB888 *pal) {
 
 	src = pcx + sizeof(PCX_HEADER);
 	dst = pic;
-	dsz = width*height;
+	pitch = width + width%2; // add padding if required
+	h = 0;
+	w = 0;
 
-	while( dsz > 1 ) {
+	// NOTE: PCX decoder slightly redesigned to be more compatible and stable
+	while( h < height ) {
 		if( (*src & 0xC0) == 0xC0 ) {
 			BYTE n = (*src++) & 0x3F;
 			BYTE c = *src++;
-			if( n > 0 ) memset(dst, c, n);
-			dst += n;
-			dsz -= n;
-		}
-		else {
+			if( n > 0 ) {
+				if( w < width ) {
+					CLAMPG(n, width - w);
+					memset(dst, c, n);
+					dst += n;
+				}
+				w += n;
+			}
+		} else {
 			*dst++ = *src++;
-			--dsz;
+			++w;
+		}
+		if( w >= pitch ) {
+			w = 0;
+			++h;
 		}
 	}
 
