@@ -381,7 +381,7 @@ void __cdecl BGND2_DrawTexture(RECT *rect, D3DTEXTUREHANDLE texSource,
 	sx1 = (double)rect->right;
 	sy1 = (double)rect->bottom;
 
-	uvAdjust = ((double)UvAdd / (double)(PHD_ONE)) * ((double)t_side / 256.0);
+	uvAdjust = (double)UvAdd / 256.0 / (double)t_side;
 	tu0 = (double)tu / (double)t_side + uvAdjust;
 	tv0 = (double)tv / (double)t_side + uvAdjust;
 	tu1 = (double)(tu + t_width)  / (double)t_side - uvAdjust;
