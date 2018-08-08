@@ -365,7 +365,7 @@ void __cdecl DisplayCredits() {
 	// slideshow loop
 	for( i=1; i<99; ++i ) {
 		snprintf(fileName, sizeof(fileName), "data\\credit%02d.pcx", i);
-		if( BGND2_LoadPicture(fileName, FALSE) ) {
+		if( BGND2_LoadPicture(fileName, FALSE, FALSE) ) {
 			continue;
 		}
 

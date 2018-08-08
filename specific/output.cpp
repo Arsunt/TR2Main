@@ -791,7 +791,7 @@ void __cdecl S_DisplayPicture(LPCTSTR fileName, BOOL isTitle) {
 	if( !isTitle ) {
 		init_game_malloc();
 	}
-	BGND2_LoadPicture(fileName, isTitle);
+	BGND2_LoadPicture(fileName, isTitle, FALSE);
 #else // !FEATURE_BACKGROUND_IMPROVED
 	DWORD bytesRead;
 	HANDLE hFile;
@@ -981,9 +981,9 @@ void __cdecl S_CopyBufferToScreen() {
 		HWR_EnableZBuffer(false, false);
 #ifdef FEATURE_BACKGROUND_IMPROVED
 		RECT rect = PhdWinRect;
-		if( !BGND2_CalculatePictureRect(&rect) ) {
-			BGND_DrawInGameBlack(); // draw black background for picture margins if required
-		}
+		BGND2_LoadPicture(NULL, FALSE, TRUE); // reload picture if required
+		BGND_DrawInGameBlack(); // draw black background for picture margins
+		BGND2_CalculatePictureRect(&rect);
 		BGND2_DrawTexture(&rect, BGND_PageHandles[0],
 						  0, 0, BGND_PictureWidth, BGND_PictureHeight,
 						  BGND_TextureSide, color, color, color, color);

@@ -43,6 +43,7 @@ typedef struct {
  */
 // General values
 #define REQ_LEVEL_VERSION	(45)
+#define ARRAY_SIZE(a) (sizeof(a)/sizeof(*(a)))
 
 // FPS values
 #define FRAMES_PER_SECOND	(30)
@@ -1116,6 +1117,10 @@ typedef struct TextStrInfo_t {
 	int scaleV;
 	char *pString;
 } TEXT_STR_INFO;
+
+typedef struct StringFixed4_t {
+	char str[4];
+} STRING_FIXED4;
 
 typedef struct StringFixed50_t {
 	char str[50];

@@ -62,6 +62,7 @@
 			<Add option="-Wl,--kill-at" />
 			<Add library="user32" />
 			<Add library="gdi32" />
+			<Add library="gdiplus" />
 			<Add library="comctl32" />
 			<Add library="shlwapi" />
 			<Add library="winmm" />
@@ -322,6 +323,12 @@
 
 		<Unit filename="modding/cd_pauld.cpp" />
 		<Unit filename="modding/cd_pauld.h" />
+
+		<Unit filename="modding/file_utils.cpp" />
+		<Unit filename="modding/file_utils.h" />
+
+		<Unit filename="modding/gdi_utils.cpp" />
+		<Unit filename="modding/gdi_utils.h" />
 
 		<Unit filename="modding/psx_bar.cpp" />
 		<Unit filename="modding/psx_bar.h" />

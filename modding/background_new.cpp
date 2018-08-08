@@ -30,6 +30,8 @@
 #include "specific/texture.h"
 #include "specific/utils.h"
 #include "specific/winvid.h"
+#include "modding/file_utils.h"
+#include "modding/gdi_utils.h"
 #include "global/vars.h"
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
@@ -234,6 +236,8 @@ static int MakeBgndTexture(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmpP
 	DWORD side = 1;
 	int pageIndex;
 
+	S_DontDisplayPicture(); // clean up previous textures
+
 	while( side < width || side < height ) {
 		side <<= 1;
 		if( side > MAX_SURFACE_SIZE ) {
@@ -241,9 +245,30 @@ static int MakeBgndTexture(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmpP
 		}
 	}
 
-	BGND_PaletteIndex = (TextureFormat.bpp < 16) ? CreateTexturePalette(bmpPal) : -1;
+	if( bmpPal != NULL && TextureFormat.bpp < 16 ) {
+		BGND_PaletteIndex = CreateTexturePalette(bmpPal);
+	} else {
+		BGND_PaletteIndex = -1;
+	}
 
-	if( BGND_PaletteIndex < 0 ) {
+	if( bmpPal == NULL ) { // source bitmap is not indexed
+		if( TextureFormat.bpp < 16 ) { // texture cannot be indexed in this case
+			return -1;
+		}
+		UINT16 *tmpBmp = (UINT16 *)calloc(2, SQR(side));
+		UINT16 *bmpDst = tmpBmp;
+		UINT16 *bmpSrc = (UINT16 *)bitmap;
+
+		for( DWORD j = 0; j < height; ++j ) {
+			for( DWORD i = 0; i < width; ++i ) {
+				bmpDst[i] = bmpSrc[i];
+			}
+			bmpSrc += width;
+			bmpDst += side;
+		}
+		pageIndex = AddTexturePage16(side, side, (BYTE *)tmpBmp);
+		free(tmpBmp);
+	} else if( BGND_PaletteIndex < 0 ) {
 		UINT16 *tmpBmp = (UINT16 *)calloc(2, SQR(side));
 		UINT16 *bmpDst = tmpBmp;
 		BYTE *bmpSrc = bitmap;
@@ -283,41 +308,126 @@ static int MakeBgndTexture(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmpP
 	return 0;
 }
 
-int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle) {
+static int PickBestPictureFile(LPTSTR fileName, LPCTSTR modDir) {
+	static const STRING_FIXED4 exts[] = {"PNG", "JPG", "BMP"};
+	static const BYTE numAspects = 7;
+	static const BYTE aspects[numAspects][2] = {
+		{5,4}, {4,3}, {3,2}, {16,10}, {16,9}, {21,9}, {32,9} // common display aspect ratios
+	};
+	if( fileName == NULL || !*fileName || modDir == NULL || !*modDir ) {
+		return -1;
+	}
+
+	DWORD i, j;
+	float winAspect = (float)PhdWinWidth / (float)PhdWinHeight;
+	float stretch[numAspects];
+	BYTE tmp, idx[numAspects];
+	for( i = 0; i < numAspects; ++i ) {
+		float imgAspect = (float)aspects[i][0] / (float)aspects[i][1];
+		idx[i] = i;
+		stretch[i] = (imgAspect > winAspect) ? (imgAspect / winAspect) : (winAspect / imgAspect);
+	}
+
+	for( i = 0; i < (numAspects - 1); ++i ) {
+		for( j = (i + 1); j < numAspects; ++j ) {
+			if( stretch[idx[i]] > stretch[idx[j]] ) {
+				SWAP(idx[i], idx[j], tmp); // sort stretch values
+			}
+		}
+	}
+
+	char altPath[256];
+	for( i = 0; i < numAspects; ++i ) {
+		snprintf(altPath, sizeof(altPath), ".\\%s\\%dx%d", modDir, aspects[idx[i]][0], aspects[idx[i]][1]);
+		if( 0 < AutoSelectPathAndExtension(fileName, altPath, exts, (TextureFormat.bpp < 16) ? 0 : ARRAY_SIZE(exts)) ) {
+			return 2;
+		}
+	}
+
+	snprintf(altPath, sizeof(altPath), ".\\%s", modDir);
+	return AutoSelectPathAndExtension(fileName, altPath, exts, (TextureFormat.bpp < 16) ? 0 : ARRAY_SIZE(exts));
+}
+
+int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
+	static char lastFileName[256] = {0};
+	static char lastFullPath[256] = {0};
+	static int lastWinWidth = 0;
+	static int lastWinHeight = 0;
+	static BOOL lastTitleState = 0;
 	DWORD bytesRead;
 	HANDLE hFile;
 	DWORD fileSize, bitmapSize;
 	BYTE *fileData = NULL;
 	BYTE *bitmapData = NULL;
 	DWORD width, height;
-	LPCTSTR fullPath;
+	char fullPath[256] = {0};
+	bool isPCX;
 
-	if( fileName == NULL || *fileName == 0 ) {
-		goto FAIL;
+	if( isReload ) {
+		if( IsGameWindowChanging || IsGameWindowUpdating ||
+			(lastWinWidth == PhdWinWidth && lastWinHeight == PhdWinHeight) )
+		{
+			return 0; // same dimensions - no need to reload picture
+		}
+		fileName = lastFileName; // assign last fileName pointer as parameter
+		isTitle = lastTitleState; // copy last isTitle state
+	} else {
+		if( fileName == NULL || *fileName == 0 ) {
+			goto FAIL;
+		}
+		strncpy(lastFileName, fileName, sizeof(lastFileName)); // backup filename string
+		lastTitleState = isTitle; // backup isTitle state
 	}
 
-	fullPath = GetFullPath(fileName);
+	lastWinWidth = PhdWinWidth;
+	lastWinHeight = PhdWinHeight;
+	strncpy(fullPath, GetFullPath(fileName), sizeof(fullPath));
+
+	if( 0 > PickBestPictureFile(fullPath, "pix") ) {
+		if( isReload ) {
+			if( !strncmp(lastFullPath, fullPath, sizeof(lastFullPath)) ) {
+				return 0; // same filepath - no need to reload picture
+			}
+			strncpy(lastFullPath, fullPath, sizeof(lastFullPath));
+		} else {
+			goto FAIL;
+		}
+	}
+
 	if( INVALID_FILE_ATTRIBUTES == GetFileAttributes(fullPath) ) {
 		goto FAIL;
 	}
-	hFile = CreateFile(fullPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	if( hFile == INVALID_HANDLE_VALUE ) {
+
+	if( !stricmp(PathFindExtension(fullPath), ".pcx") ) {
+		hFile = CreateFile(fullPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		if( hFile == INVALID_HANDLE_VALUE ) {
+			goto FAIL;
+		}
+		fileSize = GetFileSize(hFile, NULL);
+		fileData = (BYTE *)malloc(fileSize);
+		ReadFile(hFile, fileData, fileSize, &bytesRead, NULL);
+		CloseHandle(hFile);
+
+		if( GetPcxResolution(fileData, fileSize, &width, &height) ||
+			width > MAX_SURFACE_SIZE || height > MAX_SURFACE_SIZE )
+		{
+			goto FAIL;
+		}
+		bitmapSize = width * height;
+		bitmapData = (BYTE *)malloc(bitmapSize);
+		DecompPCX(fileData, fileSize, bitmapData, PicPalette);
+		isPCX = true;
+	} else if( TextureFormat.bpp >= 16 ) {
+		if( GDI_LoadImageFile(fullPath, &bitmapData, &width, &height, 16) ||
+			width > MAX_SURFACE_SIZE || height > MAX_SURFACE_SIZE )
+		{
+			goto FAIL;
+		}
+		bitmapSize = width * height * 2;
+		isPCX = false;
+	} else {
 		goto FAIL;
 	}
-	fileSize = GetFileSize(hFile, NULL);
-	fileData = (BYTE *)malloc(fileSize);
-	ReadFile(hFile, fileData, fileSize, &bytesRead, NULL);
-	CloseHandle(hFile);
-
-	if( GetPcxResolution(fileData, fileSize, &width, &height) ||
-		width > MAX_SURFACE_SIZE || height > MAX_SURFACE_SIZE )
-	{
-		goto FAIL;
-	}
-
-	bitmapSize = width * height;
-	bitmapData = (BYTE *)malloc(bitmapSize);
-	DecompPCX(fileData, fileSize, bitmapData, PicPalette);
 
 	if( PictureBufferSurface != NULL &&
 		(BGND_PictureWidth != width || BGND_PictureHeight != height) )
@@ -338,17 +448,21 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle) {
 	if( SavedAppSettings.RenderMode == RM_Software )
 		WinVidCopyBitmapToBuffer(PictureBufferSurface, bitmapData);
 	else
-		MakeBgndTexture(width, height, bitmapData, PicPalette);
+		MakeBgndTexture(width, height, bitmapData, isPCX ? PicPalette : NULL);
 
-	if( !isTitle )
+	if( !isTitle && isPCX ) {
 		CopyBitmapPalette(PicPalette, bitmapData, bitmapSize, GamePalette8);
-
-	free(bitmapData);
-	free(fileData);
+	}
+	if( bitmapData != NULL ) {
+		free(bitmapData);
+	}
+	if( fileData != NULL ) {
+		free(fileData);
+	}
 
 	return 0;
 
-FAIL:
+FAIL :
 	if( PictureBufferSurface != NULL ) {
 		PictureBufferSurface->Release();
 		PictureBufferSurface = NULL;
