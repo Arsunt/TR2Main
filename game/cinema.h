@@ -29,15 +29,18 @@
  */
 // 0x00411F30:		SetCutsceneTrack
 
-#define StartCinematic ((int(__cdecl*)(int)) 0x00411F40)
+int __cdecl StartCinematic(int levelID); // 0x00411F40
 
-// 0x00412060:		InitCinematicRooms
-// 0x00412100:		DoCinematic
+#define InitCinematicRooms ((void(__cdecl*)(void)) 0x00412060)
+#define DoCinematic ((int(__cdecl*)(int)) 0x00412100)
+
 // 0x00412270:		CalculateCinematicCamera
 // 0x004123B0:		GetCinematicRoom
 // 0x00412430:		ControlCinematicPlayer
 // 0x00412510:		LaraControlCinematic
-// 0x004125B0:		InitialisePlayer1
+
+#define InitialisePlayer1 ((void(__cdecl*)(__int16)) 0x004125B0)
+
 // 0x00412640:		InitialiseGenPlayer
 // 0x00412680:		InGameCinematicCamera
 

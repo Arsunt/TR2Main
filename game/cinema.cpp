@@ -21,16 +21,67 @@
 
 #include "global/precompiled.h"
 #include "game/cinema.h"
+#include "game/draw.h"
+#include "game/setup.h"
+#include "specific/frontend.h"
+#include "specific/output.h"
+#include "specific/sndpc.h"
 #include "global/vars.h"
 
+int __cdecl StartCinematic(int levelID) {
+	int result;
+	BOOL soundWasActive;
+	int framesCount;
 
+	CineLevelID = levelID;
+	IsTitleLoaded = FALSE;
+	S_FadeToBlack();
+
+	if( !InitialiseLevel(levelID, 4) ) {
+		return 2;
+	}
+
+	InitCinematicRooms();
+	InitialisePlayer1(Lara_ItemNumber);
+	Camera.targetAngle = CineTargetAngle;
+
+	soundWasActive = SoundIsActive;
+	SoundIsActive = FALSE;
+
+	CineFrameIdx = 0;
+	S_ClearScreen();
+
+	if( !StartSyncedAudio(CineTrackID) ) {
+		return 1;
+	}
+
+	S_CDVolume(255);
+	CineCurrentFrame = 0;
+
+	do {
+		DrawPhaseCinematic();
+		framesCount = CineCurrentFrame + 2 * (4 - CineFrameIdx);
+		if( framesCount < 2 ) {
+			framesCount = 2;
+		}
+		result = DoCinematic(framesCount);
+	} while( !result );
+
+	S_CDVolume((MusicVolume > 0) ? (25 * MusicVolume + 5) : 0);
+	S_CDStop();
+	SoundIsActive = soundWasActive;
+	S_SoundStopAllSamples();
+
+	IsLevelComplete = TRUE;
+	return result;
+}
 
 /*
  * Inject function
  */
 void Inject_Cinema() {
 //	INJECT(0x00411F30, SetCutsceneTrack);
-//	INJECT(0x00411F40, StartCinematic);
+	INJECT(0x00411F40, StartCinematic);
 //	INJECT(0x00412060, InitCinematicRooms);
 //	INJECT(0x00412100, DoCinematic);
 //	INJECT(0x00412270, CalculateCinematicCamera);

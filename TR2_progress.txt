@@ -177,14 +177,14 @@ x function is unused / included in another function
 
 	game/cinema.cpp
 0x00411F30:		SetCutsceneTrack
-0x00411F40:	 *	StartCinematic
-0x00412060:		InitCinematicRooms
-0x00412100:		DoCinematic
+0x00411F40:	+	StartCinematic
+0x00412060:	 *	InitCinematicRooms
+0x00412100:	 *	DoCinematic
 0x00412270:		CalculateCinematicCamera
 0x004123B0:		GetCinematicRoom
 0x00412430:		ControlCinematicPlayer
 0x00412510:		LaraControlCinematic
-0x004125B0:		InitialisePlayer1
+0x004125B0:	 *	InitialisePlayer1
 0x00412640:		InitialiseGenPlayer
 0x00412680:		InGameCinematicCamera
 
@@ -261,7 +261,7 @@ x function is unused / included in another function
 0x00418670:		DinoControl
 
 	game/draw.cpp
-0x00418920:		DrawPhaseCinematic
+0x00418920:	 *	DrawPhaseCinematic
 0x00418960:	 *	DrawPhaseGame
 0x004189A0:		DrawRooms
 0x00418C50:		GetRoomBounds

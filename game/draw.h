@@ -27,8 +27,7 @@
 /*
  * Function list
  */
-// 0x00418920:		DrawPhaseCinematic
-
+#define DrawPhaseCinematic ((int(__cdecl*)(void)) 0x00418920)
 #define DrawPhaseGame ((int(__cdecl*)(void)) 0x00418960)
 
 // 0x004189A0:		DrawRooms
