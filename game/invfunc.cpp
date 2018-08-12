@@ -331,8 +331,8 @@ BOOL __cdecl Inv_AddItem(GAME_OBJECT_ID itemID) {
 		case ID_PISTOL_ITEM :
 		case ID_PISTOL_OPTION :
 			Inv_InsertItem(&InvPistolOption);
-			if( Lara_GunType == LGT_Unarmed )
-				Lara_GunType = LGT_Pistols;
+			if( Lara_LastGunType == LGT_Unarmed )
+				Lara_LastGunType = LGT_Pistols;
 			return TRUE;
 
 		case ID_SHOTGUN_ITEM :
@@ -344,10 +344,10 @@ BOOL __cdecl Inv_AddItem(GAME_OBJECT_ID itemID) {
 			}
 			ShotgunAmmo += 12;
 			Inv_InsertItem(&InvShotgunOption);
-			if( Lara_GunType == LGT_Unarmed )
-				Lara_GunType = LGT_Shotgun;
-			if( Lara_TorsoObject == ID_LARA )
-				Lara_TorsoObject = ID_LARA_SHOTGUN;
+			if( Lara_LastGunType == LGT_Unarmed )
+				Lara_LastGunType = LGT_Shotgun;
+			if( Lara_BackGun == ID_LARA )
+				Lara_BackGun = ID_LARA_SHOTGUN;
 			GlobalItemReplace(ID_SHOTGUN_ITEM, ID_SHOTGUN_AMMO_ITEM);
 			return FALSE;
 

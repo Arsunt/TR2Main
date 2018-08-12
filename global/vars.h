@@ -316,10 +316,10 @@
 #define Lara_GunStatus				VAR_U_(0x005206E2, __int16)	// TODO: redefine
 #define Lara_CurrentGunType			VAR_U_(0x005206E4, __int16)	// TODO: redefine
 #define Lara_RequestGunType			VAR_U_(0x005206E6, __int16)	// TODO: redefine
-#define Lara_GunType				VAR_U_(0x005206E8, __int16)	// TODO: redefine
+#define Lara_LastGunType			VAR_U_(0x005206E8, __int16)	// TODO: redefine
 #define Lara_WaterStatus			VAR_U_(0x005206EC, __int16)	// TODO: redefine
 #define Lara_Air					VAR_U_(0x005206F6, __int16)	// TODO: redefine
-#define Lara_TorsoObject			VAR_U_(0x00520706, __int16)	// TODO: redefine
+#define Lara_BackGun				VAR_U_(0x00520706, __int16)	// TODO: redefine
 #define Lara_MoveAngle				VAR_U_(0x0052076A, __int16)	// TODO: redefine
 #define PistolAmmo					VAR_U_(0x0052079C, DWORD)
 #define MagnumAmmo					VAR_U_(0x005207A0, DWORD)
