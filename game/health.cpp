@@ -125,6 +125,11 @@ void __cdecl DrawHealthBar(BOOL flashState) {
 	static int oldHitPoints;
 	int hitPoints;
 
+	// NOTE: fixes original game bug when health bar is visible while final cut scene
+	if( CHK_ANY(Lara_Flags, LARA_EXTRA_ANIM) && LaraItem->currentAnimState == EXTRA_FINALANIM ) {
+		return; 
+	}
+
 	hitPoints = LaraItem->hitPoints;
 	CLAMP(hitPoints, 0, 1000);
 

@@ -320,6 +320,7 @@
 #define Lara_WaterStatus			VAR_U_(0x005206EC, __int16)	// TODO: redefine
 #define Lara_Air					VAR_U_(0x005206F6, __int16)	// TODO: redefine
 #define Lara_BackGun				VAR_U_(0x00520706, __int16)	// TODO: redefine
+#define Lara_Flags					VAR_U_(0x0052070A, UINT16)	// TODO: redefine
 #define Lara_MoveAngle				VAR_U_(0x0052076A, __int16)	// TODO: redefine
 #define PistolAmmo					VAR_U_(0x0052079C, DWORD)
 #define MagnumAmmo					VAR_U_(0x005207A0, DWORD)
