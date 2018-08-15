@@ -26,7 +26,7 @@
 #include "specific/background.h"
 #include "specific/display.h"
 #include "specific/file.h"
-#include "specific/frontend.h"
+#include "specific/game.h"
 #include "specific/hwr.h"
 #include "specific/init.h"
 #include "specific/init_display.h"

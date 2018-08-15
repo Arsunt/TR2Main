@@ -24,7 +24,7 @@
 #include "game/invtext.h"
 #include "game/sound.h"
 #include "game/text.h"
-#include "specific/frontend.h"
+#include "specific/game.h"
 #include "specific/output.h"
 #include "specific/sndpc.h"
 #include "global/vars.h"

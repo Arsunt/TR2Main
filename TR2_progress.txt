@@ -1197,6 +1197,8 @@ x function is unused / included in another function
 0x0044C4C0:	+	S_Wait
 0x0044C520:	+	S_PlayFMV
 0x0044C530:	+	S_IntroFMV
+
+	specific/game.cpp
 0x0044C550:	+	StartGame
 0x0044C6A0:	+	GameLoop
 0x0044C740:	+	LevelCompleteSequence

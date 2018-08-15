@@ -36,20 +36,5 @@ void __cdecl S_FadeToBlack(); // 0x0044C470
 void __cdecl S_Wait(int timeout, BOOL inputCheck); // 0x0044C4C0
 bool __cdecl S_PlayFMV(LPCTSTR fileName); // 0x0044C520
 bool __cdecl S_IntroFMV(LPCTSTR fileName1, LPCTSTR fileName2); // 0x0044C530
-__int16 __cdecl StartGame(int levelID, int levelType); // 0x0044C550
-int __cdecl GameLoop(BOOL demoMode); // 0x0044C6A0
-int __cdecl LevelCompleteSequence(); // 0x0044C740
-int __cdecl LevelStats(int levelID); // 0x0044C750
-int __cdecl GameStats(); // 0x0044C920
-int __cdecl GetRandomControl(); // 0x0044CA40
-void __cdecl SeedRandomControl(int seed); // 0x0044CA60
-int __cdecl GetRandomDraw(); // 0x0044CA70
-void __cdecl SeedRandomDraw(int seed); // 0x0044CA90
-void __cdecl GetValidLevelsList(REQUEST_INFO *req); // 0x0044CAA0
-void __cdecl GetSavedGamesList(REQUEST_INFO *req); // 0x0044CAF0
-void __cdecl DisplayCredits(); // 0x0044CB40
-BOOL __cdecl S_FrontEndCheck(); // 0x0044CD80
-BOOL __cdecl S_SaveGame(LPCVOID saveData, DWORD saveSize, int slotNumber); // 0x0044CEF0
-BOOL __cdecl S_LoadGame(LPVOID saveData, DWORD saveSize, int saveNumber); // 0x0044D010
 
 #endif // FRONTEND_H_INCLUDED

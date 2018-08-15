@@ -33,6 +33,7 @@
 #include "game/text.h"
 #include "specific/display.h"
 #include "specific/frontend.h"
+#include "specific/game.h"
 #include "specific/init.h"
 #include "specific/input.h"
 #include "specific/option.h"

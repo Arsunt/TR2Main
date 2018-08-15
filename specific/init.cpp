@@ -22,7 +22,7 @@
 #include "global/precompiled.h"
 #include "specific/init.h"
 #include "3dsystem/phd_math.h"
-#include "specific/frontend.h"
+#include "specific/game.h"
 #include "specific/winmain.h"
 #include "global/vars.h"
 #include <time.h>
