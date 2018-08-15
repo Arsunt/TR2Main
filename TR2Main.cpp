@@ -106,6 +106,7 @@ extern void Inject_Display();
 extern void Inject_File();
 extern void Inject_Fmv();
 extern void Inject_Frontend();
+extern void Inject_Game();
 extern void Inject_HWR();
 extern void Inject_Init();
 extern void Inject_Init3d();
@@ -188,6 +189,7 @@ static void Inject() {
 	Inject_File();
 	Inject_Fmv();
 	Inject_Frontend();
+	Inject_Game();
 	Inject_HWR();
 	Inject_Init();
 	Inject_Init3d();

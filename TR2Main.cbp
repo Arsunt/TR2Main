@@ -261,6 +261,9 @@
 		<Unit filename="specific/frontend.cpp" />
 		<Unit filename="specific/frontend.h" />
 
+		<Unit filename="specific/game.cpp" />
+		<Unit filename="specific/game.h" />
+
 		<Unit filename="specific/hwr.cpp" />
 		<Unit filename="specific/hwr.h" />
 
