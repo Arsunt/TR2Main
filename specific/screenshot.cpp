@@ -24,11 +24,6 @@
 #include "specific/winvid.h"
 #include "global/vars.h"
 
-// NOTE: the original game overwrites screenshots made before game launch
-// That is fixed now with FEATURE_SCREENSHOT_FIX define
-static int screenShotPcxNumber = 0;
-static int screenShotTgaNumber = 0;
-
 static TGA_HEADER ScreenShotTgaHeader = {
 	0, 0,
 	.dataTypeCode = 2, // Uncompressed, RGB images
@@ -43,8 +38,9 @@ static TGA_HEADER ScreenShotTgaHeader = {
 // NOTE: This function is not presented in the original code
 // but the code is taken away form ScreenShot() and extended
 // to be compatible with 24/32 bit
-// Alas, DDraw windowed mode screenshots restricted on Windows7 or above
+// Alas, DDraw primary buffer lock for windowed mode is restricted on Windows7 or above
 static void __cdecl ScreenShotTGA(LPDIRECTDRAWSURFACE3 screen, BYTE tgaBpp) {
+	static int screenShotTgaNumber = 0;
 	DWORD i, j;
 	BYTE *src, *dst;
 	DDSURFACEDESC desc;
@@ -177,6 +173,7 @@ CLEANUP :
 
 
 void __cdecl ScreenShotPCX() {
+	static int screenShotPcxNumber = 0;
 	HRESULT rc;
 	LPDIRECTDRAWSURFACE3 screen;
 	DDSURFACEDESC desc;
