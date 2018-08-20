@@ -47,6 +47,7 @@
 			<Add option="-Winvalid-pch" />
 			<Add option="-Wno-unknown-pragmas" />
 			<Add option="-DBUILD_DLL" />
+			<Add option="-D_WIN32_WINNT=0x501" />
 			<Add option="-DDIRECTDRAW_VERSION=0x500" />
 			<Add option="-DDIRECT3D_VERSION=0x500" />
 			<Add option="-DDIRECTINPUT_VERSION=0x500" />
@@ -61,6 +62,7 @@
 			<Add option="-m32" />
 			<Add option="-Wl,--kill-at" />
 			<Add library="user32" />
+			<Add library="shell32" />
 			<Add library="gdi32" />
 			<Add library="gdiplus" />
 			<Add library="comctl32" />
