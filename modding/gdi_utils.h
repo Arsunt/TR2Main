@@ -24,9 +24,23 @@
 
 #include "global/types.h"
 
+typedef enum {
+	GDI_BMP,
+	GDI_JPG,
+	GDI_PNG,
+} GDI_FILEFMT;
+
 /*
  * Function list
  */
+HBITMAP CreateBitmapFromDC(HDC dc, RECT *rect, LPVOID *lpBits, PALETTEENTRY *pal);
+
+bool __cdecl GDI_Init();
+
+void __cdecl GDI_Cleanup();
+
+int GDI_SaveImageFile(LPCSTR filename, GDI_FILEFMT format, DWORD quality, HBITMAP hbmBitmap);
+
 int GDI_LoadImageFile(LPCSTR filename, BYTE **bmPtr, DWORD *width, DWORD *height, DWORD bpp);
 
 #endif // GDI_UTILS_H_INCLUDED

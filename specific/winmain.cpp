@@ -38,6 +38,10 @@
 #include "global/resource.h"
 #include "global/vars.h"
 
+#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+#include "modding/gdi_utils.h"
+#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+
 #if defined(_MSC_VER)
 #include <se.h>
 
@@ -131,7 +135,11 @@ int __cdecl Init(bool skipCDInit) {
 
 	UT_InitAccurateTimer();
 
-	if( WinVidInit() &&
+	if(
+#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+		GDI_Init() &&
+#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+		WinVidInit() &&
 		Direct3DInit() &&
 		RenderInit() &&
 		InitTextures() &&
@@ -151,6 +159,9 @@ void __cdecl WinCleanup() {
 	WinVidFreeWindow();
 	CD_Cleanup();
 	FMV_Cleanup();
+#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+	GDI_Cleanup();
+#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
 }
 
 int __cdecl WinGameStart() {
