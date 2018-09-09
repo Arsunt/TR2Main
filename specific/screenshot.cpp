@@ -24,6 +24,70 @@
 #include "specific/winvid.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_SCREENSHOT_IMPROVED
+#include "modding/file_utils.h"
+#include "modding/gdi_utils.h"
+
+DWORD ScreenshotFormat = 0;
+char ScreenshotPath[MAX_PATH];
+
+typedef struct {
+	HBITMAP bitmap;
+	GDI_FILEFMT format;
+	BYTE quality;
+	char fileName[MAX_PATH];
+} TASK_PARAMS;
+
+static DWORD WINAPI SaveImageTask(CONST LPVOID lpParam) {
+	TASK_PARAMS *params = (TASK_PARAMS *)lpParam;
+	if( params != NULL ) {
+		if( params->bitmap != NULL ) {
+			GDI_SaveImageFile(params->fileName, params->format, params->quality, params->bitmap);
+			DeleteObject(params->bitmap);
+		}
+		delete params;
+	}
+	ExitThread(0);
+}
+
+static void __cdecl ScreenShotPNG(LPDIRECTDRAWSURFACE3 screen) {
+	static SYSTEMTIME lastTime = {0, 0, 0, 0, 0, 0, 0, 0};
+	static int lastIndex = 0;
+	RECT rect = {0, 0, 0, 0};
+	HDC dc;
+
+	if( screen == NULL || FAILED(screen->GetDC(&dc)) ) {
+		return;
+	}
+
+	if( GetClientRect(HGameWindow, &rect) ) {
+		HBITMAP bitmap;
+		LPVOID lpBits;
+
+		MapWindowPoints(HGameWindow, GetParent(HGameWindow), (LPPOINT)&rect, 2);
+
+		bitmap = CreateBitmapFromDC(dc, &rect, &lpBits, WinVidPalette);
+		if( bitmap != NULL ) {
+			TASK_PARAMS *params = new TASK_PARAMS;
+			params->bitmap = bitmap;
+			params->format = GDI_PNG;
+			params->quality = 100;
+
+			CreateDateTimeFilename(params->fileName, sizeof(params->fileName), ScreenshotPath, ".png", &lastTime, &lastIndex);
+			CreateDirectories(params->fileName, true);
+			if( !CreateThread(NULL, 0, &SaveImageTask, params, 0, NULL) ) {
+				// if failed to create a thread, we just save the image
+				GDI_SaveImageFile(params->fileName, params->format, params->quality, params->bitmap);
+				DeleteObject(bitmap);
+				delete params;
+			}
+		}
+	}
+	screen->ReleaseDC(dc);
+}
+#endif // FEATURE_SCREENSHOT_IMPROVED
+
+
 static TGA_HEADER ScreenShotTgaHeader = {
 	0, 0,
 	.dataTypeCode = 2, // Uncompressed, RGB images
@@ -40,14 +104,18 @@ static TGA_HEADER ScreenShotTgaHeader = {
 // to be compatible with 24/32 bit
 // Alas, DDraw primary buffer lock for windowed mode is restricted on Windows7 or above
 static void __cdecl ScreenShotTGA(LPDIRECTDRAWSURFACE3 screen, BYTE tgaBpp) {
-	static int screenShotTgaNumber = 0;
+	static int scrshotNumber = 0;
 	DWORD i, j;
 	BYTE *src, *dst;
 	DDSURFACEDESC desc;
 	BYTE *tgaPic = NULL;
 	HANDLE hFile = INVALID_HANDLE_VALUE;
 	DWORD bytesWritten;
+#if defined(FEATURE_SCREENSHOT_IMPROVED)
+	char fileName[MAX_PATH];
+#else // !FEATURE_SCREENSHOT_IMPROVED
 	char fileName[128];
+#endif // FEATURE_SCREENSHOT_IMPROVED
 	DWORD width = 0;
 	DWORD height = 0;
 
@@ -57,7 +125,7 @@ static void __cdecl ScreenShotTGA(LPDIRECTDRAWSURFACE3 screen, BYTE tgaBpp) {
 	memset(&desc, 0, sizeof(DDSURFACEDESC));
 	desc.dwSize = sizeof(DDSURFACEDESC);
 
-#if defined(FEATURE_SCREENSHOT_FIX)
+#if defined(FEATURE_SCREENSHOT_IMPROVED)
 	HRESULT rc;
 	RECT rect = {0,0,0,0};
 
@@ -82,21 +150,19 @@ static void __cdecl ScreenShotTGA(LPDIRECTDRAWSURFACE3 screen, BYTE tgaBpp) {
 	if( height == 0 || height > desc.dwHeight )
 		height = desc.dwHeight;
 
-	do { // search first free screenshot slot
-		if( ++screenShotTgaNumber > 9999 ) goto CLEANUP;
-		wsprintf(fileName, "screenshots\\tomb%04d.tga", screenShotTgaNumber);
-	} while( INVALID_FILE_ATTRIBUTES != GetFileAttributes(fileName) );
-	CreateDirectory("screenshots", NULL); // just in case if it is not created yet
-
-#else // !FEATURE_SCREENSHOT_FIX
+	scrshotNumber = CreateSequenceFilename(fileName, sizeof(fileName), ScreenshotPath, ".tga", "tomb", 4, scrshotNumber);
+	if( scrshotNumber < 0 ) goto CLEANUP;
+	++scrshotNumber;
+	CreateDirectories(fileName, true); // create whole path just in case if it's not created yet
+#else // !FEATURE_SCREENSHOT_IMPROVED
 	if FAILED(WinVidBufferLock(screen, &desc, DDLOCK_WRITEONLY|DDLOCK_WAIT))
 		return;
 
 	width = desc.dwWidth;
 	height = desc.dwHeight;
 
-	wsprintf(fileName, "tomb%04d.tga", screenShotTgaNumber++);
-#endif // FEATURE_SCREENSHOT_FIX
+	wsprintf(fileName, "tomb%04d.tga", scrshotNumber++);
+#endif // FEATURE_SCREENSHOT_IMPROVED
 
 	hFile = CreateFile(fileName, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if( hFile == INVALID_HANDLE_VALUE )
@@ -107,25 +173,25 @@ static void __cdecl ScreenShotTGA(LPDIRECTDRAWSURFACE3 screen, BYTE tgaBpp) {
 	ScreenShotTgaHeader.bpp = tgaBpp;
 	WriteFile(hFile, &ScreenShotTgaHeader, sizeof(TGA_HEADER), &bytesWritten, NULL);
 
-#if defined(FEATURE_SCREENSHOT_FIX)
+#if defined(FEATURE_SCREENSHOT_IMPROVED)
 	// NOTE: There was unsafe memory usage in the original code. The game just used GameAllocMemPointer buffer!
 	// No new memory allocations. On higher resolutions there was critical data overwriting and game crashed
 	tgaPic = (BYTE *)GlobalAlloc(GMEM_FIXED, width*height*(tgaBpp/8));
-#else // !FEATURE_SCREENSHOT_FIX
+#else // !FEATURE_SCREENSHOT_IMPROVED
 	tgaPic = (BYTE *)GameAllocMemPointer;
-#endif // FEATURE_SCREENSHOT_FIX
+#endif // FEATURE_SCREENSHOT_IMPROVED
 
 	if( tgaPic == NULL )
 		goto CLEANUP;
 
 	// We need to load bitmap lines to TGA starting from the bottom line
-#if defined(FEATURE_SCREENSHOT_FIX)
+#if defined(FEATURE_SCREENSHOT_IMPROVED)
 	// NOTE: There was bug in the original formula: src = lpSurface + lPitch * dwHeight
 	// Height must be subtracted by 1 in this formula
 	src = (BYTE *)desc.lpSurface + desc.lPitch*(height - 1);
-#else // !FEATURE_SCREENSHOT_FIX
+#else // !FEATURE_SCREENSHOT_IMPROVED
 	src = (BYTE *)desc.lpSurface + desc.lPitch*height;
-#endif // FEATURE_SCREENSHOT_FIX
+#endif // FEATURE_SCREENSHOT_IMPROVED
 
 	dst = tgaPic;
 	if( tgaBpp == 16 ) {
@@ -160,10 +226,10 @@ static void __cdecl ScreenShotTGA(LPDIRECTDRAWSURFACE3 screen, BYTE tgaBpp) {
 	WriteFile(hFile, tgaPic, width*height*(tgaBpp/8), &bytesWritten, NULL);
 
 CLEANUP :
-#if defined(FEATURE_SCREENSHOT_FIX)
+#if defined(FEATURE_SCREENSHOT_IMPROVED)
 	if( tgaPic != NULL )
 		GlobalFree((HGLOBAL)tgaPic);
-#endif // FEATURE_SCREENSHOT_FIX
+#endif // FEATURE_SCREENSHOT_IMPROVED
 
 	if( hFile != INVALID_HANDLE_VALUE )
 		CloseHandle(hFile);
@@ -173,7 +239,7 @@ CLEANUP :
 
 
 void __cdecl ScreenShotPCX() {
-	static int screenShotPcxNumber = 0;
+	static int scrshotNumber = 0;
 	HRESULT rc;
 	LPDIRECTDRAWSURFACE3 screen;
 	DDSURFACEDESC desc;
@@ -181,9 +247,13 @@ void __cdecl ScreenShotPCX() {
 	DWORD pcxSize;
 	HANDLE hFile = INVALID_HANDLE_VALUE;
 	DWORD bytesWritten;
+#if defined(FEATURE_SCREENSHOT_IMPROVED)
+	char fileName[MAX_PATH];
+#else // !FEATURE_SCREENSHOT_IMPROVED
 	char fileName[128];
+#endif // FEATURE_SCREENSHOT_IMPROVED
 
-	screen = ( SavedAppSettings.RenderMode != RM_Software ) ? RenderBufferSurface : PrimaryBufferSurface;
+	screen = ( SavedAppSettings.RenderMode == RM_Software ) ? RenderBufferSurface : PrimaryBufferSurface;
 	desc.dwSize = sizeof(DDSURFACEDESC);
 
 	do {
@@ -201,19 +271,15 @@ void __cdecl ScreenShotPCX() {
 	if( pcxSize == 0 || pcxData == NULL )
 		return;
 
-#if defined(FEATURE_SCREENSHOT_FIX)
-	do { // search first free screenshot slot
-		if( ++screenShotPcxNumber > 9999 ) {
-			GlobalFree(pcxData);
-			return;
-		}
-		wsprintf(fileName, "screenshots\\tomb%04d.pcx", screenShotPcxNumber);
-	} while( INVALID_FILE_ATTRIBUTES != GetFileAttributes(fileName) );
-	CreateDirectory("screenshots", NULL); // just in case if it is not created yet
-#else // !FEATURE_SCREENSHOT_FIX
-	if( ++screenShotPcxNumber > 9999 ) screenShotPcxNumber = 1;
-	wsprintf(fileName, "tomb%04d.pcx", screenShotPcxNumber);
-#endif // FEATURE_SCREENSHOT_FIX
+#if defined(FEATURE_SCREENSHOT_IMPROVED)
+	scrshotNumber = CreateSequenceFilename(fileName, sizeof(fileName), ScreenshotPath, ".pcx", "tomb", 4, scrshotNumber);
+	if( scrshotNumber < 0 ) return;
+	++scrshotNumber;
+	CreateDirectories(fileName, true); // create whole path just in case if it is not created yet
+#else // !FEATURE_SCREENSHOT_IMPROVED
+	if( ++scrshotNumber > 9999 ) scrshotNumber = 1;
+	wsprintf(fileName, "tomb%04d.pcx", scrshotNumber);
+#endif // FEATURE_SCREENSHOT_IMPROVED
 
 	hFile = CreateFile(fileName, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if( hFile != INVALID_HANDLE_VALUE ) {
@@ -324,6 +390,13 @@ DWORD __cdecl EncodePutPCX(BYTE value, BYTE num, BYTE *buffer) {
 
 
 void __cdecl ScreenShot(LPDIRECTDRAWSURFACE3 screen) {
+#if defined(FEATURE_SCREENSHOT_IMPROVED)
+	if( ScreenshotFormat > 0 ) {
+		ScreenShotPNG(( SavedAppSettings.RenderMode == RM_Software ) ? RenderBufferSurface : PrimaryBufferSurface);
+		return;
+	}
+#endif // FEATURE_SCREENSHOT_IMPROVED
+
 	DDSURFACEDESC desc;
 
 	memset(&desc, 0, sizeof(DDSURFACEDESC));
@@ -339,13 +412,13 @@ void __cdecl ScreenShot(LPDIRECTDRAWSURFACE3 screen) {
 				ScreenShotTGA(screen, 16);
 				break;
 
-#if defined(FEATURE_SCREENSHOT_FIX)
+#if defined(FEATURE_SCREENSHOT_IMPROVED)
 			case 24 :
 			case 32 :
 				// NOTE: the original game cannot make 24/32 bit screenshots
 				ScreenShotTGA(screen, 24);
 				break;
-#endif // FEATURE_SCREENSHOT_FIX
+#endif // FEATURE_SCREENSHOT_IMPROVED
 
 			default :
 				break;

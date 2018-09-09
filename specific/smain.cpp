@@ -64,6 +64,11 @@ extern DWORD PictureStretchLimit;
 extern DWORD ShadowMode;
 #endif // FEATURE_SHADOW_IMPROVED
 
+#ifdef FEATURE_SCREENSHOT_IMPROVED
+extern DWORD ScreenshotFormat;
+extern char ScreenshotPath[MAX_PATH];
+#endif // FEATURE_SCREENSHOT_IMPROVED
+
 #ifdef FEATURE_FOG_DISTANCE
 extern double ViewDistanceFactor;
 extern double FogBeginFactor;
@@ -435,6 +440,11 @@ void __cdecl S_LoadSettings() {
 #ifdef FEATURE_SHADOW_IMPROVED
 	GetRegistryDwordValue(REG_SHADOW_MODE, &ShadowMode, 0);
 #endif // FEATURE_SHADOW_IMPROVED
+
+#ifdef FEATURE_SCREENSHOT_IMPROVED
+	GetRegistryDwordValue(REG_SCREENSHOT_FORMAT, &ScreenshotFormat, 0);
+	GetRegistryStringValue(REG_SCREENSHOT_PATH, ScreenshotPath, sizeof(ScreenshotPath), ".\\screenshots");
+#endif // FEATURE_SCREENSHOT_IMPROVED
 
 #ifdef FEATURE_ASSAULT_SAVE
 	GetRegistryBinaryValue(REG_GAME_ASSAULT, (LPBYTE)&Assault, sizeof(ASSAULT_STATS), NULL);
