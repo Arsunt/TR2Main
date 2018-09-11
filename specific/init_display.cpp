@@ -84,6 +84,30 @@ static LPCTSTR ErrorStringTable[] = {
 	"GetDisplayMode",
 };
 
+#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+LPDIRECTDRAWSURFACE3 CaptureBufferSurface = NULL; // used for screen capture in windowed mode
+
+static int __cdecl CreateCaptureBuffer() {
+	DDSURFACEDESC dsp;
+
+	memset(&dsp, 0, sizeof(DDSURFACEDESC));
+	dsp.dwSize = sizeof(DDSURFACEDESC);
+	dsp.dwFlags = DDSD_WIDTH|DDSD_HEIGHT|DDSD_CAPS;
+	dsp.dwWidth = GameVidBufWidth;
+	dsp.dwHeight = GameVidBufHeight;
+	dsp.ddsCaps.dwCaps = DDSCAPS_3DDEVICE|DDSCAPS_OFFSCREENPLAIN;
+
+	if( SavedAppSettings.RenderMode == RM_Hardware )
+		dsp.ddsCaps.dwCaps |= DDSCAPS_VIDEOMEMORY;
+
+	if FAILED(DDrawSurfaceCreate(&dsp, &CaptureBufferSurface))
+		return -1;
+
+	WinVidClearBuffer(CaptureBufferSurface, NULL, 0);
+	return 0;
+}
+#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+
 void __cdecl CreateScreenBuffers() {
 	DDSCAPS ddsCaps;
 	DDSURFACEDESC dsp;
@@ -299,8 +323,14 @@ void __cdecl ClearBuffers(DWORD flags, DWORD fillColor) {
 	}
 
 	// Common checks
-	if( (flags & CLRB_PrimaryBuffer) != 0 )
+	if( (flags & CLRB_PrimaryBuffer) != 0 ) {
 		WinVidClearBuffer(PrimaryBufferSurface, &winRect, fillColor);
+#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+		if( CaptureBufferSurface != NULL ) {
+			WinVidClearBuffer(CaptureBufferSurface, &winRect, fillColor);
+		}
+#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+	}
 
 	if( (flags & CLRB_ThirdBuffer) != 0 )
 		WinVidClearBuffer(ThirdBufferSurface, &winRect, fillColor);
@@ -358,6 +388,12 @@ void __cdecl RestoreLostBuffers() {
 		if FAILED(DDrawSurfaceRestoreLost(PictureBufferSurface, NULL, false))
 			goto REBUILD;
 	}
+#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+	if( CaptureBufferSurface ) {
+		if FAILED(DDrawSurfaceRestoreLost(CaptureBufferSurface, PrimaryBufferSurface, true))
+			goto REBUILD;
+	}
+#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
 	return;
 
 REBUILD:
@@ -387,6 +423,11 @@ void __cdecl UpdateFrame(bool needRunMessageLoop, LPRECT rect) {
 
 		LPDIRECTDRAWSURFACE3 surface = ( SavedAppSettings.RenderMode == RM_Software ) ? RenderBufferSurface : BackBufferSurface;
 		PrimaryBufferSurface->Blt(&dstRect, surface, pSrcRect, DDBLT_WAIT, NULL);
+#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+		if( CaptureBufferSurface != NULL ) {
+			CaptureBufferSurface->Blt(pSrcRect, BackBufferSurface, pSrcRect, DDBLT_WAIT, NULL);
+		}
+#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
 	}
 
 	if( needRunMessageLoop ) {
@@ -463,8 +504,12 @@ void __cdecl RenderStart(bool isReset) {
 		GameVid_IsFullscreenVga = false;
 
 		CreatePrimarySurface();
-		if( SavedAppSettings.RenderMode == RM_Hardware )
+		if( SavedAppSettings.RenderMode == RM_Hardware ) {
 			CreateBackBuffer();
+#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+			CreateCaptureBuffer();
+#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+		}
 
 		CreateClipper();
 	}
@@ -568,6 +613,13 @@ void __cdecl RenderFinish(bool needToClearTextures) {
 		BackBufferSurface->Release();
 		BackBufferSurface = NULL;
 	}
+
+#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+	if( CaptureBufferSurface != NULL ) {
+		CaptureBufferSurface->Release();
+		CaptureBufferSurface = NULL;
+	}
+#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
 
 	if( PrimaryBufferSurface != NULL ) {
 		PrimaryBufferSurface->Release();

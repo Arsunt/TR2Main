@@ -28,6 +28,8 @@
 #include "modding/file_utils.h"
 #include "modding/gdi_utils.h"
 
+extern LPDIRECTDRAWSURFACE3 CaptureBufferSurface;
+
 DWORD ScreenshotFormat = 0;
 char ScreenshotPath[MAX_PATH];
 
@@ -64,7 +66,9 @@ static void __cdecl ScreenShotPNG(LPDIRECTDRAWSURFACE3 screen) {
 		HBITMAP bitmap;
 		LPVOID lpBits;
 
-		MapWindowPoints(HGameWindow, GetParent(HGameWindow), (LPPOINT)&rect, 2);
+		if( screen == PrimaryBufferSurface ) {
+			MapWindowPoints(HGameWindow, GetParent(HGameWindow), (LPPOINT)&rect, 2);
+		}
 
 		bitmap = CreateBitmapFromDC(dc, &rect, &lpBits, WinVidPalette);
 		if( bitmap != NULL ) {
@@ -102,7 +106,6 @@ static TGA_HEADER ScreenShotTgaHeader = {
 // NOTE: This function is not presented in the original code
 // but the code is taken away form ScreenShot() and extended
 // to be compatible with 24/32 bit
-// Alas, DDraw primary buffer lock for windowed mode is restricted on Windows7 or above
 static void __cdecl ScreenShotTGA(LPDIRECTDRAWSURFACE3 screen, BYTE tgaBpp) {
 	static int scrshotNumber = 0;
 	DWORD i, j;
@@ -131,7 +134,9 @@ static void __cdecl ScreenShotTGA(LPDIRECTDRAWSURFACE3 screen, BYTE tgaBpp) {
 
 	// do game window screenshot, not the whole screen
 	if( GetClientRect(HGameWindow, &rect) ) {
-		MapWindowPoints(HGameWindow, GetParent(HGameWindow), (LPPOINT)&rect, 2);
+		if( screen == PrimaryBufferSurface ) {
+			MapWindowPoints(HGameWindow, GetParent(HGameWindow), (LPPOINT)&rect, 2);
+		}
 		width = ABS(rect.right - rect.left);
 		height = ABS(rect.bottom - rect.top);
 	}
@@ -391,8 +396,14 @@ DWORD __cdecl EncodePutPCX(BYTE value, BYTE num, BYTE *buffer) {
 
 void __cdecl ScreenShot(LPDIRECTDRAWSURFACE3 screen) {
 #if defined(FEATURE_SCREENSHOT_IMPROVED)
+	if( SavedAppSettings.RenderMode == RM_Software ) {
+		screen = RenderBufferSurface;
+	} else if( CaptureBufferSurface != NULL ) {
+		screen = CaptureBufferSurface;
+	}
+
 	if( ScreenshotFormat > 0 ) {
-		ScreenShotPNG(( SavedAppSettings.RenderMode == RM_Software ) ? RenderBufferSurface : PrimaryBufferSurface);
+		ScreenShotPNG(screen);
 		return;
 	}
 #endif // FEATURE_SCREENSHOT_IMPROVED
