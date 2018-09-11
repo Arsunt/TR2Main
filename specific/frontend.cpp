@@ -82,11 +82,9 @@ void __cdecl S_FadeToBlack() {
 	FadeToPal(10, GamePalette8);
 	FadeWait();
 
-	ScreenClear(false);
-	ScreenDump();
-
-	ScreenClear(false);
-	ScreenDump();
+	// make two blank frames
+	ScreenClear(false); ScreenDump();
+	ScreenClear(false); ScreenDump();
 }
 
 void __cdecl S_Wait(int timeout, BOOL inputCheck) {
@@ -97,12 +95,14 @@ void __cdecl S_Wait(int timeout, BOOL inputCheck) {
 		if( !inputCheck || InputStatus == 0 )
 			break;
 		S_UpdateInput();
+		if( IsGameToExit ) return; // NOTE: this line is not in the original game
 		while( 0 == (ticks = Sync()) ) /* just wait a tick */;
 	}
 
 	// Wait for key event to set or timeout
 	for( ; timeout > 0; timeout -= ticks ) {
 		S_UpdateInput();
+		if( IsGameToExit ) return; // NOTE: this line is not in the original game
 		if( inputCheck && InputStatus != 0 )
 			break;
 		while( 0 == (ticks = Sync()) ) /* just wait a tick */;

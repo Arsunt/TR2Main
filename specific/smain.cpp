@@ -34,6 +34,7 @@
 #include "specific/display.h"
 #include "specific/frontend.h"
 #include "specific/game.h"
+#include "specific/hwr.h"
 #include "specific/init.h"
 #include "specific/input.h"
 #include "specific/option.h"
@@ -107,6 +108,11 @@ BOOL __cdecl GameMain() {
 	S_LoadSettings();
 	HiRes = -1;
 
+	// NOTE: this HWR init was absent in the original code, but must be done here
+	if( SavedAppSettings.RenderMode == RM_Hardware ) {
+		HWR_InitState();
+	}
+
 	GameMemoryPointer = (BYTE *)GlobalAlloc(GMEM_FIXED, 0x380000); // 3.5 MB
 	if( GameMemoryPointer == NULL ) {
 		lstrcpy(StringToShow, "GameMain: could not allocate malloc_buffer");
@@ -122,11 +128,11 @@ BOOL __cdecl GameMain() {
 	S_CopyBufferToScreen();
 	S_OutputPolyList();
 	S_DumpScreen();
-	FadeToPal(30, GamePalette8);
-	S_Wait(180, TRUE); // 180 ticks / 3 seconds
-	S_FadeToBlack();
+	FadeToPal(30, GamePalette8); // fade in 30 frames / 1.0 second (software renderer only)
+	S_Wait(90 * TICKS_PER_FRAME, TRUE); // wait 90 frames / 3.0 seconds (enable keyboard)
+	S_FadeToBlack(); // fade out 12 frames / 0.4 second (software renderer only)
 	S_DontDisplayPicture();
-	IsVidModeLock = FALSE;
+	IsVidModeLock = false;
 
 	isFrontendFail = GF_DoFrontEndSequence();
 	if( IsGameToExit ) {

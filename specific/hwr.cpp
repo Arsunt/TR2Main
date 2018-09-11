@@ -44,6 +44,9 @@ void __cdecl HWR_InitState() {
 	_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_DITHERENABLE, SavedAppSettings.Dither ? TRUE : FALSE);
 	AlphaBlendEnabler = CurrentDisplayAdapter.shadeRestricted ? D3DRENDERSTATE_STIPPLEDALPHA : D3DRENDERSTATE_ALPHABLENDENABLE;
 
+	// NOTE: the next line is absent in the original game, but it fixes a texture bleeding in some cases
+	_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_TEXTUREADDRESS, D3DTADDRESS_CLAMP);
+
 	HWR_ResetTexSource();
 	HWR_ResetColorKey();
 	HWR_ResetZBuffer();

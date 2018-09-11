@@ -258,7 +258,7 @@ void __cdecl DisplayCredits() {
 	char fileName[64] = "data\\credit0?.pcx";
 #endif // FEATURE_BACKGROUND_IMPROVED
 
-	S_FadeToBlack();
+	S_FadeToBlack(); // fade out 12 frames / 0.4 seconds (software renderer only)
 	S_UnloadLevelFile();
 	TempVideoAdjust(HiRes, 1.0); // NOTE: this line was not in the original code
 
@@ -269,7 +269,7 @@ void __cdecl DisplayCredits() {
 	memset(GamePalette8, 0, sizeof(GamePalette8));
 
 	IsVidModeLock = true;
-	FadeToPal(0, GamePalette8);
+	FadeToPal(0, GamePalette8); // fade in instantly
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	S_CDPlay(52, FALSE);
 
@@ -285,13 +285,14 @@ void __cdecl DisplayCredits() {
 		S_OutputPolyList();
 		S_DumpScreen();
 
-		FadeToPal(30, GamePalette8);
+		FadeToPal(30, GamePalette8); // fade in 30 frames / 1.0 seconds (software renderer only)
 		S_Wait(225 * TICKS_PER_FRAME, FALSE); // wait 225 frames / 7.5 seconds (disable keyboard)
-		S_FadeToBlack();
+		S_FadeToBlack(); // fade out 12 frames / 0.4 seconds (software renderer only)
 		S_DontDisplayPicture();
 
-		if( IsGameToExit )
-			break;
+		if( IsGameToExit ) {
+			return;
+		}
 	}
 #else // !FEATURE_BACKGROUND_IMPROVED
 	// credit files load loop (preload all files may be reasonable because of CDAudio issues, since PCX are on CD too)
@@ -326,9 +327,9 @@ void __cdecl DisplayCredits() {
 		S_OutputPolyList();
 		S_DumpScreen();
 
-		FadeToPal(30, GamePalette8);
+		FadeToPal(30, GamePalette8); // fade in 30 frames / 1.0 seconds (software renderer only)
 		S_Wait(225 * TICKS_PER_FRAME, FALSE); // wait 225 frames / 7.5 seconds (disable keyboard)
-		S_FadeToBlack();
+		S_FadeToBlack(); // fade out 12 frames / 0.4 seconds (software renderer only)
 		S_DontDisplayPicture();
 
 		if( IsGameToExit )
@@ -337,8 +338,8 @@ void __cdecl DisplayCredits() {
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 	memcpy(GamePalette8, palette, sizeof(GamePalette8));
-	S_Wait(300, FALSE); // wait 300 ticks / 150 frames / 5 seconds
-	FadeToPal(30, GamePalette8);
+	S_Wait(150 * TICKS_PER_FRAME, FALSE); // wait 150 frames / 5 seconds (disable keyboard)
+	FadeToPal(30, GamePalette8); // fade in 30 frames / 1.0 seconds (software renderer only)
 	IsVidModeLock = false;
 	TempVideoRemove(); // NOTE: this line was not in the original code
 
