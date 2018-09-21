@@ -232,6 +232,74 @@ static int GetPcxResolution(void *pcx, DWORD pcxSize, DWORD *width, DWORD *heigh
 	return 0;
 }
 
+// This prevents texture bleeding instead of UV adjustment
+static int FillEdgePadding(DWORD width, DWORD height, DWORD side, BYTE *bitmap, DWORD bpp) {
+	if( !width || !height || width > side || height > side || bitmap == NULL ) {
+		return -1;
+	}
+	switch( bpp ) {
+		case  8 :
+		case 16 :
+		case 32 :
+			break;
+		default :
+			return -1;
+	}
+
+	DWORD i;
+	DWORD padRight = side - width;
+	DWORD padBottom = side - height;
+
+	if( padRight > 0 ) {
+		switch( bpp ) {
+			case  8 : {
+				BYTE *p = (BYTE *)bitmap;
+				for( i = 0; i < height ; ++i ) {
+					p += width;
+					memset(p, p[-1], padRight);
+					p += padRight;
+				}
+				break;
+			}
+			case 16 : {
+				UINT16 *p = (UINT16 *)bitmap;
+				for( i = 0; i < height ; ++i ) {
+					p += width;
+					UINT16 x = p[-1];
+					DWORD c = padRight;
+					while( c-- ) {
+						*(p++) = x;
+					}
+				}
+				break;
+			}
+			case 32 : {
+				DWORD *p = (DWORD *)bitmap;
+				for( i = 0; i < height ; ++i ) {
+					p += width;
+					DWORD x = p[-1];
+					DWORD c = padRight;
+					while( c-- ) {
+						*(p++) = x;
+					}
+				}
+				break;
+			}
+			default :
+				break;
+		}
+	}
+
+	DWORD pitch = side * (bpp/8);
+	BYTE *p = bitmap + height * pitch;
+	for( i = 0; i < padBottom; ++i ) {
+		memcpy(p, p - pitch, pitch);
+		p += pitch;
+	}
+
+	return 0;
+}
+
 static int MakeBgndTexture(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmpPal) {
 	DWORD side = 1;
 	int pageIndex;
@@ -266,6 +334,7 @@ static int MakeBgndTexture(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmpP
 			bmpSrc += width;
 			bmpDst += side;
 		}
+		FillEdgePadding(width, height, side, (BYTE *)tmpBmp, 16);
 		pageIndex = AddTexturePage16(side, side, (BYTE *)tmpBmp);
 		free(tmpBmp);
 	} else if( BGND_PaletteIndex < 0 ) {
@@ -285,11 +354,13 @@ static int MakeBgndTexture(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmpP
 			bmpSrc += width;
 			bmpDst += side;
 		}
+		FillEdgePadding(width, height, side, (BYTE *)tmpBmp, 16);
 		pageIndex = AddTexturePage16(side, side, (BYTE *)tmpBmp);
 		free(tmpBmp);
 	} else {
 		BYTE *tmpBmp = (BYTE *)calloc(1, SQR(side));
 		UT_MemBlt(tmpBmp, 0, 0, width, height, side, bitmap, 0, 0, width);
+		FillEdgePadding(width, height, side, tmpBmp, 8);
 		pageIndex = AddTexturePage8(side, side, tmpBmp, BGND_PaletteIndex);
 		free(tmpBmp);
 	}
@@ -483,7 +554,6 @@ void __cdecl BGND2_DrawTexture(RECT *rect, D3DTEXTUREHANDLE texSource,
 {
 	float sx0, sy0, sx1, sy1;
 	float tu0, tv0, tu1, tv1;
-	double uvAdjust;
 	D3DTLVERTEX vertex[4];
 
 	if( rect == NULL ) {
@@ -495,11 +565,10 @@ void __cdecl BGND2_DrawTexture(RECT *rect, D3DTEXTUREHANDLE texSource,
 	sx1 = (double)rect->right;
 	sy1 = (double)rect->bottom;
 
-	uvAdjust = (double)UvAdd / 256.0 / (double)t_side;
-	tu0 = (double)tu / (double)t_side + uvAdjust;
-	tv0 = (double)tv / (double)t_side + uvAdjust;
-	tu1 = (double)(tu + t_width)  / (double)t_side - uvAdjust;
-	tv1 = (double)(tv + t_height) / (double)t_side - uvAdjust;
+	tu0 = (double)tu / (double)t_side;
+	tv0 = (double)tv / (double)t_side;
+	tu1 = (double)(tu + t_width)  / (double)t_side;
+	tv1 = (double)(tv + t_height) / (double)t_side;
 
 	vertex[0].sx = sx0;
 	vertex[0].sy = sy0;
