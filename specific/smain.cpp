@@ -43,6 +43,7 @@
 #include "specific/setupdlg.h"
 #include "specific/sndpc.h"
 #include "specific/winmain.h"
+#include "modding/background_new.h"
 #include "global/vars.h"
 
 #ifdef FEATURE_HEALTHBAR_IMPROVED
@@ -123,6 +124,11 @@ BOOL __cdecl GameMain() {
 	TempVideoAdjust(1, 1.0);
 	S_UpdateInput();
 	IsVidModeLock = true;
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	if( !BGND2_LoadPicture("data\\legal.pcx", FALSE, FALSE) ) {
+		BGND2_ShowPicture(30, 90, 10, 2, TRUE);
+	}
+#else // FEATURE_BACKGROUND_IMPROVED
 	S_DisplayPicture("data\\legal.pcx", FALSE);
 	S_InitialisePolyList(FALSE);
 	S_CopyBufferToScreen();
@@ -131,6 +137,7 @@ BOOL __cdecl GameMain() {
 	FadeToPal(30, GamePalette8); // fade in 30 frames / 1.0 second (software renderer only)
 	S_Wait(90 * TICKS_PER_FRAME, TRUE); // wait 90 frames / 3.0 seconds (enable keyboard)
 	S_FadeToBlack(); // fade out 12 frames / 0.4 second (software renderer only)
+#endif // FEATURE_BACKGROUND_IMPROVED
 	S_DontDisplayPicture();
 	IsVidModeLock = false;
 
@@ -227,11 +234,20 @@ __int16 __cdecl TitleSequence() {
 
 	S_DisplayPicture("data\\title.pcx", TRUE);
 
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	// NOTE: title menu fade-in was absent in the original game
+	BGND2_ShowPicture(15, 0, 0, 0, FALSE);
+#endif // FEATURE_BACKGROUND_IMPROVED
+
 	if( GF_GameFlow.titleTrack != 0 )
 		S_CDPlay(GF_GameFlow.titleTrack, TRUE);
 
 	Display_Inventory(INV_TitleMode);
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	BGND2_ShowPicture(0, 0, 10, 2, FALSE);
+#else // FEATURE_BACKGROUND_IMPROVED
 	S_FadeToBlack();
+#endif // FEATURE_BACKGROUND_IMPROVED
 	S_DontDisplayPicture();
 	S_CDStop();
 

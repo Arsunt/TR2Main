@@ -276,24 +276,23 @@ void __cdecl DisplayCredits() {
 	// slideshow loop
 	for( i=1; i<100; ++i ) {
 		snprintf(fileName, sizeof(fileName), "data\\credit%02d.pcx", i);
-		if( BGND2_LoadPicture(fileName, FALSE, FALSE) ) {
-			continue;
+		if( !BGND2_LoadPicture(fileName, FALSE, FALSE) ) {
+			BGND2_ShowPicture(30, 225, 10, 2, FALSE);
 		}
-
-		S_InitialisePolyList(FALSE);
-		S_CopyBufferToScreen();
-		S_OutputPolyList();
-		S_DumpScreen();
-
-		FadeToPal(30, GamePalette8); // fade in 30 frames / 1.0 seconds (software renderer only)
-		S_Wait(225 * TICKS_PER_FRAME, FALSE); // wait 225 frames / 7.5 seconds (disable keyboard)
-		S_FadeToBlack(); // fade out 12 frames / 0.4 seconds (software renderer only)
 		S_DontDisplayPicture();
 
 		if( IsGameToExit ) {
 			return;
 		}
 	}
+	memcpy(GamePalette8, palette, sizeof(GamePalette8));
+	// NOTE: background for final statistics (picture is presented but not used in the original game)
+	if( !BGND2_LoadPicture("data\\end.pcx", TRUE, FALSE) ) {
+		BGND2_ShowPicture(30, 0, 0, 0, FALSE);
+	}
+	IsVidModeLock = false;
+	TempVideoRemove();
+
 #else // !FEATURE_BACKGROUND_IMPROVED
 	// credit files load loop (preload all files may be reasonable because of CDAudio issues, since PCX are on CD too)
 	for( i=0; i<9; ++i ) {
@@ -335,7 +334,6 @@ void __cdecl DisplayCredits() {
 		if( IsGameToExit )
 			break;
 	}
-#endif // FEATURE_BACKGROUND_IMPROVED
 
 	memcpy(GamePalette8, palette, sizeof(GamePalette8));
 	S_Wait(150 * TICKS_PER_FRAME, FALSE); // wait 150 frames / 5 seconds (disable keyboard)
@@ -344,6 +342,7 @@ void __cdecl DisplayCredits() {
 	TempVideoRemove(); // NOTE: this line was not in the original code
 
 	// NOTE: here is no game_free for game_malloc. Memory will be free in S_DisplayPicture by init_game_malloc call
+#endif // FEATURE_BACKGROUND_IMPROVED
 }
 
 BOOL __cdecl S_FrontEndCheck() {

@@ -32,6 +32,8 @@ void PSX_Background(D3DTEXTUREHANDLE texSource, int tu, int tv, int t_width, int
 
 int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload);
 
+int __cdecl BGND2_ShowPicture(DWORD fadeIn, DWORD waitIn, DWORD fadeOut, DWORD waitOut, BOOL inputCheck);
+
 void __cdecl BGND2_DrawTexture(RECT *rect, D3DTEXTUREHANDLE texSource,
 							   int tu, int tv, int t_width, int t_height, int t_side,
 							   D3DCOLOR color0, D3DCOLOR color1, D3DCOLOR color2, D3DCOLOR color3);

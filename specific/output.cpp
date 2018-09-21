@@ -939,23 +939,22 @@ void __cdecl S_CopyScreenToBuffer() {
 	DWORD height = 480;
 #endif // FEATURE_BACKGROUND_IMPROVED
 
-	if( SavedAppSettings.RenderMode != RM_Software )
-		return;
+	if( SavedAppSettings.RenderMode == RM_Software ) {
+		PictureBufferSurface->Blt(NULL, RenderBufferSurface, &GameVidRect, DDBLT_WAIT, NULL);
 
-	PictureBufferSurface->Blt(NULL, RenderBufferSurface, &GameVidRect, DDBLT_WAIT, NULL);
+		if SUCCEEDED(WinVidBufferLock(PictureBufferSurface, &desc, DDLOCK_WRITEONLY|DDLOCK_WAIT)) {
+			BYTE *surface = (BYTE *)desc.lpSurface;
 
-	if SUCCEEDED(WinVidBufferLock(PictureBufferSurface, &desc, DDLOCK_WRITEONLY|DDLOCK_WAIT)) {
-		BYTE *surface = (BYTE *)desc.lpSurface;
-
-		for( DWORD i = 0; i < height; ++i ) {
-			for( DWORD j = 0; j < width; ++j ) {
-				surface[j] = DepthQIndex[surface[j]];
+			for( DWORD i = 0; i < height; ++i ) {
+				for( DWORD j = 0; j < width; ++j ) {
+					surface[j] = DepthQIndex[surface[j]];
+				}
+				surface += desc.lPitch;
 			}
-			surface += desc.lPitch;
+			WinVidBufferUnlock(PictureBufferSurface, &desc);
 		}
-		WinVidBufferUnlock(PictureBufferSurface, &desc);
+		memcpy(PicPalette, GamePalette8, sizeof(RGB888)*256);
 	}
-	memcpy(PicPalette, GamePalette8, sizeof(RGB888)*256);
 }
 
 void __cdecl S_CopyBufferToScreen() {
@@ -972,11 +971,13 @@ void __cdecl S_CopyBufferToScreen() {
 		RECT rect = PhdWinRect;
 		BGND2_CalculatePictureRect(&rect);
 		RenderBufferSurface->Blt(&rect, PictureBufferSurface, NULL, DDBLT_WAIT, NULL);
-#else // !FEATURE_BACKGROUND_IMPROVED
-		RenderBufferSurface->Blt(&GameVidRect, PictureBufferSurface, NULL, DDBLT_WAIT, NULL);
-#endif // FEATURE_BACKGROUND_IMPROVED
 	}
 	else if( BGND_PictureIsReady ) {
+#else // !FEATURE_BACKGROUND_IMPROVED
+		RenderBufferSurface->Blt(&GameVidRect, PictureBufferSurface, NULL, DDBLT_WAIT, NULL);
+	}
+	else if( BGND_PictureIsReady ) {
+#endif // FEATURE_BACKGROUND_IMPROVED
 		BGND_GetPageHandles();
 		HWR_EnableZBuffer(false, false);
 #ifdef FEATURE_BACKGROUND_IMPROVED

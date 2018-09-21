@@ -24,8 +24,10 @@
 #include "3dsystem/phd_math.h"
 #include "specific/background.h"
 #include "specific/file.h"
+#include "specific/frontend.h"
 #include "specific/hwr.h"
 #include "specific/init_display.h"
+#include "specific/input.h"
 #include "specific/output.h"
 #include "specific/texture.h"
 #include "specific/utils.h"
@@ -544,9 +546,68 @@ FAIL :
 	if( fileData != NULL ) {
 		free(fileData);
 	}
+
+	S_DontDisplayPicture();
 	return -1;
 }
 
+int __cdecl BGND2_ShowPicture(DWORD fadeIn, DWORD waitIn, DWORD fadeOut, DWORD waitOut, BOOL inputCheck) {
+	if( SavedAppSettings.RenderMode == RM_Software ) {
+		RGB888 blackPal[256];
+		memset(blackPal, 0, sizeof(blackPal));
+
+		// output picture
+		S_InitialisePolyList(FALSE);
+		S_CopyBufferToScreen();
+		S_OutputPolyList();
+		S_DumpScreen();
+
+		// fade in
+		if( fadeIn > 0 ) {
+			memset(WinVidPalette, 0, sizeof(WinVidPalette));
+			FadeToPal(fadeIn, GamePalette8);
+		}
+		if( waitIn > 0) {
+			S_Wait(waitIn * TICKS_PER_FRAME, inputCheck);
+		}
+		if( IsGameToExit ) {
+			return -1;
+		}
+
+		// fade out
+		if( fadeOut > 0 ) {
+			FadeToPal(fadeOut, blackPal);
+		}
+		if( fadeOut > 0 || waitOut > 0 ) {
+			ScreenClear(false); ScreenDump();
+			ScreenClear(false); ScreenDump();
+		}
+		if( waitOut > 2 ) {
+			S_Wait((waitOut - 2) * TICKS_PER_FRAME, inputCheck);
+		}
+		if( IsGameToExit ) {
+			return -1;
+		}
+	} else {
+		DWORD i = waitIn;
+		DWORD frame = 0;
+		while( i-- ) {
+			S_InitialisePolyList(FALSE);
+			S_CopyBufferToScreen();
+			S_OutputPolyList();
+			S_DumpScreen();
+			S_UpdateInput();
+			if( IsGameToExit ) {
+				return -1;
+			}
+			if( inputCheck && InputStatus != 0 ) {
+				break;
+			}
+			++frame;
+		}
+	}
+	return 0;
+}
 
 void __cdecl BGND2_DrawTexture(RECT *rect, D3DTEXTUREHANDLE texSource,
 							   int tu, int tv, int t_width, int t_height, int t_side,
