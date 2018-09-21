@@ -128,7 +128,7 @@ void RenderTexturedFarQuad(VERTEX2D *vtx0, VERTEX2D *vtx1, VERTEX2D *vtx2, VERTE
 
 	HWR_TexSource(txr->handle);
 	HWR_EnableColorKey(false);
-	_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DVT_TLVERTEX, &vtx, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+	_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DVT_TLVERTEX, &vtx, 4, 0);
 }
 
 /**
