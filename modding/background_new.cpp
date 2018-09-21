@@ -44,6 +44,8 @@ DWORD BGND_TextureSide  = 1024;
 
 DWORD PictureStretchLimit = 10;
 
+static DWORD BGND_TextureAlpha = 255;
+
 /// Short wave horizontal pattern step
 #define SHORT_WAVE_X_STEP	(0x3000)
 /// Short wave vertical pattern step
@@ -445,6 +447,7 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 		fileName = lastFileName; // assign last fileName pointer as parameter
 		isTitle = lastTitleState; // copy last isTitle state
 	} else {
+		BGND_TextureAlpha = 255;
 		if( fileName == NULL || *fileName == 0 ) {
 			goto FAIL;
 		}
@@ -589,9 +592,47 @@ int __cdecl BGND2_ShowPicture(DWORD fadeIn, DWORD waitIn, DWORD fadeOut, DWORD w
 			return -1;
 		}
 	} else {
-		DWORD i = waitIn;
+		DWORD i = fadeIn + waitIn + fadeOut + waitOut;
+		DWORD phase = 0;
 		DWORD frame = 0;
+		BGND_TextureAlpha = 255;
 		while( i-- ) {
+			switch( phase ) {
+				case 0 :
+					if( frame < fadeIn ) {
+						BGND_TextureAlpha = 255 * frame / fadeIn;
+						break;
+					}
+					++phase;
+					frame = 0;
+					// fall through
+				case 1 :
+					if( frame < waitIn ) {
+						BGND_TextureAlpha = 255;
+						break;
+					}
+					++phase;
+					frame = 0;
+					// fall through
+				case 2 :
+					if( frame < fadeOut ) {
+						BGND_TextureAlpha = 255 * (fadeOut - frame - 1) / fadeOut;
+						break;
+					}
+					++phase;
+					frame = 0;
+					// fall through
+				case 3 :
+					if( frame < waitOut ) {
+						BGND_TextureAlpha = 0;
+						break;
+					}
+					++phase;
+					frame = 0;
+					// fall through
+				default :
+					return 0;
+			}
 			S_InitialisePolyList(FALSE);
 			S_CopyBufferToScreen();
 			S_OutputPolyList();
@@ -601,7 +642,16 @@ int __cdecl BGND2_ShowPicture(DWORD fadeIn, DWORD waitIn, DWORD fadeOut, DWORD w
 				return -1;
 			}
 			if( inputCheck && InputStatus != 0 ) {
-				break;
+				// fade out faster if key pressed
+				inputCheck = FALSE;
+				fadeOut /= 2;
+				waitOut /= 2;
+				phase = 2;
+				for( frame = 0; frame < fadeOut; ++frame ) {
+					if( BGND_TextureAlpha > 255 * (fadeOut - frame - 1) / fadeOut ) {
+						break;
+					}
+				}
 			}
 			++frame;
 		}
@@ -615,6 +665,7 @@ void __cdecl BGND2_DrawTexture(RECT *rect, D3DTEXTUREHANDLE texSource,
 {
 	float sx0, sy0, sx1, sy1;
 	float tu0, tv0, tu1, tv1;
+	DWORD alphaState;
 	D3DTLVERTEX vertex[4];
 
 	if( rect == NULL ) {
@@ -633,25 +684,25 @@ void __cdecl BGND2_DrawTexture(RECT *rect, D3DTEXTUREHANDLE texSource,
 
 	vertex[0].sx = sx0;
 	vertex[0].sy = sy0;
-	vertex[0].color = color0;
+	vertex[0].color = RGBA_SETALPHA(color0, BGND_TextureAlpha);
 	vertex[0].tu = tu0;
 	vertex[0].tv = tv0;
 
 	vertex[1].sx = sx1;
 	vertex[1].sy = sy0;
-	vertex[1].color = color1;
+	vertex[1].color = RGBA_SETALPHA(color1, BGND_TextureAlpha);
 	vertex[1].tu = tu1;
 	vertex[1].tv = tv0;
 
 	vertex[2].sx = sx0;
 	vertex[2].sy = sy1;
-	vertex[2].color = color2;
+	vertex[2].color = RGBA_SETALPHA(color2, BGND_TextureAlpha);
 	vertex[2].tu = tu0;
 	vertex[2].tv = tv1;
 
 	vertex[3].sx = sx1;
 	vertex[3].sy = sy1;
-	vertex[3].color = color3;
+	vertex[3].color = RGBA_SETALPHA(color3, BGND_TextureAlpha);
 	vertex[3].tu = tu1;
 	vertex[3].tv = tv1;
 
@@ -663,7 +714,10 @@ void __cdecl BGND2_DrawTexture(RECT *rect, D3DTEXTUREHANDLE texSource,
 
 	HWR_TexSource(texSource);
 	HWR_EnableColorKey(false);
+	_Direct3DDevice2->GetRenderState(AlphaBlendEnabler, &alphaState);
+	_Direct3DDevice2->SetRenderState(AlphaBlendEnabler, TRUE);
 	_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DVT_TLVERTEX, &vertex, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+	_Direct3DDevice2->SetRenderState(AlphaBlendEnabler, alphaState);
 }
 
 int __cdecl BGND2_CalculatePictureRect(RECT *rect) {
