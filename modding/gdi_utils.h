@@ -41,6 +41,8 @@ void __cdecl GDI_Cleanup();
 
 int GDI_SaveImageFile(LPCSTR filename, GDI_FILEFMT format, DWORD quality, HBITMAP hbmBitmap);
 
+int GDI_LoadImageBitmap(HBITMAP hbmBitmap, BYTE **bmPtr, DWORD *width, DWORD *height, DWORD bpp);
+
 int GDI_LoadImageFile(LPCSTR filename, BYTE **bmPtr, DWORD *width, DWORD *height, DWORD bpp);
 
 #endif // GDI_UTILS_H_INCLUDED

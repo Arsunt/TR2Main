@@ -30,6 +30,8 @@
 void PSX_Background(D3DTEXTUREHANDLE texSource, int tu, int tv, int t_width, int t_height, int halfRowCount,
 					__int16 amplitude, __int16 deformWavePhase, __int16 shortWavePhase, __int16 longWavePhase);
 
+int __cdecl BGND2_CapturePicture();
+
 int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload);
 
 int __cdecl BGND2_ShowPicture(DWORD fadeIn, DWORD waitIn, DWORD fadeOut, DWORD waitOut, BOOL inputCheck);

@@ -166,6 +166,83 @@ int GDI_SaveImageFile(LPCSTR filename, GDI_FILEFMT format, DWORD quality, HBITMA
 }
 
 
+int GDI_LoadImageBitmap(HBITMAP hbmBitmap, BYTE **bmPtr, DWORD *width, DWORD *height, DWORD bpp) {
+	if( hbmBitmap == NULL || bmPtr == NULL || width == NULL || height == NULL ) {
+		return -1; // wrong parameters
+	}
+
+	DWORD i;
+	int result = 0;
+	DWORD bmSize = 0;
+	BYTE *src = NULL;
+	BYTE *dst = NULL;
+	BitmapData bmData;
+	Status status;
+	PixelFormat pixelFmt;
+
+	switch( bpp ) {
+	case 32 :
+		pixelFmt = PixelFormat32bppARGB;
+		break;
+	case 16 :
+		pixelFmt = PixelFormat16bppARGB1555;
+		break;
+	default :
+		// unsupported pixel format;
+		return -1;
+		break;
+}
+
+	Bitmap *gdi_bitmap = new Bitmap(hbmBitmap, (HPALETTE)NULL);
+	if( gdi_bitmap == NULL ) {
+		return -1;
+	}
+
+	*width = gdi_bitmap->GetWidth();
+	*height = gdi_bitmap->GetHeight();
+
+	bmSize = (*width) * (*height) * (bpp/8);
+	*bmPtr = (BYTE *)malloc(bmSize * (bpp/8));
+	if( *bmPtr == NULL ) {
+		// failed to allocate output bitmap
+		result = -1;
+		goto CLEANUP;
+	}
+
+	{ // rect is temporary here
+		Rect rect(0, 0, *width, *height);
+		status = gdi_bitmap->LockBits(&rect, ImageLockModeRead, pixelFmt, &bmData);
+	}
+
+	if( status != Ok ) {
+		// failed to lock the bitmap
+		free(bmPtr);
+		result = -1;
+		goto CLEANUP;
+	}
+
+	src = (BYTE *)bmData.Scan0;
+	if( bmData.Stride < 0 ) {
+		src += ABS(bmData.Stride) * (*height - 1);
+	}
+
+	dst = *bmPtr;
+	for( i = 0; i < *height; ++i ) {
+		memcpy(dst, src, (*width) * (bpp/8));
+		dst += (*width) * (bpp/8);
+		src += bmData.Stride;
+	}
+
+	gdi_bitmap->UnlockBits(&bmData);
+
+CLEANUP :
+	if( gdi_bitmap != NULL ) {
+		delete gdi_bitmap;
+		gdi_bitmap = NULL;
+	}
+	return result;
+}
+
 int GDI_LoadImageFile(LPCSTR filename, BYTE **bmPtr, DWORD *width, DWORD *height, DWORD bpp) {
 	if( filename == NULL || !*filename || bmPtr == NULL || width == NULL || height == NULL ) {
 		return -1; // wrong parameters

@@ -61,6 +61,8 @@ DWORD ShadowMode = 0;
 extern DWORD BGND_PictureWidth;
 extern DWORD BGND_PictureHeight;
 extern DWORD BGND_TextureSide;
+extern bool BGND_IsCaptured;
+
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 typedef struct ShadowInfo_t {
@@ -955,6 +957,11 @@ void __cdecl S_CopyScreenToBuffer() {
 		}
 		memcpy(PicPalette, GamePalette8, sizeof(RGB888)*256);
 	}
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	else {
+		BGND2_CapturePicture();
+	}
+#endif // FEATURE_BACKGROUND_IMPROVED
 }
 
 void __cdecl S_CopyBufferToScreen() {
@@ -972,7 +979,7 @@ void __cdecl S_CopyBufferToScreen() {
 		BGND2_CalculatePictureRect(&rect);
 		RenderBufferSurface->Blt(&rect, PictureBufferSurface, NULL, DDBLT_WAIT, NULL);
 	}
-	else if( BGND_PictureIsReady ) {
+	else if( BGND_PictureIsReady && (!BGND_IsCaptured || !IsInventoryActive) ) {
 #else // !FEATURE_BACKGROUND_IMPROVED
 		RenderBufferSurface->Blt(&GameVidRect, PictureBufferSurface, NULL, DDBLT_WAIT, NULL);
 	}
@@ -982,7 +989,9 @@ void __cdecl S_CopyBufferToScreen() {
 		HWR_EnableZBuffer(false, false);
 #ifdef FEATURE_BACKGROUND_IMPROVED
 		RECT rect = PhdWinRect;
-		BGND2_LoadPicture(NULL, FALSE, TRUE); // reload picture if required
+		if( !BGND_IsCaptured ) {
+			BGND2_LoadPicture(NULL, FALSE, TRUE); // reload picture if required
+		}
 		BGND_DrawInGameBlack(); // draw black background for picture margins
 		BGND2_CalculatePictureRect(&rect);
 		BGND2_DrawTexture(&rect, BGND_PageHandles[0],

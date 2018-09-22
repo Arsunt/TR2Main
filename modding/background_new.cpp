@@ -37,10 +37,12 @@
 #include "global/vars.h"
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
+extern LPDIRECTDRAWSURFACE3 CaptureBufferSurface;
 
 DWORD BGND_PictureWidth  = 640;
 DWORD BGND_PictureHeight = 480;
 DWORD BGND_TextureSide  = 1024;
+bool BGND_IsCaptured = false;
 
 DWORD PictureStretchLimit = 10;
 
@@ -423,6 +425,54 @@ static int PickBestPictureFile(LPTSTR fileName, LPCTSTR modDir) {
 	return AutoSelectPathAndExtension(fileName, altPath, exts, (TextureFormat.bpp < 16) ? 0 : ARRAY_SIZE(exts));
 }
 
+
+int __cdecl BGND2_CapturePicture() {
+	int result = -1;
+	BYTE *bmData = NULL;
+	DWORD width, height;
+	RECT rect = {0, 0, 0, 0};
+	HDC dc;
+
+	LPDIRECTDRAWSURFACE3 surface = CaptureBufferSurface ? CaptureBufferSurface : PrimaryBufferSurface;
+
+	if( TextureFormat.bpp >= 16 && SUCCEEDED(surface->GetDC(&dc)) ) {
+		if( GetClientRect(HGameWindow, &rect) ) {
+			HBITMAP bitmap;
+			LPVOID lpBits;
+
+			if( surface == PrimaryBufferSurface ) {
+				MapWindowPoints(HGameWindow, GetParent(HGameWindow), (LPPOINT)&rect, 2);
+			}
+
+			bitmap = CreateBitmapFromDC(dc, &rect, &lpBits, WinVidPalette);
+			if( bitmap != NULL ) {
+				result = GDI_LoadImageBitmap(bitmap, &bmData, &width, &height, 16);
+				DeleteObject(bitmap);
+			}
+		}
+		surface->ReleaseDC(dc);
+	}
+
+	if( result ) {
+		BGND_IsCaptured = false;
+		S_DontDisplayPicture();
+		return -1;
+	}
+
+	BGND_TextureAlpha = 255;
+	BGND_PictureWidth = width;
+	BGND_PictureHeight = height;
+	MakeBgndTexture(width, height, bmData, NULL);
+
+	if( bmData != NULL ) {
+		free(bmData);
+	}
+
+	BGND_IsCaptured = true;
+	return 0;
+}
+
+
 int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 	static char lastFileName[256] = {0};
 	static char lastFullPath[256] = {0};
@@ -437,6 +487,8 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 	DWORD width, height;
 	char fullPath[256] = {0};
 	bool isPCX;
+
+	BGND_IsCaptured = false; // captured screen is not valid since we want picture file now
 
 	if( isReload ) {
 		if( IsGameWindowChanging || IsGameWindowUpdating ||
