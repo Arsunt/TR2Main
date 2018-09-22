@@ -63,6 +63,7 @@ extern DWORD BGND_PictureHeight;
 extern DWORD BGND_TextureSide;
 extern bool BGND_IsCaptured;
 
+extern DWORD InvBackgroundMode;
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 typedef struct ShadowInfo_t {
@@ -979,7 +980,7 @@ void __cdecl S_CopyBufferToScreen() {
 		BGND2_CalculatePictureRect(&rect);
 		RenderBufferSurface->Blt(&rect, PictureBufferSurface, NULL, DDBLT_WAIT, NULL);
 	}
-	else if( BGND_PictureIsReady && (!BGND_IsCaptured || !IsInventoryActive) ) {
+	else if( BGND_PictureIsReady && (!BGND_IsCaptured || !IsInventoryActive || InvBackgroundMode == 0 ) ) {
 #else // !FEATURE_BACKGROUND_IMPROVED
 		RenderBufferSurface->Blt(&GameVidRect, PictureBufferSurface, NULL, DDBLT_WAIT, NULL);
 	}
@@ -997,6 +998,9 @@ void __cdecl S_CopyBufferToScreen() {
 		BGND2_DrawTexture(&rect, BGND_PageHandles[0],
 						  0, 0, BGND_PictureWidth, BGND_PictureHeight,
 						  BGND_TextureSide, color, color, color, color);
+		if( BGND_IsCaptured && InvBackgroundMode == 0 ) {
+			BGND2_FadeTo(128, -12); // the captured background image fades out to 50%
+		}
 
 #else // !FEATURE_BACKGROUND_IMPROVED
 		static const int tileX[4] = {0, 256, 512, 640};

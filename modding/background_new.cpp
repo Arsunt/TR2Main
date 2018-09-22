@@ -426,6 +426,25 @@ static int PickBestPictureFile(LPTSTR fileName, LPCTSTR modDir) {
 }
 
 
+int __cdecl BGND2_FadeTo(int target, int delta) {
+	int current = BGND_TextureAlpha;
+
+	if( target > current && delta > 0 )	{
+		current += delta;
+		CLAMPG(current, target);
+	} else if( target < current && delta < 0 ) {
+		current += delta;
+		CLAMPL(current, target);
+	} else {
+		return current;
+	}
+
+	CLAMP(current, 0, 255);
+	BGND_TextureAlpha = current;
+	return current;
+}
+
+
 int __cdecl BGND2_CapturePicture() {
 	int result = -1;
 	BYTE *bmData = NULL;
