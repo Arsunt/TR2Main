@@ -120,6 +120,14 @@ int __cdecl GameLoop(BOOL demoMode) {
 	}
 
 	S_SoundStopAllSamples();
+
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	// this fixes issue when the final "bath" cut scene is cut off
+	if( CHK_ANY(Lara_Flags, LARA_EXTRA_ANIM) && LaraItem->currentAnimState == EXTRA_FINALANIM ) {
+		S_CopyScreenToBuffer();
+		BGND2_ShowPicture(0, 0, 20, 70, FALSE);
+	}
+#endif // FEATURE_BACKGROUND_IMPROVED
 	S_CDStop();
 	if( MusicVolume > 0 ) {
 		S_CDVolume(MusicVolume * 25 + 5);
