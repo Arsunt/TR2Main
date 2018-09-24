@@ -29,7 +29,7 @@
 #define REQ_MIDZ		(16)
 #define REQ_FARZ		(48)
 
-#define REQ_LN_HEIGHT	(18)
+#define REQ_LN_HEIGHT	(16) /* NOTE: original value is 18, but it looks wrong with low resolutions */
 #define STATS_LN_COUNT	(7)
 // Y coordinates relative to the bottom of the screen
 #define STATS_Y_POS		(-32)
