@@ -47,6 +47,11 @@ void __cdecl S_DrawScreenBox(int sx, int sy, int z, int width, int height, BYTE 
 	int sx1 = sx + width;
 	int sy1 = sy + height;
 
+	// NOTE: line coordinates slightly adjusted to fill gaps in the box corners (original game HWR bug)
+	if( SavedAppSettings.RenderMode == RM_Hardware ) {
+		++width;
+		++height;
+	}
 	S_DrawScreenLine(sx,	sy-1,	z,	width+1,	0,			colorIdx1, NULL, flags);
 	S_DrawScreenLine(sx+1,	sy,		z,	width-1,	0,			colorIdx2, NULL, flags);
 
