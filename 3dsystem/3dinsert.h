@@ -27,6 +27,9 @@
 /*
  * Function list
  */
+// NOTE: this function is not presented in the original game
+void InsertGourQuad(int x0, int y0, int x1, int y1, int z, D3DCOLOR color0, D3DCOLOR color1, D3DCOLOR color2, D3DCOLOR color3);
+
 BOOL __cdecl visible_zclip(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2); // 0x00405840
 int __cdecl ZedClipper(int vtxCount, POINT_INFO *pts, VERTEX_INFO *vtx); // 0x004058B0
 int __cdecl XYGUVClipper(int vtxCount, VERTEX_INFO *vtx); // 0x004059F0

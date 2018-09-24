@@ -53,6 +53,47 @@ static D3DCOLOR shadeColor(DWORD red, DWORD green, DWORD blue, DWORD alpha, DWOR
 	return RGBA_MAKE(red, green, blue, alpha);
 }
 
+// NOTE: this function is not presented in the original game
+void __cdecl InsertGourQuad(int x0, int y0, int x1, int y1, int z, D3DCOLOR color0, D3DCOLOR color1, D3DCOLOR color2, D3DCOLOR color3) {
+	double rhw, sz;
+
+	Sort3dPtr->_0 = (int)Info3dPtr;
+	Sort3dPtr->_1 = z;
+	++Sort3dPtr;
+
+	*(Info3dPtr++) = POLY_HWR_trans;
+	*(Info3dPtr++) = 4; //  vertex count
+	*(D3DTLVERTEX **)Info3dPtr = HWR_VertexPtr;
+	Info3dPtr += sizeof(D3DTLVERTEX *)/sizeof(__int16);
+
+	rhw = RhwFactor / (double)z;
+	sz = FltResZBuf - rhw * FltResZORhw;
+
+	HWR_VertexPtr[0].sx = (float)x1;
+	HWR_VertexPtr[0].sy = (float)y0;
+	HWR_VertexPtr[0].color = color1;
+
+	HWR_VertexPtr[1].sx = (float)x1;
+	HWR_VertexPtr[1].sy = (float)y1;
+	HWR_VertexPtr[1].color = color2;
+
+	HWR_VertexPtr[2].sx = (float)x0;
+	HWR_VertexPtr[2].sy = (float)y1;
+	HWR_VertexPtr[2].color = color3;
+
+	HWR_VertexPtr[3].sx = (float)x0;
+	HWR_VertexPtr[3].sy = (float)y0;
+	HWR_VertexPtr[3].color = color0;
+
+	for( int i=0; i<4; ++i ) {
+		HWR_VertexPtr[i].sz = sz;
+		HWR_VertexPtr[i].rhw = rhw;
+	}
+
+	HWR_VertexPtr += 4;
+	++SurfaceCount;
+}
+
 BOOL __cdecl visible_zclip(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2) {
 	return ( (vtx0->yv * vtx2->zv - vtx0->zv * vtx2->yv) * vtx1->xv +
 			 (vtx0->zv * vtx2->xv - vtx0->xv * vtx2->zv) * vtx1->yv +
