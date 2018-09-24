@@ -35,41 +35,43 @@
 #define STATS_Y_POS		(-32)
 #define STATS_WIDTH		(304)
 
-// These gouraud arrays are not used in the game (apparently were not ready for release)
-static __int16 ReqBgndGour1[16] = {
-	0x1E00, 0x1E00, 0x1A00, 0x1E00,
-	0x1E00, 0x1E00, 0x1E00, 0x1A00,
-	0x1A00, 0x1E00, 0x1E00, 0x1E00,
-	0x1E00, 0x1A00, 0x1E00, 0x1E00,
-};
-static __int16 ReqBgndGour2[9] = {
-	0x1A00, 0x1800, 0x1E00,
-	0x2000, 0x2000, 0x1E00,
-	0x1C00, 0x1C00, 0x1A00,
+// NOTE: gouraud arrays have been taken from PlayStation version of the game.
+// These arrays are not used in the original PC version of the game.
+
+GOURAUD_FILL ReqBgndGour1 = {{
+	{0x80002000, 0x80002000, 0x80006000, 0x80002000},
+	{0x80002000, 0x80002000, 0x80002000, 0x80006000},
+	{0x80006000, 0x80002000, 0x80002000, 0x80002000},
+	{0x80002000, 0x80006000, 0x80002000, 0x80002000},
+}};
+GOURAUD_OUTLINE ReqBgndGour2 = {
+	0xFF606060, 0xFF808080, 0xFF202020,
+	0xFF000000, 0xFF000000, 0xFF202020,
+	0xFF404040, 0xFF404040, 0xFF606060,
 };
 
-static __int16 ReqMainGour1[16] = {
-	0x2000, 0x2000, 0x1800, 0x2000,
-	0x2000, 0x2000, 0x2000, 0x1800,
-	0x1800, 0x2000, 0x2000, 0x2000,
-	0x2000, 0x1800, 0x2000, 0x2000,
-};
-static __int16 ReqMainGour2[9] = {
-	0x2000, 0x2000, 0x2000,
-	0x2000, 0x2000, 0x2000,
-	0x2000, 0x2000, 0x2000,
+GOURAUD_FILL ReqMainGour1 = {{
+	{0x80000000, 0x80000000, 0x80108038, 0x80000000},
+	{0x80000000, 0x80000000, 0x80000000, 0x80108038},
+	{0x80108038, 0x80000000, 0x80000000, 0x80000000},
+	{0x80000000, 0x80108038, 0x80000000, 0x80000000},
+}};
+GOURAUD_OUTLINE ReqMainGour2 = {
+	0xFF000000, 0xFF000000, 0xFF000000,
+	0xFF000000, 0xFF000000, 0xFF000000,
+	0xFF000000, 0xFF000000, 0xFF000000,
 };
 
-static __int16 ReqSelGour1[16] = {
-	0x2000, 0x2000, 0x1A00, 0x2000,
-	0x2000, 0x2000, 0x2000, 0x1A00,
-	0x1A00, 0x2000, 0x2000, 0x2000,
-	0x2000, 0x1A00, 0x2000, 0x2000,
-};
-static __int16 ReqSelGour2[9] = {
-	0x2000, 0x1010, 0x2000,
-	0x1400, 0x2000, 0x1010,
-	0x2000, 0x1400, 0x2000,
+GOURAUD_FILL ReqSelGour1 = {{
+	{0x80000000, 0x80000000, 0x8038F080, 0x80000000},
+	{0x80000000, 0x80000000, 0x80000000, 0x8038F080},
+	{0x8038F080, 0x80000000, 0x80000000, 0x80000000},
+	{0x80000000, 0x8038F080, 0x80000000, 0x80000000},
+}};
+GOURAUD_OUTLINE ReqSelGour2 = {
+	0xFF000000, 0xFFFFFFFF, 0xFF000000,
+	0xFF38F080, 0xFF000000, 0xFFFFFFFF,
+	0xFF000000, 0xFF38F080, 0xFF000000,
 };
 
 #ifdef FEATURE_ASSAULT_SAVE
@@ -197,8 +199,8 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 			T_CentreH(req->headingText1, 1);
 			T_BottomAlign(req->headingText1, 1);
 			if( isBackground ) {
-				T_AddBackground(req->headingText1, (req->pixWidth - 4), 0, 0, 0, REQ_NEARZ, ICLR_Black, ReqMainGour1, 2);
-				T_AddOutline(req->headingText1, TRUE, ICLR_Orange, ReqMainGour2, 0);
+				T_AddBackground(req->headingText1, (req->pixWidth - 4), 0, 0, 0, REQ_NEARZ, ICLR_Black, &ReqMainGour1, 2);
+				T_AddOutline(req->headingText1, TRUE, ICLR_Orange, &ReqMainGour2, 0);
 			}
 		}
 		if( CHK_ANY(req->headingFlags1, 2) ) {
@@ -216,8 +218,8 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 			T_CentreH(req->headingText2, 1);
 			T_BottomAlign(req->headingText2, 1);
 			if( isBackground ) {
-				T_AddBackground(req->headingText2, (req->pixWidth - 4), 0, 0, 0, REQ_NEARZ, ICLR_Black, ReqMainGour1, 2);
-				T_AddOutline(req->headingText2, TRUE, ICLR_Orange, ReqMainGour2, 0);
+				T_AddBackground(req->headingText2, (req->pixWidth - 4), 0, 0, 0, REQ_NEARZ, ICLR_Black, &ReqMainGour1, 2);
+				T_AddOutline(req->headingText2, TRUE, ICLR_Orange, &ReqMainGour2, 0);
 			}
 		}
 		if( CHK_ANY(req->headingFlags2, 2) ) {
@@ -233,8 +235,8 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 		req->backgroundText = T_Print(req->xPos, (linesOff - req->lineHeight - 12), 0, " ");
 		T_CentreH(req->backgroundText, 1);
 		T_BottomAlign(req->backgroundText, 1);
-		T_AddBackground(req->backgroundText, req->pixWidth, (req->lineHeight + linesHeight + 12), 0, 0, REQ_FARZ, ICLR_Black, ReqBgndGour1, 1);
-		T_AddOutline(req->backgroundText, TRUE, ICLR_Blue, ReqBgndGour2, 0);
+		T_AddBackground(req->backgroundText, req->pixWidth, (req->lineHeight + linesHeight + 12), 0, 0, REQ_FARZ, ICLR_Black, &ReqBgndGour1, 1);
+		T_AddOutline(req->backgroundText, TRUE, ICLR_Blue, &ReqBgndGour2, 0);
 	}
 
 	// More up
@@ -270,8 +272,8 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 				T_RemoveBackground(req->itemTexts1[i]);
 				T_RemoveOutline(req->itemTexts1[i]);
 			} else {
-				T_AddBackground(req->itemTexts1[i], (req->pixWidth - 12), 0, 0, 0, REQ_MIDZ, ICLR_Black, ReqSelGour1, 1);
-				T_AddOutline(req->itemTexts1[i], TRUE, ICLR_Orange, ReqSelGour2, 0);
+				T_AddBackground(req->itemTexts1[i], (req->pixWidth - 12), 0, 0, 0, REQ_MIDZ, ICLR_Black, &ReqSelGour1, 1);
+				T_AddOutline(req->itemTexts1[i], TRUE, ICLR_Orange, &ReqSelGour2, 0);
 			}
 
 			if( CHK_ANY(req->lpItemFlags1[req->lineOffset + i], 2) ) {

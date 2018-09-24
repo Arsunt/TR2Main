@@ -99,6 +99,16 @@
 
 #define CONTROL_NEARZ		(16)
 #define CONTROL_FARZ		(48)
+
+extern GOURAUD_FILL ReqBgndGour1;
+extern GOURAUD_OUTLINE ReqBgndGour2;
+
+extern GOURAUD_FILL ReqMainGour1;
+extern GOURAUD_OUTLINE ReqMainGour2;
+
+extern GOURAUD_FILL ReqSelGour1;
+extern GOURAUD_OUTLINE ReqSelGour2;
+
 /*
  * Control key names
  */
@@ -440,14 +450,14 @@ void __cdecl do_detail_option(INVENTORY_ITEM *item) {
 		DetailTextInfo[1] = T_Print(0, DETAIL_Y_LINE2, 0, GF_GameStringTable[GSI_Detail_Medium]);
 		DetailTextInfo[0] = T_Print(0, DETAIL_Y_LINE3, 0, GF_GameStringTable[GSI_Detail_Low]);
 
-		T_AddBackground(DetailTextInfo[4], DETAIL_WIDTH_M, 0, 0, 0, DETAIL_NEARZ, ICLR_Black, NULL, 0);
-		T_AddOutline(DetailTextInfo[4], TRUE, ICLR_Orange, NULL, 0);
+		T_AddBackground(DetailTextInfo[4], DETAIL_WIDTH_M, 0, 0, 0, DETAIL_NEARZ, ICLR_Black, &ReqMainGour1, 0);
+		T_AddOutline(DetailTextInfo[4], TRUE, ICLR_Orange, &ReqMainGour2, 0);
 
-		T_AddBackground(DetailTextInfo[DetailLevel], DETAIL_WIDTH_S, 0, 0, 0, DETAIL_NEARZ, ICLR_Black, NULL, 0);
-		T_AddOutline(DetailTextInfo[DetailLevel], TRUE, ICLR_Orange, NULL, 0);
+		T_AddBackground(DetailTextInfo[DetailLevel], DETAIL_WIDTH_S, 0, 0, 0, DETAIL_NEARZ, ICLR_Black, &ReqSelGour1, 0);
+		T_AddOutline(DetailTextInfo[DetailLevel], TRUE, ICLR_Orange, &ReqSelGour2, 0);
 
-		T_AddBackground(DetailTextInfo[3], DETAIL_WIDTH_L, DETAIL_HEIGHT, 0, 0, DETAIL_FARZ, ICLR_Black, NULL, 0);
-		T_AddOutline(DetailTextInfo[3], TRUE, ICLR_Blue, NULL, 0);
+		T_AddBackground(DetailTextInfo[3], DETAIL_WIDTH_L, DETAIL_HEIGHT, 0, 0, DETAIL_FARZ, ICLR_Black, &ReqBgndGour1, 0);
+		T_AddOutline(DetailTextInfo[3], TRUE, ICLR_Blue, &ReqBgndGour2, 0);
 
 		for( i=0; i<5 ; ++i ) {
 			T_CentreH(DetailTextInfo[i], 1);
@@ -459,16 +469,16 @@ void __cdecl do_detail_option(INVENTORY_ITEM *item) {
 		T_RemoveOutline(DetailTextInfo[DetailLevel]);
 		T_RemoveBackground(DetailTextInfo[DetailLevel]);
 		--DetailLevel;
-		T_AddOutline(DetailTextInfo[DetailLevel], TRUE, ICLR_Orange, NULL, 0);
-		T_AddBackground(DetailTextInfo[DetailLevel], DETAIL_WIDTH_S, 0, 0, 0, DETAIL_NEARZ, ICLR_Black, NULL, 0);
+		T_AddOutline(DetailTextInfo[DetailLevel], TRUE, ICLR_Orange, &ReqSelGour2, 0);
+		T_AddBackground(DetailTextInfo[DetailLevel], DETAIL_WIDTH_S, 0, 0, 0, DETAIL_NEARZ, ICLR_Black, &ReqSelGour1, 0);
 	}
 
 	if ( CHK_ANY(InputDB, IN_FORWARD) && DetailLevel < 2 ) {
 		T_RemoveOutline(DetailTextInfo[DetailLevel]);
 		T_RemoveBackground(DetailTextInfo[DetailLevel]);
 		++DetailLevel;
-		T_AddOutline(DetailTextInfo[DetailLevel], TRUE, ICLR_Orange, NULL, 0);
-		T_AddBackground(DetailTextInfo[DetailLevel], DETAIL_WIDTH_S, 0, 0, 0, DETAIL_NEARZ, ICLR_Black, NULL, 0);
+		T_AddOutline(DetailTextInfo[DetailLevel], TRUE, ICLR_Orange, &ReqSelGour2, 0);
+		T_AddBackground(DetailTextInfo[DetailLevel], DETAIL_WIDTH_S, 0, 0, 0, DETAIL_NEARZ, ICLR_Black, &ReqSelGour1, 0);
 	}
 
 	switch( DetailLevel ) {
@@ -505,16 +515,16 @@ void __cdecl do_sound_option(INVENTORY_ITEM *item) {
 		sprintf(volumeString, "} %2d", SoundVolume); // Char '}' is dynamic speaker picture
 		SoundTextInfo[1] = T_Print(0, 25, 0, volumeString);
 
-		T_AddBackground(SoundTextInfo[0], SOUND_WIDTH_S, 0, 0, 0, SOUND_NEARZ, ICLR_Black, NULL, 0);
-		T_AddOutline(SoundTextInfo[0], TRUE, ICLR_Orange, NULL, 0);
+		T_AddBackground(SoundTextInfo[0], SOUND_WIDTH_S, 0, 0, 0, SOUND_NEARZ, ICLR_Black, &ReqSelGour1, 0);
+		T_AddOutline(SoundTextInfo[0], TRUE, ICLR_Orange, &ReqSelGour2, 0);
 
 		SoundTextInfo[2] = T_Print(0, SOUND_Y_BOX, 0, " ");
-		T_AddBackground(SoundTextInfo[2], SOUND_WIDTH_L, SOUND_HEIGHT, 0, 0, SOUND_FARZ, ICLR_Black, NULL, 0);
-		T_AddOutline(SoundTextInfo[2], TRUE, ICLR_Blue, NULL, 0);
+		T_AddBackground(SoundTextInfo[2], SOUND_WIDTH_L, SOUND_HEIGHT, 0, 0, SOUND_FARZ, ICLR_Black, &ReqBgndGour1, 0);
+		T_AddOutline(SoundTextInfo[2], TRUE, ICLR_Blue, &ReqBgndGour2, 0);
 
 		SoundTextInfo[3] = T_Print(0, SOUND_Y_TITLE, 0, GF_SpecificStringTable[SSI_SetVolumes]);
-		T_AddBackground(SoundTextInfo[3], SOUND_WIDTH_M, 0, 0, 0, SOUND_NEARZ, ICLR_Black, NULL, 0);
-		T_AddOutline(SoundTextInfo[3], TRUE, ICLR_Blue, NULL, 0);
+		T_AddBackground(SoundTextInfo[3], SOUND_WIDTH_M, 0, 0, 0, SOUND_NEARZ, ICLR_Black, &ReqMainGour1, 0);
+		T_AddOutline(SoundTextInfo[3], TRUE, ICLR_Blue, &ReqMainGour2, 0);
 
 		for( i=0; i<4 ; ++i ) {
 			T_CentreH(SoundTextInfo[i], 1);
@@ -526,16 +536,16 @@ void __cdecl do_sound_option(INVENTORY_ITEM *item) {
 		T_RemoveOutline(SoundTextInfo[SoundOptionLine]);
 		T_RemoveBackground(SoundTextInfo[SoundOptionLine]);
 		--SoundOptionLine;
-		T_AddBackground(SoundTextInfo[SoundOptionLine], SOUND_WIDTH_S, 0, 0, 0, SOUND_NEARZ, ICLR_Black, NULL, 0);
-		T_AddOutline(SoundTextInfo[SoundOptionLine], TRUE, ICLR_Orange, NULL, 0);
+		T_AddBackground(SoundTextInfo[SoundOptionLine], SOUND_WIDTH_S, 0, 0, 0, SOUND_NEARZ, ICLR_Black, &ReqSelGour1, 0);
+		T_AddOutline(SoundTextInfo[SoundOptionLine], TRUE, ICLR_Orange, &ReqSelGour2, 0);
 	}
 
 	if( CHK_ANY(InputDB, IN_BACK) && SoundOptionLine < 1 ) {
 		T_RemoveOutline(SoundTextInfo[SoundOptionLine]);
 		T_RemoveBackground(SoundTextInfo[SoundOptionLine]);
 		++SoundOptionLine;
-		T_AddBackground(SoundTextInfo[SoundOptionLine], SOUND_WIDTH_S, 0, 0, 0, SOUND_NEARZ, ICLR_Black, NULL, 0);
-		T_AddOutline(SoundTextInfo[SoundOptionLine], TRUE, ICLR_Orange, NULL, 0);
+		T_AddBackground(SoundTextInfo[SoundOptionLine], SOUND_WIDTH_S, 0, 0, 0, SOUND_NEARZ, ICLR_Black, &ReqSelGour1, 0);
+		T_AddOutline(SoundTextInfo[SoundOptionLine], TRUE, ICLR_Orange, &ReqSelGour2, 0);
 	}
 
 	switch( SoundOptionLine ) {
@@ -652,8 +662,8 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 
 		S_ShowControls();
 		KeyCursor = -1;
-		T_AddBackground(ControlTextInfo[0], 0, 0, 0, 0, CONTROL_FARZ, ICLR_Black, NULL, 0);
-		T_AddOutline(ControlTextInfo[0], TRUE, ICLR_Blue, NULL, 0);
+		T_AddBackground(ControlTextInfo[0], 0, 0, 0, 0, CONTROL_FARZ, ICLR_Black, &ReqSelGour1, 0);
+		T_AddOutline(ControlTextInfo[0], TRUE, ICLR_Blue, &ReqSelGour2, 0);
 	}
 
 	switch( KeySelector ) {
@@ -677,8 +687,8 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 					}
 
 					CtrlTextA[KeyCursor]->zPos = 0;
-					T_AddBackground(CtrlTextA[KeyCursor], 0, 0, 0, 0, 0, ICLR_Black, NULL, 0);
-					T_AddOutline(CtrlTextA[KeyCursor], TRUE, ICLR_Blue, NULL, 0);
+					T_AddBackground(CtrlTextA[KeyCursor], 0, 0, 0, 0, 0, ICLR_Black, &ReqSelGour1, 0);
+					T_AddOutline(CtrlTextA[KeyCursor], TRUE, ICLR_Blue, &ReqSelGour2, 0);
 				}
 			}
 			else if( CHK_ANY(InputDB, IN_DESELECT) || (CHK_ANY(InputDB, IN_SELECT) && KeyCursor == -1) ) {
@@ -702,8 +712,8 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 				T_RemoveOutline(CtrlTextA[KeyCursor]);
 
 				CtrlTextB[KeyCursor]->zPos = 0;
-				T_AddBackground(CtrlTextB[KeyCursor], 0, 0, 0, 0, 0, ICLR_Black, NULL, 0);
-				T_AddOutline(CtrlTextB[KeyCursor], TRUE, ICLR_Blue, NULL, 0);
+				T_AddBackground(CtrlTextB[KeyCursor], 0, 0, 0, 0, 0, ICLR_Black, &ReqSelGour1, 0);
+				T_AddOutline(CtrlTextB[KeyCursor], TRUE, ICLR_Blue, &ReqSelGour2, 0);
 			}
 			else if( CHK_ANY(InputDB, IN_FORWARD) ) {
 				if( KeyCursor == -1 ) {
@@ -720,12 +730,12 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 				}
 
 				if( KeyCursor == -1 ) {
-					T_AddBackground(ControlTextInfo[0], 0, 0, 0, 0, 0, ICLR_Black, NULL, 0);
-					T_AddOutline(ControlTextInfo[0], TRUE, ICLR_Blue, NULL, 0);
+					T_AddBackground(ControlTextInfo[0], 0, 0, 0, 0, 0, ICLR_Black, &ReqSelGour1, 0);
+					T_AddOutline(ControlTextInfo[0], TRUE, ICLR_Blue, &ReqSelGour2, 0);
 				} else {
 					CtrlTextA[KeyCursor]->zPos = 0;
-					T_AddBackground(CtrlTextA[KeyCursor], 0, 0, 0, 0, 0, ICLR_Black, NULL, 0);
-					T_AddOutline(CtrlTextA[KeyCursor], TRUE, ICLR_Blue, NULL, 0);
+					T_AddBackground(CtrlTextA[KeyCursor], 0, 0, 0, 0, 0, ICLR_Black, &ReqSelGour1, 0);
+					T_AddOutline(CtrlTextA[KeyCursor], TRUE, ICLR_Blue, &ReqSelGour2, 0);
 				}
 			}
 			else if( CHK_ANY(InputDB, IN_BACK) ) {
@@ -743,12 +753,12 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 				}
 
 				if( KeyCursor == -1 ) {
-					T_AddBackground(ControlTextInfo[0], 0, 0, 0, 0, 0, ICLR_Black, NULL, 0);
-					T_AddOutline(ControlTextInfo[0], TRUE, ICLR_Blue, NULL, 0);
+					T_AddBackground(ControlTextInfo[0], 0, 0, 0, 0, 0, ICLR_Black, &ReqSelGour1, 0);
+					T_AddOutline(ControlTextInfo[0], TRUE, ICLR_Blue, &ReqSelGour2, 0);
 				} else {
 					CtrlTextA[KeyCursor]->zPos = 0;
-					T_AddBackground(CtrlTextA[KeyCursor], 0, 0, 0, 0, 0, ICLR_Black, NULL, 0);
-					T_AddOutline(CtrlTextA[KeyCursor], TRUE, ICLR_Blue, NULL, 0);
+					T_AddBackground(CtrlTextA[KeyCursor], 0, 0, 0, 0, 0, ICLR_Black, &ReqSelGour1, 0);
+					T_AddOutline(CtrlTextA[KeyCursor], TRUE, ICLR_Blue, &ReqSelGour2, 0);
 				}
 			}
 			break;
@@ -792,8 +802,8 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 				T_RemoveOutline(CtrlTextB[KeyCursor]);
 
 				CtrlTextA[KeyCursor]->zPos = 0;
-				T_AddBackground(CtrlTextA[KeyCursor], 0, 0, 0, 0, 0, ICLR_Black, NULL, 0);
-				T_AddOutline(CtrlTextA[KeyCursor], TRUE, ICLR_Blue, NULL, 0);
+				T_AddBackground(CtrlTextA[KeyCursor], 0, 0, 0, 0, 0, ICLR_Black, &ReqSelGour1, 0);
+				T_AddOutline(CtrlTextA[KeyCursor], TRUE, ICLR_Blue, &ReqSelGour2, 0);
 
 				KeySelector = 3;
 				FlashConflicts();
@@ -900,16 +910,16 @@ void __cdecl S_ShowControls() {
 	ControlTextInfo[1] = T_Print(0, CONTROL_Y_BOX, 0, " ");
 	T_CentreV(ControlTextInfo[1], 1);
 	T_CentreH(ControlTextInfo[1], 1);
-	T_AddOutline(ControlTextInfo[1], TRUE, ICLR_Blue, NULL, 0);
+	T_AddOutline(ControlTextInfo[1], TRUE, ICLR_Blue, &ReqBgndGour2, 0);
 
 	if( isCompact ) {
 		for( i=0; i<14; ++i ) {
 			T_SetScale(CtrlTextB[i], PHD_ONE/2, PHD_ONE);
 			T_SetScale(CtrlTextA[i], PHD_ONE/2, PHD_ONE);
 		}
-		T_AddBackground(ControlTextInfo[1], CONTROL_WIDTH_LOW, CONTROL_HEIGHT_LOW, 0, 0, CONTROL_FARZ, ICLR_Black, NULL, 0);
+		T_AddBackground(ControlTextInfo[1], CONTROL_WIDTH_LOW, CONTROL_HEIGHT_LOW, 0, 0, CONTROL_FARZ, ICLR_Black, &ReqBgndGour1, 0);
 	} else {
-		T_AddBackground(ControlTextInfo[1], CONTROL_WIDTH_HIGH, CONTROL_HEIGHT_HIGH, 0, 0, CONTROL_FARZ, ICLR_Black, NULL, 0);
+		T_AddBackground(ControlTextInfo[1], CONTROL_WIDTH_HIGH, CONTROL_HEIGHT_HIGH, 0, 0, CONTROL_FARZ, ICLR_Black, &ReqBgndGour1, 0);
 	}
 }
 

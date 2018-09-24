@@ -112,7 +112,7 @@ TEXT_STR_INFO *__cdecl T_Print(int x, int y, __int16 z, const char *str) {
 			TextInfoTable[i].wordSpacing   = 6;
 
 			TextInfoTable[i].textFlags = 0;
-			TextInfoTable[i].outFlags  = 0;
+			TextInfoTable[i].outlFlags  = 0;
 			TextInfoTable[i].bgndFlags = 0;
 			TextInfoTable[i].bgndSizeX = 0;
 			TextInfoTable[i].bgndSizeY = 0;
@@ -167,7 +167,7 @@ void __cdecl T_FlashText(TEXT_STR_INFO *textInfo, __int16 state, __int16 rate) {
 	}
 }
 
-void __cdecl T_AddBackground(TEXT_STR_INFO *textInfo, __int16 xSize, __int16 ySize, __int16 xOff, __int16 yOff, __int16 zOff, INV_COLOURS invColour, LPVOID gour, UINT16 flags) {
+void __cdecl T_AddBackground(TEXT_STR_INFO *textInfo, __int16 xSize, __int16 ySize, __int16 xOff, __int16 yOff, __int16 zOff, INV_COLOURS invColour, GOURAUD_FILL *gour, UINT16 flags) {
 	DWORD scaleH, scaleV;
 
 	if( textInfo == NULL )
@@ -192,12 +192,12 @@ void __cdecl T_RemoveBackground(TEXT_STR_INFO *textInfo) {
 		textInfo->flags &= ~TIF_Bgnd;
 }
 
-void __cdecl T_AddOutline(TEXT_STR_INFO *textInfo, BOOL state, INV_COLOURS invColour, LPVOID gour, UINT16 flags) {
+void __cdecl T_AddOutline(TEXT_STR_INFO *textInfo, BOOL state, INV_COLOURS invColour, GOURAUD_OUTLINE *gour, UINT16 flags) {
 	if( textInfo != NULL ) {
 		textInfo->flags |= TIF_Outline;
 		textInfo->outlColour = invColour;
 		textInfo->outlGour = gour;
-		textInfo->outFlags = flags;
+		textInfo->outlFlags = flags;
 	}
 }
 

@@ -28,9 +28,9 @@
  * Function list
  */
 UINT16 __cdecl S_COLOUR(int red, int green, int blue); // 0x0044C2A0
-void __cdecl S_DrawScreenLine(int x, int y, int z, int xLen, int yLen, BYTE colorIdx, LPVOID gour, UINT16 flags); // 0x0044C2D0
-void __cdecl S_DrawScreenBox(int sx, int sy, int z, int width, int height, BYTE colorIdx, LPVOID gour, UINT16 flags); // 0x0044C310
-void __cdecl S_DrawScreenFBox(int sx, int sy, int z, int width, int height, BYTE colorIdx, LPVOID gour, UINT16 flags); // 0x0044C430
+void __cdecl S_DrawScreenLine(int x, int y, int z, int xLen, int yLen, BYTE colorIdx, D3DCOLOR *gour, UINT16 flags); // 0x0044C2D0
+void __cdecl S_DrawScreenBox(int sx, int sy, int z, int width, int height, BYTE colorIdx, GOURAUD_OUTLINE *gour, UINT16 flags); // 0x0044C310
+void __cdecl S_DrawScreenFBox(int sx, int sy, int z, int width, int height, BYTE colorIdx, GOURAUD_FILL *gour, UINT16 flags); // 0x0044C430
 void __cdecl S_FinishInventory(); // 0x0044C460
 void __cdecl S_FadeToBlack(); // 0x0044C470
 void __cdecl S_Wait(int timeout, BOOL inputCheck); // 0x0044C4C0

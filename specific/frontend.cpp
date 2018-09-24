@@ -37,11 +37,11 @@ UINT16 __cdecl S_COLOUR(int red, int green, int blue) {
 	return FindNearestPaletteEntry(GamePalette8, red, green, blue, false);
 }
 
-void __cdecl S_DrawScreenLine(int x, int y, int z, int xLen, int yLen, BYTE colorIdx, LPVOID gour, UINT16 flags) {
+void __cdecl S_DrawScreenLine(int x, int y, int z, int xLen, int yLen, BYTE colorIdx, D3DCOLOR *gour, UINT16 flags) {
 	ins_line(x, y, x + xLen, y + yLen, PhdNearZ + z * 8, colorIdx);
 }
 
-void __cdecl S_DrawScreenBox(int sx, int sy, int z, int width, int height, BYTE colorIdx, LPVOID gour, UINT16 flags) {
+void __cdecl S_DrawScreenBox(int sx, int sy, int z, int width, int height, BYTE colorIdx, GOURAUD_OUTLINE *gour, UINT16 flags) {
 	const BYTE colorIdx1 = 15;
 	const BYTE colorIdx2 = 31;
 	int sx1 = sx + width;
@@ -65,7 +65,7 @@ void __cdecl S_DrawScreenBox(int sx, int sy, int z, int width, int height, BYTE 
 	S_DrawScreenLine(sx-1,	sy1+1,	z,	width+1,	0,			colorIdx2, NULL, flags);
 }
 
-void __cdecl S_DrawScreenFBox(int sx, int sy, int z, int width, int height, BYTE colorIdx, LPVOID gour, UINT16 flags) {
+void __cdecl S_DrawScreenFBox(int sx, int sy, int z, int width, int height, BYTE colorIdx, GOURAUD_FILL *gour, UINT16 flags) {
 	int adder;
 #ifdef FEATURE_FOV_FIX
 	adder = GetRenderScale(2);

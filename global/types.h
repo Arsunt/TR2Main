@@ -937,6 +937,14 @@ typedef struct RGB888_t {
 	BYTE blue;
 } RGB888;
 
+typedef struct GouraudFill_t {
+	D3DCOLOR clr[4][4];
+} GOURAUD_FILL;
+
+typedef struct GouraudOutline_t {
+	D3DCOLOR clr[9];
+} GOURAUD_OUTLINE;
+
 typedef struct DepthQEntry_t {
 	BYTE index[256];
 } DEPTHQ_ENTRY;
@@ -1119,7 +1127,7 @@ typedef struct TextStrInfo_t {
 	DWORD flags;
 	UINT16 textFlags;
 	UINT16 bgndFlags;
-	UINT16 outFlags;
+	UINT16 outlFlags;
 	__int16 xPos;
 	__int16 yPos;
 	__int16 zPos;
@@ -1128,9 +1136,9 @@ typedef struct TextStrInfo_t {
 	__int16 flashRate;
 	__int16 flashCount;
 	__int16 bgndColor;
-	LPVOID bgndGour;
+	GOURAUD_FILL *bgndGour;
 	__int16 outlColour;
-	LPVOID outlGour;
+	GOURAUD_OUTLINE *outlGour;
 	__int16 bgndSizeX;
 	__int16 bgndSizeY;
 	__int16 bgndOffX;

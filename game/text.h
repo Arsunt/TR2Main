@@ -32,9 +32,9 @@ TEXT_STR_INFO *__cdecl T_Print(int x, int y, __int16 z, const char *str); // 0x0
 void __cdecl T_ChangeText(TEXT_STR_INFO *textInfo, const char *newString); // 0x00440640
 void __cdecl T_SetScale(TEXT_STR_INFO *textInfo, int scaleH, int scaleV); // 0x00440680
 void __cdecl T_FlashText(TEXT_STR_INFO *textInfo, __int16 state, __int16 rate); // 0x004406A0
-void __cdecl T_AddBackground(TEXT_STR_INFO *textInfo, __int16 xSize, __int16 ySize, __int16 xOff, __int16 yOff, __int16 zOff, INV_COLOURS invColour, LPVOID gour, UINT16 flags); // 0x004406D0
+void __cdecl T_AddBackground(TEXT_STR_INFO *textInfo, __int16 xSize, __int16 ySize, __int16 xOff, __int16 yOff, __int16 zOff, INV_COLOURS invColour, GOURAUD_FILL *gour, UINT16 flags); // 0x004406D0
 void __cdecl T_RemoveBackground(TEXT_STR_INFO *textInfo); // 0x00440760
-void __cdecl T_AddOutline(TEXT_STR_INFO *textInfo, BOOL state, INV_COLOURS invColour, LPVOID gour, UINT16 flags); // 0x00440770
+void __cdecl T_AddOutline(TEXT_STR_INFO *textInfo, BOOL state, INV_COLOURS invColour, GOURAUD_OUTLINE *gour, UINT16 flags); // 0x00440770
 void __cdecl T_RemoveOutline(TEXT_STR_INFO *textInfo); // 0x004407A0
 void __cdecl T_CentreH(TEXT_STR_INFO *textInfo, UINT16 state); // 0x004407B0
 void __cdecl T_CentreV(TEXT_STR_INFO *textInfo, UINT16 state); // 0x004407D0
