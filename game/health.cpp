@@ -33,9 +33,9 @@
 #define AMMO_XPOS_PS	(-16)
 #define AMMO_YPOS_PS	(64)
 
-#ifdef FEATURE_HEALTHBAR_IMPROVED
+#ifdef FEATURE_HUD_IMPROVED
 extern bool PsxBarPosEnabled;
-#endif // FEATURE_HEALTHBAR_IMPROVED
+#endif // FEATURE_HUD_IMPROVED
 
 BOOL __cdecl FlashIt() {
 	static int counter = 0;
@@ -65,7 +65,7 @@ void __cdecl DrawAssaultTimer() {
 	minutes = SaveGame.statistics.timer / 30 / 60;
 	sprintf(timeString, "%d:%02d.%d", minutes, seconds, deciseconds);
 
-#ifdef FEATURE_FOV_FIX
+#ifdef FEATURE_HUD_IMPROVED
 	scaleH = GetRenderScale(PHD_ONE);
 	scaleV = GetRenderScale(PHD_ONE);
 	xPos = PhdWinMaxX / 2 - GetRenderScale(50);
@@ -73,7 +73,7 @@ void __cdecl DrawAssaultTimer() {
 	d0 = GetRenderScale(20);
 	d1 = GetRenderScale(-6);
 	d2 = GetRenderScale(14);
-#else // !FEATURE_FOV_FIX
+#else // !FEATURE_HUD_IMPROVED
 	scaleH = PHD_ONE;
 	scaleV = PHD_ONE;
 	xPos = PhdWinMaxX / 2 - 50;
@@ -81,7 +81,7 @@ void __cdecl DrawAssaultTimer() {
 	d0 = 20;
 	d1 = -6;
 	d2 = 14;
-#endif // FEATURE_FOV_FIX
+#endif // FEATURE_HUD_IMPROVED
 
 	for( char *str = timeString; *str != 0; ++str ) {
 		switch( *str ) {
@@ -143,19 +143,19 @@ void __cdecl DrawHealthBar(BOOL flashState) {
 		if( flashState == 0 ) {
 			S_DrawHealthBar(0);
 		} else {
-#ifdef FEATURE_HEALTHBAR_IMPROVED
+#ifdef FEATURE_HUD_IMPROVED
 			S_DrawHealthBar(PHD_ONE * hitPoints / 1000);
-#else // !FEATURE_HEALTHBAR_IMPROVED
+#else // !FEATURE_HUD_IMPROVED
 			S_DrawHealthBar(hitPoints / 10);
-#endif // FEATURE_HEALTHBAR_IMPROVED
+#endif // FEATURE_HUD_IMPROVED
 		}
 	}
 	else if( HealthBarTimer > 0 || hitPoints <= 0 || Lara_GunStatus == LGS_Ready ) {
-#ifdef FEATURE_HEALTHBAR_IMPROVED
+#ifdef FEATURE_HUD_IMPROVED
 		S_DrawHealthBar(PHD_ONE * hitPoints / 1000);
-#else // !FEATURE_HEALTHBAR_IMPROVED
+#else // !FEATURE_HUD_IMPROVED
 		S_DrawHealthBar(hitPoints / 10);
-#endif // FEATURE_HEALTHBAR_IMPROVED
+#endif // FEATURE_HUD_IMPROVED
 	}
 }
 
@@ -171,11 +171,11 @@ void __cdecl DrawAirBar(BOOL flashState) {
 	if( air <= 450 && flashState == 0 ) {
 		S_DrawAirBar(0);
 	} else {
-#ifdef FEATURE_HEALTHBAR_IMPROVED
+#ifdef FEATURE_HUD_IMPROVED
 		S_DrawAirBar(PHD_ONE * air / 1800);
-#else // !FEATURE_HEALTHBAR_IMPROVED
+#else // !FEATURE_HUD_IMPROVED
 		S_DrawAirBar(100 * air / 1800);
-#endif // FEATURE_HEALTHBAR_IMPROVED
+#endif // FEATURE_HUD_IMPROVED
 	}
 }
 
@@ -235,15 +235,15 @@ void __cdecl DrawAmmoInfo() {
 	MakeAmmoString(ammoString);
 
 	if( AmmoTextInfo == NULL ) {
-#ifdef FEATURE_HEALTHBAR_IMPROVED
+#ifdef FEATURE_HUD_IMPROVED
 		if( PsxBarPosEnabled ) {
 			AmmoTextInfo = T_Print(AMMO_XPOS_PS, AMMO_YPOS_PS, 0, ammoString);
 		} else {
 			AmmoTextInfo = T_Print(AMMO_XPOS_PC, AMMO_YPOS_PC, 0, ammoString);
 		}
-#else // !FEATURE_HEALTHBAR_IMPROVED
+#else // !FEATURE_HUD_IMPROVED
 		AmmoTextInfo = T_Print(AMMO_XPOS_PC, AMMO_YPOS_PC, 0, ammoString);
-#endif // FEATURE_HEALTHBAR_IMPROVED
+#endif // FEATURE_HUD_IMPROVED
 		T_RightAlign(AmmoTextInfo, 1);
 	} else {
 		T_ChangeText(AmmoTextInfo, ammoString);
@@ -262,11 +262,11 @@ void __cdecl DrawPickups(BOOL pickupState) {
 	if( time <= 0 || time >= 60 ) // 0..2 seconds
 		return;
 
-#ifdef FEATURE_FOV_FIX
+#ifdef FEATURE_HUD_IMPROVED
 	cellH = MIN(PhdWinWidth, PhdWinHeight*320/200) / 10;
-#else // !FEATURE_FOV_FIX
+#else // !FEATURE_HUD_IMPROVED
 	cellH = PhdWinWidth / 10;
-#endif // FEATURE_FOV_FIX
+#endif // FEATURE_HUD_IMPROVED
 	cellV = cellH * 2 / 3;
 
 	x = PhdWinWidth - cellH;

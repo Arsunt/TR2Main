@@ -24,9 +24,9 @@
 #include "specific/output.h"
 #include "global/vars.h"
 
-#ifdef FEATURE_FOG_DISTANCE
+#ifdef FEATURE_VIEW_IMPROVED
 extern int CalculateFogShade(int depth);
-#endif // FEATURE_FOG_DISTANCE
+#endif // FEATURE_VIEW_IMPROVED
 
 void __cdecl S_DrawSprite(DWORD flags, int x, int y, int z, __int16 spriteIdx, __int16 shade, __int16 scale) {
 	int xv, yv, zv, zp, depth;
@@ -102,20 +102,20 @@ void __cdecl S_DrawSprite(DWORD flags, int x, int y, int z, __int16 spriteIdx, _
 
 	if( CHK_ANY(flags, SPR_SHADE) ) { // shading required
 		depth = zv >> W2V_SHIFT;
-#ifdef FEATURE_FOG_DISTANCE
+#ifdef FEATURE_VIEW_IMPROVED
 		if( depth > PhdViewDistance )
 			return;
 
 		shade += CalculateFogShade(depth);
 		CLAMP(shade, 0, 0x1FFF);
-#else // !FEATURE_FOG_DISTANCE
+#else // !FEATURE_VIEW_IMPROVED
 		if( depth > DEPTHQ_START ) {
 			shade += depth - DEPTHQ_START;
 			if( shade > 0x1FFF ) {
 				return;
 			}
 		}
-#endif // FEATURE_FOG_DISTANCE
+#endif // FEATURE_VIEW_IMPROVED
 	} else {
 		shade = 0x1000;
 	}
@@ -126,9 +126,9 @@ void __cdecl S_DrawSprite(DWORD flags, int x, int y, int z, __int16 spriteIdx, _
 void __cdecl S_DrawPickup(int sx, int sy, int scale, __int16 spriteIdx, __int16 shade) {
 	int x1, x2, y1, y2;
 
-#ifdef FEATURE_SPRITE_SCALE_FIX
+#ifdef FEATURE_HUD_IMPROVED
 	scale = GetRenderScale(scale);
-#endif
+#endif // FEATURE_HUD_IMPROVED
 
 	x1 = sx + (PhdSpriteInfo[spriteIdx].x1 * scale / PHD_ONE);
 	x2 = sx + (PhdSpriteInfo[spriteIdx].x2 * scale / PHD_ONE);

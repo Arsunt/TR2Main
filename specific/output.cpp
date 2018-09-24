@@ -35,21 +35,18 @@
 #include "specific/winvid.h"
 #include "global/vars.h"
 
-#ifdef FEATURE_HEALTHBAR_IMPROVED
+#ifdef FEATURE_HUD_IMPROVED
 #include "modding/psx_bar.h"
 
 DWORD HealthBarMode;
 bool PsxBarPosEnabled;
-#endif // FEATURE_HEALTHBAR_IMPROVED
-
-#ifdef FEATURE_FOV_FIX
 double GameGUI_Scale = 1.0;
 double InvGUI_Scale = 1.0;
-#endif // FEATURE_FOV_FIX
+#endif // FEATURE_HUD_IMPROVED
 
-#ifdef FEATURE_FOG_DISTANCE
+#ifdef FEATURE_VIEW_IMPROVED
 extern int CalculateFogShade(int depth);
-#endif // FEATURE_FOG_DISTANCE
+#endif // FEATURE_VIEW_IMPROVED
 
 #ifdef FEATURE_SHADOW_IMPROVED
 DWORD ShadowMode = 0;
@@ -77,13 +74,13 @@ typedef struct ShadowInfo_t {
 } SHADOW_INFO;
 
 int __cdecl GetRenderScale(int unit) {
-#ifdef FEATURE_FOV_FIX
+#ifdef FEATURE_HUD_IMPROVED
 	int baseWidth = 640 / (IsVidSizeLock ? InvGUI_Scale : GameGUI_Scale);
 	int baseHeight = 480 / (IsVidSizeLock ? InvGUI_Scale : GameGUI_Scale);
-#else // !FEATURE_FOV_FIX
+#else // !FEATURE_HUD_IMPROVED
 	int baseWidth = 640;
 	int baseHeight = 480;
-#endif // FEATURE_FOV_FIX
+#endif // FEATURE_HUD_IMPROVED
 	int scaleX = (PhdWinWidth > baseWidth) ? MulDiv(PhdWinWidth, unit, baseWidth) : unit;
 	int scaleY = (PhdWinHeight > baseHeight) ? MulDiv(PhdWinHeight, unit, baseHeight) : unit;
 	return MIN(scaleX, scaleY);
@@ -465,12 +462,12 @@ void __cdecl S_CalculateLight(int x, int y, int z, __int16 roomNumber) {
 
 	// Fog calculation
 	depth = PhdMatrixPtr->_23 >> W2V_SHIFT;
-#ifdef FEATURE_FOG_DISTANCE
+#ifdef FEATURE_VIEW_IMPROVED
 	LsAdder += CalculateFogShade(depth);
-#else // !FEATURE_FOG_DISTANCE
+#else // !FEATURE_VIEW_IMPROVED
 	if( depth > DEPTHQ_START ) // fog begin
 		LsAdder += depth - DEPTHQ_START;
-#endif // FEATURE_FOG_DISTANCE
+#endif // FEATURE_VIEW_IMPROVED
 	if( LsAdder > 0x1FFF ) // fog end
 		LsAdder = 0x1FFF;
 }
@@ -480,12 +477,12 @@ void __cdecl S_CalculateStaticLight(__int16 adder) {
 
 	LsAdder = adder - 0x1000;
 	depth = PhdMatrixPtr->_23 >> W2V_SHIFT;
-#ifdef FEATURE_FOG_DISTANCE
+#ifdef FEATURE_VIEW_IMPROVED
 	LsAdder += CalculateFogShade(depth);
-#else // !FEATURE_FOG_DISTANCE
+#else // !FEATURE_VIEW_IMPROVED
 	if( depth > DEPTHQ_START ) // fog begin
 		LsAdder += depth - DEPTHQ_START;
-#endif // FEATURE_FOG_DISTANCE
+#endif // FEATURE_VIEW_IMPROVED
 	if( LsAdder > 0x1FFF ) // fog end
 		LsAdder = 0x1FFF;
 }
@@ -595,7 +592,7 @@ void __cdecl S_LightRoom(ROOM_INFO *room) {
 }
 
 void __cdecl S_DrawHealthBar(int percent) {
-#ifdef FEATURE_HEALTHBAR_IMPROVED
+#ifdef FEATURE_HUD_IMPROVED
 	int barWidth = GetRenderScale(100);
 	int barHeight = GetRenderScale(5);
 	int barXOffset = GetRenderScale((PsxBarPosEnabled && !IsInventoryActive ) ? 20 : 8);
@@ -634,7 +631,7 @@ void __cdecl S_DrawHealthBar(int percent) {
 		ins_flat_rect(x0, y0+pixel*0, x0+bar, y0+barHeight,	PhdNearZ + 20, InvColours[ICLR_Red]);
 		ins_flat_rect(x0, y0+pixel*1, x0+bar, y0+pixel*2,	PhdNearZ + 10, InvColours[ICLR_Orange]);
 	}
-#else // !FEATURE_HEALTHBAR_IMPROVED
+#else // !FEATURE_HUD_IMPROVED
 	int i;
 
 	int barWidth = 100;
@@ -667,11 +664,11 @@ void __cdecl S_DrawHealthBar(int percent) {
 		for( i = 0; i < barHeight; ++i )
 			ins_line(x0, y0+i, x0+bar, y0+i, PhdNearZ + 20, ( i == 1 ) ? InvColours[ICLR_Orange] : InvColours[ICLR_Red]);
 	}
-#endif // FEATURE_HEALTHBAR_IMPROVED
+#endif // FEATURE_HUD_IMPROVED
 }
 
 void __cdecl S_DrawAirBar(int percent) {
-#ifdef FEATURE_HEALTHBAR_IMPROVED
+#ifdef FEATURE_HUD_IMPROVED
 	int barWidth = GetRenderScale(100);
 	int barHeight = GetRenderScale(5);
 	int barXOffset = GetRenderScale(PsxBarPosEnabled ? 20 : 8);
@@ -703,7 +700,7 @@ void __cdecl S_DrawAirBar(int percent) {
 		ins_flat_rect(x0, y0+pixel*0, x0+bar, y0+barHeight,	PhdNearZ + 20, InvColours[ICLR_Blue]);
 		ins_flat_rect(x0, y0+pixel*1, x0+bar, y0+pixel*2,	PhdNearZ + 10, InvColours[ICLR_White]);
 	}
-#else // !FEATURE_HEALTHBAR_IMPROVED
+#else // !FEATURE_HUD_IMPROVED
 	int i;
 
 	int barWidth = 100;
@@ -736,7 +733,7 @@ void __cdecl S_DrawAirBar(int percent) {
 		for( i = 0; i < barHeight; ++i )
 			ins_line(x0, y0+i, x0+bar, y0+i, PhdNearZ + 20, ( i == 1 ) ? InvColours[ICLR_White] : InvColours[ICLR_Blue]);
 	}
-#endif // FEATURE_HEALTHBAR_IMPROVED
+#endif // FEATURE_HUD_IMPROVED
 }
 
 void __cdecl AnimateTextures(int nFrames) {

@@ -217,11 +217,11 @@ bool __cdecl S_UpdateInput() {
 	}
 
 	// Screenshot
-#if defined FEATURE_SCREENSHOT_KEY
+#ifdef FEATURE_SCREENSHOT_IMPROVED
 	if( KEY_DOWN(DIK_BACK) ) { // BackSpace Key instead of S
-#else // !FEATURE_SCREENSHOT_KEY
+#else // !FEATURE_SCREENSHOT_IMPROVED
 	if( KEY_DOWN(DIK_S) ) {
-#endif // FEATURE_SCREENSHOT_KEY
+#endif // FEATURE_SCREENSHOT_IMPROVED
 		if( !isScreenShotKeyPressed ) {
 			isScreenShotKeyPressed = true;
 			ScreenShot(PrimaryBufferSurface);

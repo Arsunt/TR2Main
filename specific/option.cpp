@@ -837,14 +837,14 @@ void __cdecl S_ShowControls() {
 	int i, x0, x1, xCenter;
 	bool isCompact;
 
-#ifdef FEATURE_FOV_FIX
+#ifdef FEATURE_HUD_IMPROVED
 	xCenter = GetRenderWidthDownscaled() / 2;
 	isCompact = (xCenter < 240);
-#else // !FEATURE_FOV_FIX
+#else // !FEATURE_HUD_IMPROVED
 	xCenter = GetRenderWidth() / 2;
 	CLAMPG(xCenter, 320);
 	isCompact = (xCenter < 320);
-#endif // FEATURE_FOV_FIX
+#endif // FEATURE_HUD_IMPROVED
 
 
 	if( CtrlTextB[0] == NULL ) {

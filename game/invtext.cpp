@@ -101,13 +101,13 @@ void __cdecl Init_Requester(REQUEST_INFO *req) {
 
 	req->lpItemFlags1 = RequesterItemFlags1;
 	req->lpItemFlags2 = RequesterItemFlags2;
-#ifdef FEATURE_FOV_FIX
+#ifdef FEATURE_HUD_IMPROVED
 	req->renderWidth  = GetRenderWidthDownscaled();
 	req->renderHeight = GetRenderHeightDownscaled();
-#else // !FEATURE_FOV_FIX
+#else // !FEATURE_HUD_IMPROVED
 	req->renderWidth  = GetRenderWidth();
 	req->renderHeight = GetRenderHeight();
-#endif // FEATURE_FOV_FIX
+#endif // FEATURE_HUD_IMPROVED
 }
 
 void __cdecl Remove_Requester(REQUEST_INFO *req) {
@@ -171,13 +171,13 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 	linesHeight = req->lineHeight * linesCount + 10;
 	linesOff = req->yPos - linesHeight;
 
-#ifdef FEATURE_FOV_FIX
+#ifdef FEATURE_HUD_IMPROVED
 	renderWidth = GetRenderWidthDownscaled();
 	renderHeight = GetRenderHeightDownscaled();
-#else // !FEATURE_FOV_FIX
+#else // !FEATURE_HUD_IMPROVED
 	renderWidth = GetRenderWidth();
 	renderHeight = GetRenderHeight();
-#endif // FEATURE_FOV_FIX
+#endif // FEATURE_HUD_IMPROVED
 
 	if( renderWidth != req->renderWidth || renderHeight != req->renderHeight ) {
 		Remove_Requester(req);
@@ -485,11 +485,11 @@ void __cdecl AddRequesterItem(REQUEST_INFO *req, const char *string1, DWORD flag
 
 void __cdecl SetPCRequesterSize(REQUEST_INFO *req, int maxLines, __int16 yPos) {
 	req->yPos = yPos;
-#ifdef FEATURE_FOV_FIX
+#ifdef FEATURE_HUD_IMPROVED
 	req->visibleCount = GetRenderHeightDownscaled() / 2 / REQ_LN_HEIGHT;
-#else // !FEATURE_FOV_FIX
+#else // !FEATURE_HUD_IMPROVED
 	req->visibleCount = GetRenderHeight() / 2 / REQ_LN_HEIGHT;
-#endif // FEATURE_FOV_FIX
+#endif // FEATURE_HUD_IMPROVED
 	if( req->visibleCount > maxLines )
 		req->visibleCount = maxLines;
 }

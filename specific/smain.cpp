@@ -46,16 +46,12 @@
 #include "modding/background_new.h"
 #include "global/vars.h"
 
-#ifdef FEATURE_HEALTHBAR_IMPROVED
+#ifdef FEATURE_HUD_IMPROVED
 extern DWORD HealthBarMode;
 extern bool PsxBarPosEnabled;
-#endif // FEATURE_HEALTHBAR_IMPROVED
-
-#ifdef FEATURE_FOV_FIX
-extern bool PsxFovEnabled;
 extern double GameGUI_Scale;
 extern double InvGUI_Scale;
-#endif // FEATURE_FOV_FIX
+#endif // FEATURE_HUD_IMPROVED
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
 extern DWORD InvBackgroundMode;
@@ -71,13 +67,14 @@ extern DWORD ScreenshotFormat;
 extern char ScreenshotPath[MAX_PATH];
 #endif // FEATURE_SCREENSHOT_IMPROVED
 
-#ifdef FEATURE_FOG_DISTANCE
+#ifdef FEATURE_VIEW_IMPROVED
+extern bool PsxFovEnabled;
 extern double ViewDistanceFactor;
 extern double FogBeginFactor;
 extern double FogEndFactor;
 extern double WaterFogBeginFactor;
 extern double WaterFogEndFactor;
-#endif // FEATURE_FOG_DISTANCE
+#endif // FEATURE_VIEW_IMPROVED
 
 #ifdef FEATURE_ASSAULT_SAVE
 void SaveAssault() {
@@ -419,7 +416,7 @@ void __cdecl S_SaveSettings() {
 	SetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)Layout[CTRL_Custom].key, sizeof(UINT16)*14);
 	CloseGameRegistryKey();
 
-#ifdef FEATURE_FOG_DISTANCE
+#ifdef FEATURE_VIEW_IMPROVED
 	OpenGameRegistryKey(REG_VIEW_KEY);
 	SetRegistryFloatValue(REG_DRAW_DISTANCE, ViewDistanceFactor);
 	SetRegistryFloatValue(REG_FOG_BEGIN, FogBeginFactor);
@@ -427,7 +424,7 @@ void __cdecl S_SaveSettings() {
 	SetRegistryFloatValue(REG_UW_FOG_BEGIN, WaterFogBeginFactor);
 	SetRegistryFloatValue(REG_UW_FOG_END, WaterFogEndFactor);
 	CloseGameRegistryKey();
-#endif // FEATURE_FOG_DISTANCE
+#endif // FEATURE_VIEW_IMPROVED
 }
 
 void __cdecl S_LoadSettings() {
@@ -441,18 +438,14 @@ void __cdecl S_LoadSettings() {
 	GetRegistryFloatValue(REG_GAME_SIZER, &GameSizer, 1.0);
 	GetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)Layout[CTRL_Custom].key, sizeof(UINT16)*14, NULL);
 
-#ifdef FEATURE_HEALTHBAR_IMPROVED
+#ifdef FEATURE_HUD_IMPROVED
 	GetRegistryDwordValue(REG_HEALTHBAR_MODE, &HealthBarMode, 0);
 	GetRegistryBoolValue(REG_PSXBARPOS_ENABLE, &PsxBarPosEnabled, false);
-#endif // FEATURE_HEALTHBAR_IMPROVED
-
-#ifdef FEATURE_FOV_FIX
-	GetRegistryBoolValue(REG_PSXFOV_ENABLE, &PsxFovEnabled, false);
 	GetRegistryFloatValue(REG_GAME_GUI_SCALE, &GameGUI_Scale, 1.0);
 	GetRegistryFloatValue(REG_INV_GUI_SCALE, &InvGUI_Scale, 1.0);
 	CLAMP(GameGUI_Scale, 1.0, 2.0);
 	CLAMP(InvGUI_Scale, 1.0, 2.0);
-#endif // FEATURE_FOV_FIX
+#endif // FEATURE_HUD_IMPROVED
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	GetRegistryDwordValue(REG_INVBGND_MODE, &InvBackgroundMode, 1);
@@ -483,7 +476,9 @@ void __cdecl S_LoadSettings() {
 	S_SoundSetMasterVolume(6 * SoundVolume + 4);	// 4,  10,  16,  22,  28,  34,  40,  46,  52,  58,  64
 	S_CDVolume(MusicVolume ? MusicVolume*25+5 : 0);	// 0,  30,  55,  80, 105, 130, 155, 180, 205, 230, 255
 
-#ifdef FEATURE_FOG_DISTANCE
+#ifdef FEATURE_VIEW_IMPROVED
+	GetRegistryBoolValue(REG_PSXFOV_ENABLE, &PsxFovEnabled, false);
+
 	OpenGameRegistryKey(REG_VIEW_KEY);
 	GetRegistryFloatValue(REG_DRAW_DISTANCE, &ViewDistanceFactor, 1.0);
 	GetRegistryFloatValue(REG_FOG_BEGIN, &FogBeginFactor, 0.6);
@@ -497,11 +492,9 @@ void __cdecl S_LoadSettings() {
 	CLAMP(FogBeginFactor, 0.0, FogEndFactor);
 	CLAMP(WaterFogEndFactor, 0.0, FogEndFactor);
 	CLAMP(WaterFogBeginFactor, 0.0, FogBeginFactor);
-#endif // FEATURE_FOG_DISTANCE
 
-#if defined (FEATURE_FOV_FIX) || defined (FEATURE_FOG_DISTANCE)
 	setup_screen_size();
-#endif // FEATURE_FOV_FIX || FEATURE_FOG_DISTANCE
+#endif // FEATURE_VIEW_IMPROVED
 }
 
 /*

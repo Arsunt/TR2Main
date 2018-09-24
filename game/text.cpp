@@ -251,15 +251,15 @@ void __cdecl T_DrawTextBox(int sx, int sy, int z, int width, int height) {
 	int scaleH, scaleV;
 	int meshIdx = Objects[ID_TEXT_BOX].meshIndex;
 
-#ifdef FEATURE_FOV_FIX
+#ifdef FEATURE_HUD_IMPROVED
 	offset = GetRenderScale(4);
 	scaleH = GetRenderScale(PHD_ONE);
 	scaleV = GetRenderScale(PHD_ONE);
-#else // !FEATURE_FOV_FIX
+#else // !FEATURE_HUD_IMPROVED
 	offset = 4;
 	scaleH = PHD_ONE;
 	scaleV = PHD_ONE;
-#endif // FEATURE_FOV_FIX
+#endif // FEATURE_HUD_IMPROVED
 
 	x0 = sx + offset;
 	y0 = sy + offset;
@@ -493,9 +493,9 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
 }
 
 DWORD __cdecl GetTextScaleH(DWORD baseScale) {
-#ifdef FEATURE_FOV_FIX
+#ifdef FEATURE_HUD_IMPROVED
 	return GetRenderScale(baseScale);
-#else // !FEATURE_FOV_FIX
+#else // !FEATURE_HUD_IMPROVED
 	DWORD renderWidth, renderScale;
 
 	renderWidth = GetRenderWidth();
@@ -503,13 +503,13 @@ DWORD __cdecl GetTextScaleH(DWORD baseScale) {
 
 	renderScale = renderWidth * PHD_ONE / 640;
 	return (baseScale / PHD_HALF) * (renderScale / PHD_HALF);
-#endif // FEATURE_FOV_FIX
+#endif // FEATURE_HUD_IMPROVED
 }
 
 DWORD __cdecl GetTextScaleV(DWORD baseScale) {
-#ifdef FEATURE_FOV_FIX
+#ifdef FEATURE_HUD_IMPROVED
 	return GetRenderScale(baseScale);
-#else // !FEATURE_FOV_FIX
+#else // !FEATURE_HUD_IMPROVED
 	DWORD renderHeight, renderScale;
 
 	renderHeight = GetRenderHeight();
@@ -517,7 +517,7 @@ DWORD __cdecl GetTextScaleV(DWORD baseScale) {
 
 	renderScale = renderHeight * PHD_ONE / 480;
 	return (baseScale / PHD_HALF) * (renderScale / PHD_HALF);
-#endif // FEATURE_FOV_FIX
+#endif // FEATURE_HUD_IMPROVED
 }
 
 /*

@@ -24,7 +24,7 @@
 #include "specific/hwr.h"
 #include "global/vars.h"
 
-#ifdef FEATURE_HEALTHBAR_IMPROVED
+#ifdef FEATURE_HUD_IMPROVED
 extern DWORD HealthBarMode;
 
 static D3DCOLOR InterpolateColor(D3DCOLOR color0, D3DCOLOR color1, DWORD value, DWORD range) {
@@ -144,4 +144,4 @@ void __cdecl PSX_DrawAirBar(int x0, int y0, int x1, int y1, int bar, int pixel) 
 	PSX_DrawBar(x0, y0, x1, y1, bar, pixel, left, right, frame);
 }
 
-#endif // FEATURE_HEALTHBAR_IMPROVED
+#endif // FEATURE_HUD_IMPROVED

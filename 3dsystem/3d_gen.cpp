@@ -28,10 +28,6 @@
 #include "specific/hwr.h"
 #include "global/vars.h"
 
-#ifdef FEATURE_FOV_FIX
-bool PsxFovEnabled;
-#endif // FEATURE_FOV_FIX
-
 // related to POLYTYPE enum
 static void (__cdecl *PolyDrawRoutines[])(__int16 *) = {
 	draw_poly_gtmap,		// gouraud shaded poly (texture)
@@ -45,7 +41,9 @@ static void (__cdecl *PolyDrawRoutines[])(__int16 *) = {
 	draw_scaled_spriteC		// scaled sprite (texture + colorkey)
 };
 
-#ifdef FEATURE_FOG_DISTANCE
+#ifdef FEATURE_VIEW_IMPROVED
+bool PsxFovEnabled;
+
 // view distance
 double ViewDistanceFactor = 1.0;
 
@@ -80,7 +78,7 @@ int CalculateFogShade(int depth) {
 
 	return (depth - fogBegin) * 0x1FFF / (fogEnd - fogBegin);
 }
-#endif // FEATURE_FOG_DISTANCE
+#endif // FEATURE_VIEW_IMPROVED
 
 void phd_GenerateW2V(PHD_3DPOS *viewPos) {
 	int sx = phd_sin(viewPos->rotX);
@@ -572,23 +570,23 @@ __int16 *__cdecl calc_roomvert(__int16 *ptrObj, BYTE farClip) {
 			persp = FltPersp / zv;
 			depth = zv_int >> W2V_SHIFT;
 
-#ifdef FEATURE_FOG_DISTANCE
+#ifdef FEATURE_VIEW_IMPROVED
 			if( depth >= PhdViewDistance ) {
-#else // !FEATURE_FOG_DISTANCE
+#else // !FEATURE_VIEW_IMPROVED
 			if( depth >= DEPTHQ_END ) { // fog end
-#endif // FEATURE_FOG_DISTANCE
+#endif // FEATURE_VIEW_IMPROVED
 				PhdVBuf[i].g = 0x1FFF;
 				PhdVBuf[i].rhw = 0.0;
 				PhdVBuf[i].clip = farClip;
 				PhdVBuf[i].zv = FltFarZ;
 			} else {
-#ifdef FEATURE_FOG_DISTANCE
+#ifdef FEATURE_VIEW_IMPROVED
 				PhdVBuf[i].g += CalculateFogShade(depth);
-#else // !FEATURE_FOG_DISTANCE
+#else // !FEATURE_VIEW_IMPROVED
 				if( depth > DEPTHQ_START ) { // fog begin
 					PhdVBuf[i].g += depth - DEPTHQ_START;
 				}
-#endif // FEATURE_FOG_DISTANCE
+#endif // FEATURE_VIEW_IMPROVED
 				PhdVBuf[i].rhw = persp * FltRhwOPersp;
 				PhdVBuf[i].clip = 0;
 				PhdVBuf[i].zv = zv + baseZ;
@@ -694,25 +692,25 @@ void __cdecl phd_PrintPolyList(BYTE *surfacePtr) {
 void __cdecl AlterFOV(__int16 fov) {
 	fov /= 2; // half fov angle
 
-#ifdef FEATURE_FOV_FIX
+#ifdef FEATURE_VIEW_IMPROVED
 	int fovWidth = PhdWinHeight*320/(PsxFovEnabled ? 200 : 240);
 	FltViewAspect = 1.0; // must always be 1.0 for unstretched view
 	PhdPersp = (fovWidth / 2) * phd_cos(fov) / phd_sin(fov);
-#else // !FEATURE_FOV_FIX
+#else // !FEATURE_VIEW_IMPROVED
 	PhdPersp = (PhdWinWidth / 2) * phd_cos(fov) / phd_sin(fov);
-#endif // FEATURE_FOV_FIX
+#endif // FEATURE_VIEW_IMPROVED
 
 	FltPersp = (float)PhdPersp;
 	FltRhwOPersp = RhwFactor / FltPersp;
 	FltPerspONearZ = FltPersp / FltNearZ;
 
-#ifndef FEATURE_FOV_FIX // if feature is not defined!!!
+#ifndef FEATURE_VIEW_IMPROVED // if feature is not defined!!!
 	double windowAspect = 4.0 / 3.0;
 	if( !SavedAppSettings.FullScreen && SavedAppSettings.AspectMode == AM_16_9 ) {
 		windowAspect = 16.0 / 9.0;
 	}
 	FltViewAspect = windowAspect / ((double)PhdWinWidth / (double)PhdWinHeight);
-#endif // !FEATURE_FOV_FIX
+#endif // !FEATURE_VIEW_IMPROVED
 }
 
 void __cdecl phd_SetNearZ(int nearZ) {
@@ -767,14 +765,14 @@ void __cdecl phd_InitWindow(__int16 x, __int16 y, int width, int height, int nea
 	PhdScreenWidth = screenWidth;
 	PhdScreenHeight = screenHeight;
 
-#ifdef FEATURE_FOG_DISTANCE
+#ifdef FEATURE_VIEW_IMPROVED
 	double baseDistance = (double)farZ;
 	farZ				= (int)(baseDistance * ViewDistanceFactor);
 	FogBeginDepth		= (int)(baseDistance * FogBeginFactor);
 	FogEndDepth			= (int)(baseDistance * FogEndFactor);
 	WaterFogBeginDepth	= (int)(baseDistance * WaterFogBeginFactor);
 	WaterFogEndDepth	= (int)(baseDistance * WaterFogEndFactor);
-#endif // FEATURE_FOG_DISTANCE
+#endif // FEATURE_VIEW_IMPROVED
 
 	PhdNearZ = nearZ << W2V_SHIFT;
 	PhdFarZ = farZ << W2V_SHIFT;
