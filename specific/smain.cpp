@@ -47,6 +47,7 @@
 #include "global/vars.h"
 
 #ifdef FEATURE_HUD_IMPROVED
+extern DWORD InvTextBoxMode;
 extern DWORD HealthBarMode;
 extern bool PsxBarPosEnabled;
 extern double GameGUI_Scale;
@@ -439,6 +440,7 @@ void __cdecl S_LoadSettings() {
 	GetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)Layout[CTRL_Custom].key, sizeof(UINT16)*14, NULL);
 
 #ifdef FEATURE_HUD_IMPROVED
+	GetRegistryDwordValue(REG_INVTEXTBOX_MODE, &InvTextBoxMode, 0);
 	GetRegistryDwordValue(REG_HEALTHBAR_MODE, &HealthBarMode, 0);
 	GetRegistryBoolValue(REG_PSXBARPOS_ENABLE, &PsxBarPosEnabled, false);
 	GetRegistryFloatValue(REG_GAME_GUI_SCALE, &GameGUI_Scale, 1.0);

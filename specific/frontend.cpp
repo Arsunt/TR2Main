@@ -29,6 +29,12 @@
 #include "specific/utils.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_HUD_IMPROVED
+#include "3dsystem/3dinsert.h"
+
+DWORD InvTextBoxMode = 0;
+#endif // FEATURE_HUD_IMPROVED
+
 static void FadeWait() {
 	// Null function
 }
@@ -42,6 +48,59 @@ void __cdecl S_DrawScreenLine(int x, int y, int z, int xLen, int yLen, BYTE colo
 }
 
 void __cdecl S_DrawScreenBox(int sx, int sy, int z, int width, int height, BYTE colorIdx, GOURAUD_OUTLINE *gour, UINT16 flags) {
+	int adder;
+#ifdef FEATURE_HUD_IMPROVED
+	adder = GetRenderScale(2);
+#else // !FEATURE_HUD_IMPROVED
+	// NOTE: in the original code there was no adder at all for this function
+	adder = 2;
+#endif // FEATURE_HUD_IMPROVED
+	width += adder;
+	height += adder;
+
+#ifdef FEATURE_HUD_IMPROVED
+	if( InvTextBoxMode && gour != NULL ) {
+		int x[3], y[3], lw;
+		int sz = PhdNearZ + z * 8;
+
+		lw = GetRenderScale(1);
+		x[0] = sx;
+		y[0] = sy;
+		x[2] = sx + width;
+		y[2] = sy + height;
+		x[1] = (x[0] + x[2]) / 2;
+		y[1] = (y[0] + y[2]) / 2;
+
+		InsertGourQuad(x[0]-lw, y[0]-lw, x[1], y[0], sz,
+						gour->clr[0], gour->clr[1],
+						gour->clr[1], gour->clr[0]);
+		InsertGourQuad(x[1], y[0]-lw, x[2], y[0], sz,
+						gour->clr[1], gour->clr[2],
+						gour->clr[2], gour->clr[1]);
+
+		InsertGourQuad(x[2], y[0]-lw, x[2]+lw, y[1], sz,
+						gour->clr[2], gour->clr[2],
+						gour->clr[3], gour->clr[3]);
+		InsertGourQuad(x[2], y[1], x[2]+lw, y[2], sz,
+						gour->clr[3], gour->clr[3],
+						gour->clr[4], gour->clr[4]);
+
+		InsertGourQuad(x[1], y[2], x[2]+lw, y[2]+lw, sz,
+						gour->clr[5], gour->clr[4],
+						gour->clr[4], gour->clr[5]);
+		InsertGourQuad(x[0], y[2], x[1], y[2]+lw, sz,
+						gour->clr[6], gour->clr[5],
+						gour->clr[5], gour->clr[6]);
+
+		InsertGourQuad(x[0]-lw, y[1], x[0], y[2]+lw, sz,
+						gour->clr[7], gour->clr[7],
+						gour->clr[6], gour->clr[6]);
+		InsertGourQuad(x[0]-lw, y[0], x[0], y[1], sz,
+						gour->clr[8], gour->clr[8],
+						gour->clr[7], gour->clr[7]);
+		return;
+	}
+#endif // FEATURE_HUD_IMPROVED
 	const BYTE colorIdx1 = 15;
 	const BYTE colorIdx2 = 31;
 	int sx1 = sx + width;
@@ -67,6 +126,7 @@ void __cdecl S_DrawScreenBox(int sx, int sy, int z, int width, int height, BYTE 
 
 void __cdecl S_DrawScreenFBox(int sx, int sy, int z, int width, int height, BYTE colorIdx, GOURAUD_FILL *gour, UINT16 flags) {
 	int adder;
+	int sz = PhdNearZ + z * 8;
 #ifdef FEATURE_HUD_IMPROVED
 	adder = GetRenderScale(2);
 #else // !FEATURE_HUD_IMPROVED
@@ -74,7 +134,36 @@ void __cdecl S_DrawScreenFBox(int sx, int sy, int z, int width, int height, BYTE
 	// because there was visible gap between FBox and bottom/right Frame
 	adder = 2;
 #endif // FEATURE_HUD_IMPROVED
-	ins_trans_quad(sx, sy, width + adder, height + adder, PhdNearZ + z * 8);
+	width += adder;
+	height += adder;
+
+#ifdef FEATURE_HUD_IMPROVED
+	if( InvTextBoxMode && gour != NULL ) {
+		int x[3], y[3];
+
+		x[0] = sx;
+		y[0] = sy;
+		x[2] = sx + width;
+		y[2] = sy + height;
+		x[1] = (x[0] + x[2]) / 2;
+		y[1] = (y[0] + y[2]) / 2;
+
+		InsertGourQuad(x[0], y[0], x[1], y[1], sz,
+						gour->clr[0][0], gour->clr[0][1],
+						gour->clr[0][2], gour->clr[0][3]);
+		InsertGourQuad(x[1], y[0], x[2], y[1], sz,
+						gour->clr[1][0], gour->clr[1][1],
+						gour->clr[1][2], gour->clr[1][3]);
+		InsertGourQuad(x[1], y[1], x[2], y[2], sz,
+						gour->clr[2][0], gour->clr[2][1],
+						gour->clr[2][2], gour->clr[2][3]);
+		InsertGourQuad(x[0], y[1], x[1], y[2], sz,
+						gour->clr[3][0], gour->clr[3][1],
+						gour->clr[3][2], gour->clr[3][3]);
+		return;
+	}
+#endif // FEATURE_HUD_IMPROVED
+	ins_trans_quad(sx, sy, width, height, sz);
 }
 
 void __cdecl S_FinishInventory() {

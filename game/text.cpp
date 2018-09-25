@@ -27,6 +27,10 @@
 #include "specific/output.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_HUD_IMPROVED
+extern DWORD InvTextBoxMode;
+#endif // FEATURE_HUD_IMPROVED
+
 static const BYTE T_TextSpacing[0x6E] = {
 //	A	B	C	D	E	F	G	H
 	14, 11, 11, 11, 11, 11, 11, 13,
@@ -487,7 +491,15 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
 
 		// Draw outline
 		if( CHK_ANY(textInfo->flags, TIF_Outline) ) {
+#ifdef FEATURE_HUD_IMPROVED
+			if( InvTextBoxMode ) {
+				S_DrawScreenBox(boxX, boxY, boxZ, boxW, boxH, textInfo->outlColour, textInfo->outlGour, textInfo->outlFlags);
+			} else {
+				T_DrawTextBox(boxX, boxY, z, boxW, boxH);
+			}
+#else // !FEATURE_HUD_IMPROVED
 			T_DrawTextBox(boxX, boxY, z, boxW, boxH);
+#endif // FEATURE_HUD_IMPROVED
 		}
 	}
 }

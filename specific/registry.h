@@ -52,6 +52,7 @@
 #define REG_INVBGND_MODE		"InvBackgroundMode"
 #define REG_PICTURE_STRETCH		"PictureStretchLimit"
 #define REG_SHADOW_MODE			"ShadowMode"
+#define REG_INVTEXTBOX_MODE		"InvTextBoxMode"
 #define REG_HEALTHBAR_MODE		"HealthBarMode"
 #define REG_SCREENSHOT_FORMAT	"ScreenshotFormat"
 
