@@ -572,6 +572,7 @@ void __cdecl RenderFinish(bool needToClearTextures) {
 	if( SavedAppSettings.RenderMode == RM_Hardware ) {
 		// Hardware Renderer
 		if( needToClearTextures ) {
+			S_DontDisplayPicture(); // NOTE: this line was absent in the original game
 			HWR_FreeTexturePages();
 			CleanupTextures();
 		}
