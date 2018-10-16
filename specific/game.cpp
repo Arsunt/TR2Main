@@ -164,6 +164,10 @@ int __cdecl LevelStats(int levelID) {
 		S_InitialisePolyList(FALSE);
 		S_CopyBufferToScreen();
 		S_UpdateInput();
+		// NOTE: this check is absent in the original game
+		if( IsGameToExit ) {
+			break;
+		}
 		if( IsResetFlag ) {
 			InputStatus = IN_SELECT;
 		}
@@ -196,6 +200,10 @@ int __cdecl GameStats() {
 		S_InitialisePolyList(FALSE);
 		S_CopyBufferToScreen();
 		S_UpdateInput();
+		// NOTE: this check is absent in the original game
+		if( IsGameToExit ) {
+			break;
+		}
 		if( IsResetFlag ) {
 			InputStatus = IN_SELECT;
 		}
