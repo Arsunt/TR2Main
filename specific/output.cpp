@@ -995,7 +995,7 @@ void __cdecl S_CopyBufferToScreen() {
 		BGND2_DrawTexture(&rect, BGND_PageHandles[0],
 						  0, 0, BGND_PictureWidth, BGND_PictureHeight,
 						  BGND_TextureSide, color, color, color, color);
-		if( BGND_IsCaptured && InvBackgroundMode == 0 ) {
+		if( BGND_IsCaptured ) {
 			BGND2_FadeTo(128, -12); // the captured background image fades out to 50%
 		}
 
