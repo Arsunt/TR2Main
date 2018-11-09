@@ -448,28 +448,85 @@ int __cdecl BGND2_FadeTo(int target, int delta) {
 int __cdecl BGND2_CapturePicture() {
 	int result = -1;
 	BYTE *bmData = NULL;
-	DWORD width, height;
+	DWORD bmSize = 0;
+	DWORD width = 0;
+	DWORD height = 0;
+	DDSURFACEDESC desc;
 	RECT rect = {0, 0, 0, 0};
-	HDC dc;
+	HRESULT rc;
+
+	memset(&desc, 0, sizeof(DDSURFACEDESC));
+	desc.dwSize = sizeof(DDSURFACEDESC);
 
 	LPDIRECTDRAWSURFACE3 surface = CaptureBufferSurface ? CaptureBufferSurface : PrimaryBufferSurface;
 
-	if( TextureFormat.bpp >= 16 && SUCCEEDED(surface->GetDC(&dc)) ) {
-		if( GetClientRect(HGameWindow, &rect) ) {
-			HBITMAP bitmap;
-			LPVOID lpBits;
+	// do game window capture, not the whole screen
+	if( GetClientRect(HGameWindow, &rect) ) {
+		if( surface == PrimaryBufferSurface ) {
+			MapWindowPoints(HGameWindow, GetParent(HGameWindow), (LPPOINT)&rect, 2);
+		}
+		width = ABS(rect.right - rect.left);
+		height = ABS(rect.bottom - rect.top);
+	}
 
-			if( surface == PrimaryBufferSurface ) {
-				MapWindowPoints(HGameWindow, GetParent(HGameWindow), (LPPOINT)&rect, 2);
-			}
+	do {
+		rc = surface->Lock(&rect, &desc, DDLOCK_READONLY|DDLOCK_WAIT, NULL);
+	} while( rc == DDERR_WASSTILLDRAWING );
 
-			bitmap = CreateBitmapFromDC(dc, &rect, &lpBits, WinVidPalette);
-			if( bitmap != NULL ) {
-				result = GDI_LoadImageBitmap(bitmap, &bmData, &width, &height, 16);
-				DeleteObject(bitmap);
+	if( rc == DDERR_SURFACELOST ) {
+		rc = surface->Restore();
+	}
+
+	if( TextureFormat.bpp >= 16 && SUCCEEDED(rc) ) {
+		if( width == 0 || width > desc.dwWidth ) {
+			width = desc.dwWidth;
+		}
+		if( height == 0 || height > desc.dwHeight ) {
+			height = desc.dwHeight;
+		}
+
+		bmSize = width * height * 2;
+		bmData = (BYTE *)malloc(bmSize);
+		if( bmData != NULL ) {
+			BYTE *srcBase = (BYTE *)desc.lpSurface;
+			UINT16 *dst = (UINT16 *)bmData;
+			switch( desc.ddpfPixelFormat.dwRGBBitCount ) {
+				case 16 :
+					for( DWORD i = 0; i < height; ++i ) {
+						UINT16 *src = (UINT16 *)srcBase;
+						if( desc.ddpfPixelFormat.dwRBitMask == 0xF800 ) {
+							// R5G6B5 - not compatible
+							for( DWORD j = 0; j < width; ++j ) {
+								*dst++ = 0x8000 | ((*src & 0xFFC0) >> 1) | (*src & 0x001F);
+								src++;
+							}
+						} else {
+							// A1R5G5B5 - already compatible
+							memcpy(dst, src, sizeof(UINT16)*width);
+							dst += width;
+						}
+						srcBase += desc.lPitch;
+					}
+					result = 0;
+					break;
+				case 24 :
+				case 32 :
+					for( DWORD i = 0; i < height; ++i ) {
+						BYTE *src = srcBase;
+						for( DWORD j = 0; j < width; ++j ) {
+							*dst++ = 0x8000 | (src[2]>>3<<10) | (src[1]>>3<<5) | (src[0]>>3<<0);
+							src += desc.ddpfPixelFormat.dwRGBBitCount / 8;
+						}
+						srcBase += desc.lPitch;
+					}
+					result = 0;
+					break;
+				default :
+					result = -1;
+					break;
 			}
 		}
-		surface->ReleaseDC(dc);
+		surface->Unlock(desc.lpSurface);
 	}
 
 	if( result ) {
