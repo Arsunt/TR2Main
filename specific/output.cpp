@@ -956,7 +956,7 @@ void __cdecl S_CopyScreenToBuffer() {
 		memcpy(PicPalette, GamePalette8, sizeof(RGB888)*256);
 	}
 #ifdef FEATURE_BACKGROUND_IMPROVED
-	else {
+	else if( !IsInventoryActive || InvBackgroundMode == 0 ) {
 		BGND2_CapturePicture();
 	}
 #endif // FEATURE_BACKGROUND_IMPROVED
