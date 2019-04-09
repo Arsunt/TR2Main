@@ -467,6 +467,10 @@ void __cdecl S_LoadSettings() {
 	GetRegistryBinaryValue(REG_GAME_ASSAULT, (LPBYTE)&Assault, sizeof(ASSAULT_STATS), NULL);
 #endif // FEATURE_ASSAULT_SAVE
 
+#ifdef FEATURE_VIEW_IMPROVED
+	GetRegistryBoolValue(REG_PSXFOV_ENABLE, &PsxFovEnabled, false);
+#endif // FEATURE_VIEW_IMPROVED
+
 	CloseGameRegistryKey();
 
 	// NOTE: There was no such call in the original code, which produces control configuration bugs
@@ -479,8 +483,6 @@ void __cdecl S_LoadSettings() {
 	S_CDVolume(MusicVolume ? MusicVolume*25+5 : 0);	// 0,  30,  55,  80, 105, 130, 155, 180, 205, 230, 255
 
 #ifdef FEATURE_VIEW_IMPROVED
-	GetRegistryBoolValue(REG_PSXFOV_ENABLE, &PsxFovEnabled, false);
-
 	OpenGameRegistryKey(REG_VIEW_KEY);
 	GetRegistryFloatValue(REG_DRAW_DISTANCE, &ViewDistanceFactor, 1.0);
 	GetRegistryFloatValue(REG_FOG_BEGIN, &FogBeginFactor, 0.6);
