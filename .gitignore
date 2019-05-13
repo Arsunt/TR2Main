@@ -6,6 +6,7 @@
 *.layout
 *.depend
 *.cscope_file_list
+cscope.out
 
 obj/
 bin/
