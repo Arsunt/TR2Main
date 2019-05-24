@@ -1,3 +1,4 @@
+
 # Changelog
 All notable changes to this project will be documented in this file.
 
@@ -29,15 +30,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added PNG screenshots with date-time filename format (optional feature). TGA/PCX screenshots retained the sequential filename format.
 - Added setting to specify a user directory for saving screenshots files.
 - Added edge padding instead of UV adjustment for background textures.
+- Now *"end"* picture is used for the final statistics background.
 - Added fade in/out between scenes.
-- Added TR1 styled transparent inventory background for hardware renderer (optional feature).
+- Added TR1 styled transparent inventory background for hardware renderer (optional feature). This background is also used for level statistics like in the PlayStation version even if not set as inventory background.
 - Text box requester line height is slightly reduced to be more compact.
 - Added PlayStation styled inventory text box (optional feature).
 ### The original game bugfixes
 - Fixed the original game bug when the health bar is visible at the beginning of the final bath scene.
 - Screenshots now work properly in the windowed mode in modern Windows systems.
 - Screen tearing does not affect screenshots for the windowed mode anymore.
-- Fixed an issue where the final bath scene is cut off. Now it fades out slowly.
+- Fixed an issue where the final bath scene is cut off. Now it fades out like in the PlayStation version.
 - Text box frame is slightly adjusted to fill gaps in the corners.
 ### TR2Main bugfixes
 - Fixed incorrect underwater fog settings (broken since v0.4.0).
@@ -107,7 +109,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### The original game bugfixes
 - Fixed default/custom keyboard layout conflicts when starting the game without visiting the controls menu.
 ### TR2Main bugfixes
-- Z-Buffer depth priority reverted to original 16/24/32/8 due to the "CreateZBuffer" errors on some systems (broken since v0.1.0).
+- Z-Buffer depth priority reverted to original 16/24/32/8 due to the *"CreateZBuffer"* errors on some systems (broken since v0.1.0).
 - Screenshot key is set to *BackSpace* (previously it was *PrintScreen*) to fix problems on some systems (broken since v0.1.0).
 - Fixed CD Audio synchronization bug (broken since v0.1.0).
 
@@ -122,17 +124,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Screenshot files are now created in the *screenshots* subfolder, not the game installation folder itself.
 - TGA screenshots are now available for 24/32-bit video modes. Not just for 16-bit video modes, as it was in the original game.
 - Screenshot key is set to *PrintScreen*. In the original game, it's set to the *S* key, which makes it unacceptable to map *S* key with another action.
-- Z-Buffer depth priority set to 32/24/16/8 bits to improve rendering quality if a 32-bit Z-Buffer is available. In the original game, it's 16/24/32/8.
+- ~~Z-Buffer depth priority set to 32/24/16/8 bits to improve rendering quality if a 32-bit Z-Buffer is available. In the original game, it is 16/24/32/8~~ (reverted in v0.2.0).
 ### The original game bugfixes
 - Fixed incorrect parameters of the game window, leading to the appearance of unwanted borders in full screen mode.
 - The default music volume level is set to 10/10.  In the original game, the default value is 165/10, which leads to the absence of music until the volume level is adjusted in the game menu.
-- Fixed the "low ceiling jump" bug that was present in the early releases of the Tomb Raider II.  In later versions, Core Design fixed it.
+- Fixed the *low ceiling jump* bug that was present in the early releases of the Tomb Raider II.  In later versions, Core Design fixed it.
 - Fixed a bug that caused some graphic objects to disappear or flicker if the Z-Buffer is turned off.
-- Fixed a bug leading to a non-responsive keyboard when switching to another Windows application or starting a game using Wine under Linux.
+- Fixed a bug leading to a non-responsive keyboard when switching to another Windows application or launching a game using Wine under Linux.
 - Removed repeating actions caused by a single hotkey keystroke (F1, F2, F12, Screenshot key). One keystroke - one action!
 - Fixed the problem when the game overwrites the screenshot files made in previous launches of the game.
 - Fixed unsafe memory management in the screenshot function, which caused the game to crash at higher screen resolutions.
-- Fixed incorrect TGA screenshot creation. In the original game, the bottom line of pixels was filled with junk.
+- Fixed incorrect TGA screenshot creation. In the original game, the bottom line of pixels is filled with junk.
 
 [Unreleased]: https://github.com/Arsunt/TR2Main/compare/v0.8.1...HEAD
 [0.8.1]: https://github.com/Arsunt/TR2Main/compare/v0.8.0...v0.8.1
