@@ -6,7 +6,7 @@ The goal of this project is to maximally recreate the code of the original game,
 
 ## Getting Started
 
-You may download patched Tomb2.exe, TR2Main.dll [from here](binaries/), put them in your game folder and just launch. Also you may build TR2Main.dll yourself and use it with patched Tomb2.exe. You will need DirectX SDK 5/7 to build the DLL.
+You may download patched Tomb2.exe, TR2Main.dll from [releases](https://github.com/Arsunt/TR2Main/releases), put them in your game folder and just launch. Also you may build TR2Main.dll yourself and use it with patched Tomb2.exe from [here](/binaries). You will need DirectX SDK 5/7 to build the DLL.
 
 ## Changelog
 
