@@ -73,7 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The health/air bar accuracy increased for higher resolutions.
 - Added PlayStation styled health bar position (optional feature).
 - Added custom HUD scaling options (optional feature).
-- Added simpilfied gradient health/air bars (optional feature; hardware renderer and Z-Buffer required).
+- Added simplified gradient health/air bars (optional feature; hardware renderer and Z-Buffer required).
 ### The original game bugfixes
 - Fixed texel adjustment if the renderer is changed by *Shift+F12* hotkey.
 - Fixed untextured polygon sorting for the software renderer.
