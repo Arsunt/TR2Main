@@ -429,6 +429,10 @@ BOOL __cdecl S_SaveGame(LPCVOID saveData, DWORD saveSize, int slotNumber) {
 
 	wsprintf(saveCountStr, "%d", SaveCounter);
 	ChangeRequesterItem(&LoadGameRequester, slotNumber, levelName, REQFLAG_LEFT, saveCountStr, REQFLAG_RIGHT);
+	// NOTE: the next two lines fix a bug in the original game:
+	// When player saves the game to EMPTY SLOT, save counter won't appear until the game relaunch
+	SaveGameItemFlags1[slotNumber] = RequesterItemFlags1[slotNumber];
+	SaveGameItemFlags2[slotNumber] = RequesterItemFlags2[slotNumber];
 	++SaveCounter;
 
 	// NOTE: There was no such check in the original code. Save files counter incremented anyway
