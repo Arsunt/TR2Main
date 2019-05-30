@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added automatic blocking of incompatible video modes that caused the game to crash.
 - The resolution limit is set to 2048x2048, since DirectX 5 cannot handle more.
 - Changed the default aspect ratio from 1:1 to 4:3 for the windowed mode with the "any aspect" in the setup dialog.
+- Added possibility to use up to 99 images in the credits slideshow. The original game limit is 9 images.
 - Added support for HD PCX images (up to 2048x2048). The original game supported only 640x480 images.
 - Added stretch limit control for background picture (optional feature).
 - Added PNG/JPEG/BMP images support (hardware renderer required).
