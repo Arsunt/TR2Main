@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -23,6 +23,14 @@
 #define INVTEXT_H_INCLUDED
 
 #include "global/types.h"
+
+// Requester flags
+#define REQFLAG_NOCURSOR	(1)
+
+// Requester item flags
+#define REQFLAG_ACTIVE		(1)
+#define REQFLAG_LEFT		(2)
+#define REQFLAG_RIGHT		(4)
 
 /*
  * Function list

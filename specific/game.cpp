@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -258,8 +258,8 @@ void __cdecl GetSavedGamesList(REQUEST_INFO *req) {
 	if( req->selected >= req->visibleCount ) {
 		req->lineOffset = req->selected - req->visibleCount + 1;
 	}
-	memcpy(RequesterItemFlags1, SaveGameItemFlags1, sizeof(DWORD)*24);
-	memcpy(RequesterItemFlags2, SaveGameItemFlags2, sizeof(DWORD)*24);
+	memcpy(RequesterItemFlags1, SaveGameItemFlags1, sizeof(RequesterItemFlags1));
+	memcpy(RequesterItemFlags2, SaveGameItemFlags2, sizeof(RequesterItemFlags2));
 }
 
 void __cdecl DisplayCredits() {
@@ -391,7 +391,7 @@ BOOL __cdecl S_FrontEndCheck() {
 		CloseHandle(hFile);
 
 		wsprintf(saveCountStr, "%d", saveCounter);
-		AddRequesterItem(&LoadGameRequester, levelName, 2, saveCountStr, 4);
+		AddRequesterItem(&LoadGameRequester, levelName, REQFLAG_LEFT, saveCountStr, REQFLAG_RIGHT);
 
 		if( saveCounter > SaveCounter ) {
 			SaveCounter = saveCounter;
@@ -401,8 +401,8 @@ BOOL __cdecl S_FrontEndCheck() {
 		SaveSlotFlags[i] = 1;
 		++SavedGamesCount;
 	}
-	memcpy(SaveGameItemFlags1, RequesterItemFlags1, sizeof(DWORD)*24);
-	memcpy(SaveGameItemFlags2, RequesterItemFlags2, sizeof(DWORD)*24);
+	memcpy(SaveGameItemFlags1, RequesterItemFlags1, sizeof(SaveGameItemFlags1));
+	memcpy(SaveGameItemFlags2, RequesterItemFlags2, sizeof(SaveGameItemFlags2));
 
 	++SaveCounter;
 	return 1;
@@ -428,7 +428,7 @@ BOOL __cdecl S_SaveGame(LPCVOID saveData, DWORD saveSize, int slotNumber) {
 	CloseHandle(hFile);
 
 	wsprintf(saveCountStr, "%d", SaveCounter);
-	ChangeRequesterItem(&LoadGameRequester, slotNumber, levelName, 2, saveCountStr, 4);
+	ChangeRequesterItem(&LoadGameRequester, slotNumber, levelName, REQFLAG_LEFT, saveCountStr, REQFLAG_RIGHT);
 	++SaveCounter;
 
 	// NOTE: There was no such check in the original code. Save files counter incremented anyway

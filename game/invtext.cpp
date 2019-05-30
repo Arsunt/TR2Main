@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -193,7 +193,7 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 	}
 
 	// Heading 1
-	if( CHK_ANY(req->headingFlags1, 1) ) {
+	if( CHK_ANY(req->headingFlags1, REQFLAG_ACTIVE) ) {
 		if( req->headingText1 == NULL ) {
 			req->headingText1 = T_Print(req->xPos, (linesOff - req->lineHeight - 10), req->zPos, req->headingString1);
 			T_CentreH(req->headingText1, 1);
@@ -203,16 +203,16 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 				T_AddOutline(req->headingText1, TRUE, ICLR_Orange, &ReqMainGour2, 0);
 			}
 		}
-		if( CHK_ANY(req->headingFlags1, 2) ) {
+		if( CHK_ANY(req->headingFlags1, REQFLAG_LEFT) ) {
 			ReqItemLeftAlign(req, req->headingText1);
 		}
-		if( CHK_ANY(req->headingFlags1, 4) ) {
+		if( CHK_ANY(req->headingFlags1, REQFLAG_RIGHT) ) {
 			ReqItemRightAlign(req, req->headingText1);
 		}
 	}
 
 	// Heading 2
-	if( CHK_ANY(req->headingFlags2, 1) ) {
+	if( CHK_ANY(req->headingFlags2, REQFLAG_ACTIVE) ) {
 		if( req->headingText2 == NULL ) {
 			req->headingText2 = T_Print(req->xPos, (linesOff - req->lineHeight - 10), req->zPos, req->headingString2);
 			T_CentreH(req->headingText2, 1);
@@ -222,16 +222,16 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 				T_AddOutline(req->headingText2, TRUE, ICLR_Orange, &ReqMainGour2, 0);
 			}
 		}
-		if( CHK_ANY(req->headingFlags2, 2) ) {
+		if( CHK_ANY(req->headingFlags2, REQFLAG_LEFT) ) {
 			ReqItemLeftAlign(req, req->headingText2);
 		}
-		if( CHK_ANY(req->headingFlags2, 4) ) {
+		if( CHK_ANY(req->headingFlags2, REQFLAG_RIGHT) ) {
 			ReqItemRightAlign(req, req->headingText2);
 		}
 	}
 
 	// Background
-	if( isBackground && req->backgroundText == NULL && CHK_ANY(req->backgroundFlags, 1) ) {
+	if( isBackground && req->backgroundText == NULL && CHK_ANY(req->backgroundFlags, REQFLAG_ACTIVE) ) {
 		req->backgroundText = T_Print(req->xPos, (linesOff - req->lineHeight - 12), 0, " ");
 		T_CentreH(req->backgroundText, 1);
 		T_BottomAlign(req->backgroundText, 1);
@@ -244,7 +244,7 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 		T_RemovePrint(req->moreupText);
 		req->moreupText = NULL;
 	}
-	else if( req->moreupText == NULL && CHK_ANY(req->moreupFlags, 1) ) {
+	else if( req->moreupText == NULL && CHK_ANY(req->moreupFlags, REQFLAG_ACTIVE) ) {
 		T_CentreH(req->moreupText, 1);
 		T_BottomAlign(req->moreupText, 1);
 	}
@@ -254,21 +254,21 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 		T_RemovePrint(req->moredownText);
 		req->moredownText = 0;
 	}
-	else if( req->moredownText == NULL && CHK_ANY(req->moredownFlags, 1) ) {
+	else if( req->moredownText == NULL && CHK_ANY(req->moredownFlags, REQFLAG_ACTIVE) ) {
 		T_CentreH(req->moredownText, 1);
 		T_BottomAlign(req->moredownText, 1);
 	}
 
 	// Lines init
 	for( i = 0; i < linesCount; ++i ) {
-		if( CHK_ANY(req->lpItemFlags1[req->lineOffset + i], 1) ) {
+		if( CHK_ANY(req->lpItemFlags1[req->lineOffset + i], REQFLAG_ACTIVE) ) {
 			if( req->itemTexts1[i] == NULL ) {
 				req->itemTexts1[i] = T_Print(0, (linesOff + req->lineHeight * i), 0, &req->lpItemStrings1[(req->lineOffset + i) * req->itemStringLen]);
 				T_CentreH(req->itemTexts1[i], 1);
 				T_BottomAlign(req->itemTexts1[i], 1);
 			}
 
-			if( CHK_ANY(req->reqFlags, 1) || (req->lineOffset + i != req->selected) ) {
+			if( CHK_ANY(req->reqFlags, REQFLAG_NOCURSOR) || (req->lineOffset + i != req->selected) ) {
 				T_RemoveBackground(req->itemTexts1[i]);
 				T_RemoveOutline(req->itemTexts1[i]);
 			} else {
@@ -276,10 +276,10 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 				T_AddOutline(req->itemTexts1[i], TRUE, ICLR_Orange, &ReqSelGour2, 0);
 			}
 
-			if( CHK_ANY(req->lpItemFlags1[req->lineOffset + i], 2) ) {
+			if( CHK_ANY(req->lpItemFlags1[req->lineOffset + i], REQFLAG_LEFT) ) {
 				ReqItemLeftAlign(req, req->itemTexts1[i]);
 			}
-			else if( CHK_ANY(req->lpItemFlags1[req->lineOffset + i], 4) ) {
+			else if( CHK_ANY(req->lpItemFlags1[req->lineOffset + i], REQFLAG_RIGHT) ) {
 				ReqItemRightAlign(req, req->itemTexts1[i]);
 			}
 			else {
@@ -292,17 +292,17 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 			req->itemTexts1[i] = NULL;
 		}
 
-		if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], 1) ) {
+		if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], REQFLAG_ACTIVE) ) {
 			if( req->itemTexts2[i] == NULL ) {
 				req->itemTexts2[i] = T_Print(0, (linesOff + req->lineHeight * i), 0, &req->lpItemStrings2[(req->lineOffset + i) * req->itemStringLen]);
 				T_CentreH(req->itemTexts2[i], 1);
 				T_BottomAlign(req->itemTexts2[i], 1);
 			}
 
-			if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], 2) ) {
+			if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], REQFLAG_LEFT) ) {
 				ReqItemLeftAlign(req, req->itemTexts2[i]);
 			}
-			else if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], 4) ) {
+			else if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], REQFLAG_RIGHT) ) {
 				ReqItemRightAlign(req, req->itemTexts2[i]);
 			}
 			else {
@@ -319,28 +319,28 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 	// Lines change
 	if( req->lineOffset != req->lineOldOffset ) {
 		for( i = 0; i < linesCount; ++i ) {
-			if( req->itemTexts1[i] != NULL && CHK_ANY(req->lpItemFlags1[req->lineOffset + i], 1) ) {
+			if( req->itemTexts1[i] != NULL && CHK_ANY(req->lpItemFlags1[req->lineOffset + i], REQFLAG_ACTIVE) ) {
 				T_ChangeText(req->itemTexts1[i], &req->lpItemStrings1[(req->lineOffset + i) * req->itemStringLen]);
 			}
 
-			if( CHK_ANY(req->lpItemFlags1[req->lineOffset + i], 2) ) {
+			if( CHK_ANY(req->lpItemFlags1[req->lineOffset + i], REQFLAG_LEFT) ) {
 				ReqItemLeftAlign(req, req->itemTexts1[i]);
 			}
-			else if( CHK_ANY(req->lpItemFlags1[req->lineOffset + i], 4) ) {
+			else if( CHK_ANY(req->lpItemFlags1[req->lineOffset + i], REQFLAG_RIGHT) ) {
 				ReqItemRightAlign(req, req->itemTexts1[i]);
 			}
 			else {
 				ReqItemCentreAlign(req, req->itemTexts1[i]);
 			}
 
-			if( req->itemTexts2[i] != NULL && CHK_ANY(req->lpItemFlags2[req->lineOffset + i], 1) ) {
+			if( req->itemTexts2[i] != NULL && CHK_ANY(req->lpItemFlags2[req->lineOffset + i], REQFLAG_ACTIVE) ) {
 				T_ChangeText(req->itemTexts2[i], &req->lpItemStrings2[(req->lineOffset + i) * req->itemStringLen]);
 			}
 
-			if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], 2) ) {
+			if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], REQFLAG_LEFT) ) {
 				ReqItemLeftAlign(req, req->itemTexts2[i]);
 			}
-			else if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], 4) ) {
+			else if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], REQFLAG_RIGHT) ) {
 				ReqItemRightAlign(req, req->itemTexts2[i]);
 			}
 			else {
@@ -351,7 +351,7 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 
 	// Menu down
 	if( CHK_ANY(InputDB, IN_BACK) ) {
-		if( CHK_ANY(req->reqFlags, 1) ) { // Cursor is disabled. Move the list
+		if( CHK_ANY(req->reqFlags, REQFLAG_NOCURSOR) ) { // Cursor is disabled. Move the list
 			req->lineOldOffset = req->lineOffset;
 			if( req->lineOffset < (req->itemsCount - req->visibleCount) ) {
 				++req->lineOffset;
@@ -371,7 +371,7 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 
 	// Menu Up
 	if( CHK_ANY(InputDB, IN_FORWARD) ) {
-		if( CHK_ANY(req->reqFlags, 1) ) { // Cursor is disabled. Move the list
+		if( CHK_ANY(req->reqFlags, REQFLAG_NOCURSOR) ) { // Cursor is disabled. Move the list
 			req->lineOldOffset = req->lineOffset;
 			if( req->lineOffset > 0 ) {
 				--req->lineOffset;
@@ -420,7 +420,7 @@ void __cdecl SetRequesterHeading(REQUEST_INFO *req, const char *string1, DWORD f
 
 	if( string1 != NULL ) {
 		strcpy(req->headingString1, string1);
-		req->headingFlags1 = flags1 | 1;
+		req->headingFlags1 = flags1 | REQFLAG_ACTIVE;
 	} else {
 		strcpy(req->headingString1, "u");
 		req->headingFlags1 = 0;
@@ -428,7 +428,7 @@ void __cdecl SetRequesterHeading(REQUEST_INFO *req, const char *string1, DWORD f
 
 	if( string2 != NULL ) {
 		strcpy(req->headingString2, string2);
-		req->headingFlags2 = flags2 | 1;
+		req->headingFlags2 = flags2 | REQFLAG_ACTIVE;
 	} else {
 		strcpy(req->headingString2, "u");
 		req->headingFlags2 = 0;
@@ -449,14 +449,14 @@ void __cdecl ChangeRequesterItem(REQUEST_INFO *req, DWORD itemIdx, const char *s
 
 	if( string1 != NULL ) {
 		strcpy(&req->lpItemStrings1[itemIdx * req->itemStringLen], string1);
-		req->lpItemFlags1[itemIdx] = flags1 | 1;
+		req->lpItemFlags1[itemIdx] = flags1 | REQFLAG_ACTIVE;
 	} else {
 		req->lpItemFlags1[itemIdx] = 0;
 	}
 
 	if( string2 != NULL ) {
 		strcpy(&req->lpItemStrings2[itemIdx * req->itemStringLen], string2);
-		req->lpItemFlags2[itemIdx] = flags2 | 1;
+		req->lpItemFlags2[itemIdx] = flags2 | REQFLAG_ACTIVE;
 	} else {
 		req->lpItemFlags2[itemIdx] = 0;
 	}
@@ -468,14 +468,14 @@ void __cdecl AddRequesterItem(REQUEST_INFO *req, const char *string1, DWORD flag
 
 	if( string1 != NULL ) {
 		strcpy(&req->lpItemStrings1[req->itemsCount * req->itemStringLen], string1);
-		req->lpItemFlags1[req->itemsCount] = flags1 | 1;
+		req->lpItemFlags1[req->itemsCount] = flags1 | REQFLAG_ACTIVE;
 	} else {
-		RequesterItemFlags1[req->itemsCount] = 0;
+		req->lpItemFlags1[req->itemsCount] = 0;
 	}
 
 	if( string2 != NULL ) {
 		strcpy(&req->lpItemStrings2[req->itemsCount * req->itemStringLen], string2);
-		req->lpItemFlags2[req->itemsCount] = flags2 | 1;
+		req->lpItemFlags2[req->itemsCount] = flags2 | REQFLAG_ACTIVE;
 	} else {
 		req->lpItemFlags2[req->itemsCount] = 0;
 	}
@@ -532,7 +532,7 @@ void __cdecl ShowGymStatsText() {
 	char statStr2[32];
 
 	if( !isStatsTextReady ) {
-		StatsRequester.reqFlags |= 1;
+		StatsRequester.reqFlags |= REQFLAG_NOCURSOR;
 		SetPCRequesterSize(&StatsRequester, STATS_LN_COUNT, STATS_Y_POS);
 
 		StatsRequester.lineHeight = REQ_LN_HEIGHT;
@@ -562,7 +562,7 @@ void __cdecl ShowGymStatsText() {
 			minutes = Assault.bestTime[i] / 30 / 60;
 			sprintf(statStr1, "%2d: %s %d", (i + 1), GF_GameStringTable[GSI_String_Finish], (int)Assault.bestFinish[i]);
 			sprintf(statStr2, "%02d:%02d.%-2d", minutes, seconds, deciseconds);
-			AddRequesterItem(&StatsRequester, statStr1, 2, statStr2, 4);
+			AddRequesterItem(&StatsRequester, statStr1, REQFLAG_LEFT, statStr2, REQFLAG_RIGHT);
 		}
 
 		isStatsTextReady = true;
@@ -583,7 +583,7 @@ void __cdecl ShowStatsText(char *timeString, BOOL removeOnDeselect) {
 	char bufStr[32];
 
 	if( !isStatsTextReady ) {
-		StatsRequester.reqFlags |= 1;
+		StatsRequester.reqFlags |= REQFLAG_NOCURSOR;
 		SetPCRequesterSize(&StatsRequester, STATS_LN_COUNT, STATS_Y_POS);
 
 		StatsRequester.lineHeight = REQ_LN_HEIGHT;
@@ -602,7 +602,7 @@ void __cdecl ShowStatsText(char *timeString, BOOL removeOnDeselect) {
 		SetRequesterHeading(&StatsRequester, GF_LevelNamesStringTable[CurrentLevel], 0, NULL, 0);
 
 		// Time taken
-		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_TimeTaken], 2, timeString, 4);
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_TimeTaken], REQFLAG_LEFT, timeString, REQFLAG_RIGHT);
 
 		// Secrets found
 		if( GF_NumSecrets > 0 ) {
@@ -641,20 +641,20 @@ void __cdecl ShowStatsText(char *timeString, BOOL removeOnDeselect) {
 			} else {
 				sprintf(bufStr, GF_GameStringTable[GSI_String_None]);
 			}
-			AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_SecretsFound], 2, bufStr, 4);
+			AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_SecretsFound], REQFLAG_LEFT, bufStr, REQFLAG_RIGHT);
 		}
 
 		// Kills
 		sprintf(bufStr, "%d", (int)SaveGame.statistics.kills);
-		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_Kills], 2, bufStr, 4);
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_Kills], REQFLAG_LEFT, bufStr, REQFLAG_RIGHT);
 
 		// Ammo used
 		sprintf(bufStr, "%d", (int)SaveGame.statistics.shots);
-		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_AmmoUsed], 2, bufStr, 4);
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_AmmoUsed], REQFLAG_LEFT, bufStr, REQFLAG_RIGHT);
 
 		// Hits
 		sprintf(bufStr, "%d", (int)SaveGame.statistics.hits);
-		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_Hits], 2, bufStr, 4);
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_Hits], REQFLAG_LEFT, bufStr, REQFLAG_RIGHT);
 
 		// HealthPacks used
 		if( (SaveGame.statistics.mediPacks % 2) == 0 ) {
@@ -662,7 +662,7 @@ void __cdecl ShowStatsText(char *timeString, BOOL removeOnDeselect) {
 		} else {
 			sprintf(bufStr, "%d.5", (int)(SaveGame.statistics.mediPacks / 2) );
 		}
-		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_HealthPacksUsed], 2, bufStr, 4);
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_HealthPacksUsed], REQFLAG_LEFT, bufStr, REQFLAG_RIGHT);
 
 		// Distance travelled
 		distance = SaveGame.statistics.distance / 445;
@@ -671,11 +671,11 @@ void __cdecl ShowStatsText(char *timeString, BOOL removeOnDeselect) {
 		} else {
 			sprintf(bufStr, "%d.%02dkm", (distance / 1000), (distance % 100));
 		}
-		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_DistanceTravelled], 2, bufStr, 4);
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_DistanceTravelled], REQFLAG_LEFT, bufStr, REQFLAG_RIGHT);
 
 		isStatsTextReady = true;
 	} else {
-		ChangeRequesterItem(&StatsRequester, 0, GF_GameStringTable[GSI_String_TimeTaken], 2, timeString, 4);
+		ChangeRequesterItem(&StatsRequester, 0, GF_GameStringTable[GSI_String_TimeTaken], REQFLAG_LEFT, timeString, REQFLAG_RIGHT);
 		if( Display_Requester(&StatsRequester, removeOnDeselect, TRUE) ) {
 			isStatsTextReady = false;
 		} else {
@@ -695,7 +695,7 @@ void __cdecl ShowEndStatsText() {
 	numLevels = GF_GameFlow.num_Levels - GF_GameFlow.num_Demos;
 
 	if( !isStatsTextReady ) {
-		StatsRequester.reqFlags |= 1;
+		StatsRequester.reqFlags |= REQFLAG_NOCURSOR;
 		SetPCRequesterSize(&StatsRequester, STATS_LN_COUNT, STATS_Y_POS);
 
 		StatsRequester.lineHeight = REQ_LN_HEIGHT;
@@ -722,7 +722,7 @@ void __cdecl ShowEndStatsText() {
 		minutes = total / 30 / 60 % 60;
 		hours   = total / 30 / 60 / 60;
 		sprintf(bufStr, "%02d:%02d:%02d", hours, minutes, seconds);
-		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_TimeTaken], 2, bufStr, 4);
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_TimeTaken], REQFLAG_LEFT, bufStr, REQFLAG_RIGHT);
 
 		// Secrets found
 		total = 0;
@@ -735,7 +735,7 @@ void __cdecl ShowEndStatsText() {
 			maxTotal += 3;
 		}
 		sprintf(bufStr, "%d %s %d", total, GF_GameStringTable[GSI_String_Of], maxTotal);
-		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_SecretsFound], 2, bufStr, 4);
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_SecretsFound], REQFLAG_LEFT, bufStr, REQFLAG_RIGHT);
 
 		// Kills
 		total = 0;
@@ -743,7 +743,7 @@ void __cdecl ShowEndStatsText() {
 			total += SaveGame.start[i].statistics.kills;
 		}
 		sprintf(bufStr, "%d", total);
-		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_Kills], 2, bufStr, 4);
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_Kills], REQFLAG_LEFT, bufStr, REQFLAG_RIGHT);
 
 		// Ammo used
 		total = 0;
@@ -751,7 +751,7 @@ void __cdecl ShowEndStatsText() {
 			total += SaveGame.start[i].statistics.shots;
 		}
 		sprintf(bufStr, "%d", total);
-		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_AmmoUsed], 2, bufStr, 4);
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_AmmoUsed], REQFLAG_LEFT, bufStr, REQFLAG_RIGHT);
 
 		// Hits
 		total = 0;
@@ -759,7 +759,7 @@ void __cdecl ShowEndStatsText() {
 			total += SaveGame.start[i].statistics.hits;
 		}
 		sprintf(bufStr, "%d", total);
-		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_Hits], 2, bufStr, 4);
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_Hits], REQFLAG_LEFT, bufStr, REQFLAG_RIGHT);
 
 		// HealthPacks used
 		total = 0;
@@ -771,7 +771,7 @@ void __cdecl ShowEndStatsText() {
 		} else {
 			sprintf(bufStr, "%d.5", (total / 2));
 		}
-		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_HealthPacksUsed], 2, bufStr, 4);
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_HealthPacksUsed], REQFLAG_LEFT, bufStr, REQFLAG_RIGHT);
 
 		// Distance travelled
 		total = 0;
@@ -783,7 +783,7 @@ void __cdecl ShowEndStatsText() {
 			sprintf(bufStr, "%dm", total);
 		else
 			sprintf(bufStr, "%d.%02dkm", total / 1000, total % 100);
-		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_DistanceTravelled], 2, bufStr, 4);
+		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_DistanceTravelled], REQFLAG_LEFT, bufStr, REQFLAG_RIGHT);
 
 		isStatsTextReady = true;
 	}
