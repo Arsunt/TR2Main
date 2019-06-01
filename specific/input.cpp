@@ -176,43 +176,47 @@ bool __cdecl S_UpdateInput() {
 	if( IsFmvPlaying )
 		goto EXIT;
 
-	// Weapon requests
-	if( KEY_DOWN(DIK_1) && Inv_RequestItem(ID_PISTOL_OPTION) ) {
-		Lara_RequestGunType = LGT_Pistols;
-	}
-	else if(KEY_DOWN(DIK_2) && Inv_RequestItem(ID_SHOTGUN_OPTION) ) {
-		Lara_RequestGunType = LGT_Shotgun;
-	}
-	else if( KEY_DOWN(DIK_3) && Inv_RequestItem(ID_MAGNUM_OPTION) ) {
-		Lara_RequestGunType = LGT_Magnums;
-	}
-	else if( KEY_DOWN(DIK_4) && Inv_RequestItem(ID_UZI_OPTION) ) {
-		Lara_RequestGunType = LGT_Uzis;
-	}
-	else if( KEY_DOWN(DIK_5) && Inv_RequestItem(ID_HARPOON_OPTION) ) {
-		Lara_RequestGunType = LGT_Harpoon;
-	}
-	else if( KEY_DOWN(DIK_6) && Inv_RequestItem(ID_M16_OPTION) ) {
-		Lara_RequestGunType = LGT_M16;
-	}
-	else if( KEY_DOWN(DIK_7) && Inv_RequestItem(ID_GRENADE_OPTION) ) {
-		Lara_RequestGunType = LGT_Grenade;
-	}
-	else if( KEY_DOWN(DIK_0) && Inv_RequestItem(ID_FLARES_OPTION) ) {
-		Lara_RequestGunType = LGT_Flare;
-	}
-
-	// MediPack requests
-	if( mediPackCooldown > 0 ) {
-		--mediPackCooldown; // MediPack shortcuts have half second cooldown
-	} else {
-		if( KEY_DOWN(DIK_8) && Inv_RequestItem(ID_SMALL_MEDIPACK_OPTION) ) {
-			UseItem(ID_SMALL_MEDIPACK_OPTION);
-			mediPackCooldown = 15;
+	// NOTE: this check is absent in the original game
+	// it fixes a bug, when the player could interfere with the demo level
+	if( !IsDemoLevelType ) {
+		// Weapon requests
+		if( KEY_DOWN(DIK_1) && Inv_RequestItem(ID_PISTOL_OPTION) ) {
+			Lara_RequestGunType = LGT_Pistols;
 		}
-		else if( KEY_DOWN(DIK_9) && Inv_RequestItem(ID_LARGE_MEDIPACK_OPTION) ) {
-			UseItem(ID_LARGE_MEDIPACK_OPTION);
-			mediPackCooldown = 15;
+		else if(KEY_DOWN(DIK_2) && Inv_RequestItem(ID_SHOTGUN_OPTION) ) {
+			Lara_RequestGunType = LGT_Shotgun;
+		}
+		else if( KEY_DOWN(DIK_3) && Inv_RequestItem(ID_MAGNUM_OPTION) ) {
+			Lara_RequestGunType = LGT_Magnums;
+		}
+		else if( KEY_DOWN(DIK_4) && Inv_RequestItem(ID_UZI_OPTION) ) {
+			Lara_RequestGunType = LGT_Uzis;
+		}
+		else if( KEY_DOWN(DIK_5) && Inv_RequestItem(ID_HARPOON_OPTION) ) {
+			Lara_RequestGunType = LGT_Harpoon;
+		}
+		else if( KEY_DOWN(DIK_6) && Inv_RequestItem(ID_M16_OPTION) ) {
+			Lara_RequestGunType = LGT_M16;
+		}
+		else if( KEY_DOWN(DIK_7) && Inv_RequestItem(ID_GRENADE_OPTION) ) {
+			Lara_RequestGunType = LGT_Grenade;
+		}
+		else if( KEY_DOWN(DIK_0) && Inv_RequestItem(ID_FLARES_OPTION) ) {
+			Lara_RequestGunType = LGT_Flare;
+		}
+
+		// MediPack requests
+		if( mediPackCooldown > 0 ) {
+			--mediPackCooldown; // MediPack shortcuts have half second cooldown
+		} else {
+			if( KEY_DOWN(DIK_8) && Inv_RequestItem(ID_SMALL_MEDIPACK_OPTION) ) {
+				UseItem(ID_SMALL_MEDIPACK_OPTION);
+				mediPackCooldown = 15;
+			}
+			else if( KEY_DOWN(DIK_9) && Inv_RequestItem(ID_LARGE_MEDIPACK_OPTION) ) {
+				UseItem(ID_LARGE_MEDIPACK_OPTION);
+				mediPackCooldown = 15;
+			}
 		}
 	}
 
