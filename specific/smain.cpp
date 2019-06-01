@@ -203,7 +203,7 @@ BOOL __cdecl GameMain() {
 					}
 				} else {
 					gfOption = TitleSequence();
-					IsTitleFinished = true;
+					GF_StartGame = true;
 				}
 				break;
 
