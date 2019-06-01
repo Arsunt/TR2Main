@@ -376,7 +376,7 @@ x function is unused / included in another function
 0x0041FA40:	+	GF_LoadScriptFile
 0x0041FC30:	+	GF_DoFrontEndSequence
 0x0041FC50:	+	GF_DoLevelSequence
-0x0041FCC0:	 *	GF_InterpretSequence
+0x0041FCC0:	+	GF_InterpretSequence
 0x004201A0:	 *	GF_ModifyInventory
 
 	game/hair.cpp

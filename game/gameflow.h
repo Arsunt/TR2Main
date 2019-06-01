@@ -30,8 +30,8 @@
 BOOL __cdecl GF_LoadScriptFile(LPCTSTR fileName); // 0x0041FA40
 BOOL __cdecl GF_DoFrontEndSequence(); // 0x0041FC30
 int __cdecl GF_DoLevelSequence(DWORD levelID, GF_LEVEL_TYPE levelType); // 0x0041FC50
+int __cdecl GF_InterpretSequence(__int16 *seq, GF_LEVEL_TYPE levelType, int seqType); // 0x0041FCC0
 
-#define GF_InterpretSequence ((__int16(__cdecl*)(__int16 *,GF_LEVEL_TYPE,int)) 0x0041FCC0)
 #define GF_ModifyInventory ((void(__cdecl*)(DWORD,BOOL)) 0x004201A0)
 
 #endif // GAMEFLOW_H_INCLUDED

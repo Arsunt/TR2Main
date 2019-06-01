@@ -141,7 +141,6 @@
 #define IsDemoLevelType				VAR_U_(0x004D779C, BOOL)
 #define IsDemoLoaded				VAR_U_(0x004D77A0, BOOL)
 #define IsAssaultTimerDisplay		VAR_U_(0x004D77D0, BOOL)
-#define GF_StartGame				VAR_U_(0x004D77FC, bool)
 #define AmmoTextInfo				VAR_U_(0x004D791C, TEXT_STR_INFO*)
 #define DisplayModeTextInfo			VAR_U_(0x004D7920, TEXT_STR_INFO*)
 #define DisplayModeInfoTimer		VAR_U_(0x004D7924, DWORD)
@@ -360,6 +359,7 @@
 #define BoxesCount					VAR_U_(0x005263D0, DWORD)
 
 // Initialized arrays
+#define TrackIDs					ARRAY_(0x004642F0, __int16, [16]) /* = {2, 0}; */
 #define InvSpriteMusicVolume		ARRAY_(0x00464718, INVENTORY_SPRITE, [9]) /* = {
 	{2, -66, -80, 32, 132,  0, 0x004645DC, ICLR_Gray},
 	{2, -66, -65, 32, 132,  0, 0x004645E0, ICLR_Gray},
@@ -542,7 +542,14 @@
 #define InvPhotoOption				VAR_I_(0x00465490, INVENTORY_ITEM,	"...")
 
 // GameFlow/Inventory uninitialized variables
+#define GF_LaraStartAnim			VAR_U_(0x004D77E0, int)
 #define GF_SunsetEnabled			VAR_U_(0x004D77E4, UINT16)
+#define GF_DeadlyWater				VAR_U_(0x004D77E8, UINT16)
+#define GF_NoFloor					VAR_U_(0x004D77EC, UINT16)
+#define GF_RemoveWeapons			VAR_U_(0x004D77F0, UINT16)
+#define GF_RemoveAmmo				VAR_U_(0x004D77F4, UINT16)
+#define GF_Kill2Complete			VAR_U_(0x004D77F8, bool)
+#define GF_StartGame				VAR_U_(0x004D77FC, bool)
 #define GF_GameFlow					VAR_U_(0x00521DE0, GAME_FLOW)
 #define GF_ScriptBuffer				VAR_U_(0x00521E70, __int16*)
 #define GF_LevelNamesStringTable	VAR_U_(0x00521EC4, char**)
@@ -616,5 +623,7 @@
 #define CtrlTextB					ARRAY_(0x0051A280, TEXT_STR_INFO*, [14])
 #define GF_ScriptTable				ARRAY_(0x00521EE0, __int16*, [24])
 #define GF_DemoLevels				ARRAY_(0x00521F60, UINT16, [24])
+#define GF_SecretInvItems			ARRAY_(0x00521FA0, char, [27])
+#define GF_Add2InvItems				ARRAY_(0x00521FC0, char, [27])
 
 #endif // GLOBAL_VARS_H_INCLUDED

@@ -20,9 +20,13 @@
  */
 
 #include "global/precompiled.h"
+#include "game/cinema.h"
+#include "game/demo.h"
 #include "game/gameflow.h"
 #include "game/invtext.h"
 #include "specific/file.h"
+#include "specific/frontend.h"
+#include "specific/game.h"
 #include "global/vars.h"
 
 BOOL __cdecl GF_LoadScriptFile(LPCTSTR fileName) {
@@ -100,6 +104,218 @@ int __cdecl GF_DoLevelSequence(DWORD levelID, GF_LEVEL_TYPE levelType) {
 	return GF_EXIT_TO_TITLE;
 }
 
+int __cdecl GF_InterpretSequence(__int16 *seq, GF_LEVEL_TYPE levelType, int seqType) {
+	int result = GF_EXIT_TO_TITLE;
+	int trackIndex = 0;
+	char str[80];
+
+	GF_NoFloor = 0;
+	GF_DeadlyWater = 0;
+	GF_SunsetEnabled = 0;
+	GF_LaraStartAnim = 0;
+	GF_Kill2Complete = 0;
+	GF_RemoveAmmo = 0;
+	GF_RemoveWeapons = 0;
+
+	memset(GF_Add2InvItems, 0, sizeof(GF_Add2InvItems));
+	memset(GF_SecretInvItems, 0, sizeof(GF_SecretInvItems));
+
+	TrackIDs[0] = 2;
+	CineTargetAngle = 0x4000;
+	GF_NumSecrets = 3;
+
+	while( *seq != GFE_END_SEQ ) {
+		switch( *seq ) {
+			case GFE_STARTLEVEL :
+				if( seq[1] > GF_GameFlow.num_Levels ) {
+					sprintf(str, "INVALID LEVEL %d", seq[1]);
+					result = GF_EXIT_TO_TITLE;
+				} else if( levelType != GFL_STORY ) {
+					if( levelType == GFL_MIDSTORY ) {
+						return GF_EXIT_TO_TITLE;
+					}
+					result = StartGame(seq[1], levelType);
+					GF_StartGame = false;
+					if( levelType == GFL_SAVED ) {
+						levelType = GFL_NORMAL;
+					}
+					if( (result & ~0xff) != GF_LEVEL_COMPLETE ) {
+						return result;
+					}
+				}
+				seq += 2;
+				break;
+
+			case GFE_LOADINGPIC :
+				seq += 2;
+				break;
+
+			case GFE_DEMOPLAY :
+				if( levelType != GFL_SAVED && levelType != GFL_STORY && levelType != GFL_MIDSTORY ) {
+					return StartDemo(seq[1]);
+				}
+				seq += 2;
+				break;
+
+			case GFE_CUTANGLE :
+				if( levelType != GFL_SAVED ) {
+					CineTargetAngle = seq[1];
+				}
+				seq += 2;
+				break;
+
+			case GFE_CUTSCENE :
+				if( levelType != GFL_SAVED ) {
+					sprintf(str, "CUTSCENE %d %s", seq[1], GF_CutsFilesStringTable[seq[1]]);
+					__int16 storedLevel = CurrentLevel;
+					int cine_ret = StartCinematic(seq[1]);
+					CurrentLevel = storedLevel;
+					if( cine_ret == 2 && (levelType == GFL_STORY || levelType == GFL_MIDSTORY) ) {
+						return GF_EXIT_TO_TITLE;
+					}
+					if( cine_ret == 3 ) {
+						return GF_EXIT_GAME;
+					}
+				}
+				seq += 2;
+				break;
+
+			case GFE_PLAYFMV :
+				if( levelType != GFL_SAVED ) {
+					if( seq[2] == GFE_PLAYFMV ) {
+						if( S_IntroFMV(GF_FmvFilesStringTable[seq[1]], GF_FmvFilesStringTable[seq[3]]) ) {
+							return GF_EXIT_GAME;
+						}
+						seq += 2;
+					} else {
+						if( S_PlayFMV(GF_FmvFilesStringTable[seq[1]]) ) {
+							return GF_EXIT_GAME;
+						}
+					}
+				}
+				seq += 2;
+				break;
+
+			case GFE_LEVCOMPLETE :
+				if( levelType != GFL_STORY && levelType != GFL_MIDSTORY ) {
+					if( LevelStats(CurrentLevel) ) {
+						return GF_EXIT_TO_TITLE;
+					}
+					result = GF_START_GAME | (CurrentLevel + 1);
+				}
+				++seq;
+				break;
+
+			case GFE_GAMECOMPLETE :
+				DisplayCredits();
+				if( GameStats(CurrentLevel) ) {
+					return GF_EXIT_TO_TITLE;
+				}
+				result = GF_EXIT_TO_TITLE;
+				++seq;
+				break;
+
+			case GFE_PICTURE :
+				if( levelType != GFL_SAVED ) {
+					sprintf(str, "PICTURE %s", GF_PictureFilesStringTable[seq[1]]);
+				}
+				seq += 2;
+				break;
+
+			case GFE_JUMPTO_SEQ :
+				sprintf(str, "JUMPSEQ %d", seq[1]);
+				seq += 2;
+				break;
+
+			case GFE_SETTRACK :
+				TrackIDs[trackIndex++] = seq[1];
+				SetCutsceneTrack(seq[1]);
+				seq += 2;
+				break;
+
+			case GFE_SUNSET :
+				if( levelType != GFL_STORY && levelType != GFL_MIDSTORY ) {
+					GF_SunsetEnabled = 1;
+				}
+				++seq;
+				break;
+
+			case GFE_DEADLY_WATER :
+				if( levelType != GFL_STORY && levelType != GFL_MIDSTORY ) {
+					GF_DeadlyWater = 1;
+				}
+				++seq;
+				break;
+
+			case GFE_NOFLOOR :
+				if( levelType != GFL_STORY && levelType != GFL_MIDSTORY ) {
+					GF_NoFloor = seq[1];
+				}
+				seq += 2;
+				break;
+
+			case GFE_STARTANIM :
+				if( levelType != GFL_STORY && levelType != GFL_MIDSTORY ) {
+					GF_LaraStartAnim = seq[1];
+				}
+				seq += 2;
+				break;
+
+			case GFE_NUMSECRETS :
+				if( levelType != GFL_STORY && levelType != GFL_MIDSTORY ) {
+					GF_NumSecrets = seq[1];
+				}
+				seq += 2;
+				break;
+
+			case GFE_ADD2INV :
+				if( levelType != GFL_STORY && levelType != GFL_MIDSTORY ) {
+					if( seq[1] < 1000 ) {
+						++GF_SecretInvItems[seq[1]];
+					} else if( levelType != GFL_SAVED ) {
+						++GF_Add2InvItems[seq[1] - 1000];
+					}
+				}
+				seq += 2;
+				break;
+
+			case GFE_REMOVE_WEAPONS :
+				if( levelType != GFL_STORY && levelType != GFL_MIDSTORY && levelType != GFL_SAVED ) {
+					GF_RemoveWeapons = 1;
+				}
+				++seq;
+				break;
+
+			case GFE_REMOVE_AMMO :
+				if( levelType != GFL_STORY && levelType != GFL_MIDSTORY && levelType != GFL_SAVED ) {
+					GF_RemoveAmmo = 1;
+				}
+				++seq;
+				break;
+
+			case GFE_KILL2COMPLETE :
+				if( levelType != GFL_STORY && levelType != GFL_MIDSTORY ) {
+					GF_Kill2Complete = 1;
+				}
+				++seq;
+				break;
+
+			case GFE_LIST_START :
+			case GFE_LIST_END :
+				++seq;
+				break;
+
+			default :
+				return GF_EXIT_GAME;
+		}
+	}
+
+	if( levelType == GFL_STORY || levelType == GFL_MIDSTORY ) {
+		result = GF_START_GAME;
+	}
+	return result;
+}
+
 /*
  * Inject function
  */
@@ -107,7 +323,7 @@ void Inject_Gameflow() {
 	INJECT(0x0041FA40, GF_LoadScriptFile);
 	INJECT(0x0041FC30, GF_DoFrontEndSequence);
 	INJECT(0x0041FC50, GF_DoLevelSequence);
+	INJECT(0x0041FCC0, GF_InterpretSequence);
 
-//	INJECT(0x0041FCC0, GF_InterpretSequence);
 //	INJECT(0x004201A0, GF_ModifyInventory);
 }
