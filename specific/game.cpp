@@ -247,17 +247,14 @@ void __cdecl SeedRandomDraw(int seed) {
 }
 
 void __cdecl GetValidLevelsList(REQUEST_INFO *req) {
-	DWORD i, num_valid = GF_GameFlow.num_Levels;
-
 	RemoveAllReqItems(req);
 
 	// NOTE: this check fixes original game bug.
 	// Now demo levels are excluded from the *"New Game"* menu,
 	// if the *"Select Level"* option is active.
-	for( i = 0; i < GF_GameFlow.num_Demos; ++i )
-		CLAMPG(num_valid, GF_DemoLevels[i]);
+	DWORD numLevels = GF_GameFlow.num_Levels - GF_GameFlow.num_Demos;
 
-	for( i = 1; i < num_valid; ++i )
+	for( DWORD i = 1; i < numLevels; ++i )
 		AddRequesterItem(req, GF_LevelNamesStringTable[i], 0, NULL, 0);
 }
 
