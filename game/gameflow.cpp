@@ -26,7 +26,7 @@
 #include "global/vars.h"
 
 BOOL __cdecl GF_LoadScriptFile(LPCTSTR fileName) {
-	GF_SequenceReady = 0;
+	GF_SunsetEnabled = 0;
 
 	if( !S_LoadGameFlow(fileName) )
 		return FALSE;

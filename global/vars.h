@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -542,7 +542,7 @@
 #define InvPhotoOption				VAR_I_(0x00465490, INVENTORY_ITEM,	"...")
 
 // GameFlow/Inventory uninitialized variables
-#define GF_SequenceReady			VAR_U_(0x004D77E4, UINT16)
+#define GF_SunsetEnabled			VAR_U_(0x004D77E4, UINT16)
 #define GF_GameFlow					VAR_U_(0x00521DE0, GAME_FLOW)
 #define GF_ScriptBuffer				VAR_U_(0x00521E70, __int16*)
 #define GF_LevelNamesStringTable	VAR_U_(0x00521EC4, char**)

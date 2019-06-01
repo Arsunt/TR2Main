@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -779,7 +779,7 @@ void __cdecl S_AnimateTextures(int nFrames) {
 	RoomLightShades[1] = GetRandomDraw() & (WIBBLE_SIZE-1);
 	RoomLightShades[2] = (WIBBLE_SIZE-1) * (phd_sin(WibbleOffset * PHD_360 / WIBBLE_SIZE) + PHD_IONE/2) / PHD_IONE;
 
-	if( GF_SequenceReady ) {
+	if( GF_SunsetEnabled ) {
 		AnimFramesCounter += nFrames;
 		RoomLightShades[3] = (WIBBLE_SIZE-1) * ((AnimFramesCounter < 72000) ? (AnimFramesCounter / 72000) : 1);
 	}
