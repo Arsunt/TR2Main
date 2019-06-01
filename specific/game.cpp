@@ -187,7 +187,7 @@ int __cdecl LevelStats(int levelID) {
 	return 0;
 }
 
-int __cdecl GameStats() {
+int __cdecl GameStats(int levelID) {
 	SaveGame.start[CurrentLevel].statistics = SaveGame.statistics;
 
 	TempVideoAdjust(HiRes, 1.0); // NOTE: this line was not in the original code

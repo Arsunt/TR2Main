@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -83,12 +83,12 @@ BOOL __cdecl GF_LoadScriptFile(LPCTSTR fileName) {
 }
 
 BOOL __cdecl GF_DoFrontEndSequence() {
-	return ( GF_EXIT_GAME == GF_InterpretSequence(GF_ScriptBuffer, 1) );
+	return ( GF_EXIT_GAME == GF_InterpretSequence(GF_ScriptBuffer, 1, 1) );
 }
 
 int __cdecl GF_DoLevelSequence(DWORD levelID, int levelType) {
 	for( DWORD i = levelID; i < GF_GameFlow.num_Levels; ++i ) {
-		int direction = GF_InterpretSequence(GF_ScriptTable[i], levelType);
+		int direction = GF_InterpretSequence(GF_ScriptTable[i], levelType, 0);
 
 		if( GF_GameFlow.singleLevel >= 0 ||
 			(direction & ~0xFFu) != GF_LEVEL_COMPLETE )

@@ -31,7 +31,7 @@ __int16 __cdecl StartGame(int levelID, int levelType); // 0x0044C550
 int __cdecl GameLoop(BOOL demoMode); // 0x0044C6A0
 int __cdecl LevelCompleteSequence(); // 0x0044C740
 int __cdecl LevelStats(int levelID); // 0x0044C750
-int __cdecl GameStats(); // 0x0044C920
+int __cdecl GameStats(int levelID); // 0x0044C920
 int __cdecl GetRandomControl(); // 0x0044CA40
 void __cdecl SeedRandomControl(int seed); // 0x0044CA60
 int __cdecl GetRandomDraw(); // 0x0044CA70
