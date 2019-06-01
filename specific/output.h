@@ -35,7 +35,7 @@ int __cdecl GetRenderWidth(); // 0x00450BB0
 void __cdecl S_InitialisePolyList(BOOL clearBackBuffer); // 0x00450BC0
 DWORD __cdecl S_DumpScreen(); // 0x00450CB0
 void __cdecl S_ClearScreen(); // 0x00450CF0
-void __cdecl S_InitialiseScreen(int levelType); // 0x00450D00
+void __cdecl S_InitialiseScreen(GF_LEVEL_TYPE levelType); // 0x00450D00
 void __cdecl S_OutputPolyList(); // 0x00450D40
 int __cdecl S_GetObjectBounds(__int16 *bPtr); // 0x00450D80
 void __cdecl S_InsertBackPolygon(int x0, int y0, int x1, int y1); // 0x00450FF0

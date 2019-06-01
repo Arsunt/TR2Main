@@ -83,10 +83,10 @@ BOOL __cdecl GF_LoadScriptFile(LPCTSTR fileName) {
 }
 
 BOOL __cdecl GF_DoFrontEndSequence() {
-	return ( GF_EXIT_GAME == GF_InterpretSequence(GF_ScriptBuffer, 1, 1) );
+	return ( GF_EXIT_GAME == GF_InterpretSequence(GF_ScriptBuffer, GFL_NORMAL, 1) );
 }
 
-int __cdecl GF_DoLevelSequence(DWORD levelID, int levelType) {
+int __cdecl GF_DoLevelSequence(DWORD levelID, GF_LEVEL_TYPE levelType) {
 	for( DWORD i = levelID; i < GF_GameFlow.num_Levels; ++i ) {
 		int direction = GF_InterpretSequence(GF_ScriptTable[i], levelType, 0);
 

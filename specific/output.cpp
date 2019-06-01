@@ -160,13 +160,13 @@ void __cdecl S_ClearScreen() {
 	ScreenClear(false);
 }
 
-void __cdecl S_InitialiseScreen(int levelType) {
+void __cdecl S_InitialiseScreen(GF_LEVEL_TYPE levelType) {
 	if( levelType < 0 ) {
 		// No Level
 		FadeToPal(0, GamePalette8);
 	} else {
-		if( levelType ) {
-			// Not title (Title has levelType=0)
+		if( levelType != GFL_TITLE ) {
+			// Not title
 			TempVideoRemove();
 		}
 		// Title or Any Level

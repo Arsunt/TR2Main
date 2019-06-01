@@ -45,17 +45,16 @@
 #include "modding/background_new.h"
 #endif // FEATURE_BACKGROUND_IMPROVED
 
-__int16 __cdecl StartGame(int levelID, int levelType) {
-	// TODO: define levelType as enum
-	if( levelType == 1 || levelType == 2 || levelType == 3 )
+__int16 __cdecl StartGame(int levelID, GF_LEVEL_TYPE levelType) {
+	if( levelType == GFL_NORMAL || levelType == GFL_SAVED || levelType == GFL_DEMO )
 		CurrentLevel = levelID;
 
-	if( levelType != 2 )
+	if( levelType != GFL_SAVED )
 		ModifyStartInfo(levelID);
 
 	IsTitleLoaded = FALSE;
 
-	if( levelType != 2 )
+	if( levelType != GFL_SAVED )
 		InitialiseLevelFlags();
 
 	if( !InitialiseLevel(levelID, levelType) ) {

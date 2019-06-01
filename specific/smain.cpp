@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -161,13 +161,13 @@ BOOL __cdecl GameMain() {
 
 			case GF_START_GAME :
 				if( GF_GameFlow.singleLevel >= 0 ) {
-					gfOption = GF_DoLevelSequence(GF_GameFlow.singleLevel, 1);
+					gfOption = GF_DoLevelSequence(GF_GameFlow.singleLevel, GFL_NORMAL);
 				} else {
 					if( gfParameter > GF_GameFlow.num_Levels ) {
 						wsprintf(StringToShow, "GameMain: STARTGAME with invalid level number (%d)", gfParameter);
 						return FALSE;
 					}
-					gfOption = GF_DoLevelSequence(gfParameter, 1);
+					gfOption = GF_DoLevelSequence(gfParameter, GFL_NORMAL);
 				}
 				break;
 
@@ -177,7 +177,7 @@ BOOL __cdecl GameMain() {
 					wsprintf(StringToShow, "GameMain: STARTSAVEDGAME with invalid level number (%d)", SaveGame.currentLevel);
 					return FALSE;
 				}
-				gfOption = GF_DoLevelSequence(SaveGame.currentLevel, 2);
+				gfOption = GF_DoLevelSequence(SaveGame.currentLevel, GFL_SAVED);
 				break;
 
 			case GF_START_CINE :

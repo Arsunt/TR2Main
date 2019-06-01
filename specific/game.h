@@ -27,7 +27,7 @@
 /*
  * Function list
  */
-__int16 __cdecl StartGame(int levelID, int levelType); // 0x0044C550
+__int16 __cdecl StartGame(int levelID, GF_LEVEL_TYPE levelType); // 0x0044C550
 int __cdecl GameLoop(BOOL demoMode); // 0x0044C6A0
 int __cdecl LevelCompleteSequence(); // 0x0044C740
 int __cdecl LevelStats(int levelID); // 0x0044C750

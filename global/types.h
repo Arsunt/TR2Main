@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -920,6 +920,18 @@ typedef enum {
 	RING_Option,
 	RING_Keys,
 } RING_TYPE;
+
+typedef enum {
+	GFL_NOLEVEL = -1,
+	GFL_TITLE,
+	GFL_NORMAL,
+	GFL_SAVED,
+	GFL_DEMO,
+	GFL_CUTSCENE,
+	GFL_STORY,
+	GFL_QUIET,
+	GFL_MIDSTORY,
+} GF_LEVEL_TYPE;
 
 /*
  * Structs
