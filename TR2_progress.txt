@@ -176,7 +176,7 @@ x function is unused / included in another function
 0x00411A80:		CalculateCamera
 
 	game/cinema.cpp
-0x00411F30:		SetCutsceneTrack
+0x00411F30:	+	SetCutsceneTrack
 0x00411F40:	+	StartCinematic
 0x00412060:	 *	InitCinematicRooms
 0x00412100:	 *	DoCinematic
@@ -236,7 +236,7 @@ x function is unused / included in another function
 
 	game/demo.cpp
 0x004168E0:	 *	DoDemoSequence
-0x00416940:		StartDemo
+0x00416940:	 *	StartDemo
 0x00416AF0:		LoadLaraDemoPos
 0x00416BC0:		GetDemoInput
 

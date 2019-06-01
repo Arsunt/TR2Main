@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -27,6 +27,10 @@
 #include "specific/output.h"
 #include "specific/sndpc.h"
 #include "global/vars.h"
+
+void __cdecl SetCutsceneTrack(int track) {
+	CineTrackID = track;
+}
 
 int __cdecl StartCinematic(int levelID) {
 	int result;
@@ -80,7 +84,7 @@ int __cdecl StartCinematic(int levelID) {
  * Inject function
  */
 void Inject_Cinema() {
-//	INJECT(0x00411F30, SetCutsceneTrack);
+	INJECT(0x00411F30, SetCutsceneTrack);
 	INJECT(0x00411F40, StartCinematic);
 //	INJECT(0x00412060, InitCinematicRooms);
 //	INJECT(0x00412100, DoCinematic);

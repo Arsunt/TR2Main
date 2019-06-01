@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -27,8 +27,7 @@
 /*
  * Function list
  */
-// 0x00411F30:		SetCutsceneTrack
-
+void __cdecl SetCutsceneTrack(int track); // 0x00411F30
 int __cdecl StartCinematic(int levelID); // 0x00411F40
 
 #define InitCinematicRooms ((void(__cdecl*)(void)) 0x00412060)
