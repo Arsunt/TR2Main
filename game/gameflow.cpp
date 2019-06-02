@@ -30,19 +30,21 @@
 #include "global/vars.h"
 
 // NOTE: there is no such function in the original code
-int __cdecl GF_GetNumSecrets(DWORD levelID) {
+static bool __cdecl GF_GetSequenceValue(DWORD levelID, GF_EVENTS event, __int16 *pValue, __int16 defValue) {
 	if( levelID >= GF_GameFlow.num_Levels ) {
-		return 0;
+		return false;
 	}
 	__int16 *seq = GF_ScriptTable[levelID];
-	int result = 3;
+	__int16 operand = 0;
+	bool result = false;
+
+	if( pValue != NULL) {
+		*pValue = defValue; // set default value just in case
+	}
 
 	while( *seq != GFE_END_SEQ ) {
-		switch( *seq ) {
-			case GFE_NUMSECRETS :
-				result = seq[1];
-				seq += 2;
-				break;
+		__int16 seqCode = *seq;
+		switch( seqCode ) {
 			case GFE_STARTLEVEL :
 			case GFE_LOADINGPIC :
 			case GFE_DEMOPLAY :
@@ -54,7 +56,9 @@ int __cdecl GF_GetNumSecrets(DWORD levelID) {
 			case GFE_SETTRACK :
 			case GFE_NOFLOOR :
 			case GFE_STARTANIM :
+			case GFE_NUMSECRETS :
 			case GFE_ADD2INV :
+				operand = seq[1];
 				seq += 2;
 				break;
 			case GFE_LEVCOMPLETE :
@@ -66,12 +70,32 @@ int __cdecl GF_GetNumSecrets(DWORD levelID) {
 			case GFE_KILL2COMPLETE :
 			case GFE_LIST_START :
 			case GFE_LIST_END :
+				operand = 0;
 				++seq;
 				break;
 			default :
 				return result;
 		}
+
+		if( seqCode == event ) {
+			// the event is found in the sequence
+			if( pValue == NULL) {
+				// if we don't need operand value, just return here
+				return true;
+			} else {
+				// if we need the value, search until the end, the last value is correct one
+				result = true;
+				*pValue = operand;
+			}
+		}
 	}
+	return result;
+}
+
+// NOTE: there is no such function in the original code
+int __cdecl GF_GetNumSecrets(DWORD levelID) {
+	__int16 result = 3;
+	GF_GetSequenceValue(levelID, GFE_NUMSECRETS, &result, result);
 	return result;
 }
 
