@@ -74,6 +74,8 @@ GOURAUD_OUTLINE ReqSelGour2 = {
 	0xFF000000, 0xFF38F080, 0xFF000000,
 };
 
+extern __cdecl GF_GetNumSecrets(DWORD levelID);
+
 #ifdef FEATURE_ASSAULT_SAVE
 extern void SaveAssault();
 #endif // FEATURE_ASSAULT_SAVE
@@ -693,6 +695,7 @@ void __cdecl ShowEndStatsText() {
 	char bufStr[32];
 
 	numLevels = GF_GameFlow.num_Levels - GF_GameFlow.num_Demos;
+	CLAMPG(numLevels, CurrentLevel+1); // NOTE: Fix for Gold. Don't count statistics for bonus levels!
 
 	if( !isStatsTextReady ) {
 		StatsRequester.reqFlags |= REQFLAG_NOCURSOR;
@@ -727,12 +730,12 @@ void __cdecl ShowEndStatsText() {
 		// Secrets found
 		total = 0;
 		maxTotal = 0;
-		// There are no secrets in the last two levels, so (numLevels - 2)
-		for( i = 1; i < (numLevels - 2); ++i ) {
+		// NOTE: In the original code there was hardcode for secrets: for( i = 1; i < (numLevels - 2); ++i )
+		for( i = 1; i < numLevels; ++i ) {
 			total += CHK_ANY(SaveGame.start[i].statistics.secrets, 1) ? 1 : 0;
 			total += CHK_ANY(SaveGame.start[i].statistics.secrets, 2) ? 1 : 0;
 			total += CHK_ANY(SaveGame.start[i].statistics.secrets, 4) ? 1 : 0;
-			maxTotal += 3;
+			maxTotal += GF_GetNumSecrets(i); // In the original code there is 3 instead of GF_GetNumSecrets function
 		}
 		sprintf(bufStr, "%d %s %d", total, GF_GameStringTable[GSI_String_Of], maxTotal);
 		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_SecretsFound], REQFLAG_LEFT, bufStr, REQFLAG_RIGHT);

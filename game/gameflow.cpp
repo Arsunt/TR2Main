@@ -29,6 +29,52 @@
 #include "specific/game.h"
 #include "global/vars.h"
 
+// NOTE: there is no such function in the original code
+int __cdecl GF_GetNumSecrets(DWORD levelID) {
+	if( levelID >= GF_GameFlow.num_Levels ) {
+		return 0;
+	}
+	__int16 *seq = GF_ScriptTable[levelID];
+	int result = 3;
+
+	while( *seq != GFE_END_SEQ ) {
+		switch( *seq ) {
+			case GFE_NUMSECRETS :
+				result = seq[1];
+				seq += 2;
+				break;
+			case GFE_STARTLEVEL :
+			case GFE_LOADINGPIC :
+			case GFE_DEMOPLAY :
+			case GFE_CUTANGLE :
+			case GFE_CUTSCENE :
+			case GFE_PLAYFMV :
+			case GFE_PICTURE :
+			case GFE_JUMPTO_SEQ :
+			case GFE_SETTRACK :
+			case GFE_NOFLOOR :
+			case GFE_STARTANIM :
+			case GFE_ADD2INV :
+				seq += 2;
+				break;
+			case GFE_LEVCOMPLETE :
+			case GFE_GAMECOMPLETE :
+			case GFE_SUNSET :
+			case GFE_DEADLY_WATER :
+			case GFE_REMOVE_WEAPONS :
+			case GFE_REMOVE_AMMO :
+			case GFE_KILL2COMPLETE :
+			case GFE_LIST_START :
+			case GFE_LIST_END :
+				++seq;
+				break;
+			default :
+				return result;
+		}
+	}
+	return result;
+}
+
 BOOL __cdecl GF_LoadScriptFile(LPCTSTR fileName) {
 	GF_SunsetEnabled = 0;
 
