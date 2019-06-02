@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.
 - Fixed a bug that allowed the player to interfere with the control of the demo level.
 - Demo levels are excluded from the *"New Game"* menu, if the *"Select Level"* option is active.
+- Fixed the statistics reset in case of *"New Game+"*, if the *"Select Level"* option is active.
 
 ## [0.8.2] - 2019-05-26
 ### TR2Main bugfixes

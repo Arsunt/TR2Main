@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -24,9 +24,11 @@
 #include "global/vars.h"
 
 void __cdecl InitialiseStartInfo() {
+#if 0 // NOTE: this original check is removed, because it breaks game+ logic in case of any level selection
 	// skip initialise if bonus game started
 	if( SaveGame.bonusFlag )
 		return;
+#endif
 
 	for( int i=0; i<24; ++i ) {
 		START_INFO *start = &SaveGame.start[i];
@@ -82,6 +84,24 @@ void __cdecl ModifyStartInfo(int levelIdx) {
 			start->flares = 2;
 			start->smallMedipacks = 1;
 			start->largeMedipacks = 1;
+			break;
+
+		// NOTE: there was no 'default' in the original game, so new game with level selection was broken
+		default : // New Game from any other level
+			start->flags &= ~(SIF_HasHarpoon|SIF_HasGrenade|SIF_HasM16|SIF_HasUzis|SIF_HasShotgun|SIF_HasMagnums); // remove 'weapon' flags except 'pistols'
+			start->flags |= SIF_Available; // add 'available' flag
+			start->gunStatus = LGS_Armless; // Lara has no weapons in hands
+
+			start->magnumAmmo	= 0;
+			start->uziAmmo		= 0;
+			start->shotgunAmmo	= 0;
+			start->m16Ammo		= 0;
+			start->grenadeAmmo	= 0;
+			start->harpoonAmmo	= 0;
+
+			start->flares = 0;
+			start->smallMedipacks = 0;
+			start->largeMedipacks = 0;
 			break;
 	}
 
