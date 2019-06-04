@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -31,15 +31,13 @@ void __cdecl InitialiseItemArray(int itemCount) {
 	NextItemActive = -1;
 
 	for( i = LevelItemCount; i+1 < itemCount; ++i ) {
-		Items[i].bitFields &= ~1; // clear active flag
+		Items[i].active = 0;
 		Items[i].nextItem = i+1;
 	}
 	Items[i].nextItem = -1;
 }
 
 void __cdecl InitialiseItem(__int16 itemIndex) {
-	// TODO: define all bitfields as bitfields
-	// TODO: complete some comments
 	ITEM_INFO *item;
 	ROOM_INFO *room;
 	FLOOR_INFO *floor;
@@ -58,29 +56,33 @@ void __cdecl InitialiseItem(__int16 itemIndex) {
 	item->timer = 0;
 	item->meshBits = 0xFFFFFFFF;
 	item->touchBits = 0;
-	item->data = 0;
+	item->data = NULL;
 
-	item->bitFields &= ~0x015F; // clear most bitFields
-	item->bitFields |= 0x0020; // set "collidable"
+	item->active = 0;
+	item->status = ITEM_INACTIVE;
+	item->gravity = 0;
+	item->hit_status = 0;
+	item->collidable = 1;
+	item->looked_at = 0;
+	item->clear_body = 1;
 
-	if( (item->flags & 0x0100) != 0 ) { // check "not visible"
-		item->bitFields |= 6; // set invisible status
-		item->flags &= ~0x0100; // clear "not visible"
+	if( CHK_ALL(item->flags, IFL_INVISIBLE) ) {
+		item->status = ITEM_INVISIBLE;
+		item->flags &= ~IFL_INVISIBLE;
 	} else if ( Objects[item->objectID].flags & 2 ) {
-		item->bitFields |= 6; // set invisible status
+		item->status = ITEM_INVISIBLE;
 	}
 
-	if( (item->flags & 0x8000) != 0 ) { // check ???
-		item->bitFields |= 0x0100; // clear ???
-		item->flags &= ~0x8000; // set ???
+	if( CHK_ALL(item->flags, IFL_CLEARBODY) ) {
+		item->clear_body = 1;
+		item->flags &= ~IFL_CLEARBODY;
 	}
 
-	if ( (item->flags & 0x3E00) == 0x3E00 ) { // check all codeBits
-		item->flags &= ~0x3E00; // clear all codeBits
-		item->flags |= 0x4000; // set reverse bits
+	if ( CHK_ALL(item->flags, IFL_CODEBITS) ) {
+		item->flags &= ~IFL_CODEBITS;
+		item->flags |= IFL_REVERSE;
 		AddActiveItem(itemIndex);
-		item->bitFields |= 2; // set active (bit1)
-		item->bitFields &= ~4; // set active (bit2)
+		item->status = ITEM_ACTIVE;
 	}
 
 	room = &RoomInfo[item->roomNumber];
@@ -101,10 +103,10 @@ void __cdecl AddActiveItem(__int16 itemIndex) {
 	ITEM_INFO *item = &Items[itemIndex];
 
 	if( Objects[item->objectID].control == NULL ) {
-		item->bitFields &= ~6; // set not active status
+		item->status = ITEM_INACTIVE;
 	}
-	else if( (item->bitFields & 1) == 0 ) { // check active flag
-		item->bitFields |= 1; // set active flag
+	else if( item->active == 0 ) {
+		item->active = 1;
 		item->nextActive = NextItemActive;
 		NextItemActive = itemIndex;
 	}

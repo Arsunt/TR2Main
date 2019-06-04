@@ -365,7 +365,7 @@ void __cdecl CheckCheatMode() {
 					// Explode Lara!
 					ExplodingDeath(Lara.item_number, 0xFFFFFFFF, 1);
 					LaraItem->hitPoints = 0;
-					LaraItem->flags |= 0x0100; // TODO: flags definition
+					LaraItem->flags |= IFL_INVISIBLE;
 				} // Check jump forward
 				else if( as == AS_FORWARDJUMP ) {
 					// Complete level

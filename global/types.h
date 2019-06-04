@@ -213,6 +213,12 @@ typedef struct {
 #define SPR_SCALE		(0x04000000)
 #define SPR_SHADE		(0x08000000)
 
+// Item flags
+#define IFL_INVISIBLE	(0x0100)
+#define IFL_CODEBITS	(0x3E00)
+#define IFL_REVERSE		(0x4000)
+#define IFL_CLEARBODY	(0x8000)
+
 /*
  * Enums
  */
@@ -957,6 +963,13 @@ typedef enum {
 	MOOD_STALK,
 } MOOD_TYPE;
 
+typedef enum {
+	ITEM_INACTIVE,
+	ITEM_ACTIVE,
+	ITEM_DISABLED,
+	ITEM_INVISIBLE,
+} ITEM_STATUS;
+
 /*
  * Structs
  */
@@ -1501,13 +1514,20 @@ typedef struct ItemInfo_t {
 	__int16 hitPoints;
 	__int16 boxNumber;
 	__int16 timer;
-	UINT16 flags;
+	UINT16 flags; // see IFL_* defines
 	__int16 shade1;
 	__int16 shade2;
 	__int16 reserved;
 	LPVOID data;
 	PHD_3DPOS pos;
-	UINT16 bitFields;
+	UINT16 active : 1;
+	UINT16 status : 2; // see ITEM_STATUS enum
+	UINT16 gravity : 1;
+	UINT16 hit_status : 1;
+	UINT16 collidable : 1;
+	UINT16 looked_at : 1;
+	UINT16 dynamic_light : 1;
+	UINT16 clear_body : 1;
 } ITEM_INFO;
 
 typedef struct CollSide_t {

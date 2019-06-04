@@ -34,7 +34,7 @@ void __cdecl lara_col_jumper(ITEM_INFO *item, COLL_INFO *coll) {
 	if( item->fallSpeed > 0 && coll->sideMid.floor <= 0 ) {
 		item->goalAnimState = LaraLandedBad(item, coll) ? AS_DEATH : AS_STOP;
 		item->fallSpeed = 0;
-		item->bitFields &= ~8; // clear gravity_status flag
+		item->gravity = 0;
 		item->pos.y += coll->sideMid.floor;
 	}
 
