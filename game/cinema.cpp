@@ -46,7 +46,7 @@ int __cdecl StartCinematic(int levelID) {
 	}
 
 	InitCinematicRooms();
-	InitialisePlayer1(Lara_ItemNumber);
+	InitialisePlayer1(Lara.item_number);
 	Camera.targetAngle = CineTargetAngle;
 
 	soundWasActive = SoundIsActive;

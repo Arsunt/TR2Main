@@ -122,7 +122,7 @@ int __cdecl GameLoop(BOOL demoMode) {
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	// this fixes issue when the final "bath" cut scene is cut off
-	if( CHK_ANY(Lara_Flags, LARA_EXTRA_ANIM) && LaraItem->currentAnimState == EXTRA_FINALANIM ) {
+	if( Lara.extra_anim && LaraItem->currentAnimState == EXTRA_FINALANIM ) {
 		S_CopyScreenToBuffer();
 		BGND2_ShowPicture(0, 0, 20, 70, FALSE);
 	}

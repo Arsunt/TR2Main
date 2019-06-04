@@ -213,15 +213,6 @@ typedef struct {
 #define SPR_SCALE		(0x04000000)
 #define SPR_SHADE		(0x08000000)
 
-// Lara flags
-#define LARA_FLARE_CTRL_LEFT	(0x00000001)
-#define LARA_FLARE_CTRL_RIGHT	(0x00000002)
-#define LARA_EXTRA_ANIM			(0x00000004)
-#define LARA_LOOK				(0x00000008)
-#define LARA_BURN				(0x00000010)
-#define LARA_KEEP_DUCK			(0x00000020)
-#define LARA_CAN_MONKEY_SWING	(0x00000040)
-
 /*
  * Enums
  */
@@ -958,6 +949,13 @@ typedef enum {
 	GFE_KILL2COMPLETE,
 	GFE_REMOVE_AMMO,
 } GF_EVENTS;
+
+typedef enum {
+	MOOD_BORED,
+	MOOD_ATTACK,
+	MOOD_ESCAPE,
+	MOOD_STALK,
+} MOOD_TYPE;
 
 /*
  * Structs
@@ -1828,6 +1826,122 @@ typedef struct RingInfo_t {
 	PHD_VECTOR light;
 	INV_MOTION_INFO *motionInfo;
 } RING_INFO;
+
+typedef struct BoxNode_t {
+	__int16 exit_box;
+	UINT16 search_number;
+	__int16 next_expansion;
+	__int16 box_number;
+} BOX_NODE;
+
+typedef struct LotInfo_t {
+	BOX_NODE *node;
+	__int16 head;
+	__int16 tail;
+	UINT16 search_number;
+	UINT16 block_mask;
+	__int16 step;
+	__int16 drop;
+	__int16 fly;
+	__int16 zone_count;
+	__int16 target_box;
+	__int16 required_box;
+	PHD_VECTOR target;
+} LOT_INFO;
+
+typedef struct FxInfo_t {
+	PHD_3DPOS pos;
+	__int16 room_number;
+	__int16 object_number;
+	__int16 next_fx;
+	__int16 next_active;
+	__int16 speed;
+	__int16 fallspeed;
+	__int16 frame_number;
+	__int16 counter;
+	__int16 shade;
+	UINT16 flag1;
+	UINT16 flag2;
+} FX_INFO;
+
+typedef struct CreatureInfo_t {
+	__int16 head_rotation;
+	__int16 neck_rotation;
+	__int16 maximum_turn;
+	UINT16 flags;
+	__int16 item_num;
+	MOOD_TYPE mood;
+	LOT_INFO LOT;
+	PHD_VECTOR target;
+	ITEM_INFO *enemy;
+} CREATURE_INFO;
+
+typedef struct LaraArm_t {
+	__int16 *frame_base;
+	__int16 frame_number;
+	__int16 anim_number;
+	__int16 lock;
+	__int16 y_rot;
+	__int16 x_rot;
+	__int16 z_rot;
+	__int16 flash_gun;
+} LARA_ARM;
+
+typedef struct LaraInfo_t {
+	__int16 item_number;
+	__int16 gun_status;
+	__int16 gun_type;
+	__int16 request_gun_type;
+	__int16 last_gun_type;
+	__int16 calc_fallspeed;
+	__int16 water_status;
+	__int16 climb_status;
+	__int16 pose_count;
+	__int16 hit_frame;
+	__int16 hit_direction;
+	__int16 air;
+	__int16 dive_count;
+	__int16 death_count;
+	__int16 current_active;
+	__int16 spaz_effect_count;
+	__int16 flare_age;
+	__int16 skidoo;
+	__int16 weapon_item;
+	__int16 back_gun;
+	__int16 flare_frame;
+	UINT16 flare_control_left : 1;
+	UINT16 flare_control_right : 1;
+	UINT16 extra_anim : 1;
+	UINT16 look : 1;
+	UINT16 burn : 1;
+	UINT16 keep_ducked : 1;
+	UINT16 CanMonkeySwing : 1;
+	int water_surface_dist;
+	PHD_VECTOR last_pos;
+	FX_INFO *spaz_effect;
+	int mesh_effects;
+	__int16 *mesh_ptrs[15];
+	ITEM_INFO *target;
+	__int16 target_angles[2];
+	__int16 turn_rate;
+	__int16 move_angle;
+	__int16 head_y_rot;
+	__int16 head_x_rot;
+	__int16 head_z_rot;
+	__int16 torso_y_rot;
+	__int16 torso_x_rot;
+	__int16 torso_z_rot;
+	LARA_ARM left_arm;
+	LARA_ARM right_arm;
+	DWORD pistol_ammo;
+	DWORD magnum_ammo;
+	DWORD uzi_ammo;
+	DWORD shotgun_ammo;
+	DWORD harpoon_ammo;
+	DWORD grenade_ammo;
+	DWORD m16_ammo;
+	CREATURE_INFO *creature;
+} LARA_INFO;
 
 #pragma pack(pop)
 

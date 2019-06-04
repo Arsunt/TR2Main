@@ -301,7 +301,7 @@ void __cdecl CheckCheatMode() {
 
 		case 1 :
 			// Check flare
-			isFlare = ( Lara_CurrentGunType == LGT_Flare );
+			isFlare = ( Lara.gun_type == LGT_Flare );
 			// Step forward -> Stop
 			if( as != AS_WALK )
 				mode = ( as == AS_STOP ) ? 2 : 0;
@@ -361,9 +361,9 @@ void __cdecl CheckCheatMode() {
 				if( as != AS_FORWARDJUMP && as != AS_BACKJUMP ) {
 					// Finish cheat sequence with no action
 				} // Check if flare is not active
-				else if( !isFlare || Lara_CurrentGunType != LGT_Flare ) {
+				else if( !isFlare || Lara.gun_type != LGT_Flare ) {
 					// Explode Lara!
-					ExplodingDeath(Lara_ItemNumber, 0xFFFFFFFF, 1);
+					ExplodingDeath(Lara.item_number, 0xFFFFFFFF, 1);
 					LaraItem->hitPoints = 0;
 					LaraItem->flags |= 0x0100; // TODO: flags definition
 				} // Check jump forward
@@ -381,12 +381,12 @@ void __cdecl CheckCheatMode() {
 					Inv_AddItem(ID_GRENADE_ITEM);
 
 					// Give ammo
-					ShotgunAmmo = 500;
-					MagnumAmmo = 500;
-					UziAmmo = 5000;
-					HarpoonAmmo = 5000;
-					M16Ammo = 5000;
-					GrenadeAmmo = 5000;
+					Lara.shotgun_ammo = 500;
+					Lara.magnum_ammo = 500;
+					Lara.uzi_ammo = 5000;
+					Lara.harpoon_ammo = 5000;
+					Lara.m16_ammo = 5000;
+					Lara.grenade_ammo = 5000;
 
 					// Give medipacks and flares
 					for( int i=0; i<50; ++i ) {

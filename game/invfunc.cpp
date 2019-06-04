@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -182,42 +182,42 @@ void __cdecl RingNotActive(INVENTORY_ITEM *item) {
 			if( InvItemText[1] != NULL || SaveGame.bonusFlag ) {
 				return;
 			}
-			sprintf(strBuf, "%5d", (int)(ShotgunAmmo / 6));
+			sprintf(strBuf, "%5d", (int)(Lara.shotgun_ammo / 6));
 			break;
 
 		case ID_MAGNUM_OPTION:
 			if( InvItemText[1] != NULL || SaveGame.bonusFlag ) {
 				return;
 			}
-			sprintf(strBuf, "%5d", (int)MagnumAmmo);
+			sprintf(strBuf, "%5d", (int)Lara.magnum_ammo);
 			break;
 
 		case ID_UZI_OPTION:
 			if( InvItemText[1] != NULL || SaveGame.bonusFlag ) {
 				return;
 			}
-			sprintf(strBuf, "%5d", (int)UziAmmo);
+			sprintf(strBuf, "%5d", (int)Lara.uzi_ammo);
 			break;
 
 		case ID_HARPOON_OPTION:
 			if( InvItemText[1] != NULL || SaveGame.bonusFlag ) {
 				return;
 			}
-			sprintf(strBuf, "%5d", (int)HarpoonAmmo);
+			sprintf(strBuf, "%5d", (int)Lara.harpoon_ammo);
 			break;
 
 		case ID_M16_OPTION:
 			if( InvItemText[1] != NULL || SaveGame.bonusFlag ) {
 				return;
 			}
-			sprintf(strBuf, "%5d", (int)M16Ammo);
+			sprintf(strBuf, "%5d", (int)Lara.m16_ammo);
 			break;
 
 		case ID_GRENADE_OPTION:
 			if( InvItemText[1] != NULL || SaveGame.bonusFlag ) {
 				return;
 			}
-			sprintf(strBuf, "%5d", (int)GrenadeAmmo);
+			sprintf(strBuf, "%5d", (int)Lara.grenade_ammo);
 			break;
 
 		case ID_PISTOL_AMMO_OPTION:
@@ -331,8 +331,8 @@ BOOL __cdecl Inv_AddItem(GAME_OBJECT_ID itemID) {
 		case ID_PISTOL_ITEM :
 		case ID_PISTOL_OPTION :
 			Inv_InsertItem(&InvPistolOption);
-			if( Lara_LastGunType == LGT_Unarmed )
-				Lara_LastGunType = LGT_Pistols;
+			if( Lara.last_gun_type == LGT_Unarmed )
+				Lara.last_gun_type = LGT_Pistols;
 			return TRUE;
 
 		case ID_SHOTGUN_ITEM :
@@ -340,14 +340,14 @@ BOOL __cdecl Inv_AddItem(GAME_OBJECT_ID itemID) {
 			items = Inv_RequestItem(ID_SHOTGUN_AMMO_ITEM);
 			for( i = 0; i < items; ++i ) {
 				Inv_RemoveItem(ID_SHOTGUN_AMMO_ITEM);
-				ShotgunAmmo += 12;
+				Lara.shotgun_ammo += 12;
 			}
-			ShotgunAmmo += 12;
+			Lara.shotgun_ammo += 12;
 			Inv_InsertItem(&InvShotgunOption);
-			if( Lara_LastGunType == LGT_Unarmed )
-				Lara_LastGunType = LGT_Shotgun;
-			if( Lara_BackGun == ID_LARA )
-				Lara_BackGun = ID_LARA_SHOTGUN;
+			if( Lara.last_gun_type == LGT_Unarmed )
+				Lara.last_gun_type = LGT_Shotgun;
+			if( Lara.back_gun == ID_LARA )
+				Lara.back_gun = ID_LARA_SHOTGUN;
 			GlobalItemReplace(ID_SHOTGUN_ITEM, ID_SHOTGUN_AMMO_ITEM);
 			return FALSE;
 
@@ -356,9 +356,9 @@ BOOL __cdecl Inv_AddItem(GAME_OBJECT_ID itemID) {
 			items = Inv_RequestItem(ID_MAGNUM_AMMO_ITEM);
 			for( i = 0; i < items; ++i ) {
 				Inv_RemoveItem(ID_MAGNUM_AMMO_ITEM);
-				MagnumAmmo += 40;
+				Lara.magnum_ammo += 40;
 			}
-			MagnumAmmo += 40;
+			Lara.magnum_ammo += 40;
 			Inv_InsertItem(&InvMagnumOption);
 			GlobalItemReplace(ID_MAGNUM_ITEM, ID_MAGNUM_AMMO_ITEM);
 			return FALSE;
@@ -368,9 +368,9 @@ BOOL __cdecl Inv_AddItem(GAME_OBJECT_ID itemID) {
 			items = Inv_RequestItem(ID_UZI_AMMO_ITEM);
 			for( i = 0; i < items; ++i ) {
 				Inv_RemoveItem(ID_UZI_AMMO_ITEM);
-				UziAmmo += 80;
+				Lara.uzi_ammo += 80;
 			}
-			UziAmmo += 80;
+			Lara.uzi_ammo += 80;
 			Inv_InsertItem(&InvUziOption);
 			GlobalItemReplace(ID_UZI_ITEM, ID_UZI_AMMO_ITEM);
 			return FALSE;
@@ -380,9 +380,9 @@ BOOL __cdecl Inv_AddItem(GAME_OBJECT_ID itemID) {
 			items = Inv_RequestItem(ID_HARPOON_AMMO_ITEM);
 			for( i = 0; i < items; ++i ) {
 				Inv_RemoveItem(ID_HARPOON_AMMO_ITEM);
-				HarpoonAmmo += 3;
+				Lara.harpoon_ammo += 3;
 			}
-			HarpoonAmmo += 3;
+			Lara.harpoon_ammo += 3;
 			Inv_InsertItem(&InvHarpoonOption);
 			GlobalItemReplace(ID_HARPOON_ITEM, ID_HARPOON_AMMO_ITEM);
 			return FALSE;
@@ -392,9 +392,9 @@ BOOL __cdecl Inv_AddItem(GAME_OBJECT_ID itemID) {
 			items = Inv_RequestItem(ID_M16_AMMO_ITEM);
 			for( i = 0; i < items; ++i ) {
 				Inv_RemoveItem(ID_M16_AMMO_ITEM);
-				M16Ammo += 40;
+				Lara.m16_ammo += 40;
 			}
-			M16Ammo += 40;
+			Lara.m16_ammo += 40;
 			Inv_InsertItem(&InvM16Option);
 			GlobalItemReplace(ID_M16_ITEM, ID_M16_AMMO_ITEM);
 			return FALSE;
@@ -404,9 +404,9 @@ BOOL __cdecl Inv_AddItem(GAME_OBJECT_ID itemID) {
 			items = Inv_RequestItem(ID_GRENADE_AMMO_ITEM);
 			for( i = 0; i < items; ++i ) {
 				Inv_RemoveItem(ID_GRENADE_AMMO_ITEM);
-				GrenadeAmmo += 2;
+				Lara.grenade_ammo += 2;
 			}
-			GrenadeAmmo += 2;
+			Lara.grenade_ammo += 2;
 			Inv_InsertItem(&InvGrenadeOption);
 			GlobalItemReplace(ID_GRENADE_ITEM, ID_GRENADE_AMMO_ITEM);
 			return FALSE;
@@ -414,7 +414,7 @@ BOOL __cdecl Inv_AddItem(GAME_OBJECT_ID itemID) {
 		case ID_SHOTGUN_AMMO_ITEM :
 		case ID_SHOTGUN_AMMO_OPTION :
 			if( Inv_RequestItem(ID_SHOTGUN_ITEM) != 0 )
-				ShotgunAmmo += 12;
+				Lara.shotgun_ammo += 12;
 			else
 				Inv_InsertItem(&InvShotgunAmmoOption);
 			return FALSE;
@@ -422,7 +422,7 @@ BOOL __cdecl Inv_AddItem(GAME_OBJECT_ID itemID) {
 		case ID_MAGNUM_AMMO_ITEM :
 		case ID_MAGNUM_AMMO_OPTION :
 			if( Inv_RequestItem(ID_MAGNUM_ITEM) != 0 )
-				MagnumAmmo += 40;
+				Lara.magnum_ammo += 40;
 			else
 				Inv_InsertItem(&InvMagnumAmmoOption);
 			return FALSE;
@@ -430,7 +430,7 @@ BOOL __cdecl Inv_AddItem(GAME_OBJECT_ID itemID) {
 		case ID_UZI_AMMO_ITEM :
 		case ID_UZI_AMMO_OPTION :
 			if( Inv_RequestItem(ID_UZI_ITEM) != 0 )
-				UziAmmo += 80;
+				Lara.uzi_ammo += 80;
 			else
 				Inv_InsertItem(&InvUziAmmoOption);
 			return FALSE;
@@ -438,7 +438,7 @@ BOOL __cdecl Inv_AddItem(GAME_OBJECT_ID itemID) {
 		case ID_HARPOON_AMMO_ITEM :
 		case ID_HARPOON_AMMO_OPTION :
 			if( Inv_RequestItem(ID_HARPOON_ITEM) != 0 )
-				HarpoonAmmo += 3;
+				Lara.harpoon_ammo += 3;
 			else
 				Inv_InsertItem(&InvHarpoonAmmoOption);
 			return FALSE;
@@ -446,7 +446,7 @@ BOOL __cdecl Inv_AddItem(GAME_OBJECT_ID itemID) {
 		case ID_M16_AMMO_ITEM :
 		case ID_M16_AMMO_OPTION :
 			if( Inv_RequestItem(ID_M16_ITEM) != 0 )
-				M16Ammo += 40;
+				Lara.m16_ammo += 40;
 			else
 				Inv_InsertItem(&InvM16AmmoOption);
 			return FALSE;
@@ -454,7 +454,7 @@ BOOL __cdecl Inv_AddItem(GAME_OBJECT_ID itemID) {
 		case ID_GRENADE_AMMO_ITEM :
 		case ID_GRENADE_AMMO_OPTION :
 			if( Inv_RequestItem(ID_GRENADE_ITEM) != 0 )
-				GrenadeAmmo += 2;
+				Lara.grenade_ammo += 2;
 			else
 				Inv_InsertItem(&InvGrenadeAmmoOption);
 			return FALSE;

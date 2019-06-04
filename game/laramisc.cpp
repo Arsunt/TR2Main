@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -32,42 +32,42 @@ void __cdecl UseItem(__int16 itemID) {
 	switch( itemID ) {
 		case ID_PISTOL_ITEM:
 		case ID_PISTOL_OPTION:
-			Lara_RequestGunType = LGT_Pistols;
+			Lara.request_gun_type = LGT_Pistols;
 			break;
 
 		case ID_MAGNUM_ITEM:
 		case ID_MAGNUM_OPTION:
-			Lara_RequestGunType = LGT_Magnums;
+			Lara.request_gun_type = LGT_Magnums;
 			break;
 
 		case ID_UZI_ITEM:
 		case ID_UZI_OPTION:
-			Lara_RequestGunType = LGT_Uzis;
+			Lara.request_gun_type = LGT_Uzis;
 			break;
 
 		case ID_SHOTGUN_ITEM:
 		case ID_SHOTGUN_OPTION:
-			Lara_RequestGunType = LGT_Shotgun;
+			Lara.request_gun_type = LGT_Shotgun;
 			break;
 
 		case ID_HARPOON_ITEM:
 		case ID_HARPOON_OPTION:
-			Lara_RequestGunType = LGT_Harpoon;
+			Lara.request_gun_type = LGT_Harpoon;
 			break;
 
 		case ID_M16_ITEM:
 		case ID_M16_OPTION:
-			Lara_RequestGunType = LGT_M16;
+			Lara.request_gun_type = LGT_M16;
 			break;
 
 		case ID_GRENADE_ITEM:
 		case ID_GRENADE_OPTION:
-			Lara_RequestGunType = LGT_Grenade;
+			Lara.request_gun_type = LGT_Grenade;
 			break;
 
 		case ID_FLARES_ITEM:
 		case ID_FLARES_OPTION:
-			Lara_RequestGunType = LGT_Flare;
+			Lara.request_gun_type = LGT_Flare;
 			break;
 
 		case ID_SMALL_MEDIPACK_ITEM:

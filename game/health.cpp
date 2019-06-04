@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -126,8 +126,8 @@ void __cdecl DrawHealthBar(BOOL flashState) {
 	int hitPoints;
 
 	// NOTE: fixes original game bug when health bar is visible while final cut scene
-	if( CHK_ANY(Lara_Flags, LARA_EXTRA_ANIM) && LaraItem->currentAnimState == EXTRA_FINALANIM ) {
-		return; 
+	if( Lara.extra_anim && LaraItem->currentAnimState == EXTRA_FINALANIM ) {
+		return;
 	}
 
 	hitPoints = LaraItem->hitPoints;
@@ -150,7 +150,7 @@ void __cdecl DrawHealthBar(BOOL flashState) {
 #endif // FEATURE_HUD_IMPROVED
 		}
 	}
-	else if( HealthBarTimer > 0 || hitPoints <= 0 || Lara_GunStatus == LGS_Ready ) {
+	else if( HealthBarTimer > 0 || hitPoints <= 0 || Lara.gun_status == LGS_Ready ) {
 #ifdef FEATURE_HUD_IMPROVED
 		S_DrawHealthBar(PHD_ONE * hitPoints / 1000);
 #else // !FEATURE_HUD_IMPROVED
@@ -162,10 +162,10 @@ void __cdecl DrawHealthBar(BOOL flashState) {
 void __cdecl DrawAirBar(BOOL flashState) {
 	int air;
 
-	if( Lara_WaterStatus != LWS_Underwater && Lara_WaterStatus != LWS_Surface )
+	if( Lara.water_status != LWS_Underwater && Lara.water_status != LWS_Surface )
 		return;
 
-	air = Lara_Air;
+	air = Lara.air;
 	CLAMP(air, 0, 1800);
 
 	if( air <= 450 && flashState == 0 ) {
@@ -195,7 +195,7 @@ void __cdecl MakeAmmoString(char *str) {
 void __cdecl DrawAmmoInfo() {
 	char ammoString[80] = "";
 
-	if( Lara_GunStatus != LGS_Ready || OverlayStatus <= 0 || SaveGame.bonusFlag ) {
+	if( Lara.gun_status != LGS_Ready || OverlayStatus <= 0 || SaveGame.bonusFlag ) {
 		if( AmmoTextInfo != NULL ) {
 			T_RemovePrint(AmmoTextInfo);
 			AmmoTextInfo = NULL;
@@ -203,29 +203,29 @@ void __cdecl DrawAmmoInfo() {
 		return;
 	}
 
-	switch( Lara_CurrentGunType ) {
+	switch( Lara.gun_type ) {
 		case LGT_Magnums :
-			sprintf(ammoString, "%5d", (int)MagnumAmmo);
+			sprintf(ammoString, "%5d", (int)Lara.magnum_ammo);
 			break;
 
 		case LGT_Uzis :
-			sprintf(ammoString, "%5d", (int)UziAmmo);
+			sprintf(ammoString, "%5d", (int)Lara.uzi_ammo);
 			break;
 
 		case LGT_Shotgun :
-			sprintf(ammoString, "%5d", (int)(ShotgunAmmo / 6));
+			sprintf(ammoString, "%5d", (int)(Lara.shotgun_ammo / 6));
 			break;
 
 		case LGT_Harpoon :
-			sprintf(ammoString, "%5d", (int)HarpoonAmmo);
+			sprintf(ammoString, "%5d", (int)Lara.harpoon_ammo);
 			break;
 
 		case LGT_M16 :
-			sprintf(ammoString, "%5d", (int)M16Ammo);
+			sprintf(ammoString, "%5d", (int)Lara.m16_ammo);
 			break;
 
 		case LGT_Grenade :
-			sprintf(ammoString, "%5d", (int)GrenadeAmmo);
+			sprintf(ammoString, "%5d", (int)Lara.grenade_ammo);
 			break;
 
 		default :

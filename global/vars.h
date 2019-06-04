@@ -311,23 +311,7 @@
 #define SoundIsActive				VAR_U_(0x0051E6C4, BOOL)
 #define SampleInfos					VAR_U_(0x0051E9C4, SAMPLE_INFO*)
 #define SaveGame					VAR_U_(0x0051E9E0, SAVEGAME_INFO)
-#define Lara_ItemNumber				VAR_U_(0x005206E0, __int16)	// TODO: redefine
-#define Lara_GunStatus				VAR_U_(0x005206E2, __int16)	// TODO: redefine
-#define Lara_CurrentGunType			VAR_U_(0x005206E4, __int16)	// TODO: redefine
-#define Lara_RequestGunType			VAR_U_(0x005206E6, __int16)	// TODO: redefine
-#define Lara_LastGunType			VAR_U_(0x005206E8, __int16)	// TODO: redefine
-#define Lara_WaterStatus			VAR_U_(0x005206EC, __int16)	// TODO: redefine
-#define Lara_Air					VAR_U_(0x005206F6, __int16)	// TODO: redefine
-#define Lara_BackGun				VAR_U_(0x00520706, __int16)	// TODO: redefine
-#define Lara_Flags					VAR_U_(0x0052070A, UINT16)	// TODO: redefine
-#define Lara_MoveAngle				VAR_U_(0x0052076A, __int16)	// TODO: redefine
-#define PistolAmmo					VAR_U_(0x0052079C, DWORD)
-#define MagnumAmmo					VAR_U_(0x005207A0, DWORD)
-#define UziAmmo						VAR_U_(0x005207A4, DWORD)
-#define ShotgunAmmo					VAR_U_(0x005207A8, DWORD)
-#define HarpoonAmmo					VAR_U_(0x005207AC, DWORD)
-#define GrenadeAmmo					VAR_U_(0x005207B0, DWORD)
-#define M16Ammo						VAR_U_(0x005207B4, DWORD)
+#define Lara						VAR_U_(0x005206E0, LARA_INFO)
 #define LaraItem					VAR_U_(0x005207BC, ITEM_INFO*)
 #define NextItemFree				VAR_U_(0x005207C6, __int16)
 #define NextItemActive				VAR_U_(0x005207C8, __int16)

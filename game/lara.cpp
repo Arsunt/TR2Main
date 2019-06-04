@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -47,7 +47,7 @@ void __cdecl lara_col_jumper(ITEM_INFO *item, COLL_INFO *coll) {
 		item->animNumber = 32;
 		item->frameNumber = Anims[item->animNumber].frameBase + 1;
 		item->speed /= 4;
-		Lara_MoveAngle += PHD_180;
+		Lara.move_angle += PHD_180;
 		if( item->fallSpeed <= 0 )
 			item->fallSpeed = 1;
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -181,28 +181,28 @@ bool __cdecl S_UpdateInput() {
 	if( !IsDemoLevelType ) {
 		// Weapon requests
 		if( KEY_DOWN(DIK_1) && Inv_RequestItem(ID_PISTOL_OPTION) ) {
-			Lara_RequestGunType = LGT_Pistols;
+			Lara.request_gun_type = LGT_Pistols;
 		}
 		else if(KEY_DOWN(DIK_2) && Inv_RequestItem(ID_SHOTGUN_OPTION) ) {
-			Lara_RequestGunType = LGT_Shotgun;
+			Lara.request_gun_type = LGT_Shotgun;
 		}
 		else if( KEY_DOWN(DIK_3) && Inv_RequestItem(ID_MAGNUM_OPTION) ) {
-			Lara_RequestGunType = LGT_Magnums;
+			Lara.request_gun_type = LGT_Magnums;
 		}
 		else if( KEY_DOWN(DIK_4) && Inv_RequestItem(ID_UZI_OPTION) ) {
-			Lara_RequestGunType = LGT_Uzis;
+			Lara.request_gun_type = LGT_Uzis;
 		}
 		else if( KEY_DOWN(DIK_5) && Inv_RequestItem(ID_HARPOON_OPTION) ) {
-			Lara_RequestGunType = LGT_Harpoon;
+			Lara.request_gun_type = LGT_Harpoon;
 		}
 		else if( KEY_DOWN(DIK_6) && Inv_RequestItem(ID_M16_OPTION) ) {
-			Lara_RequestGunType = LGT_M16;
+			Lara.request_gun_type = LGT_M16;
 		}
 		else if( KEY_DOWN(DIK_7) && Inv_RequestItem(ID_GRENADE_OPTION) ) {
-			Lara_RequestGunType = LGT_Grenade;
+			Lara.request_gun_type = LGT_Grenade;
 		}
 		else if( KEY_DOWN(DIK_0) && Inv_RequestItem(ID_FLARES_OPTION) ) {
-			Lara_RequestGunType = LGT_Flare;
+			Lara.request_gun_type = LGT_Flare;
 		}
 
 		// MediPack requests
