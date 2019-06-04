@@ -1574,7 +1574,14 @@ typedef struct ObjectInfo_t {
 	__int16 pivotLength;
 	__int16 radius;
 	__int16 shadowSize;
-	UINT16 flags;
+	UINT16 loaded : 1;
+	UINT16 intelligent : 1;
+	UINT16 save_position : 1;
+	UINT16 save_hitpoints : 1;
+	UINT16 save_flags : 1;
+	UINT16 save_anim : 1;
+	UINT16 semi_transparent : 1;
+	UINT16 water_creature : 1;
 } OBJECT_INFO;
 
 typedef struct PhdMatrix_t {

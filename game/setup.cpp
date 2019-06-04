@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -31,7 +31,12 @@ void __cdecl InitialiseLevelFlags() {
 
 void __cdecl InitialiseObjects() {
 	for( int i = 0; i < ID_NUMBER_OBJECTS; ++i ) {
-		Objects[i].flags &= ~0xBEu;
+		Objects[i].intelligent = 0;
+		Objects[i].save_position = 0;
+		Objects[i].save_hitpoints = 0;
+		Objects[i].save_flags = 0;
+		Objects[i].save_anim = 0;
+		Objects[i].water_creature = 0;
 		Objects[i].initialise = NULL;
 		Objects[i].collision = NULL;
 		Objects[i].control = NULL;

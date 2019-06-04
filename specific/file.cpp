@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -305,7 +305,7 @@ BOOL __cdecl LoadObjects(HANDLE hFile) {
 		ReadFileSync(hFile, &animOffset, sizeof(DWORD), &bytesRead, NULL);
 		ReadFileSync(hFile, &Objects[objNumber].animIndex, sizeof(__int16), &bytesRead, NULL);
 		Objects[objNumber].frameBase = (__int16 *)((DWORD)AnimFrames + animOffset);
-		Objects[objNumber].flags |= 1;
+		Objects[objNumber].loaded = 1;
 	}
 
 	// Initialise animated objects
@@ -361,7 +361,7 @@ BOOL __cdecl LoadSprites(HANDLE hFile) {
 		if ( objNumber < ID_NUMBER_OBJECTS ) {
 			ReadFileSync(hFile, &Objects[objNumber].nMeshes, sizeof(__int16), &bytesRead, NULL);
 			ReadFileSync(hFile, &Objects[objNumber].meshIndex,  sizeof(__int16), &bytesRead, NULL);
-			Objects[objNumber].flags |= 1;
+			Objects[objNumber].loaded = 1;
 		} else {
 			objNumber -= ID_NUMBER_OBJECTS;
 			SetFilePointer(hFile, sizeof(__int16), NULL, FILE_CURRENT); // StaticObjects don't have nMeshes (just one mesh)
@@ -520,8 +520,8 @@ BOOL __cdecl LoadBoxes(HANDLE hFile) {
 	for( int i=0; i<2; ++i ) {
 		for( int j=0; j<4; ++j ) {
 			if( (j == 2) ||
-				(j == 1 && (Objects[ID_SPIDER].flags & 1) == 0 && (Objects[ID_SKIDOO_ARMED].flags & 1) == 0) ||
-				(j == 3 && (Objects[ID_YETI].flags & 1) == 0 && (Objects[ID_WORKER3].flags & 1) == 0) )
+				(j == 1 && !Objects[ID_SPIDER].loaded && !Objects[ID_SKIDOO_ARMED].loaded) ||
+				(j == 3 && !Objects[ID_YETI].loaded && !Objects[ID_WORKER3].loaded) )
 			{
 				SetFilePointer(hFile, sizeof(__int16)*BoxesCount, NULL, FILE_CURRENT); // skip some GroundZones
 				continue;

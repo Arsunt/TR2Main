@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -36,7 +36,7 @@ void __cdecl DrawSpriteItem(ITEM_INFO *item) {
 
 	obj = &Objects[item->objectID];
 
-	S_DrawSprite(SPR_ABS | SPR_SHADE | (CHK_ANY(obj->flags, 0x40) ? SPR_SEMITRANS : 0),
+	S_DrawSprite(SPR_ABS | SPR_SHADE | (obj->semi_transparent ? SPR_SEMITRANS : 0),
 				 item->pos.x, item->pos.y, item->pos.z,
 				 obj->meshIndex - item->frameNumber,
 				 LsAdder + 0x1000, 0);

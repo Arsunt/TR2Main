@@ -69,7 +69,7 @@ void __cdecl InitialiseItem(__int16 itemIndex) {
 	if( CHK_ALL(item->flags, IFL_INVISIBLE) ) {
 		item->status = ITEM_INVISIBLE;
 		item->flags &= ~IFL_INVISIBLE;
-	} else if ( Objects[item->objectID].flags & 2 ) {
+	} else if ( Objects[item->objectID].intelligent ) {
 		item->status = ITEM_INVISIBLE;
 	}
 

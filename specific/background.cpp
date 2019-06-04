@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -147,7 +147,7 @@ void __cdecl BGND_DrawInGameBackground() {
 	D3DTEXTUREHANDLE texSource;
 	D3DCOLOR color[4];
 
-	if( (Objects[ID_INV_BACKGROUND].flags & 1) == 0 ) {
+	if( !Objects[ID_INV_BACKGROUND].loaded ) {
 BLACK : // NOTE: some additional checks are absent in the original code, so I've added few
 		BGND_DrawInGameBlack();
 		return;

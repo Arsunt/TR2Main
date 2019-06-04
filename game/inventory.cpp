@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -41,7 +41,7 @@ void __cdecl DoInventoryBackground() {
 
 	S_CopyBufferToScreen();
 
-	if( (Objects[ID_INV_BACKGROUND].flags & 1) != 0 ) {
+	if( Objects[ID_INV_BACKGROUND].loaded ) {
 		// set view
 		phd_GetVectorAngles(0, 0x1000, 0, &angles);
 		viewPos.x = 0;
