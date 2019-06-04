@@ -73,9 +73,10 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 		exit(0); // NOTE: there may be bugs on some systems if we just return here
 	}
 
-//	TODO: remove log stuff at release
-//	fflush(stderr);
-//	freopen("../TR2Main.log", "w", stderr);
+#ifdef _DEBUG
+	fflush(stdout);
+	freopen("./TR2Main.log", "w", stdout);
+#endif // _DEBUG
 
 #if defined(_MSC_VER)
 	_set_se_translator(SEH_TR);
