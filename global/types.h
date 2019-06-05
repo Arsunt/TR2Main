@@ -154,16 +154,6 @@ typedef struct {
 #define GFF_SelectAnyLevel			(0x0400)
 #define GFF_EnableCheatCode			(0x0800)
 
-// StartInfo flags
-#define SIF_Available				(0x0001)
-#define SIF_HasPistols				(0x0002)
-#define SIF_HasMagnums				(0x0004)
-#define SIF_HasUzis					(0x0008)
-#define SIF_HasShotgun				(0x0010)
-#define SIF_HasM16					(0x0020)
-#define SIF_HasGrenade				(0x0040)
-#define SIF_HasHarpoon				(0x0080)
-
 // Input Status Flags
 #define IN_FORWARD			(0x00000001)
 #define IN_BACK				(0x00000002)
@@ -1407,7 +1397,14 @@ typedef struct StartInfo_t {
 	BYTE flares;
 	BYTE gunStatus;
 	BYTE gunType;
-	UINT16 flags;
+	UINT16 available : 1;
+	UINT16 has_pistols : 1;
+	UINT16 has_magnums : 1;
+	UINT16 has_uzis : 1;
+	UINT16 has_shotgun : 1;
+	UINT16 has_m16 : 1;
+	UINT16 has_grenade : 1;
+	UINT16 has_harpoon : 1;
 	UINT16 reserved;
 	STATISTICS_INFO statistics;
 } START_INFO;

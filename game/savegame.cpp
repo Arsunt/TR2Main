@@ -34,25 +34,31 @@ void __cdecl InitialiseStartInfo() {
 		START_INFO *start = &SaveGame.start[i];
 
 		ModifyStartInfo(i);
-		start->flags &= ~SIF_Available; // make level not available
+		start->available = 0; // make level not available
 		memset(&start->statistics, 0, sizeof(STATISTICS_INFO));
 	}
 
-	SaveGame.start[0].flags |= SIF_Available; // Make assault available
-	SaveGame.start[1].flags |= SIF_Available; // Make new game available
+	SaveGame.start[0].available = 1; // make assault available
+	SaveGame.start[1].available = 1; // make new game available
 }
 
 void __cdecl ModifyStartInfo(int levelIdx) {
 	START_INFO *start = &SaveGame.start[levelIdx];
 
-	start->flags |= SIF_HasPistols; // Lara has pistols
+	start->has_pistols = 1; // Lara has pistols
 	start->gunType = LGT_Pistols; // current weapon is pistols
 	start->pistolAmmo = 1000; // infinite pistols ammo
 
 	switch( levelIdx ) {
 		case 0 : // Assault (Lara's Home)
-			start->flags &= ~(SIF_HasHarpoon|SIF_HasGrenade|SIF_HasM16|SIF_HasShotgun|SIF_HasUzis|SIF_HasMagnums|SIF_HasPistols); // remove 'weapon' flags
-			start->flags |= SIF_Available; // add 'available flag
+			start->available = 1; // make level available
+			start->has_pistols = 0; // Lara has no weapons
+			start->has_magnums = 0;
+			start->has_uzis = 0;
+			start->has_shotgun = 0;
+			start->has_m16 = 0;
+			start->has_grenade = 0;
+			start->has_harpoon = 0;
 			start->gunType = LGT_Unarmed; // Lara doesn't have weapons
 			start->gunStatus = LGS_Armless; // Lara has no weapons in hands
 
@@ -70,8 +76,14 @@ void __cdecl ModifyStartInfo(int levelIdx) {
 			break;
 
 		case 1 : // Regular New Game
-			start->flags &= ~(SIF_HasHarpoon|SIF_HasGrenade|SIF_HasM16|SIF_HasUzis|SIF_HasMagnums); // remove 'weapon' flags except 'pistols' and 'shotgun'
-			start->flags |= (SIF_HasShotgun|SIF_Available); // add 'shotgun' and 'available' flag
+			start->available = 1; // make level available
+			start->has_pistols = 1; // Lara has pistols and shotgun
+			start->has_magnums = 0;
+			start->has_uzis = 0;
+			start->has_shotgun = 1;
+			start->has_m16 = 0;
+			start->has_grenade = 0;
+			start->has_harpoon = 0;
 			start->gunStatus = LGS_Armless; // Lara has no weapons in hands
 
 			start->magnumAmmo	= 0;
@@ -88,8 +100,14 @@ void __cdecl ModifyStartInfo(int levelIdx) {
 
 		// NOTE: there was no 'default' in the original game, so new game with level selection was broken
 		default : // New Game from any other level
-			start->flags &= ~(SIF_HasHarpoon|SIF_HasGrenade|SIF_HasM16|SIF_HasUzis|SIF_HasShotgun|SIF_HasMagnums); // remove 'weapon' flags except 'pistols'
-			start->flags |= SIF_Available; // add 'available' flag
+			start->available = 1; // make level available
+			start->has_pistols = 1; // Lara have just pistols
+			start->has_magnums = 0;
+			start->has_uzis = 0;
+			start->has_shotgun = 0;
+			start->has_m16 = 0;
+			start->has_grenade = 0;
+			start->has_harpoon = 0;
 			start->gunStatus = LGS_Armless; // Lara has no weapons in hands
 
 			start->magnumAmmo	= 0;
@@ -107,7 +125,14 @@ void __cdecl ModifyStartInfo(int levelIdx) {
 
 	// Bonus game activated and level is not Assault
 	if( SaveGame.bonusFlag && levelIdx != 0 ) {
-		start->flags |= (SIF_HasHarpoon|SIF_HasGrenade|SIF_HasM16|SIF_HasShotgun|SIF_HasUzis|SIF_HasMagnums|SIF_HasPistols|SIF_Available); // add all 'weapon' and 'available' flags
+		start->available = 1; // make level available
+		start->has_pistols = 1; // Lara have all weapons
+		start->has_magnums = 1;
+		start->has_uzis = 1;
+		start->has_shotgun = 1;
+		start->has_m16 = 1;
+		start->has_grenade = 1;
+		start->has_harpoon = 1;
 		start->gunType = LGT_Grenade; // current weapon is grenade launcher
 
 		start->uziAmmo		= 10001;

@@ -180,7 +180,7 @@ int __cdecl LevelStats(int levelID) {
 	++levelID;
 	CreateStartInfo(levelID);
 	SaveGame.currentLevel = levelID;
-	SaveGame.start[CurrentLevel].flags &= ~1;
+	SaveGame.start[CurrentLevel].available = 0; // make level not available
 	S_FadeToBlack();
 	TempVideoRemove();
 	return 0;
