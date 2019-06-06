@@ -23,6 +23,8 @@
 #include "game/cinema.h"
 #include "game/demo.h"
 #include "game/gameflow.h"
+#include "game/health.h"
+#include "game/invfunc.h"
 #include "game/invtext.h"
 #include "specific/file.h"
 #include "specific/frontend.h"
@@ -386,6 +388,337 @@ int __cdecl GF_InterpretSequence(__int16 *seq, GF_LEVEL_TYPE levelType, int seqT
 	return result;
 }
 
+void __cdecl GF_ModifyInventory(int levelID, BOOL isSecret) {
+	int i;
+	START_INFO *start = &SaveGame.start[levelID];
+
+	// Pistols
+	if( !start->has_pistols && GF_Add2InvItems[ADDINV_PISTOL] ) {
+		start->has_pistols = 1;
+		Inv_AddItem(ID_PISTOL_ITEM);
+	}
+
+	// Shotgun
+	if( Inv_RequestItem(ID_SHOTGUN_ITEM) ) {
+		if( isSecret ) {
+			Lara.shotgun_ammo += 12 * GF_SecretInvItems[ADDINV_SHOTGUN_AMMO];
+			for( i = 0; i < GF_SecretInvItems[ADDINV_SHOTGUN_AMMO]; ++i ) {
+				AddDisplayPickup(ID_SHOTGUN_AMMO_ITEM);
+			}
+		} else {
+			Lara.shotgun_ammo += 12 * GF_Add2InvItems[ADDINV_SHOTGUN_AMMO];
+		}
+	} else if( (!isSecret && GF_Add2InvItems[ADDINV_SHOTGUN]) || (isSecret && GF_SecretInvItems[ADDINV_SHOTGUN]) ) {
+		start->has_shotgun = 1;
+		Inv_AddItem(ID_SHOTGUN_ITEM);
+		if( isSecret ) {
+			AddDisplayPickup(ID_SHOTGUN_ITEM);
+			Lara.shotgun_ammo += 12 * GF_SecretInvItems[ADDINV_SHOTGUN_AMMO];
+			/* TODO: it looks like the original game bug. There is missing additional loop
+			for( i = 0; i < GF_SecretInvItems[ADDINV_SHOTGUN_AMMO]; ++i ) {
+				AddDisplayPickup(ID_SHOTGUN_AMMO_ITEM);
+			} */
+		} else {
+			Lara.shotgun_ammo += 12 * GF_Add2InvItems[ADDINV_SHOTGUN_AMMO];
+		}
+	} else {
+		if( isSecret ) {
+			for( i = 0; i < GF_SecretInvItems[ADDINV_SHOTGUN_AMMO]; ++i ) {
+				Inv_AddItem(ID_SHOTGUN_AMMO_ITEM);
+				AddDisplayPickup(ID_SHOTGUN_AMMO_ITEM);
+			}
+		} else {
+			for( i = 0; i < GF_Add2InvItems[ADDINV_SHOTGUN_AMMO]; ++i ) {
+				Inv_AddItem(ID_SHOTGUN_AMMO_ITEM);
+			}
+		}
+	}
+
+	// Magnums
+	if( Inv_RequestItem(ID_MAGNUM_ITEM) ) {
+		if( isSecret ) {
+			Lara.magnum_ammo += 40 * GF_SecretInvItems[ADDINV_MAGNUM_AMMO];
+			for( i = 0; i < GF_SecretInvItems[ADDINV_MAGNUM_AMMO]; ++i ) {
+				AddDisplayPickup(ID_MAGNUM_AMMO_ITEM);
+			}
+		} else {
+			Lara.magnum_ammo += 40 * GF_Add2InvItems[ADDINV_MAGNUM_AMMO];
+		}
+	} else if( (!isSecret && GF_Add2InvItems[ADDINV_MAGNUM]) || (isSecret && GF_SecretInvItems[ADDINV_MAGNUM]) ) {
+		start->has_magnums = 1;
+		Inv_AddItem(ID_MAGNUM_ITEM);
+		if( isSecret ) {
+			AddDisplayPickup(ID_MAGNUM_ITEM);
+			Lara.magnum_ammo += 40 * GF_Add2InvItems[ADDINV_MAGNUM_AMMO]; // TODO: it looks like the original game bug. Here should be GF_SecretInvItems
+			for( i = 0; i < GF_SecretInvItems[ADDINV_MAGNUM]; ++i ) {
+				AddDisplayPickup(ID_MAGNUM_AMMO_ITEM);
+			}
+		} else {
+			Lara.magnum_ammo += 40 * GF_Add2InvItems[ADDINV_MAGNUM_AMMO];
+		}
+	} else {
+		if( isSecret ) {
+			for( i = 0; i < GF_SecretInvItems[ADDINV_MAGNUM_AMMO]; ++i ) {
+				Inv_AddItem(ID_MAGNUM_AMMO_ITEM);
+				AddDisplayPickup(ID_MAGNUM_AMMO_ITEM);
+			}
+		} else {
+			for( i = 0; i < GF_Add2InvItems[ADDINV_MAGNUM_AMMO]; ++i ) {
+				Inv_AddItem(ID_MAGNUM_AMMO_ITEM);
+			}
+		}
+	}
+
+	// Uzis
+	if( Inv_RequestItem(ID_UZI_ITEM) ) {
+		if( isSecret ) {
+			Lara.uzi_ammo += 80 * GF_SecretInvItems[ADDINV_UZI_AMMO];
+			for( i = 0; i < GF_SecretInvItems[ADDINV_UZI_AMMO]; ++i ) {
+				AddDisplayPickup(ID_UZI_AMMO_ITEM);
+			}
+		} else {
+			Lara.uzi_ammo += 80 * GF_Add2InvItems[ADDINV_UZI_AMMO];
+		}
+	} else if( (!isSecret && GF_Add2InvItems[ADDINV_UZI]) || (isSecret && GF_SecretInvItems[ADDINV_UZI]) ) {
+		start->has_uzis = 1;
+		Inv_AddItem(ID_UZI_ITEM);
+		if( isSecret ) {
+			AddDisplayPickup(ID_UZI_ITEM);
+			Lara.uzi_ammo += 80 * GF_SecretInvItems[ADDINV_UZI_AMMO];
+			for( i = 0; i < GF_SecretInvItems[ADDINV_UZI]; ++i ) {
+				AddDisplayPickup(ID_UZI_AMMO_ITEM);
+			}
+		} else {
+			Lara.uzi_ammo += 80 * GF_Add2InvItems[ADDINV_UZI_AMMO];
+		}
+	} else {
+		if( isSecret ) {
+			for( i = 0; i < GF_SecretInvItems[ADDINV_UZI_AMMO]; ++i ) {
+				Inv_AddItem(ID_UZI_AMMO_ITEM);
+				AddDisplayPickup(ID_UZI_AMMO_ITEM);
+			}
+		} else {
+			for( i = 0; i < GF_Add2InvItems[ADDINV_UZI_AMMO]; ++i ) {
+				Inv_AddItem(ID_UZI_AMMO_ITEM);
+			}
+		}
+	}
+
+	// Harpoon
+	if( Inv_RequestItem(ID_HARPOON_ITEM) ) {
+		if( isSecret ) {
+			Lara.harpoon_ammo += 3 * GF_SecretInvItems[ADDINV_HARPOON_AMMO];
+			for( i = 0; i < GF_SecretInvItems[ADDINV_HARPOON_AMMO]; ++i ) {
+				AddDisplayPickup(ID_HARPOON_AMMO_ITEM);
+			}
+		} else {
+			Lara.harpoon_ammo += 3 * GF_Add2InvItems[ADDINV_HARPOON_AMMO];
+		}
+	} else if( (!isSecret && GF_Add2InvItems[ADDINV_HARPOON]) || (isSecret && GF_SecretInvItems[ADDINV_HARPOON]) ) {
+		start->has_harpoon = 1;
+		Inv_AddItem(ID_HARPOON_ITEM);
+		if( isSecret ) {
+			AddDisplayPickup(ID_HARPOON_ITEM);
+			Lara.harpoon_ammo += 3 * GF_SecretInvItems[ADDINV_HARPOON_AMMO];
+			for( i = 0; i < GF_SecretInvItems[ADDINV_HARPOON]; ++i ) {
+				AddDisplayPickup(ID_HARPOON_AMMO_ITEM);
+			}
+		} else {
+			Lara.harpoon_ammo += 3 * GF_Add2InvItems[ADDINV_HARPOON_AMMO];
+		}
+	} else {
+		if( isSecret ) {
+			for( i = 0; i < GF_SecretInvItems[ADDINV_HARPOON_AMMO]; ++i ) {
+				Inv_AddItem(ID_HARPOON_AMMO_ITEM);
+				AddDisplayPickup(ID_HARPOON_AMMO_ITEM);
+			}
+		} else {
+			for( i = 0; i < GF_Add2InvItems[ADDINV_HARPOON_AMMO]; ++i ) {
+				Inv_AddItem(ID_HARPOON_AMMO_ITEM);
+			}
+		}
+	}
+
+	// M16
+	if( Inv_RequestItem(ID_M16_ITEM) ) {
+		if( isSecret ) {
+			Lara.m16_ammo += 40 * GF_SecretInvItems[ADDINV_M16_AMMO];
+			for( i = 0; i < GF_SecretInvItems[ADDINV_M16_AMMO]; ++i ) {
+				AddDisplayPickup(ID_M16_AMMO_ITEM);
+			}
+		} else {
+			Lara.m16_ammo += 40 * GF_Add2InvItems[ADDINV_M16_AMMO];
+		}
+	} else if( (!isSecret && GF_Add2InvItems[ADDINV_M16]) || (isSecret && GF_SecretInvItems[ADDINV_M16]) ) {
+		start->has_m16 = 1;
+		Inv_AddItem(ID_M16_ITEM);
+		if( isSecret ) {
+			AddDisplayPickup(ID_M16_ITEM);
+			Lara.m16_ammo += 40 * GF_SecretInvItems[ADDINV_M16_AMMO];
+			for( i = 0; i < GF_SecretInvItems[ADDINV_M16]; ++i ) {
+				AddDisplayPickup(ID_M16_AMMO_ITEM);
+			}
+		} else {
+			Lara.m16_ammo += 40 * GF_Add2InvItems[ADDINV_M16_AMMO];
+		}
+	} else {
+		if( isSecret ) {
+			for( i = 0; i < GF_SecretInvItems[ADDINV_M16_AMMO]; ++i ) {
+				Inv_AddItem(ID_M16_AMMO_ITEM);
+				AddDisplayPickup(ID_M16_AMMO_ITEM);
+			}
+		} else {
+			for( i = 0; i < GF_Add2InvItems[ADDINV_M16_AMMO]; ++i ) {
+				Inv_AddItem(ID_M16_AMMO_ITEM);
+			}
+		}
+	}
+
+	// Grenade
+	if( Inv_RequestItem(ID_GRENADE_ITEM) ) {
+		if( isSecret ) {
+			Lara.grenade_ammo += 2 * GF_SecretInvItems[ADDINV_GRENADE_AMMO];
+			for( i = 0; i < GF_SecretInvItems[ADDINV_GRENADE_AMMO]; ++i ) {
+				AddDisplayPickup(ID_GRENADE_AMMO_ITEM);
+			}
+		} else {
+			Lara.grenade_ammo += 2 * GF_Add2InvItems[ADDINV_GRENADE_AMMO];
+		}
+	} else if( (!isSecret && GF_Add2InvItems[ADDINV_GRENADE]) || (isSecret && GF_SecretInvItems[ADDINV_GRENADE]) ) {
+		start->has_grenade = 1;
+		Inv_AddItem(ID_GRENADE_ITEM);
+		if( isSecret ) {
+			AddDisplayPickup(ID_GRENADE_ITEM);
+			Lara.grenade_ammo += 2 * GF_SecretInvItems[ADDINV_GRENADE_AMMO];
+			for( i = 0; i < GF_SecretInvItems[ADDINV_GRENADE]; ++i ) {
+				AddDisplayPickup(ID_GRENADE_AMMO_ITEM);
+			}
+		} else {
+			Lara.grenade_ammo += 2 * GF_Add2InvItems[ADDINV_GRENADE_AMMO];
+		}
+	} else {
+		if( isSecret ) {
+			for( i = 0; i < GF_SecretInvItems[ADDINV_GRENADE_AMMO]; ++i ) {
+				Inv_AddItem(ID_GRENADE_AMMO_ITEM);
+				AddDisplayPickup(ID_GRENADE_AMMO_ITEM);
+			}
+		} else {
+			for( i = 0; i < GF_Add2InvItems[ADDINV_GRENADE_AMMO]; ++i ) {
+				Inv_AddItem(ID_GRENADE_AMMO_ITEM);
+			}
+		}
+	}
+
+	if( isSecret ) {
+		// Flares (secret bonus)
+		for( i = 0; i < GF_SecretInvItems[ADDINV_FLARE]; ++i ) {
+			Inv_AddItem(ID_FLARE_ITEM);
+			AddDisplayPickup(ID_FLARE_ITEM);
+		}
+		// Medipacks (secret bonus)
+		for( i = 0; i < GF_SecretInvItems[ADDINV_SMALL_MEDIPACK]; ++i ) {
+			Inv_AddItem(ID_SMALL_MEDIPACK_ITEM);
+			AddDisplayPickup(ID_SMALL_MEDIPACK_ITEM);
+		}
+		for( i = 0; i < GF_SecretInvItems[ADDINV_LARGE_MEDIPACK]; ++i ) {
+			Inv_AddItem(ID_LARGE_MEDIPACK_ITEM);
+			AddDisplayPickup(ID_LARGE_MEDIPACK_ITEM);
+		}
+		// Pickups (secret bonus)
+		for( i = 0; i < GF_SecretInvItems[ADDINV_PICKUP1]; ++i ) {
+			Inv_AddItem(ID_PICKUP_ITEM1);
+			AddDisplayPickup(ID_PICKUP_ITEM1);
+		}
+		for( i = 0; i < GF_SecretInvItems[ADDINV_PICKUP2]; ++i ) {
+			Inv_AddItem(ID_PICKUP_ITEM2);
+			AddDisplayPickup(ID_PICKUP_ITEM2);
+		}
+		// Puzzles (secret bonus)
+		for( i = 0; i < GF_SecretInvItems[ADDINV_PUZZLE1]; ++i ) {
+			Inv_AddItem(ID_PUZZLE_ITEM1);
+			AddDisplayPickup(ID_PUZZLE_ITEM1);
+		}
+		for( i = 0; i < GF_SecretInvItems[ADDINV_PUZZLE2]; ++i ) {
+			Inv_AddItem(ID_PUZZLE_ITEM2);
+			AddDisplayPickup(ID_PUZZLE_ITEM2);
+		}
+		for( i = 0; i < GF_SecretInvItems[ADDINV_PUZZLE3]; ++i ) {
+			Inv_AddItem(ID_PUZZLE_ITEM3);
+			AddDisplayPickup(ID_PUZZLE_ITEM3);
+		}
+		for( i = 0; i < GF_SecretInvItems[ADDINV_PUZZLE4]; ++i ) {
+			Inv_AddItem(ID_PUZZLE_ITEM4);
+			AddDisplayPickup(ID_PUZZLE_ITEM4);
+		}
+		// Keys (secret bonus)
+		for( i = 0; i < GF_SecretInvItems[ADDINV_KEY1]; ++i ) {
+			Inv_AddItem(ID_KEY_ITEM1);
+			AddDisplayPickup(ID_KEY_ITEM1);
+		}
+		for( i = 0; i < GF_SecretInvItems[ADDINV_KEY2]; ++i ) {
+			Inv_AddItem(ID_KEY_ITEM2);
+			AddDisplayPickup(ID_KEY_ITEM2);
+		}
+		for( i = 0; i < GF_SecretInvItems[ADDINV_KEY3]; ++i ) {
+			Inv_AddItem(ID_KEY_ITEM3);
+			AddDisplayPickup(ID_KEY_ITEM3);
+		}
+		for( i = 0; i < GF_SecretInvItems[ADDINV_KEY4]; ++i ) {
+			Inv_AddItem(ID_KEY_ITEM4);
+			AddDisplayPickup(ID_KEY_ITEM4);
+		}
+		// Clear the array (secret bonus)
+		memset(GF_SecretInvItems, 0, sizeof(GF_SecretInvItems));
+	} else {
+		// Flares (level start)
+		for( i = 0; i < GF_Add2InvItems[ADDINV_FLARE]; ++i ) {
+			Inv_AddItem(ID_FLARE_ITEM);
+		}
+		// Medipacks (level start)
+		for( i = 0; i < GF_Add2InvItems[ADDINV_SMALL_MEDIPACK]; ++i ) {
+			Inv_AddItem(ID_SMALL_MEDIPACK_ITEM);
+		}
+		for( i = 0; i < GF_Add2InvItems[ADDINV_LARGE_MEDIPACK]; ++i ) {
+			Inv_AddItem(ID_LARGE_MEDIPACK_ITEM);
+		}
+		// Pickups (level start)
+		for( i = 0; i < GF_Add2InvItems[ADDINV_PICKUP1]; ++i ) {
+			Inv_AddItem(ID_PICKUP_ITEM1);
+		}
+		for( i = 0; i < GF_Add2InvItems[ADDINV_PICKUP2]; ++i ) {
+			Inv_AddItem(ID_PICKUP_ITEM2);
+		}
+		// Puzzles (level start)
+		for( i = 0; i < GF_Add2InvItems[ADDINV_PUZZLE1]; ++i ) {
+			Inv_AddItem(ID_PUZZLE_ITEM1);
+		}
+		for( i = 0; i < GF_Add2InvItems[ADDINV_PUZZLE2]; ++i ) {
+			Inv_AddItem(ID_PUZZLE_ITEM2);
+		}
+		for( i = 0; i < GF_Add2InvItems[ADDINV_PUZZLE3]; ++i ) {
+			Inv_AddItem(ID_PUZZLE_ITEM3);
+		}
+		for( i = 0; i < GF_Add2InvItems[ADDINV_PUZZLE4]; ++i ) {
+			Inv_AddItem(ID_PUZZLE_ITEM4);
+		}
+		// Keys (level start)
+		for( i = 0; i < GF_Add2InvItems[ADDINV_KEY1]; ++i ) {
+			Inv_AddItem(ID_KEY_ITEM1);
+		}
+		for( i = 0; i < GF_Add2InvItems[ADDINV_KEY2]; ++i ) {
+			Inv_AddItem(ID_KEY_ITEM2);
+		}
+		for( i = 0; i < GF_Add2InvItems[ADDINV_KEY3]; ++i ) {
+			Inv_AddItem(ID_KEY_ITEM3);
+		}
+		for( i = 0; i < GF_Add2InvItems[ADDINV_KEY4]; ++i ) {
+			Inv_AddItem(ID_KEY_ITEM4);
+		}
+		// Clear the array (level start)
+		memset(GF_Add2InvItems, 0, sizeof(GF_Add2InvItems));
+	}
+}
+
 /*
  * Inject function
  */
@@ -394,6 +727,5 @@ void Inject_Gameflow() {
 	INJECT(0x0041FC30, GF_DoFrontEndSequence);
 	INJECT(0x0041FC50, GF_DoLevelSequence);
 	INJECT(0x0041FCC0, GF_InterpretSequence);
-
-//	INJECT(0x004201A0, GF_ModifyInventory);
+	INJECT(0x004201A0, GF_ModifyInventory);
 }
