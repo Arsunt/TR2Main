@@ -449,8 +449,10 @@ void __cdecl GF_ModifyInventory(int levelID, BOOL isSecret) {
 		Inv_AddItem(ID_MAGNUM_ITEM);
 		if( isSecret ) {
 			AddDisplayPickup(ID_MAGNUM_ITEM);
-			Lara.magnum_ammo += 40 * GF_Add2InvItems[ADDINV_MAGNUM_AMMO]; // TODO: it looks like the original game bug. Here should be GF_SecretInvItems
-			for( i = 0; i < GF_SecretInvItems[ADDINV_MAGNUM]; ++i ) {
+			// NOTE: here was GF_Add2InvItems instead of GF_SecretInvItems in the original code. This is fixed
+			Lara.magnum_ammo += 40 * GF_SecretInvItems[ADDINV_MAGNUM_AMMO];
+			// NOTE: here was ADDINV_MAGNUM instead of ADDINV_MAGNUM_AMMO in the original code. This is fixed
+			for( i = 0; i < GF_SecretInvItems[ADDINV_MAGNUM_AMMO]; ++i ) {
 				AddDisplayPickup(ID_MAGNUM_AMMO_ITEM);
 			}
 		} else {
