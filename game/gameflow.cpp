@@ -487,7 +487,7 @@ void __cdecl GF_ModifyInventory(int levelID, BOOL isSecret) {
 		if( isSecret ) {
 			AddDisplayPickup(ID_UZI_ITEM);
 			Lara.uzi_ammo += 80 * GF_SecretInvItems[ADDINV_UZI_AMMO];
-			for( i = 0; i < GF_SecretInvItems[ADDINV_UZI]; ++i ) {
+			for( i = 0; i < GF_SecretInvItems[ADDINV_UZI_AMMO]; ++i ) {
 				AddDisplayPickup(ID_UZI_AMMO_ITEM);
 			}
 		} else {
@@ -522,7 +522,7 @@ void __cdecl GF_ModifyInventory(int levelID, BOOL isSecret) {
 		if( isSecret ) {
 			AddDisplayPickup(ID_HARPOON_ITEM);
 			Lara.harpoon_ammo += 3 * GF_SecretInvItems[ADDINV_HARPOON_AMMO];
-			for( i = 0; i < GF_SecretInvItems[ADDINV_HARPOON]; ++i ) {
+			for( i = 0; i < GF_SecretInvItems[ADDINV_HARPOON_AMMO]; ++i ) {
 				AddDisplayPickup(ID_HARPOON_AMMO_ITEM);
 			}
 		} else {
@@ -557,7 +557,7 @@ void __cdecl GF_ModifyInventory(int levelID, BOOL isSecret) {
 		if( isSecret ) {
 			AddDisplayPickup(ID_M16_ITEM);
 			Lara.m16_ammo += 40 * GF_SecretInvItems[ADDINV_M16_AMMO];
-			for( i = 0; i < GF_SecretInvItems[ADDINV_M16]; ++i ) {
+			for( i = 0; i < GF_SecretInvItems[ADDINV_M16_AMMO]; ++i ) {
 				AddDisplayPickup(ID_M16_AMMO_ITEM);
 			}
 		} else {
@@ -592,7 +592,7 @@ void __cdecl GF_ModifyInventory(int levelID, BOOL isSecret) {
 		if( isSecret ) {
 			AddDisplayPickup(ID_GRENADE_ITEM);
 			Lara.grenade_ammo += 2 * GF_SecretInvItems[ADDINV_GRENADE_AMMO];
-			for( i = 0; i < GF_SecretInvItems[ADDINV_GRENADE]; ++i ) {
+			for( i = 0; i < GF_SecretInvItems[ADDINV_GRENADE_AMMO]; ++i ) {
 				AddDisplayPickup(ID_GRENADE_AMMO_ITEM);
 			}
 		} else {
