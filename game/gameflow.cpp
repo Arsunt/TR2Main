@@ -414,10 +414,10 @@ void __cdecl GF_ModifyInventory(int levelID, BOOL isSecret) {
 		if( isSecret ) {
 			AddDisplayPickup(ID_SHOTGUN_ITEM);
 			Lara.shotgun_ammo += 12 * GF_SecretInvItems[ADDINV_SHOTGUN_AMMO];
-			/* TODO: it looks like the original game bug. There is missing additional loop
+			// NOTE: This loop is absent in the original code
 			for( i = 0; i < GF_SecretInvItems[ADDINV_SHOTGUN_AMMO]; ++i ) {
 				AddDisplayPickup(ID_SHOTGUN_AMMO_ITEM);
-			} */
+			}
 		} else {
 			Lara.shotgun_ammo += 12 * GF_Add2InvItems[ADDINV_SHOTGUN_AMMO];
 		}
