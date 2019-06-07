@@ -96,6 +96,29 @@ void __cdecl UseItem(__int16 itemID) {
 	}
 }
 
+void __cdecl LaraCheatGetStuff() {
+	Inv_AddItem(ID_HARPOON_ITEM);
+	Inv_AddItem(ID_M16_ITEM);
+	Inv_AddItem(ID_GRENADE_ITEM);
+	Inv_AddItem(ID_SHOTGUN_ITEM);
+	Inv_AddItem(ID_UZI_ITEM);
+	Inv_AddItem(ID_MAGNUM_ITEM);
+	Inv_AddItem(ID_PISTOL_ITEM);
+
+	for( int i = 0; i < 10; ++i ) {
+		Inv_AddItem(ID_FLARES_ITEM);
+		Inv_AddItem(ID_SMALL_MEDIPACK_ITEM);
+		Inv_AddItem(ID_LARGE_MEDIPACK_ITEM);
+	}
+
+	Lara.magnum_ammo = 1000;
+	Lara.uzi_ammo = 2000;
+	Lara.shotgun_ammo = 300;
+	Lara.harpoon_ammo = 300;
+	Lara.m16_ammo = 300;
+	Lara.grenade_ammo = 300;
+}
+
 /*
  * Inject function
  */
@@ -104,8 +127,8 @@ void Inject_LaraMisc() {
 //	INJECT(0x00430A10, AnimateLara);
 
 	INJECT(0x00430D10, UseItem);
+	INJECT(0x00430ED0, LaraCheatGetStuff);
 
-//	INJECT(0x00430ED0, LaraCheatGetStuff);
 //	INJECT(0x00430F90, ControlLaraExtra);
 //	INJECT(0x00430FB0, InitialiseLaraLoad);
 //	INJECT(0x00430FE0, InitialiseLara);

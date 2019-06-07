@@ -31,8 +31,8 @@
 // 0x00430A10:		AnimateLara
 
 void __cdecl UseItem(__int16 itemID); // 0x00430D10
+void __cdecl LaraCheatGetStuff(); // 0x00430ED0
 
-// 0x00430ED0:		LaraCheatGetStuff
 // 0x00430F90:		ControlLaraExtra
 // 0x00430FB0:		InitialiseLaraLoad
 // 0x00430FE0:		InitialiseLara

@@ -695,7 +695,7 @@ x function is unused / included in another function
 0x00430380:		LaraControl
 0x00430A10:		AnimateLara
 0x00430D10:	+	UseItem
-0x00430ED0:		LaraCheatGetStuff
+0x00430ED0:	+	LaraCheatGetStuff
 0x00430F90:		ControlLaraExtra
 0x00430FB0:		InitialiseLaraLoad
 0x00430FE0:		InitialiseLara
