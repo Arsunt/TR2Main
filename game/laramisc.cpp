@@ -22,6 +22,8 @@
 #include "global/precompiled.h"
 #include "game/laramisc.h"
 #include "game/invfunc.h"
+#include "game/items.h"
+#include "game/larafire.h"
 #include "game/sound.h"
 #include "global/vars.h"
 
@@ -119,6 +121,143 @@ void __cdecl LaraCheatGetStuff() {
 	Lara.grenade_ammo = 300;
 }
 
+void __cdecl InitialiseLaraInventory(int levelID) {
+	int i;
+	START_INFO *start = &SaveGame.start[levelID];
+
+	Inv_RemoveAllItems();
+
+	if( GF_RemoveWeapons ) {
+		start->has_pistols = 0;
+		start->has_magnums = 0;
+		start->has_uzis = 0;
+		start->has_shotgun = 0;
+		start->has_m16 = 0;
+		start->has_grenade = 0;
+		start->has_harpoon = 0;
+		start->gunType = LGT_Unarmed;
+		start->gunStatus = LGS_Armless;
+		GF_RemoveWeapons = 0;
+	}
+
+	if( GF_RemoveAmmo ) {
+		start->m16Ammo = 0;
+		start->grenadeAmmo = 0;
+		start->harpoonAmmo = 0;
+		start->shotgunAmmo = 0;
+		start->uziAmmo = 0;
+		start->magnumAmmo = 0;
+		start->pistolAmmo = 0;
+		start->flares = 0;
+		start->largeMedipacks = 0;
+		start->smallMedipacks = 0;
+		GF_RemoveAmmo = 0;
+	}
+
+	// Statistics
+	Inv_AddItem(ID_COMPASS_ITEM);
+
+	// Pistols
+	Lara.pistol_ammo = 1000;
+	if( start->has_pistols ) {
+		Inv_AddItem(ID_PISTOL_ITEM);
+	}
+
+	// Magnums
+	if( start->has_magnums ) {
+		Inv_AddItem(ID_MAGNUM_ITEM);
+		Lara.magnum_ammo = start->magnumAmmo;
+		GlobalItemReplace(ID_MAGNUM_ITEM, ID_MAGNUM_AMMO_ITEM);
+	} else {
+		for( i = 0; i < start->magnumAmmo / 40; ++i ) {
+			Inv_AddItem(ID_MAGNUM_AMMO_ITEM);
+		}
+		Lara.magnum_ammo = 0;
+	}
+
+	// Uzis
+	if( start->has_uzis ) {
+		Inv_AddItem(ID_UZI_ITEM);
+		Lara.uzi_ammo = start->uziAmmo;
+		GlobalItemReplace(ID_UZI_ITEM, ID_UZI_AMMO_ITEM);
+	} else {
+		for( i = 0; i < start->uziAmmo / 80; ++i ) {
+			Inv_AddItem(ID_UZI_AMMO_ITEM);
+		}
+		Lara.uzi_ammo = 0;
+	}
+
+	// Shotgun
+	if( start->has_shotgun ) {
+		Inv_AddItem(ID_SHOTGUN_ITEM);
+		Lara.shotgun_ammo = start->shotgunAmmo;
+		GlobalItemReplace(ID_SHOTGUN_ITEM, ID_SHOTGUN_AMMO_ITEM);
+	} else {
+		for( i = 0; i < start->shotgunAmmo / 12; ++i ) {
+			Inv_AddItem(ID_SHOTGUN_AMMO_ITEM);
+		}
+		Lara.shotgun_ammo = 0;
+	}
+
+	// Grenade
+	if( start->has_grenade ) {
+		Inv_AddItem(ID_GRENADE_ITEM);
+		Lara.grenade_ammo = start->grenadeAmmo;
+		GlobalItemReplace(ID_GRENADE_ITEM, ID_GRENADE_AMMO_ITEM);
+	} else {
+		for( i = 0; i < start->grenadeAmmo / 2; ++i ) {
+			Inv_AddItem(ID_GRENADE_AMMO_ITEM);
+		}
+		Lara.grenade_ammo = 0;
+	}
+
+	// M16
+	if( start->has_m16 ) {
+		Inv_AddItem(ID_M16_ITEM);
+		Lara.m16_ammo = start->m16Ammo;
+		GlobalItemReplace(ID_M16_ITEM, ID_M16_AMMO_ITEM);
+	} else {
+		for( i = 0; i < start->grenadeAmmo / 10; ++i ) {
+			Inv_AddItem(ID_M16_AMMO_ITEM);
+		}
+		Lara.m16_ammo = 0;
+	}
+
+	// Harpoon
+	if( start->has_harpoon ) {
+		Inv_AddItem(ID_HARPOON_ITEM);
+		Lara.harpoon_ammo = start->harpoonAmmo;
+		GlobalItemReplace(ID_HARPOON_ITEM, ID_HARPOON_AMMO_ITEM);
+	} else {
+		for( i = 0; i < start->harpoonAmmo / 3; ++i ) {
+			Inv_AddItem(ID_HARPOON_AMMO_ITEM);
+		}
+		Lara.harpoon_ammo = 0;
+	}
+
+	// Flares
+	for( i = 0; i < start->flares; ++i ) {
+		Inv_AddItem(ID_FLARE_ITEM);
+	}
+
+	// Small medipacks
+	for( i = 0; i < start->smallMedipacks; ++i ) {
+		Inv_AddItem(ID_SMALL_MEDIPACK_ITEM);
+	}
+
+	// Large medipacks
+	for( i = 0; i < start->largeMedipacks; ++i ) {
+		Inv_AddItem(ID_LARGE_MEDIPACK_ITEM);
+	}
+
+	Lara.gun_status = LGS_Armless;
+	Lara.last_gun_type = start->gunType;
+	Lara.gun_type = start->gunType;
+	Lara.request_gun_type = start->gunType;
+	LaraInitialiseMeshes(levelID);
+	InitialiseNewWeapon();
+}
+
 /*
  * Inject function
  */
@@ -132,6 +271,8 @@ void Inject_LaraMisc() {
 //	INJECT(0x00430F90, ControlLaraExtra);
 //	INJECT(0x00430FB0, InitialiseLaraLoad);
 //	INJECT(0x00430FE0, InitialiseLara);
-//	INJECT(0x004312A0, InitialiseLaraInventory);
+
+	INJECT(0x004312A0, InitialiseLaraInventory);
+
 //	INJECT(0x00431610, LaraInitialiseMeshes);
 }

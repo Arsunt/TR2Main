@@ -36,7 +36,9 @@ void __cdecl LaraCheatGetStuff(); // 0x00430ED0
 // 0x00430F90:		ControlLaraExtra
 // 0x00430FB0:		InitialiseLaraLoad
 // 0x00430FE0:		InitialiseLara
-// 0x004312A0:		InitialiseLaraInventory
-// 0x00431610:		LaraInitialiseMeshes
+
+void __cdecl InitialiseLaraInventory(int levelID); // 0x004312A0
+
+#define LaraInitialiseMeshes ((void(__cdecl*)(int)) 0x00431610)
 
 #endif // LARAMISC_H_INCLUDED

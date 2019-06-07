@@ -668,7 +668,7 @@ x function is unused / included in another function
 	game/larafire.cpp
 0x0042E740:		LaraGun
 0x0042ECB0:		CheckForHoldingState
-0x0042ECF0:		InitialiseNewWeapon
+0x0042ECF0:	 *	InitialiseNewWeapon
 0x0042EE30:		LaraTargetInfo
 0x0042EFD0:		LaraGetNewTarget
 0x0042F1F0:		find_target_point
@@ -699,8 +699,8 @@ x function is unused / included in another function
 0x00430F90:		ControlLaraExtra
 0x00430FB0:		InitialiseLaraLoad
 0x00430FE0:		InitialiseLara
-0x004312A0:		InitialiseLaraInventory
-0x00431610:		LaraInitialiseMeshes
+0x004312A0:	+	InitialiseLaraInventory
+0x00431610:	 *	LaraInitialiseMeshes
 
 	game/larasurf.cpp
 0x00431710:		LaraSurface
