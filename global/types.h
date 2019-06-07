@@ -1435,6 +1435,7 @@ typedef struct StartInfo_t {
 	UINT16 has_m16 : 1;
 	UINT16 has_grenade : 1;
 	UINT16 has_harpoon : 1;
+	UINT16 pad : 8;
 	UINT16 reserved;
 	STATISTICS_INFO statistics;
 } START_INFO;
@@ -1555,6 +1556,7 @@ typedef struct ItemInfo_t {
 	UINT16 looked_at : 1;
 	UINT16 dynamic_light : 1;
 	UINT16 clear_body : 1;
+	UINT16 pad : 7;
 } ITEM_INFO;
 
 typedef struct CollSide_t {
@@ -1609,6 +1611,7 @@ typedef struct ObjectInfo_t {
 	UINT16 save_anim : 1;
 	UINT16 semi_transparent : 1;
 	UINT16 water_creature : 1;
+	UINT16 pad : 8;
 } OBJECT_INFO;
 
 typedef struct PhdMatrix_t {
@@ -1970,6 +1973,7 @@ typedef struct LaraInfo_t {
 	UINT16 burn : 1;
 	UINT16 keep_ducked : 1;
 	UINT16 CanMonkeySwing : 1;
+	UINT16 pad : 9;
 	int water_surface_dist;
 	PHD_VECTOR last_pos;
 	FX_INFO *spaz_effect;
