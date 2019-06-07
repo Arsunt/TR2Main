@@ -372,21 +372,32 @@ void __cdecl CheckCheatMode() {
 					IsLevelComplete = TRUE;
 				} // Check jump backward
 				else if( as == AS_BACKJUMP ) {
-					// Give weapon
-					Inv_AddItem(ID_SHOTGUN_ITEM);
-					Inv_AddItem(ID_MAGNUM_ITEM);
-					Inv_AddItem(ID_UZI_ITEM);
-					Inv_AddItem(ID_HARPOON_ITEM);
-					Inv_AddItem(ID_M16_ITEM);
-					Inv_AddItem(ID_GRENADE_ITEM);
-
-					// Give ammo
-					Lara.shotgun_ammo = 500;
-					Lara.magnum_ammo = 500;
-					Lara.uzi_ammo = 5000;
-					Lara.harpoon_ammo = 5000;
-					Lara.m16_ammo = 5000;
-					Lara.grenade_ammo = 5000;
+					// Give weapon and ammo
+					// NOTE: additional weapon availability checks not presented in the original game
+					if( Objects[ID_SHOTGUN_ITEM].loaded ) {
+						Inv_AddItem(ID_SHOTGUN_ITEM);
+						Lara.shotgun_ammo = 500;
+					}
+					if( Objects[ID_MAGNUM_ITEM].loaded ) {
+						Inv_AddItem(ID_MAGNUM_ITEM);
+						Lara.magnum_ammo = 500;
+					}
+					if( Objects[ID_UZI_ITEM].loaded ) {
+						Inv_AddItem(ID_UZI_ITEM);
+						Lara.uzi_ammo = 5000;
+					}
+					if( Objects[ID_HARPOON_ITEM].loaded ) {
+						Inv_AddItem(ID_HARPOON_ITEM);
+						Lara.harpoon_ammo = 5000;
+					}
+					if( Objects[ID_M16_ITEM].loaded ) {
+						Inv_AddItem(ID_M16_ITEM);
+						Lara.m16_ammo = 5000;
+					}
+					if( Objects[ID_GRENADE_ITEM].loaded ) {
+						Inv_AddItem(ID_GRENADE_ITEM);
+						Lara.grenade_ammo = 5000;
+					}
 
 					// Give medipacks and flares
 					for( int i=0; i<50; ++i ) {

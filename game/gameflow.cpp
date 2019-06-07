@@ -392,6 +392,66 @@ void __cdecl GF_ModifyInventory(int levelID, BOOL isSecret) {
 	int i;
 	START_INFO *start = &SaveGame.start[levelID];
 
+	// NOTE: additional weapon availability checks not presented in the original game
+	if( !Objects[ID_PISTOL_ITEM].loaded ) {
+		GF_Add2InvItems[ADDINV_PISTOL] = 0;
+		GF_SecretInvItems[ADDINV_PISTOL] = 0;
+	}
+	if( !Objects[ID_UZI_ITEM].loaded ) {
+		GF_Add2InvItems[ADDINV_UZI] = 0;
+		GF_SecretInvItems[ADDINV_UZI] = 0;
+	}
+	if( !Objects[ID_MAGNUM_ITEM].loaded ) {
+		GF_Add2InvItems[ADDINV_MAGNUM] = 0;
+		GF_SecretInvItems[ADDINV_MAGNUM] = 0;
+	}
+	if( !Objects[ID_SHOTGUN_ITEM].loaded ) {
+		GF_Add2InvItems[ADDINV_SHOTGUN] = 0;
+		GF_SecretInvItems[ADDINV_SHOTGUN] = 0;
+	}
+	if( !Objects[ID_GRENADE_ITEM].loaded ) {
+		GF_Add2InvItems[ADDINV_GRENADE] = 0;
+		GF_SecretInvItems[ADDINV_GRENADE] = 0;
+	}
+	if( !Objects[ID_M16_ITEM].loaded ) {
+		GF_Add2InvItems[ADDINV_M16] = 0;
+		GF_SecretInvItems[ADDINV_M16] = 0;
+	}
+	if( !Objects[ID_HARPOON_ITEM].loaded ) {
+		GF_Add2InvItems[ADDINV_HARPOON] = 0;
+		GF_SecretInvItems[ADDINV_HARPOON] = 0;
+	}
+
+	// NOTE: additional ammo availability checks not presented in the original game
+	if( !start->has_pistols && !Objects[ID_PISTOL_AMMO_ITEM].loaded ) {
+		GF_Add2InvItems[ADDINV_PISTOL_AMMO] = 0;
+		GF_SecretInvItems[ADDINV_PISTOL_AMMO] = 0;
+	}
+	if( !start->has_uzis && !Objects[ID_UZI_AMMO_ITEM].loaded ) {
+		GF_Add2InvItems[ADDINV_UZI_AMMO] = 0;
+		GF_SecretInvItems[ADDINV_UZI_AMMO] = 0;
+	}
+	if( !start->has_magnums && !Objects[ID_MAGNUM_AMMO_ITEM].loaded ) {
+		GF_Add2InvItems[ADDINV_MAGNUM_AMMO] = 0;
+		GF_SecretInvItems[ADDINV_MAGNUM_AMMO] = 0;
+	}
+	if( !start->has_shotgun && !Objects[ID_SHOTGUN_AMMO_ITEM].loaded ) {
+		GF_Add2InvItems[ADDINV_SHOTGUN_AMMO] = 0;
+		GF_SecretInvItems[ADDINV_SHOTGUN_AMMO] = 0;
+	}
+	if( !start->has_grenade && !Objects[ID_GRENADE_AMMO_ITEM].loaded ) {
+		GF_Add2InvItems[ADDINV_GRENADE_AMMO] = 0;
+		GF_SecretInvItems[ADDINV_GRENADE_AMMO] = 0;
+	}
+	if( !start->has_m16 && !Objects[ID_M16_AMMO_ITEM].loaded ) {
+		GF_Add2InvItems[ADDINV_M16_AMMO] = 0;
+		GF_SecretInvItems[ADDINV_M16_AMMO] = 0;
+	}
+	if( !start->has_harpoon && !Objects[ID_HARPOON_AMMO_ITEM].loaded ) {
+		GF_Add2InvItems[ADDINV_HARPOON_AMMO] = 0;
+		GF_SecretInvItems[ADDINV_HARPOON_AMMO] = 0;
+	}
+
 	// Pistols
 	if( !start->has_pistols && GF_Add2InvItems[ADDINV_PISTOL] ) {
 		start->has_pistols = 1;

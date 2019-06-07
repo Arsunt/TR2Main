@@ -154,6 +154,68 @@ void __cdecl InitialiseLaraInventory(int levelID) {
 		GF_RemoveAmmo = 0;
 	}
 
+	// NOTE: additional weapon availability checks not presented in the original game
+	if( !Objects[ID_PISTOL_ITEM].loaded ) {
+		start->has_pistols = 0;
+	}
+	if( !Objects[ID_UZI_ITEM].loaded ) {
+		start->has_uzis = 0;
+	}
+	if( !Objects[ID_MAGNUM_ITEM].loaded ) {
+		start->has_magnums = 0;
+	}
+	if( !Objects[ID_SHOTGUN_ITEM].loaded ) {
+		start->has_shotgun = 0;
+	}
+	if( !Objects[ID_GRENADE_ITEM].loaded ) {
+		start->has_grenade = 0;
+	}
+	if( !Objects[ID_M16_ITEM].loaded ) {
+		start->has_m16 = 0;
+	}
+	if( !Objects[ID_HARPOON_ITEM].loaded ) {
+		start->has_harpoon = 0;
+	}
+
+	// NOTE: additional ammo availability checks not presented in the original game
+	if( !start->has_pistols && !Objects[ID_PISTOL_AMMO_ITEM].loaded ) {
+		start->pistolAmmo = 0;
+	}
+	if( !start->has_uzis && !Objects[ID_UZI_AMMO_ITEM].loaded ) {
+		start->uziAmmo = 0;
+	}
+	if( !start->has_magnums && !Objects[ID_MAGNUM_AMMO_ITEM].loaded ) {
+		start->magnumAmmo = 0;
+	}
+	if( !start->has_shotgun && !Objects[ID_SHOTGUN_AMMO_ITEM].loaded ) {
+		start->shotgunAmmo = 0;
+	}
+	if( !start->has_grenade && !Objects[ID_GRENADE_AMMO_ITEM].loaded ) {
+		start->grenadeAmmo = 0;
+	}
+	if( !start->has_m16 && !Objects[ID_M16_AMMO_ITEM].loaded ) {
+		start->m16Ammo = 0;
+	}
+	if( !start->has_harpoon && !Objects[ID_HARPOON_AMMO_ITEM].loaded ) {
+		start->harpoonAmmo = 0;
+	}
+
+	// NOTE: additional start gun type availability checks not presented in the original game
+	switch( start->gunType ) {
+		// if the current weapon is absent then fallthrough
+		case LGT_Pistols	: if( start->has_pistols ) break;
+		case LGT_Magnums	: if( start->has_magnums ) break;
+		case LGT_Uzis		: if( start->has_uzis ) break;
+		case LGT_Shotgun	: if( start->has_shotgun ) break;
+		case LGT_M16		: if( start->has_m16 ) break;
+		case LGT_Grenade	: if( start->has_grenade ) break;
+		case LGT_Harpoon	: if( start->has_harpoon ) break;
+			start->gunType = start->has_pistols ? LGT_Pistols : LGT_Unarmed;
+			break;
+		default :
+			break;
+	}
+
 	// Statistics
 	Inv_AddItem(ID_COMPASS_ITEM);
 
