@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed the statistics reset in case of *"New Game+"*, if the *"Select Level"* option is active.
 - Fixed a bug that does not happen in the official levels (this situation is not in the script). Suppose a shotgun and shotgun ammo are set as a bonus for collecting all the secrets in the level. If Lara does not have a shotgun at the moment of picking the last secret, she receives the relying bonus, but the ammo items are not displayed on the screen. This is fixed now.
 - Fixed a bug that does not happen in the official levels (this situation is not in the script). Suppose a magnum and magnum ammo are set as a bonus for collecting all the secrets in the level. If Lara does not have a magnum at the moment of picking the last secret, she receives the magnum only, but not the magnum ammo. This is fixed now.
+- Fixed a bug that hid the ammo indicator in demo levels if *"New Game+"* is activated.
 
 ## [0.8.2] - 2019-05-26
 ### TR2Main bugfixes

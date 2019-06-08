@@ -87,7 +87,7 @@ void SaveAssault() {
 
 BOOL __cdecl GameMain() {
 	__int16 gfOption, gfDirection, gfParameter;
-	bool isFrontendFail, isLoopContinue;
+	bool isFrontendFail, isLoopContinue, bonusFlag;
 
 	HiRes = 0;
 	ScreenSizer = 1.0;
@@ -186,7 +186,11 @@ BOOL __cdecl GameMain() {
 				break;
 
 			case GF_START_DEMO :
+				// NOTE: there is no such bonus flag reset in the original game
+				bonusFlag = SaveGame.bonusFlag; // backup bonusFlag
+				SaveGame.bonusFlag = 0; // remove bonusFlag while Demo is playing
 				gfOption = DoDemoSequence(-1);
+				SaveGame.bonusFlag = bonusFlag; // restore bonusFlag
 				break;
 
 			case GF_LEVEL_COMPLETE :
