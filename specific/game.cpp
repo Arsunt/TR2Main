@@ -177,6 +177,12 @@ int __cdecl LevelStats(int levelID) {
 		S_DumpScreen();
 	}
 
+	// NOTE: This LevelStats bonusFlag activation is not presented in the original game.
+	// If the level is final, but there no GFE_GAMECOMPLETE in the script, just activate Game+ here.
+	if( levelID == GF_GameFlow.num_Levels-GF_GameFlow.num_Demos-1 ) {
+		SaveGame.bonusFlag = true;
+	}
+
 	++levelID;
 	CreateStartInfo(levelID);
 	SaveGame.currentLevel = levelID;
@@ -213,11 +219,12 @@ int __cdecl GameStats(int levelID) {
 		S_DumpScreen();
 	}
 
-	SaveGame.bonusFlag = true;
-	for( int i = 1; i <= GF_GameFlow.num_Levels; ++i ) {
-		ModifyStartInfo(i);
+	// NOTE: in the original game, there is slightly different bonusFlag activation.
+	// Here removed bonuses initialization, and added the check that the level is final
+	if( CurrentLevel == GF_GameFlow.num_Levels-GF_GameFlow.num_Demos-1 ) {
+		SaveGame.bonusFlag = true;
 	}
-	SaveGame.currentLevel = 1;
+
 	S_DontDisplayPicture();
 	TempVideoRemove(); // NOTE: this line was not in the original code
 	return 0;
