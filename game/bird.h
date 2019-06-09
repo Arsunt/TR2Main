@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -27,7 +27,7 @@
 /*
  * Function list
  */
-//	0x0040C860:		InitialiseEagle
-//	0x0040C8F0:		EagleControl
+#define InitialiseEagle ((void(__cdecl*)(__int16)) 0x0040C860)
+#define EagleControl ((void(__cdecl*)(__int16)) 0x0040C8F0)
 
 #endif // BIRD_H_INCLUDED

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -34,14 +34,15 @@
 //	0x00436040:		GunHit
 //	0x00436100:		GunMiss
 //	0x004361B0:		ShotLara
-//	0x00436380:		InitialiseCult1
-//	0x004363D0:		Cult1Control
-//	0x00436800:		InitialiseCult3
-//	0x00436850:		Cult3Control
-//	0x00436DC0:		Worker1Control
-//	0x004371C0:		Worker2Control
-//	0x00437620:		BanditControl
-//	0x00437960:		Bandit2Control
-//	0x00437DA0:		WinstonControl
+
+#define InitialiseCult1 ((void(__cdecl*)(__int16)) 0x00436380)
+#define Cult1Control ((void(__cdecl*)(__int16)) 0x004363D0)
+#define InitialiseCult3 ((void(__cdecl*)(__int16)) 0x00436800)
+#define Cult3Control ((void(__cdecl*)(__int16)) 0x00436850)
+#define Worker1Control ((void(__cdecl*)(__int16)) 0x00436DC0)
+#define Worker2Control ((void(__cdecl*)(__int16)) 0x004371C0)
+#define BanditControl ((void(__cdecl*)(__int16)) 0x00437620)
+#define Bandit2Control ((void(__cdecl*)(__int16)) 0x00437960)
+#define WinstonControl ((void(__cdecl*)(__int16)) 0x00437DA0)
 
 #endif // PEOPLE_H_INCLUDED

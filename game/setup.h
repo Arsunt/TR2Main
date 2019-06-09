@@ -32,8 +32,8 @@
 // 0x0043A490:		InitialiseGameFlags
 
 void __cdecl InitialiseLevelFlags(); // 0x0043A500
+void __cdecl BaddyObjects(); // 0x0043A530
 
-#define BaddyObjects ((void(__cdecl*)(void)) 0x0043A530)
 #define TrapObjects ((void(__cdecl*)(void)) 0x0043B570)
 #define ObjectObjects ((void(__cdecl*)(void)) 0x0043BB70)
 

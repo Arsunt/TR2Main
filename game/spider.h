@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -28,7 +28,8 @@
  * Function list
  */
 //	0x00440070:		SpiderLeap
-//	0x00440120:		SpiderControl
-//	0x00440340:		BigSpiderControl
+
+#define SpiderControl ((void(__cdecl*)(__int16)) 0x00440120)
+#define BigSpiderControl ((void(__cdecl*)(__int16)) 0x00440340)
 
 #endif // SPIDER_H_INCLUDED

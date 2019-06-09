@@ -117,8 +117,8 @@ x function is unused / included in another function
 // ======================================
 
 	game/bird.cpp
-0x0040C860:		InitialiseEagle
-0x0040C8F0:		EagleControl
+0x0040C860:	 *	InitialiseEagle
+0x0040C8F0:	 *	EagleControl
 
 	game/boat.cpp
 0x0040CB10:		InitialiseBoat
@@ -199,8 +199,8 @@ x function is unused / included in another function
 0x00413580:		GetTiltType
 0x00413620:		LaraBaddieCollision
 0x004137C0:		EffectSpaz
-0x00413840:		CreatureCollision
-0x004138C0:		ObjectCollision
+0x00413840:	 *	CreatureCollision
+0x004138C0:	 *	ObjectCollision
 0x00413920:		DoorCollision
 0x004139A0:		TrapCollision
 0x00413A10:		ItemPushLara
@@ -243,22 +243,22 @@ x function is unused / included in another function
 	game/diver.cpp
 0x00416BF0:		Harpoon
 0x00416C70:		GetWaterSurface
-0x00416D80:		DiverControl
+0x00416D80:	 *	DiverControl
 
 	game/dog.cpp
-0x00417130:		DogControl
-0x004174E0:		TigerControl
+0x00417130:	 *	DogControl
+0x004174E0:	 *	TigerControl
 
 	game/dragon.cpp
 0x00417780:		ControlTwinkle
 0x00417900:		DragonBartoliControl_SubFunc
 0x004179E0:		DragonFire
-0x00417A90:		DragonCollision
+0x00417A90:	 *	DragonCollision
 0x00417D80:		DragonBones
-0x00417E60:		DragonControl
-0x004183B0:		InitialiseBartoli
-0x004184D0:		BartoliControl
-0x00418670:		DinoControl
+0x00417E60:	 *	DragonControl
+0x004183B0:	 *	InitialiseBartoli
+0x004184D0:	 *	BartoliControl
+0x00418670:	 *	DinoControl
 
 	game/draw.cpp
 0x00418920:	 *	DrawPhaseCinematic
@@ -297,8 +297,8 @@ x function is unused / included in another function
 0x0041C0D0:		AddDynamicLight
 
 	game/eel.cpp
-0x0041C120:		BigEelControl
-0x0041C2C0:		EelControl
+0x0041C120:	 *	BigEelControl
+0x0041C2C0:	 *	EelControl
 
 	game/effects.cpp
 0x0041C4B0:		ItemNearLara
@@ -362,15 +362,15 @@ x function is unused / included in another function
 
 	game/enemies.cpp
 0x0041DB30:		Knife
-0x0041DBB0:		Cult2Control
-0x0041DFE0:		MonkControl
-0x0041E4B0:		Worker3Control
-0x0041EAC0:		DrawXianLord
+0x0041DBB0:	 *	Cult2Control
+0x0041DFE0:	 *	MonkControl
+0x0041E4B0:	 *	Worker3Control
+0x0041EAC0:	 *	DrawXianLord
 0x0041EEC0:		XianLordControl_SubFunc
-0x0041EF70:		InitialiseXianLord
-0x0041EFD0:		XianLordControl
+0x0041EF70:	 *	InitialiseXianLord
+0x0041EFD0:	 *	XianLordControl
 0x0041F5B0:		WarriorControl_SubFunc
-0x0041F650:		WarriorControl
+0x0041F650:	 *	WarriorControl
 
 	game/gameflow.cpp
 0x0041FA40:	+	GF_LoadScriptFile
@@ -696,8 +696,8 @@ x function is unused / included in another function
 0x00430A10:		AnimateLara
 0x00430D10:	+	UseItem
 0x00430ED0:	+	LaraCheatGetStuff
-0x00430F90:		ControlLaraExtra
-0x00430FB0:		InitialiseLaraLoad
+0x00430F90:	 *	ControlLaraExtra
+0x00430FB0:	 *	InitialiseLaraLoad
 0x00430FE0:		InitialiseLara
 0x004312A0:	+	InitialiseLaraInventory
 0x00431610:	 *	LaraInitialiseMeshes
@@ -761,7 +761,7 @@ x function is unused / included in another function
 0x00433F20:		TestBlockPull
 0x00434160:		AlterFloorHeight
 0x00434220:		DrawMovableBlock
-0x00434250:		DrawUnclippedItem
+0x00434250:	 *	DrawUnclippedItem
 
 	game/objects.cpp
 0x004342C0:		EarthQuake
@@ -812,15 +812,15 @@ x function is unused / included in another function
 0x00436040:		GunHit
 0x00436100:		GunMiss
 0x004361B0:		ShotLara
-0x00436380:		InitialiseCult1
-0x004363D0:		Cult1Control
-0x00436800:		InitialiseCult3
-0x00436850:		Cult3Control
-0x00436DC0:		Worker1Control
-0x004371C0:		Worker2Control
-0x00437620:		BanditControl
-0x00437960:		Bandit2Control
-0x00437DA0:		WinstonControl
+0x00436380:	 *	InitialiseCult1
+0x004363D0:	 *	Cult1Control
+0x00436800:	 *	InitialiseCult3
+0x00436850:	 *	Cult3Control
+0x00436DC0:	 *	Worker1Control
+0x004371C0:	 *	Worker2Control
+0x00437620:	 *	BanditControl
+0x00437960:	 *	Bandit2Control
+0x00437DA0:	 *	WinstonControl
 
 	game/pickup.cpp
 0x00437F20:		PickUpCollision
@@ -836,7 +836,7 @@ x function is unused / included in another function
 0x00438F70:		SecretControl
 
 	game/rat.cpp
-0x00438FA0:		MouseControl
+0x00438FA0:	 *	MouseControl
 
 	game/savegame.cpp
 0x00439190:		InitialiseStartInfo
@@ -852,16 +852,16 @@ x function is unused / included in another function
 0x0043A330:	 *	InitialiseLevel
 0x0043A490:		InitialiseGameFlags
 0x0043A500:	+	InitialiseLevelFlags
-0x0043A530:	 *	BaddyObjects
+0x0043A530:	+	BaddyObjects
 0x0043B570:	 *	TrapObjects
 0x0043BB70:	 *	ObjectObjects
 0x0043C7C0:	+	InitialiseObjects
 0x0043C830:		GetCarriedItems
 
 	game/shark.cpp
-0x0043C900:		JellyControl
-0x0043CA20:		BaracuddaControl
-0x0043CC50:		SharkControl
+0x0043C900:	 *	JellyControl
+0x0043CA20:	 *	BaracuddaControl
+0x0043CC50:	 *	SharkControl
 
 	game/skidoo.cpp
 0x0043CEE0:		InitialiseSkidoo
@@ -881,11 +881,11 @@ x function is unused / included in another function
 0x0043E350:		SkidooCheckGetOff
 0x0043E590:		SkidooFireWeapon
 0x0043E6B0:		SkidooControl
-0x0043EB10:		DrawSkidoo
-0x0043EDF0:		InitialiseSkidman
-0x0043EE80:		SkidManControl
+0x0043EB10:	 *	DrawSkidoo
+0x0043EDF0:	 *	InitialiseSkidman
+0x0043EE80:	 *	SkidManControl
 0x0043F280:		SkidmanPush
-0x0043F3A0:		SkidmanCollision
+0x0043F3A0:	 *	SkidmanCollision
 
 	game/sound.cpp
 0x0043F430:	+	GetRealTrack
@@ -903,8 +903,8 @@ x function is unused / included in another function
 
 	game/spider.cpp
 0x00440070:		SpiderLeap
-0x00440120:		SpiderControl
-0x00440340:		BigSpiderControl
+0x00440120:	 *	SpiderControl
+0x00440340:	 *	BigSpiderControl
 
 	game/text.cpp
 0x00440500:	+	T_InitPrint
@@ -967,8 +967,8 @@ x function is unused / included in another function
 0x00442FF0:		ControlLavaBlob
 
 	game/yeti.cpp
-0x00443100:		GiantYetiControl
-0x00443400:		YetiControl
+0x00443100:	 *	GiantYetiControl
+0x00443400:	 *	YetiControl
 
 // ======================================
 // SPECIFIC

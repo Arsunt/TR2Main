@@ -33,8 +33,9 @@
 void __cdecl UseItem(__int16 itemID); // 0x00430D10
 void __cdecl LaraCheatGetStuff(); // 0x00430ED0
 
-// 0x00430F90:		ControlLaraExtra
-// 0x00430FB0:		InitialiseLaraLoad
+#define ControlLaraExtra ((void(__cdecl*)(__int16)) 0x00430F90)
+#define InitialiseLaraLoad ((void(__cdecl*)(__int16)) 0x00430FB0)
+
 // 0x00430FE0:		InitialiseLara
 
 void __cdecl InitialiseLaraInventory(int levelID); // 0x004312A0

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -44,10 +44,13 @@
 //	0x0043E350:		SkidooCheckGetOff
 //	0x0043E590:		SkidooFireWeapon
 //	0x0043E6B0:		SkidooControl
-//	0x0043EB10:		DrawSkidoo
-//	0x0043EDF0:		InitialiseSkidman
-//	0x0043EE80:		SkidManControl
+
+#define DrawSkidoo ((void(__cdecl*)(ITEM_INFO *)) 0x0043EB10)
+#define InitialiseSkidman ((void(__cdecl*)(__int16)) 0x0043EDF0)
+#define SkidManControl ((void(__cdecl*)(__int16)) 0x0043EE80)
+
 //	0x0043F280:		SkidmanPush
-//	0x0043F3A0:		SkidmanCollision
+
+#define SkidmanCollision ((void(__cdecl*)(__int16, ITEM_INFO *, COLL_INFO *)) 0x0043F3A0)
 
 #endif // SKIDOO_H_INCLUDED

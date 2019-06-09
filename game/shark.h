@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -27,8 +27,8 @@
 /*
  * Function list
  */
-//	0x0043C900:		JellyControl
-//	0x0043CA20:		BaracuddaControl
-//	0x0043CC50:		SharkControl
+#define JellyControl ((void(__cdecl*)(__int16)) 0x0043C900)
+#define BaracuddaControl ((void(__cdecl*)(__int16)) 0x0043CA20)
+#define SharkControl ((void(__cdecl*)(__int16)) 0x0043CC50)
 
 #endif // SHARK_H_INCLUDED

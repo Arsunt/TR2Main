@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -28,14 +28,19 @@
  * Function list
  */
 //	0x0041DB30:		Knife
-//	0x0041DBB0:		Cult2Control
-//	0x0041DFE0:		MonkControl
-//	0x0041E4B0:		Worker3Control
-//	0x0041EAC0:		DrawXianLord
+
+#define Cult2Control ((void(__cdecl*)(__int16)) 0x0041DBB0)
+#define MonkControl ((void(__cdecl*)(__int16)) 0x0041DFE0)
+#define Worker3Control ((void(__cdecl*)(__int16)) 0x0041E4B0)
+#define DrawXianLord ((void(__cdecl*)(ITEM_INFO *)) 0x0041EAC0)
+
 //	0x0041EEC0:		XianLordControl_SubFunc
-//	0x0041EF70:		InitialiseXianLord
-//	0x0041EFD0:		XianLordControl
+
+#define InitialiseXianLord ((void(__cdecl*)(__int16)) 0x0041EF70)
+#define XianLordControl ((void(__cdecl*)(__int16)) 0x0041EFD0)
+
 //	0x0041F5B0:		WarriorControl_SubFunc
-//	0x0041F650:		WarriorControl
+
+#define WarriorControl ((void(__cdecl*)(__int16)) 0x0041F650)
 
 #endif // ENEMIES_H_INCLUDED
