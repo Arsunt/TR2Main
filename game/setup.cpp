@@ -238,7 +238,7 @@ void __cdecl BaddyObjects() {
 		obj->water_creature = 1;
 		AnimBones[obj->boneIndex + 6*4] |= 0x08;
 	}
-	obj = &Objects[ID_SPIDER];
+	obj = &Objects[ID_SPIDER_or_WOLF];
 	if( obj->loaded ) {
 		obj->control = SpiderControl;
 		obj->collision = CreatureCollision;
@@ -251,7 +251,7 @@ void __cdecl BaddyObjects() {
 		obj->save_flags = 1;
 		obj->save_anim = 1;
 	}
-	obj = &Objects[ID_BIG_SPIDER];
+	obj = &Objects[ID_BIG_SPIDER_or_BEAR];
 	if( obj->loaded ) {
 		obj->control = BigSpiderControl;
 		obj->collision = CreatureCollision;

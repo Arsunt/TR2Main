@@ -520,7 +520,7 @@ BOOL __cdecl LoadBoxes(HANDLE hFile) {
 	for( int i=0; i<2; ++i ) {
 		for( int j=0; j<4; ++j ) {
 			if( (j == 2) ||
-				(j == 1 && !Objects[ID_SPIDER].loaded && !Objects[ID_SKIDOO_ARMED].loaded) ||
+				(j == 1 && !Objects[ID_SPIDER_or_WOLF].loaded && !Objects[ID_SKIDOO_ARMED].loaded) ||
 				(j == 3 && !Objects[ID_YETI].loaded && !Objects[ID_WORKER3].loaded) )
 			{
 				SetFilePointer(hFile, sizeof(__int16)*BoxesCount, NULL, FILE_CURRENT); // skip some GroundZones
