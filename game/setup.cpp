@@ -21,6 +21,7 @@
 
 #include "global/precompiled.h"
 #include "game/setup.h"
+#include "game/bear.h"
 #include "game/bird.h"
 #include "game/collide.h"
 #include "game/diver.h"
@@ -37,9 +38,14 @@
 #include "game/shark.h"
 #include "game/skidoo.h"
 #include "game/spider.h"
+#include "game/wolf.h"
 #include "game/yeti.h"
 #include "specific/winmain.h"
 #include "global/vars.h"
+
+#ifdef FEATURE_GOLD
+extern bool IsGold();
+#endif
 
 void __cdecl InitialiseLevelFlags() {
 	memset(&SaveGame.statistics, 0, sizeof(STATISTICS_INFO));
@@ -240,11 +246,18 @@ void __cdecl BaddyObjects() {
 	}
 	obj = &Objects[ID_SPIDER_or_WOLF];
 	if( obj->loaded ) {
+#ifdef FEATURE_GOLD
+		obj->initialise = IsGold() ? InitialiseWolf : NULL;
+		obj->control = IsGold() ? WolfControl : SpiderControl;
+		obj->hitPoints = IsGold() ? 10 : 5;
+		obj->radius = IsGold() ? 341 : 102;
+#else
 		obj->control = SpiderControl;
-		obj->collision = CreatureCollision;
-		obj->shadowSize = 128;
 		obj->hitPoints = 5;
 		obj->radius = 102;
+#endif
+		obj->collision = CreatureCollision;
+		obj->shadowSize = 128;
 		obj->intelligent = 1;
 		obj->save_position = 1;
 		obj->save_hitpoints = 1;
@@ -253,10 +266,15 @@ void __cdecl BaddyObjects() {
 	}
 	obj = &Objects[ID_BIG_SPIDER_or_BEAR];
 	if( obj->loaded ) {
+#ifdef FEATURE_GOLD
+		obj->control = IsGold() ? BearControl : BigSpiderControl;
+		obj->hitPoints = IsGold() ? 30 : 40;
+#else
 		obj->control = BigSpiderControl;
+		obj->hitPoints = 40;
+#endif
 		obj->collision = CreatureCollision;
 		obj->shadowSize = 128;
-		obj->hitPoints = 40;
 		obj->radius = 341;
 		obj->intelligent = 1;
 		obj->save_position = 1;
@@ -410,7 +428,11 @@ void __cdecl BaddyObjects() {
 	if( obj->loaded ) {
 		obj->control = MonkControl;
 		obj->collision = CreatureCollision;
+#ifdef FEATURE_GOLD
+		obj->shadowSize = IsGold() ? 0 : 128;
+#else
 		obj->shadowSize = 128;
+#endif
 		obj->hitPoints = 30;
 		obj->radius = 102;
 		obj->intelligent = 1;
