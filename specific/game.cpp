@@ -45,6 +45,10 @@
 #include "modding/background_new.h"
 #endif // FEATURE_BACKGROUND_IMPROVED
 
+#ifdef FEATURE_GOLD
+extern bool IsGold();
+#endif
+
 __int16 __cdecl StartGame(int levelID, GF_LEVEL_TYPE levelType) {
 	if( levelType == GFL_NORMAL || levelType == GFL_SAVED || levelType == GFL_DEMO )
 		CurrentLevel = levelID;
@@ -282,9 +286,14 @@ void __cdecl DisplayCredits() {
 #else // !FEATURE_BACKGROUND_IMPROVED
 	DWORD bytesRead;
 	HANDLE hFile;
+#ifdef FEATURE_GOLD
+	DWORD fileSize[10];
+	BYTE *fileData[10];
+#else // !FEATURE_GOLD
 	DWORD fileSize[9];
-	DWORD bitmapSize;
 	BYTE *fileData[9];
+#endif // !FEATURE_GOLD
+	DWORD bitmapSize;
 	BYTE *bitmapData;
 	LPCSTR fullPath;
 	char fileName[64] = "data\\credit0?.pcx";
@@ -306,7 +315,11 @@ void __cdecl DisplayCredits() {
 	S_CDPlay(52, FALSE);
 
 	// slideshow loop
+#ifdef FEATURE_GOLD
+	for( i=IsGold()?0:1; i<100; ++i ) {
+#else // !FEATURE_GOLD
 	for( i=1; i<100; ++i ) {
+#endif // !FEATURE_GOLD
 		snprintf(fileName, sizeof(fileName), "data\\credit%02d.pcx", i);
 		if( !BGND2_LoadPicture(fileName, FALSE, FALSE) ) {
 			BGND2_ShowPicture(30, 225, 10, 2, FALSE);
@@ -327,8 +340,13 @@ void __cdecl DisplayCredits() {
 
 #else // !FEATURE_BACKGROUND_IMPROVED
 	// credit files load loop (preload all files may be reasonable because of CDAudio issues, since PCX are on CD too)
+#ifdef FEATURE_GOLD
+	for( i=0; i<(IsGold()?10:9); ++i ) {
+		fileName[12] = '0'+i+(IsGold()?0:1);
+#else // !FEATURE_GOLD
 	for( i=0; i<9; ++i ) {
 		fileName[12] = '0'+i+1;
+#endif // !FEATURE_GOLD
 		fullPath = GetFullPath(fileName);
 		hFile = CreateFile(fullPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 		if( hFile != INVALID_HANDLE_VALUE ) {
@@ -344,7 +362,11 @@ void __cdecl DisplayCredits() {
 	S_CDPlay(52, FALSE);
 
 	// slideshow loop
+#ifdef FEATURE_GOLD
+	for( i=0; i<(IsGold()?10:9); ++i ) {
+#else // !FEATURE_GOLD
 	for( i=0; i<9; ++i ) {
+#endif // !FEATURE_GOLD
 		DecompPCX(fileData[i], fileSize[i], bitmapData, PicPalette);
 
 		if( SavedAppSettings.RenderMode == RM_Software )
