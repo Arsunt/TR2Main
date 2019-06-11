@@ -23,6 +23,7 @@
 #include "game/invtext.h"
 #include "game/text.h"
 #include "specific/output.h"
+#include "specific/smain.h"
 #include "global/vars.h"
 
 #define REQ_NEARZ		(8)
@@ -738,6 +739,12 @@ void __cdecl ShowEndStatsText() {
 			maxTotal += GF_GetNumSecrets(i); // In the original code there is 3 instead of GF_GetNumSecrets function
 		}
 		sprintf(bufStr, "%d %s %d", total, GF_GameStringTable[GSI_String_Of], maxTotal);
+#ifdef FEATURE_GOLD
+		// NOTE: this check is presented in the "Golden Mask" only
+		if( total == maxTotal ) {
+			EnableLevelSelect();
+		}
+#endif // FEATURE_GOLD
 		AddRequesterItem(&StatsRequester, GF_GameStringTable[GSI_String_SecretsFound], REQFLAG_LEFT, bufStr, REQFLAG_RIGHT);
 
 		// Kills

@@ -32,5 +32,6 @@ __int16 __cdecl TitleSequence(); // 0x00454DE0
 void __cdecl CheckCheatMode(); // 0x00454EF0
 void __cdecl S_SaveSettings(); // 0x00455250
 void __cdecl S_LoadSettings(); // 0x004552D0
+void __cdecl EnableLevelSelect(); // tomb2gold:0x00455960
 
 #endif // SMAIN_H_INCLUDED

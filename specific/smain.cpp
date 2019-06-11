@@ -77,6 +77,10 @@ extern double WaterFogBeginFactor;
 extern double WaterFogEndFactor;
 #endif // FEATURE_VIEW_IMPROVED
 
+#ifdef FEATURE_GOLD
+extern bool IsGold();
+#endif
+
 #ifdef FEATURE_ASSAULT_SAVE
 void SaveAssault() {
 	OpenGameRegistryKey(REG_GAME_KEY);
@@ -486,6 +490,19 @@ void __cdecl S_LoadSettings() {
 	GetRegistryBoolValue(REG_PSXFOV_ENABLE, &PsxFovEnabled, false);
 #endif // FEATURE_VIEW_IMPROVED
 
+#ifdef FEATURE_GOLD
+	if( IsGold() ) {
+		// This RJF check is presented in "The Golden Mask" only
+		DWORD rjf = 0;
+		GetRegistryDwordValue("RJF", &rjf, 0);
+		if( rjf == 150868 ) {
+			GF_GameFlow.flags |= GFF_SelectAnyLevel;
+		} else {
+			DeleteRegistryValue("RJF");
+		}
+	}
+#endif // FEATURE_GOLD
+
 	CloseGameRegistryKey();
 
 	// NOTE: There was no such call in the original code, which produces control configuration bugs
@@ -514,6 +531,21 @@ void __cdecl S_LoadSettings() {
 
 	setup_screen_size();
 #endif // FEATURE_VIEW_IMPROVED
+}
+
+// NOTE: this function is presented in the "Golden Mask" only
+void __cdecl EnableLevelSelect() {
+#ifdef FEATURE_GOLD
+	if( IsGold() ) {
+		OpenGameRegistryKey(REG_GAME_KEY);
+		// NOTE: It seems that RJF=150868 refers to
+		// Richard J. Flower ("The Golden Mask" programmer)
+		// and probably his birthday on August 15th, 1968.
+		SetRegistryDwordValue("RJF", 150868);
+		GF_GameFlow.flags |= GFF_SelectAnyLevel;
+		CloseGameRegistryKey();
+	}
+#endif // FEATURE_GOLD
 }
 
 /*
