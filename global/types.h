@@ -2001,6 +2001,24 @@ typedef struct LaraInfo_t {
 	CREATURE_INFO *creature;
 } LARA_INFO;
 
+typedef struct BiteInfo_t {
+	int x;
+	int y;
+	int z;
+	int meshIndex;
+} BITE_INFO;
+
+
+typedef struct AIInfo_t {
+	__int16 zone_number;
+	__int16 enemy_zone;
+	int distance;
+	int ahead;
+	int bite;
+	__int16 angle;
+	__int16 enemy_facing;
+} AI_INFO;
+
 #pragma pack(pop)
 
 #endif // GLOBAL_TYPES_H_INCLUDED

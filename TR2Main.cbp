@@ -106,6 +106,9 @@
 		<Unit filename="3dsystem/scalespr.cpp" />
 		<Unit filename="3dsystem/scalespr.h" />
 
+		<Unit filename="game/bear.cpp" />
+		<Unit filename="game/bear.h" />
+
 		<Unit filename="game/bird.cpp" />
 		<Unit filename="game/bird.h" />
 

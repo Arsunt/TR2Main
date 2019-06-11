@@ -19,21 +19,15 @@
  * along with TR2Main.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LOT_H_INCLUDED
-#define LOT_H_INCLUDED
+#ifndef BEAR_H_INCLUDED
+#define BEAR_H_INCLUDED
 
 #include "global/types.h"
 
 /*
  * Function list
  */
-//	0x00432B10:		InitialiseLOTarray
-//	0x00432B70:		DisableBaddieAI
+// NOTE: this function is presented in the "Golden Mask" only
+void __cdecl BearControl(__int16 itemID); // tomb2gold:0x0040C860
 
-#define EnableBaddieAI ((int(__cdecl*)(__int16, BOOL)) 0x00432BC0)
-
-//	0x00432D70:		InitialiseSlot
-//	0x00432F80:		CreateZone
-//	0x00433040:		ClearLOT
-
-#endif // LOT_H_INCLUDED
+#endif // BEAR_H_INCLUDED

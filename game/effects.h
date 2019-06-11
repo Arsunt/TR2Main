@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -29,7 +29,9 @@
  */
 //	0x0041C4B0:		ItemNearLara
 //	0x0041C540:		SoundEffects
-//	0x0041C5B0:		DoBloodSplat
+
+#define DoBloodSplat ((__int16(__cdecl*)(int, int, int, __int16, __int16, __int16)) 0x0041C5B0)
+
 //	0x0041C610:		DoLotsOfBlood
 //	0x0041C6C0:		ControlBlood1
 //	0x0041C750:		ControlExplosion1
