@@ -250,6 +250,9 @@
 		<Unit filename="game/traps.cpp" />
 		<Unit filename="game/traps.h" />
 
+		<Unit filename="game/wolf.cpp" />
+		<Unit filename="game/wolf.h" />
+
 		<Unit filename="game/yeti.cpp" />
 		<Unit filename="game/yeti.h" />
 

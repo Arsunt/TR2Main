@@ -27,7 +27,8 @@
 /*
  * Function list
  */
-//	0x0040E190:		InitialiseCreature
+#define InitialiseCreature ((void(__cdecl*)(__int16)) 0x0040E190)
+
 //	0x0040E1C0:		CreatureActive
 
 #define CreatureAIInfo ((void(__cdecl*)(ITEM_INFO *, AI_INFO *)) 0x0040E210)
@@ -48,9 +49,7 @@
 
 #define CreatureAnimation ((int(__cdecl*)(__int16, __int16, __int16)) 0x0040F500)
 #define CreatureTurn ((__int16(__cdecl*)(ITEM_INFO *, __int16)) 0x0040FDD0)
-
-//	0x0040FEB0:		CreatureTilt
-
+#define CreatureTilt ((void(__cdecl*)(ITEM_INFO *, __int16)) 0x0040FEB0)
 #define CreatureHead ((void(__cdecl*)(ITEM_INFO *, __int16)) 0x0040FEF0)
 
 //	0x0040FF40:		CreatureNeck

@@ -135,7 +135,7 @@ x function is unused / included in another function
 0x0040E0D0:		GondolaControl
 
 	game/box.cpp
-0x0040E190:		InitialiseCreature
+0x0040E190:	 *	InitialiseCreature
 0x0040E1C0:		CreatureActive
 0x0040E210:	 *	CreatureAIInfo
 0x0040E470:		SearchLOT_SubFunc
@@ -151,7 +151,7 @@ x function is unused / included in another function
 0x0040F440:		CreatureDie
 0x0040F500:	 *	CreatureAnimation
 0x0040FDD0:	 *	CreatureTurn
-0x0040FEB0:		CreatureTilt
+0x0040FEB0:	 *	CreatureTilt
 0x0040FEF0:	 *	CreatureHead
 0x0040FF40:		CreatureNeck
 0x0040FF90:		CreatureFloat
