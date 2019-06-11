@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The number of secrets in the script is taken into account when calculating the total number of secrets in the final statistics. Now it is calculated correctly, regardless of the total number of levels, bonus levels, and even mod levels.
 - Additional checks have been implemented to prevent Lara from getting weapons that are not supported by current level. Thus, a number of problems associated with the "Nightmare in Vegas" level are fixed.
 - Now *"New Game+"* is activated after the completion of the latest level in the script, and not any in which the final statistics appear. This allows you to activate this mode after the "Nightmare in Vegas" level, and not before.
+- Now you can start the game in Gold mode, specifying the option *"-gold"* on the command line or shortcut properties (in the same way as the *"-setup"* option).
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.

@@ -50,6 +50,18 @@ static void SEH_TR(unsigned int error, EXCEPTION_POINTERS* pExp) {
 }
 #endif // _MSC_VER
 
+#ifdef FEATURE_GOLD
+static bool gold = false;
+
+void SetGold(bool state) {
+	gold = state;
+}
+
+bool IsGold() {
+	return gold;
+}
+#endif
+
 int __cdecl RenderErrorBox(int errorCode) {
 	char errorText[128];
 	LPCTSTR errorMessage = DecodeErrorMessage(errorCode);
@@ -84,6 +96,9 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 
 	try {
 		isSetupRequested = ( UT_FindArg("setup") != NULL );
+#ifdef FEATURE_GOLD
+		SetGold(UT_FindArg("gold") != NULL);
+#endif
 
 		initStatus = Init(isSetupRequested);
 		if( initStatus == 0 )
