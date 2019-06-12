@@ -42,6 +42,12 @@
 		!Read_Strings((count), (lpTable), (lpBuffer), (lpRead), (hFile)) ) goto failLabel; \
 }
 
+#ifdef FEATURE_GOLD
+extern bool IsGold();
+#endif
+
+static GF_LEVEL_TYPE LoadLevelType = GFL_NOLEVEL;
+
 BOOL __cdecl ReadFileSync(HANDLE hFile, LPVOID lpBuffer, DWORD nBytesToRead, LPDWORD lpnBytesRead, LPOVERLAPPED lpOverlapped) {
 	ReadFileBytesCounter += nBytesToRead;
 
@@ -637,7 +643,14 @@ BOOL __cdecl LoadSamples(HANDLE hFile) {
 	ReadFileSync(hFile, sampleIndexes, sizeof(DWORD)*sampleCount, &bytesRead, NULL);
 
 	// Open SFX file
-	sfxFileName = GetFullPath("data\\main.sfx");
+	sfxFileName = "data\\main.sfx";
+#ifdef FEATURE_GOLD
+	// For the Gold mode use the Gold SFX, if the level is not Title and not Lara's Home
+	if( IsGold() && LoadLevelType != GFL_TITLE && CurrentLevel != 0 ) {
+		sfxFileName = "data\\maing.sfx";
+	}
+#endif // FEATURE_GOLD
+	sfxFileName = GetFullPath(sfxFileName);
 	hSfxFile = CreateFile(sfxFileName, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if( hSfxFile == INVALID_HANDLE_VALUE ) {
 		wsprintf(StringToShow, "Could not open MAIN.SFX file");
@@ -795,6 +808,7 @@ EXIT :
 
 BOOL __cdecl S_LoadLevelFile(LPCTSTR fileName, int levelID, GF_LEVEL_TYPE levelType) {
 	S_UnloadLevelFile();
+	LoadLevelType = levelType; // NOTE: this line is not presented in the original game
 	return LoadLevel(fileName, levelID);
 }
 

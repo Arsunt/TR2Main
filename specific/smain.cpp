@@ -100,7 +100,14 @@ BOOL __cdecl GameMain() {
 	if( !S_InitialiseSystem() )
 		return FALSE;
 
-	if ( !GF_LoadScriptFile("data\\tombPC.dat") ) {
+	LPCTSTR scriptFileName = "data\\tombPC.dat";
+#ifdef FEATURE_GOLD
+	if( IsGold() ) {
+		scriptFileName = "data\\tombPCg.dat";
+	}
+#endif // FEATURE_GOLD
+
+	if ( !GF_LoadScriptFile(scriptFileName) ) {
 		S_ExitSystem("GameMain: could not load script file");
 		return FALSE; // the app is terminated here
 	}
