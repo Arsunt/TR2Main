@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -38,6 +38,10 @@
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
 extern LPDIRECTDRAWSURFACE3 CaptureBufferSurface;
+
+#ifdef FEATURE_GOLD
+extern bool IsGold();
+#endif
 
 DWORD BGND_PictureWidth  = 640;
 DWORD BGND_PictureHeight = 480;
@@ -563,6 +567,7 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 	DWORD width, height;
 	char fullPath[256] = {0};
 	bool isPCX;
+	int pickResult = -1;
 
 	BGND_IsCaptured = false; // captured screen is not valid since we want picture file now
 
@@ -585,9 +590,22 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 
 	lastWinWidth = PhdWinWidth;
 	lastWinHeight = PhdWinHeight;
-	strncpy(fullPath, GetFullPath(fileName), sizeof(fullPath));
 
-	if( 0 > PickBestPictureFile(fullPath, "pix") ) {
+#ifdef FEATURE_GOLD
+	if( IsGold() ) {
+		AddFilenameSuffix(fullPath, sizeof(fullPath), GetFullPath(fileName), "g");
+		pickResult = PickBestPictureFile(fullPath, "pix");
+	}
+	if( !IsGold() || pickResult < 0 ) {
+		strncpy(fullPath, GetFullPath(fileName), sizeof(fullPath));
+		pickResult = PickBestPictureFile(fullPath, "pix");
+	}
+#else // !FEATURE_GOLD
+	strncpy(fullPath, GetFullPath(fileName), sizeof(fullPath));
+	pickResult = PickBestPictureFile(fullPath, "pix");
+#endif // FEATURE_GOLD
+
+	if( pickResult < 0 ) {
 		if( isReload ) {
 			if( !strncmp(lastFullPath, fullPath, sizeof(lastFullPath)) ) {
 				return 0; // same filepath - no need to reload picture

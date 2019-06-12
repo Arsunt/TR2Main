@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -38,5 +38,7 @@ int CreateDirectories(LPCSTR path, bool isFileName);
 int CreateSequenceFilename(LPSTR destName, DWORD destSize, LPCSTR filePath, LPCSTR fileExt, LPCSTR nameBase, int seqDigits, int seqNumber);
 
 int CreateDateTimeFilename(LPSTR fileName, DWORD destSize, LPCSTR filePath, LPCSTR fileExt, SYSTEMTIME *lastTime, int *lastIndex);
+
+int AddFilenameSuffix(LPSTR destName, DWORD destSize, LPCSTR fileName, LPCSTR suffix);
 
 #endif // FILE_UTILS_H_INCLUDED
