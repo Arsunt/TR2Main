@@ -138,7 +138,11 @@ BOOL __cdecl GameMain() {
 		BGND2_ShowPicture(30, 90, 10, 2, TRUE);
 	}
 #else // FEATURE_BACKGROUND_IMPROVED
+#ifdef FEATURE_GOLD
+	S_DisplayPicture(IsGold()?"data\\legalg.pcx":"data\\legal.pcx", FALSE);
+#else // !FEATURE_GOLD
 	S_DisplayPicture("data\\legal.pcx", FALSE);
+#endif // !FEATURE_GOLD
 	S_InitialisePolyList(FALSE);
 	S_CopyBufferToScreen();
 	S_OutputPolyList();
@@ -245,7 +249,11 @@ __int16 __cdecl TitleSequence() {
 		IsTitleLoaded = TRUE;
 	}
 
+#if defined(FEATURE_GOLD) && !defined(FEATURE_BACKGROUND_IMPROVED)
+	S_DisplayPicture(IsGold()?"data\\titleg.pcx":"data\\title.pcx", TRUE);
+#else // !defined(FEATURE_GOLD) && !defined(FEATURE_BACKGROUND_IMPROVED)
 	S_DisplayPicture("data\\title.pcx", TRUE);
+#endif // !defined(FEATURE_GOLD) && !defined(FEATURE_BACKGROUND_IMPROVED)
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	// NOTE: title menu fade-in was absent in the original game
