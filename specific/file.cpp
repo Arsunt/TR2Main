@@ -793,7 +793,7 @@ EXIT :
 	return result;
 }
 
-BOOL __cdecl S_LoadLevelFile(LPCTSTR fileName, int levelID) {
+BOOL __cdecl S_LoadLevelFile(LPCTSTR fileName, int levelID, GF_LEVEL_TYPE levelType) {
 	S_UnloadLevelFile();
 	return LoadLevel(fileName, levelID);
 }

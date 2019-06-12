@@ -48,7 +48,7 @@ void __cdecl ChangeFileNameExtension(char *fileName, const char *fileExt); // 0x
 LPCTSTR __cdecl GetFullPath(LPCTSTR path); // 0x0044B200
 BOOL __cdecl SelectDrive(); // 0x0044B230
 BOOL __cdecl LoadLevel(LPCTSTR fileName, int levelID); // 0x0044B310
-BOOL __cdecl S_LoadLevelFile(LPCTSTR fileName, int levelID); // 0x0044B560
+BOOL __cdecl S_LoadLevelFile(LPCTSTR fileName, int levelID, GF_LEVEL_TYPE levelType); // 0x0044B560
 void __cdecl S_UnloadLevelFile(); // 0x0044B580
 void __cdecl S_AdjustTexelCoordinates(); // 0x0044B5B0
 BOOL __cdecl S_ReloadLevelGraphics(BOOL reloadPalettes, BOOL reloadTexPages); // 0x0044B5D0
