@@ -80,6 +80,9 @@
 			<Add after='cmd /c copy &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_FILE)&quot; &quot;$(TR2_DIR)&quot;' />
 		</ExtraCommands>
 		<Unit filename="TR2Main.cpp" />
+		<Unit filename="TR2Main.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
 
 		<Unit filename="global/precompiled.h">
 			<Option compile="1" />
