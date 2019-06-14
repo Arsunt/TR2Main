@@ -53,8 +53,10 @@ __int16 __cdecl StartGame(int levelID, GF_LEVEL_TYPE levelType) {
 	if( levelType == GFL_NORMAL || levelType == GFL_SAVED || levelType == GFL_DEMO )
 		CurrentLevel = levelID;
 
-	if( levelType != GFL_SAVED )
+	// NOTE: the original code has no bonusFlag check, but it is required here
+	if( levelType != GFL_SAVED && (levelType != GFL_NORMAL || SaveGame.bonusFlag) ) {
 		ModifyStartInfo(levelID);
+	}
 
 	IsTitleLoaded = FALSE;
 
