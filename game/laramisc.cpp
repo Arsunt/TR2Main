@@ -155,48 +155,48 @@ void __cdecl InitialiseLaraInventory(int levelID) {
 	}
 
 	// NOTE: additional weapon availability checks not presented in the original game
-	if( !Objects[ID_PISTOL_ITEM].loaded ) {
+	if( !Objects[ID_PISTOL_OPTION].loaded ) {
 		start->has_pistols = 0;
 	}
-	if( !Objects[ID_UZI_ITEM].loaded ) {
+	if( !Objects[ID_UZI_OPTION].loaded ) {
 		start->has_uzis = 0;
 	}
-	if( !Objects[ID_MAGNUM_ITEM].loaded ) {
+	if( !Objects[ID_MAGNUM_OPTION].loaded ) {
 		start->has_magnums = 0;
 	}
-	if( !Objects[ID_SHOTGUN_ITEM].loaded ) {
+	if( !Objects[ID_SHOTGUN_OPTION].loaded ) {
 		start->has_shotgun = 0;
 	}
-	if( !Objects[ID_GRENADE_ITEM].loaded ) {
+	if( !Objects[ID_GRENADE_OPTION].loaded ) {
 		start->has_grenade = 0;
 	}
-	if( !Objects[ID_M16_ITEM].loaded ) {
+	if( !Objects[ID_M16_OPTION].loaded ) {
 		start->has_m16 = 0;
 	}
-	if( !Objects[ID_HARPOON_ITEM].loaded ) {
+	if( !Objects[ID_HARPOON_OPTION].loaded ) {
 		start->has_harpoon = 0;
 	}
 
 	// NOTE: additional ammo availability checks not presented in the original game
-	if( !start->has_pistols && !Objects[ID_PISTOL_AMMO_ITEM].loaded ) {
+	if( !start->has_pistols && !Objects[ID_PISTOL_AMMO_OPTION].loaded ) {
 		start->pistolAmmo = 0;
 	}
-	if( !start->has_uzis && !Objects[ID_UZI_AMMO_ITEM].loaded ) {
+	if( !start->has_uzis && !Objects[ID_UZI_AMMO_OPTION].loaded ) {
 		start->uziAmmo = 0;
 	}
-	if( !start->has_magnums && !Objects[ID_MAGNUM_AMMO_ITEM].loaded ) {
+	if( !start->has_magnums && !Objects[ID_MAGNUM_AMMO_OPTION].loaded ) {
 		start->magnumAmmo = 0;
 	}
-	if( !start->has_shotgun && !Objects[ID_SHOTGUN_AMMO_ITEM].loaded ) {
+	if( !start->has_shotgun && !Objects[ID_SHOTGUN_AMMO_OPTION].loaded ) {
 		start->shotgunAmmo = 0;
 	}
-	if( !start->has_grenade && !Objects[ID_GRENADE_AMMO_ITEM].loaded ) {
+	if( !start->has_grenade && !Objects[ID_GRENADE_AMMO_OPTION].loaded ) {
 		start->grenadeAmmo = 0;
 	}
-	if( !start->has_m16 && !Objects[ID_M16_AMMO_ITEM].loaded ) {
+	if( !start->has_m16 && !Objects[ID_M16_AMMO_OPTION].loaded ) {
 		start->m16Ammo = 0;
 	}
-	if( !start->has_harpoon && !Objects[ID_HARPOON_AMMO_ITEM].loaded ) {
+	if( !start->has_harpoon && !Objects[ID_HARPOON_AMMO_OPTION].loaded ) {
 		start->harpoonAmmo = 0;
 	}
 

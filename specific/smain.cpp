@@ -397,27 +397,27 @@ void __cdecl CheckCheatMode() {
 				else if( as == AS_BACKJUMP ) {
 					// Give weapon and ammo
 					// NOTE: additional weapon availability checks not presented in the original game
-					if( Objects[ID_SHOTGUN_ITEM].loaded ) {
+					if( Objects[ID_SHOTGUN_OPTION].loaded ) {
 						Inv_AddItem(ID_SHOTGUN_ITEM);
 						Lara.shotgun_ammo = 500;
 					}
-					if( Objects[ID_MAGNUM_ITEM].loaded ) {
+					if( Objects[ID_MAGNUM_OPTION].loaded ) {
 						Inv_AddItem(ID_MAGNUM_ITEM);
 						Lara.magnum_ammo = 500;
 					}
-					if( Objects[ID_UZI_ITEM].loaded ) {
+					if( Objects[ID_UZI_OPTION].loaded ) {
 						Inv_AddItem(ID_UZI_ITEM);
 						Lara.uzi_ammo = 5000;
 					}
-					if( Objects[ID_HARPOON_ITEM].loaded ) {
+					if( Objects[ID_HARPOON_OPTION].loaded ) {
 						Inv_AddItem(ID_HARPOON_ITEM);
 						Lara.harpoon_ammo = 5000;
 					}
-					if( Objects[ID_M16_ITEM].loaded ) {
+					if( Objects[ID_M16_OPTION].loaded ) {
 						Inv_AddItem(ID_M16_ITEM);
 						Lara.m16_ammo = 5000;
 					}
-					if( Objects[ID_GRENADE_ITEM].loaded ) {
+					if( Objects[ID_GRENADE_OPTION].loaded ) {
 						Inv_AddItem(ID_GRENADE_ITEM);
 						Lara.grenade_ammo = 5000;
 					}
