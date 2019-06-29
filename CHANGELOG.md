@@ -27,6 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a bug that does not happen in the official levels (this situation is not in the script). Suppose a magnum and magnum ammo are set as a bonus for collecting all the secrets in the level. If Lara does not have a magnum at the moment of picking the last secret, she receives the magnum only, but not the magnum ammo. This is fixed now.
 - Fixed a bug that hid the ammo indicator in demo levels if *"New Game+"* is activated.
 
+### TR2Main bugfixes
+- Fixed game crash in Software Rendered mode with PlayStation styled inventory text box enabled (broken since v0.8.0).
+
 ## [0.8.2] - 2019-05-26
 ### TR2Main bugfixes
 - Background capture is redesigned, now it's fast again (broken since v0.8.0).

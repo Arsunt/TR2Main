@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -492,7 +492,7 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
 		// Draw outline
 		if( CHK_ANY(textInfo->flags, TIF_Outline) ) {
 #ifdef FEATURE_HUD_IMPROVED
-			if( InvTextBoxMode ) {
+			if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
 				S_DrawScreenBox(boxX, boxY, boxZ, boxW, boxH, textInfo->outlColour, textInfo->outlGour, textInfo->outlFlags);
 			} else {
 				T_DrawTextBox(boxX, boxY, z, boxW, boxH);

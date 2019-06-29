@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -59,7 +59,7 @@ void __cdecl S_DrawScreenBox(int sx, int sy, int z, int width, int height, BYTE 
 	height += adder;
 
 #ifdef FEATURE_HUD_IMPROVED
-	if( InvTextBoxMode && gour != NULL ) {
+	if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode && gour != NULL ) {
 		int x[3], y[3], lw;
 		int sz = PhdNearZ + z * 8;
 
@@ -154,7 +154,7 @@ void __cdecl S_DrawScreenFBox(int sx, int sy, int z, int width, int height, BYTE
 	height += adder;
 
 #ifdef FEATURE_HUD_IMPROVED
-	if( InvTextBoxMode && gour != NULL ) {
+	if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode && gour != NULL ) {
 		int x[3], y[3];
 
 		x[0] = sx;
