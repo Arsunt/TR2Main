@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -572,13 +572,15 @@ __int16 *__cdecl calc_roomvert(__int16 *ptrObj, BYTE farClip) {
 
 #ifdef FEATURE_VIEW_IMPROVED
 			if( depth >= PhdViewDistance ) {
+				PhdVBuf[i].rhw = persp * FltRhwOPersp;
+				PhdVBuf[i].zv = zv + baseZ;
 #else // !FEATURE_VIEW_IMPROVED
 			if( depth >= DEPTHQ_END ) { // fog end
+				PhdVBuf[i].rhw = 0.0; // NOTE: zero RHW is an invalid value, but the original game sets it.
+				PhdVBuf[i].zv = FltFarZ;
 #endif // FEATURE_VIEW_IMPROVED
 				PhdVBuf[i].g = 0x1FFF;
-				PhdVBuf[i].rhw = 0.0;
 				PhdVBuf[i].clip = farClip;
-				PhdVBuf[i].zv = FltFarZ;
 			} else {
 #ifdef FEATURE_VIEW_IMPROVED
 				PhdVBuf[i].g += CalculateFogShade(depth);
