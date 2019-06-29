@@ -106,6 +106,21 @@ void __cdecl S_DrawScreenBox(int sx, int sy, int z, int width, int height, BYTE 
 	int sx1 = sx + width;
 	int sy1 = sy + height;
 
+#ifdef FEATURE_HUD_IMPROVED
+	int pixel = GetRenderScale(1);
+
+	ins_flat_rect(sx+pixel*0, sy-pixel*1, sx1+pixel*2, sy-pixel*0, z, colorIdx1);
+	ins_flat_rect(sx+pixel*1, sy-pixel*0, sx1+pixel*1, sy+pixel*1, z, colorIdx2);
+
+	ins_flat_rect(sx1+pixel*0, sy+pixel*1, sx1+pixel*1, sy1+pixel*1, z, colorIdx1);
+	ins_flat_rect(sx1+pixel*1, sy+pixel*0, sx1+pixel*2, sy1+pixel*2, z, colorIdx2);
+
+	ins_flat_rect(sx-pixel*1, sy-pixel*1, sx+pixel*0, sy1+pixel*1, z, colorIdx1);
+	ins_flat_rect(sx-pixel*0, sy-pixel*0, sx+pixel*1, sy1+pixel*0, z, colorIdx2);
+
+	ins_flat_rect(sx-pixel*0, sy1+pixel*0, sx1+pixel*0, sy1+pixel*1, z, colorIdx1);
+	ins_flat_rect(sx-pixel*1, sy1+pixel*1, sx1+pixel*1, sy1+pixel*2, z, colorIdx2);
+#else // !FEATURE_HUD_IMPROVED
 	// NOTE: line coordinates slightly adjusted to fill gaps in the box corners (original game HWR bug)
 	if( SavedAppSettings.RenderMode == RM_Hardware ) {
 		++width;
@@ -122,6 +137,7 @@ void __cdecl S_DrawScreenBox(int sx, int sy, int z, int width, int height, BYTE 
 
 	S_DrawScreenLine(sx,	sy1,	z,	width-1,	0,			colorIdx1, NULL, flags);
 	S_DrawScreenLine(sx-1,	sy1+1,	z,	width+1,	0,			colorIdx2, NULL, flags);
+#endif // !FEATURE_HUD_IMPROVED
 }
 
 void __cdecl S_DrawScreenFBox(int sx, int sy, int z, int width, int height, BYTE colorIdx, GOURAUD_FILL *gour, UINT16 flags) {
