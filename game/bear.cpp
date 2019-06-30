@@ -57,6 +57,8 @@ void __cdecl BearControl(__int16 itemID) {
 	}
 
 	CREATURE_INFO *bear = (CREATURE_INFO *)item->data;
+	if( bear == NULL ) return; // NOTE: additional check not presented in the original game
+
 	__int16 angle = 0;
 	__int16 head = 0;
 

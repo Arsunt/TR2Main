@@ -65,6 +65,8 @@ void __cdecl WolfControl(__int16 itemID) {
 	}
 
 	CREATURE_INFO *wolf = (CREATURE_INFO *)item->data;
+	if( wolf == NULL ) return; // NOTE: additional check not presented in the original game
+
 	__int16 angle = 0;
 	__int16 head = 0;
 	__int16 tilt = 0;
