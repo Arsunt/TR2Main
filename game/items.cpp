@@ -64,7 +64,7 @@ void __cdecl InitialiseItem(__int16 itemIndex) {
 	item->hit_status = 0;
 	item->collidable = 1;
 	item->looked_at = 0;
-	item->clear_body = 1;
+	item->clear_body = 0;
 
 	if( CHK_ALL(item->flags, IFL_INVISIBLE) ) {
 		item->status = ITEM_INVISIBLE;
