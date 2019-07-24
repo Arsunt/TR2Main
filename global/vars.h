@@ -61,7 +61,10 @@
 #define GF_NumSecrets				VAR_I_(0x004642E8, __int16,			3)
 #define CineTargetAngle				VAR_I_(0x00464310, __int16,			PHD_90)
 #define OverlayStatus				VAR_I_(0x004644E0, int,				1)
+#define InvNFrames					VAR_I_(0x004644F8, int,				2)
 #define InvMainObjectsCount			VAR_I_(0x004654E0, __int16,			8)
+#define InvOptionObjectsCount		VAR_I_(0x00465604, __int16,			4)
+#define GymInvOpenEnabled			VAR_I_(0x00465618, BOOL,			TRUE)
 #define InventoryChosen				VAR_I_(0x00465A50, __int16,			-1)
 #define InventoryMode				VAR_I_(0x00465A54, INVENTORY_MODE,	INV_TitleMode)
 #define SoundVolume					VAR_I_(0x00465A5C, __int16,			165) // NOTE: value should be 10
@@ -149,6 +152,7 @@
 #define InvMainCurrent				VAR_U_(0x004D7928, UINT16)
 #define InvKeyObjectsCount			VAR_U_(0x004D792C, UINT16)
 #define InvKeysCurrent				VAR_U_(0x004D7930, UINT16)
+#define InvOptionCurrent			VAR_U_(0x004D7934, UINT16)
 #define InvRingText					VAR_U_(0x004D7944, TEXT_STR_INFO*)
 #define InvUpArrow1					VAR_U_(0x004D794C, TEXT_STR_INFO*)
 #define InvUpArrow2					VAR_U_(0x004D7950, TEXT_STR_INFO*)
@@ -156,6 +160,7 @@
 #define InvDownArrow2				VAR_U_(0x004D7958, TEXT_STR_INFO*)
 #define InputDB						VAR_U_(0x004D795C, DWORD)
 #define IsInventoryActive			VAR_U_(0x004D7968, UINT16)
+#define InvDemoMode					VAR_U_(0x004D7990, BOOL)
 #define IsInvOptionsDelay			VAR_U_(0x004D79A4, BOOL)
 #define InvOptionsDelayCounter		VAR_U_(0x004D79A8, int)
 #define SoundOptionLine				VAR_U_(0x004D79AC, UINT16)
@@ -613,6 +618,12 @@
 	&InvPickup1Option,
 	&InvPickup2Option,
 	NULL,
+}; */
+#define InvOptionList				ARRAY_(0x00465608, INVENTORY_ITEM*, [4]) /* = {
+	&InvPassportOption,
+	&InvControlOption,
+	&InvSoundOption,
+	&InvPhotoOption
 }; */
 #define CtrlTextA					ARRAY_(0x0051A248, TEXT_STR_INFO*, [14])
 #define CtrlTextB					ARRAY_(0x0051A280, TEXT_STR_INFO*, [14])

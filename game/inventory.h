@@ -27,17 +27,13 @@
 /*
  * Function list
  */
-#define Display_Inventory ((int(__cdecl*)(INVENTORY_MODE)) 0x00422060)
-
-// 0x004232F0:		Construct_Inventory
-// 0x00423450:		SelectMeshes
-// 0x004234E0:		AnimateInventoryItem
-// 0x00423570:		DrawInventoryItem
-
+int __cdecl Display_Inventory(INVENTORY_MODE invMode); // 0x00422060
+void __cdecl Construct_Inventory(); // 0x004232F0
+void __cdecl SelectMeshes(INVENTORY_ITEM *invItem); // 0x00423450
+int __cdecl AnimateInventoryItem(INVENTORY_ITEM *invItem); // 0x004234E0
+void __cdecl DrawInventoryItem(INVENTORY_ITEM *invItem); // 0x00423570
 DWORD __cdecl GetDebouncedInput(DWORD input); // 0x004239A0
-
-// 0x004239C0:		DoInventoryPicture
-
+void __cdecl DoInventoryPicture(); //0x004239C0
 void __cdecl DoInventoryBackground(); // 0x004239D0
 
 #endif // INVENTORY_H_INCLUDED
