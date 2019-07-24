@@ -64,6 +64,8 @@
 #define InvMainObjectsCount			VAR_I_(0x004654E0, __int16,			8)
 #define InventoryChosen				VAR_I_(0x00465A50, __int16,			-1)
 #define InventoryMode				VAR_I_(0x00465A54, INVENTORY_MODE,	INV_TitleMode)
+#define InvNFrames					VAR_I_(0x004644F8, int,             0)
+#define InvDemoMode					VAR_I_(0x004D7990, int,             0)
 #define SoundVolume					VAR_I_(0x00465A5C, __int16,			165) // NOTE: value should be 10
 #define MusicVolume					VAR_I_(0x00465A60, __int16,			255) // NOTE: value should be 10
 #define BGND_PaletteIndex			VAR_I_(0x00466400, int,				-1)
@@ -86,6 +88,7 @@
 #define XGen_y1						VAR_I_(0x0046C2FC, int,				0)
 
 // Uninitialized variables
+#define GymInvOpenEnabled           VAR_U_(0x00465618, BOOL)
 #define PhdWinTop					VAR_U_(0x0046E300, int)
 #define LsAdder						VAR_U_(0x00470308, int)
 #define FltWinBottom				VAR_U_(0x0047030C, float)
@@ -145,8 +148,10 @@
 #define DisplayModeTextInfo			VAR_U_(0x004D7920, TEXT_STR_INFO*)
 #define DisplayModeInfoTimer		VAR_U_(0x004D7924, DWORD)
 #define InvMainCurrent				VAR_U_(0x004D7928, UINT16)
+#define InvOptionObjectsCount		VAR_U_(0x00465604, __int16)
 #define InvKeyObjectsCount			VAR_U_(0x004D792C, UINT16)
 #define InvKeysCurrent				VAR_U_(0x004D7930, UINT16)
+#define InvOptionCurrent			VAR_U_(0x004D7934, __int16)
 #define InvRingText					VAR_U_(0x004D7944, TEXT_STR_INFO*)
 #define InvUpArrow1					VAR_U_(0x004D794C, TEXT_STR_INFO*)
 #define InvUpArrow2					VAR_U_(0x004D7950, TEXT_STR_INFO*)
@@ -320,6 +325,7 @@
 #define SoundEffects				VAR_U_(0x00521FE0, OBJECT_VECTOR*)
 #define AnimFrames					VAR_U_(0x005251B0, __int16*)
 #define MeshPtr						VAR_U_(0x005252B0, __int16**)
+#define RoomIsOutside               VAR_U_(0x005252B4, int)
 #define Anims						VAR_U_(0x005258F4, ANIM_STRUCT*)
 #define AnimRanges					VAR_U_(0x00525B04, RANGE_STRUCT*)
 #define AnimCommands				VAR_U_(0x00525B08, __int16*)
@@ -341,6 +347,17 @@
 #define Overlaps					VAR_U_(0x005263C8, UINT16*)
 #define Boxes						VAR_U_(0x005263CC, BOX_INFO*)
 #define BoxesCount					VAR_U_(0x005263D0, DWORD)
+#define vbufdoor                    ARRAY_(0x005258C8, VBUF_DOOR, [4])
+#define RecursiveRoomGetCount       VAR_U_(0x004D77B0, int)
+#define RecursiveRoomSetCount       VAR_U_(0x004D77B4, int)
+#define RecursiveRoomArray          ARRAY_(0x00525900, DWORD, [128])
+#define DrawRoomArray               ARRAY_(0x00525B20, __int16, [100])
+#define DrawRoomsCount              VAR_U_(0x005252B8, int)
+#define RoomLeft                    VAR_U_(0x00526178, int)
+#define RoomRight                   VAR_U_(0x00526198, int)
+#define RoomTop                     VAR_U_(0x005261AC, int)
+#define RoomBottom                  VAR_U_(0x00525B00, int)
+#define Effects                     VAR_U_(0x005207C0, FX_INFO*)
 
 // Initialized arrays
 #define TrackIDs					ARRAY_(0x004642F0, __int16, [16]) /* = {2, 0}; */
@@ -574,6 +591,14 @@
 #define GF_Key4StringBuffer			VAR_U_(0x00521E7C, char*)
 
 // GameFlow/Inventory arrays
+#define InvOptionList               ARRAY_(0x00465608, INVENTORY_ITEM*, [4]) /* = {
+    &InvPassportOption,
+    &InvDetailOption,
+    &InvControlOption,
+    &InvSoundOption,
+    &InvPhotoOption
+}; */
+
 #define InvMainQtys					ARRAY_(0x004654E8, UINT16, [23]) /* = {1, 1, 1, 1, 1, 1, 1, 1, 1, 0}; */
 #define InvMainList					ARRAY_(0x00465518, INVENTORY_ITEM*, [23]) /* = {
 	&InvCompassOption,
