@@ -399,13 +399,13 @@ x function is unused / included in another function
 0x00422030:	+	DrawModeInfo
 
 	game/inventory.cpp
-0x00422060:	 *	Display_Inventory
-0x004232F0:		Construct_Inventory
-0x00423450:		SelectMeshes
-0x004234E0:		AnimateInventoryItem
-0x00423570:		DrawInventoryItem
+0x00422060:	+	Display_Inventory
+0x004232F0:	+	Construct_Inventory
+0x00423450:	+	SelectMeshes
+0x004234E0:	+	AnimateInventoryItem
+0x00423570:	+	DrawInventoryItem
 0x004239A0:	+	GetDebouncedInput
-0x004239C0:		DoInventoryPicture
+0x004239C0:	+	DoInventoryPicture
 0x004239D0:	+	DoInventoryBackground
 
 	game/invfunc.cpp
