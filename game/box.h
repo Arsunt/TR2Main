@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -33,8 +33,8 @@
 
 #define CreatureAIInfo ((void(__cdecl*)(ITEM_INFO *, AI_INFO *)) 0x0040E210)
 
-//	0x0040E470:		SearchLOT_SubFunc
-//	0x0040E670:		SearchLOT
+//	0x0040E470:		SearchLOT
+//	0x0040E670:		UpdateLOT
 //	0x0040E6E0:		TargetBox
 //	0x0040E780:		StalkBox
 //	0x0040E880:		EscapeBox

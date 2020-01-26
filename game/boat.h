@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -30,10 +30,10 @@
 //	0x0040CB10:		InitialiseBoat
 //	0x0040CB50:		BoatCheckGeton
 //	0x0040CCC0:		BoatCollision
-//	0x0040CE20:		Boat_SomeFunc
+//	0x0040CE20:		TestWaterHeight
 //	0x0040CF20:		DoBoatShift
 //	0x0040D0F0:		DoWakeEffect
-//	0x0040D270:		BoatControl_SubFunc
+//	0x0040D270:		DoBoatDynamics
 //	0x0040D2C0:		BoatDynamics
 //	0x0040D7A0:		BoatUserControl
 //	0x0040D930:		BoatAnimation

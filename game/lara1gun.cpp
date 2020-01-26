@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -34,7 +34,7 @@ void Inject_Lara1Gun() {
 //	INJECT(0x0042BD00, ready_shotgun);
 //	INJECT(0x0042BD70, RifleHandler);
 //	INJECT(0x0042BE70, FireShotgun);
-//	INJECT(0x0042BF70, AnimateShotgun_SubFunc);
+//	INJECT(0x0042BF70, FireM16);
 //	INJECT(0x0042BFF0, FireHarpoon);
 //	INJECT(0x0042C180, ControlHarpoonBolt);
 //	INJECT(0x0042C4D0, FireRocket);
