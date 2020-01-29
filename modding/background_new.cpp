@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -266,7 +266,7 @@ static int FillEdgePadding(DWORD width, DWORD height, DWORD side, BYTE *bitmap, 
 				BYTE *p = (BYTE *)bitmap;
 				for( i = 0; i < height ; ++i ) {
 					p += width;
-					memset(p, p[-1], padRight);
+					p[0] = p[-1];
 					p += padRight;
 				}
 				break;
@@ -275,11 +275,8 @@ static int FillEdgePadding(DWORD width, DWORD height, DWORD side, BYTE *bitmap, 
 				UINT16 *p = (UINT16 *)bitmap;
 				for( i = 0; i < height ; ++i ) {
 					p += width;
-					UINT16 x = p[-1];
-					DWORD c = padRight;
-					while( c-- ) {
-						*(p++) = x;
-					}
+					p[0] = p[-1];
+					p += padRight;
 				}
 				break;
 			}
@@ -287,11 +284,8 @@ static int FillEdgePadding(DWORD width, DWORD height, DWORD side, BYTE *bitmap, 
 				DWORD *p = (DWORD *)bitmap;
 				for( i = 0; i < height ; ++i ) {
 					p += width;
-					DWORD x = p[-1];
-					DWORD c = padRight;
-					while( c-- ) {
-						*(p++) = x;
-					}
+					p[0] = p[-1];
+					p += padRight;
 				}
 				break;
 			}
@@ -300,9 +294,9 @@ static int FillEdgePadding(DWORD width, DWORD height, DWORD side, BYTE *bitmap, 
 		}
 	}
 
-	DWORD pitch = side * (bpp/8);
-	BYTE *p = bitmap + height * pitch;
-	for( i = 0; i < padBottom; ++i ) {
+	if( padBottom > 0 ) {
+		DWORD pitch = (width + padRight?1:0) * (bpp/8);
+		BYTE *p = bitmap + height * pitch;
 		memcpy(p, p - pitch, pitch);
 		p += pitch;
 	}
