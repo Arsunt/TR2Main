@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a bug that produced black triangles originating from the top left of the screen on some laptop graphic adapters.
 
 ### TR2Main bugfixes
+- Background capture is optimized even more, now it is 3-4 times faster than v0.8.2. No lags anymore (broken since v0.8.0).
 - Fixed game crash in Software Rendered mode with PlayStation styled inventory text box enabled (broken since v0.8.0).
 
 ## [0.8.2] - 2019-05-26

@@ -304,18 +304,46 @@ static int FillEdgePadding(DWORD width, DWORD height, DWORD side, BYTE *bitmap, 
 	return 0;
 }
 
-static int MakeBgndTexture(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmpPal) {
+
+static DWORD CalculateTextureSide(DWORD width, DWORD height) {
 	DWORD side = 1;
-	int pageIndex;
-
-	S_DontDisplayPicture(); // clean up previous textures
-
 	while( side < width || side < height ) {
 		side <<= 1;
 		if( side > MAX_SURFACE_SIZE ) {
-			return -1;
+			return 0;
 		}
 	}
+	return side;
+}
+
+
+static int CreateCaptureTexture(DWORD width, DWORD height) {
+	DWORD side = CalculateTextureSide(width, height);
+	if( !side ) return -1;
+
+	int pageIndex = BGND_TexturePageIndexes[0];
+	if( pageIndex >= 0 && TexturePages[pageIndex].status && (int)side > TexturePages[pageIndex].width ) {
+		FreeTexturePage(pageIndex);
+	}
+	if( pageIndex < 0 || !TexturePages[pageIndex].status ) {
+		pageIndex = CreateTexturePage(side, side, NULL);
+		if( pageIndex < 0 ) {
+			return -1;
+		}
+		BGND_TexturePageIndexes[0] = pageIndex;
+	}
+
+	return pageIndex;
+}
+
+
+static int MakeBgndTexture(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmpPal) {
+	DWORD side = CalculateTextureSide(width, height);
+	if( !side ) return -1;
+
+	int pageIndex;
+
+	S_DontDisplayPicture(); // clean up previous textures
 
 	if( bmpPal != NULL && TextureFormat.bpp < 16 ) {
 		BGND_PaletteIndex = CreateTexturePalette(bmpPal);
@@ -444,104 +472,39 @@ int __cdecl BGND2_FadeTo(int target, int delta) {
 
 
 int __cdecl BGND2_CapturePicture() {
-	int result = -1;
-	BYTE *bmData = NULL;
-	DWORD bmSize = 0;
 	DWORD width = 0;
 	DWORD height = 0;
-	DDSURFACEDESC desc;
 	RECT rect = {0, 0, 0, 0};
-	HRESULT rc;
-
-	memset(&desc, 0, sizeof(DDSURFACEDESC));
-	desc.dwSize = sizeof(DDSURFACEDESC);
 
 	LPDIRECTDRAWSURFACE3 surface = CaptureBufferSurface ? CaptureBufferSurface : PrimaryBufferSurface;
 
+	BGND_PictureIsReady = false;
+	BGND_IsCaptured = false;
+
 	// do game window capture, not the whole screen
-	if( GetClientRect(HGameWindow, &rect) ) {
-		if( surface == PrimaryBufferSurface ) {
-			MapWindowPoints(HGameWindow, GetParent(HGameWindow), (LPPOINT)&rect, 2);
-		}
-		width = ABS(rect.right - rect.left);
-		height = ABS(rect.bottom - rect.top);
-	}
-
-	do {
-		rc = surface->Lock(&rect, &desc, DDLOCK_READONLY|DDLOCK_WAIT, NULL);
-	} while( rc == DDERR_WASSTILLDRAWING );
-
-	if( rc == DDERR_SURFACELOST ) {
-		rc = surface->Restore();
-	}
-
-	if( TextureFormat.bpp >= 16 && SUCCEEDED(rc) ) {
-		if( width == 0 || width > desc.dwWidth ) {
-			width = desc.dwWidth;
-		}
-		if( height == 0 || height > desc.dwHeight ) {
-			height = desc.dwHeight;
-		}
-
-		bmSize = width * height * 2;
-		bmData = (BYTE *)malloc(bmSize);
-		if( bmData != NULL ) {
-			BYTE *srcBase = (BYTE *)desc.lpSurface;
-			UINT16 *dst = (UINT16 *)bmData;
-			switch( desc.ddpfPixelFormat.dwRGBBitCount ) {
-				case 16 :
-					for( DWORD i = 0; i < height; ++i ) {
-						UINT16 *src = (UINT16 *)srcBase;
-						if( desc.ddpfPixelFormat.dwRBitMask == 0xF800 ) {
-							// R5G6B5 - not compatible
-							for( DWORD j = 0; j < width; ++j ) {
-								*dst++ = 0x8000 | ((*src & 0xFFC0) >> 1) | (*src & 0x001F);
-								src++;
-							}
-						} else {
-							// A1R5G5B5 - already compatible
-							memcpy(dst, src, sizeof(UINT16)*width);
-							dst += width;
-						}
-						srcBase += desc.lPitch;
-					}
-					result = 0;
-					break;
-				case 24 :
-				case 32 :
-					for( DWORD i = 0; i < height; ++i ) {
-						BYTE *src = srcBase;
-						for( DWORD j = 0; j < width; ++j ) {
-							*dst++ = 0x8000 | (src[2]>>3<<10) | (src[1]>>3<<5) | (src[0]>>3<<0);
-							src += desc.ddpfPixelFormat.dwRGBBitCount / 8;
-						}
-						srcBase += desc.lPitch;
-					}
-					result = 0;
-					break;
-				default :
-					result = -1;
-					break;
-			}
-		}
-		surface->Unlock(desc.lpSurface);
-	}
-
-	if( result ) {
-		BGND_IsCaptured = false;
-		S_DontDisplayPicture();
+	if( !GetClientRect(HGameWindow, &rect) ) {
 		return -1;
 	}
 
+	if( surface == PrimaryBufferSurface ) {
+		MapWindowPoints(HGameWindow, GetParent(HGameWindow), (LPPOINT)&rect, 2);
+	}
+	width = ABS(rect.right - rect.left);
+	height = ABS(rect.bottom - rect.top);
+
+	int pageIndex = CreateCaptureTexture(width, height);
+	if( pageIndex < 0 ||
+		FAILED(TexturePages[pageIndex].sysMemSurface->Blt(&rect, surface, &rect, DDBLT_WAIT, NULL)) ||
+		!LoadTexturePage(pageIndex, false) )
+	{
+		return -1;
+	}
+
+	BGND_TextureSide = TexturePages[pageIndex].width;
 	BGND_TextureAlpha = 255;
 	BGND_PictureWidth = width;
 	BGND_PictureHeight = height;
-	MakeBgndTexture(width, height, bmData, NULL);
-
-	if( bmData != NULL ) {
-		free(bmData);
-	}
-
+	BGND_PictureIsReady = true;
 	BGND_IsCaptured = true;
 	return 0;
 }
