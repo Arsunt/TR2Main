@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -978,14 +978,8 @@ void __cdecl S_CopyBufferToScreen() {
 		RenderBufferSurface->Blt(&rect, PictureBufferSurface, NULL, DDBLT_WAIT, NULL);
 	}
 	else if( BGND_PictureIsReady && (!BGND_IsCaptured || !IsInventoryActive || InvBackgroundMode == 0 ) ) {
-#else // !FEATURE_BACKGROUND_IMPROVED
-		RenderBufferSurface->Blt(&GameVidRect, PictureBufferSurface, NULL, DDBLT_WAIT, NULL);
-	}
-	else if( BGND_PictureIsReady ) {
-#endif // FEATURE_BACKGROUND_IMPROVED
 		BGND_GetPageHandles();
 		HWR_EnableZBuffer(false, false);
-#ifdef FEATURE_BACKGROUND_IMPROVED
 		RECT rect = PhdWinRect;
 		if( !BGND_IsCaptured ) {
 			BGND2_LoadPicture(NULL, FALSE, TRUE); // reload picture if required
@@ -1000,6 +994,12 @@ void __cdecl S_CopyBufferToScreen() {
 		}
 
 #else // !FEATURE_BACKGROUND_IMPROVED
+		RenderBufferSurface->Blt(&GameVidRect, PictureBufferSurface, NULL, DDBLT_WAIT, NULL);
+	}
+	else if( BGND_PictureIsReady ) {
+		BGND_GetPageHandles();
+		HWR_EnableZBuffer(false, false);
+
 		static const int tileX[4] = {0, 256, 512, 640};
 		static const int tileY[3] = {0, 256, 480};
 		int i, x[4], y[3];
