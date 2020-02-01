@@ -918,28 +918,30 @@ void __cdecl S_CopyScreenToBuffer() {
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	DWORD width = PhdWinWidth;
 	DWORD height = PhdWinHeight;
-
-	if( PictureBufferSurface != NULL &&
-		(BGND_PictureWidth != width || BGND_PictureHeight != height) )
-	{
-		PictureBufferSurface->Release();
-		PictureBufferSurface = NULL;
-	}
-	if( PictureBufferSurface == NULL ) {
-		BGND_PictureWidth = width;
-		BGND_PictureHeight = height;
-		try {
-			CreatePictureBuffer();
-		} catch(...) {
-			return;
-		}
-	}
 #else // !FEATURE_BACKGROUND_IMPROVED
 	DWORD width = 640;
 	DWORD height = 480;
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 	if( SavedAppSettings.RenderMode == RM_Software ) {
+#ifdef FEATURE_BACKGROUND_IMPROVED
+		if( PictureBufferSurface != NULL &&
+			(BGND_PictureWidth != width || BGND_PictureHeight != height) )
+		{
+			PictureBufferSurface->Release();
+			PictureBufferSurface = NULL;
+		}
+		if( PictureBufferSurface == NULL ) {
+			BGND_PictureWidth = width;
+			BGND_PictureHeight = height;
+			try {
+				CreatePictureBuffer();
+			} catch(...) {
+				return;
+			}
+		}
+#endif // FEATURE_BACKGROUND_IMPROVED
+
 		PictureBufferSurface->Blt(NULL, RenderBufferSurface, &GameVidRect, DDBLT_WAIT, NULL);
 
 		if SUCCEEDED(WinVidBufferLock(PictureBufferSurface, &desc, DDLOCK_WRITEONLY|DDLOCK_WAIT)) {
@@ -978,13 +980,13 @@ void __cdecl S_CopyBufferToScreen() {
 		RenderBufferSurface->Blt(&rect, PictureBufferSurface, NULL, DDBLT_WAIT, NULL);
 	}
 	else if( BGND_PictureIsReady && (!BGND_IsCaptured || !IsInventoryActive || InvBackgroundMode == 0 ) ) {
-		BGND_GetPageHandles();
 		HWR_EnableZBuffer(false, false);
 		RECT rect = PhdWinRect;
 		if( !BGND_IsCaptured ) {
 			BGND2_LoadPicture(NULL, FALSE, TRUE); // reload picture if required
 		}
 		BGND_DrawInGameBlack(); // draw black background for picture margins
+		BGND_GetPageHandles();
 		BGND2_CalculatePictureRect(&rect);
 		BGND2_DrawTexture(&rect, BGND_PageHandles[0],
 						  0, 0, BGND_PictureWidth, BGND_PictureHeight,
