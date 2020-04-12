@@ -193,6 +193,10 @@ typedef struct {
 #define GF_TITLE_DESELECT	(0x0900)
 #define GF_ERROR			(-1)
 
+// Room flags
+#define ROOM_UNDERWATER		(0x01)
+#define ROOM_OUTSIDE		(0x08)
+
 // SFX flags
 #define SFX_UNDERWATER		(1)
 #define SFX_ALWAYS			(2)

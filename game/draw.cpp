@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -25,6 +25,84 @@
 #include "3dsystem/scalespr.h"
 #include "specific/output.h"
 #include "global/vars.h"
+
+void __cdecl DrawRooms(__int16 currentRoom) {
+	ROOM_INFO *room = &RoomInfo[currentRoom];
+
+	PhdWinLeft = room->left = 0;
+	PhdWinTop = room->top = 0;
+	PhdWinRight = room->right = PhdWinMaxX;
+	PhdWinBottom = room->bottom = PhdWinMaxY;
+
+	room->boundActive = 2;
+	BoundRooms[0] = currentRoom;
+	BoundStart = 0;
+	BoundEnd = 1;
+	DrawRoomsCount = 0;
+	OutsideCamera = room->flags & ROOM_OUTSIDE;
+
+	if( OutsideCamera ) {
+		OutsideLeft = 0;
+		OutsideTop = 0;
+		OutsideRight = PhdWinMaxX;
+		OutsideBottom = PhdWinMaxY;
+	} else {
+		OutsideLeft = PhdWinMaxX;
+		OutsideTop = PhdWinMaxY;
+		OutsideRight = 0;
+		OutsideBottom = 0;
+	}
+
+	UnderwaterCamera = room->flags & ROOM_UNDERWATER;
+	GetRoomBounds();
+	MidSort = 0;
+
+	if( OutsideCamera ) {
+		PhdWinLeft = OutsideLeft;
+		PhdWinRight = OutsideRight;
+		PhdWinBottom = OutsideBottom;
+		PhdWinTop = OutsideTop;
+		if( Objects[ID_SKYBOX].loaded ) {
+			// Draw skybox background
+			S_SetupAboveWater(UnderwaterCamera);
+			phd_PushMatrix();
+			PhdMatrixPtr->_03 = PhdMatrixPtr->_13 = PhdMatrixPtr->_23 = 0;
+
+			UINT16 *ptr = (UINT16 *)&Anims[Objects[ID_SKYBOX].animIndex].framePtr[9];
+			phd_RotYXZsuperpack(&ptr, 0);
+			S_InitialisePolyList(0);
+			S_InsertBackground(MeshPtr[Objects[ID_SKYBOX].meshIndex]);
+			--PhdMatrixPtr;
+		} else {
+			S_InitialisePolyList(1); // Fill backbuffer with black
+			OutsideCamera = -1;
+		}
+	} else {
+		S_InitialisePolyList(0); // Leave backbuffer uncleaned
+	}
+
+	// Draw Lara
+	if( Objects[ID_LARA].loaded && !(LaraItem->flags & IFL_INVISIBLE) ) {
+		if( RoomInfo[LaraItem->roomNumber].flags & ROOM_UNDERWATER ) {
+			S_SetupBelowWater(UnderwaterCamera);
+		} else {
+			S_SetupAboveWater(UnderwaterCamera);
+		}
+		MidSort = RoomInfo[LaraItem->roomNumber].boundActive >> 8;
+		if( MidSort ) --MidSort;
+		DrawLara(LaraItem);
+	}
+
+	// Draw rooms
+	for( int i = 0; i < DrawRoomsCount; ++i ) {
+		PrintRooms(DrawRoomsArray[i]);
+	}
+
+	// Draw movable and static objects
+	for( int i = 0; i < DrawRoomsCount; ++i ) {
+		PrintObjects(DrawRoomsArray[i]);
+	}
+}
 
 void __cdecl DrawSpriteItem(ITEM_INFO *item) {
 	OBJECT_INFO *obj;
@@ -79,7 +157,9 @@ void __cdecl phd_RotYXZsuperpack(UINT16 **pptr, int index) {
 void Inject_Draw() {
 //	INJECT(0x00418920, DrawPhaseCinematic);
 //	INJECT(0x00418960, DrawPhaseGame);
-//	INJECT(0x004189A0, DrawRooms);
+
+	INJECT(0x004189A0, DrawRooms);
+
 //	INJECT(0x00418C50, GetRoomBounds);
 //	INJECT(0x00418E20, SetRoomBounds);
 //	INJECT(0x004191A0, ClipRoom);

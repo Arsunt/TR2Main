@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -30,20 +30,24 @@
 #define DrawPhaseCinematic ((int(__cdecl*)(void)) 0x00418920)
 #define DrawPhaseGame ((int(__cdecl*)(void)) 0x00418960)
 
-// 0x004189A0:		DrawRooms
-// 0x00418C50:		GetRoomBounds
+void __cdecl DrawRooms(__int16 currentRoom); // 0x004189A0
+
+#define GetRoomBounds ((void(__cdecl*)(void)) 0x00418C50)
+
 // 0x00418E20:		SetRoomBounds
 // 0x004191A0:		ClipRoom
-// 0x00419580:		PrintRooms
-// 0x00419640:		PrintObjects
+
+#define PrintRooms ((void(__cdecl*)(__int16)) 0x00419580)
+#define PrintObjects ((void(__cdecl*)(__int16)) 0x00419640)
+
 // 0x00419870:		DrawEffect
 
 void __cdecl DrawSpriteItem(ITEM_INFO *item); // 0x004199C0
 void __cdecl DrawDummyItem(ITEM_INFO *item);
 
 #define DrawAnimatingItem ((void(__cdecl*)(ITEM_INFO*)) 0x00419A50)
+#define DrawLara ((void(__cdecl*)(ITEM_INFO*)) 0x00419DD0)
 
-// 0x00419DD0:		DrawLara
 // 0x0041AB00:		DrawLaraInt
 // 0x0041B6F0:		InitInterpolate
 // 0x0041B730:		phd_PopMatrix_I
