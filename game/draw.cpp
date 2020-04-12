@@ -78,7 +78,11 @@ void __cdecl DrawRooms(__int16 currentRoom) {
 			OutsideCamera = -1;
 		}
 	} else {
+#ifdef FEATURE_VIEW_IMPROVED
+		S_InitialisePolyList(1); // Fill backbuffer with black
+#else // !FEATURE_VIEW_IMPROVED
 		S_InitialisePolyList(0); // Leave backbuffer uncleaned
+#endif // FEATURE_VIEW_IMPROVED
 	}
 
 	// Draw Lara

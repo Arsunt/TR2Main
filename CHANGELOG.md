@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a bug that does not happen in the official levels (this situation is not in the script). Suppose a magnum and magnum ammo are set as a bonus for collecting all the secrets in the level. If Lara does not have a magnum at the moment of picking the last secret, she receives the magnum only, but not the magnum ammo. This is fixed now.
 - Fixed a bug that hid the ammo indicator in demo levels if *"New Game+"* is activated.
 - Fixed a bug that produced black triangles originating from the top left of the screen on some laptop graphic adapters.
+- Fixed a bug that produced traces of previous textures in untextured areas.
 
 ### TR2Main bugfixes
 - Background capture is optimized even more, now it is 3-4 times faster than v0.8.2. No lags anymore (broken since v0.8.0).
