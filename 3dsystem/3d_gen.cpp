@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -360,7 +360,7 @@ void __cdecl phd_PutPolygons(__int16 *ptrObj) {
 	}
 }
 
-void __cdecl S_InsertRoom(__int16 *ptrObj, BOOL isNoFarClip) {
+void __cdecl S_InsertRoom(__int16 *ptrObj, BOOL isOutside) {
 	FltWinLeft = (float)(PhdWinMinX + PhdWinLeft);
 	FltWinTop = (float)(PhdWinMinY + PhdWinTop);
 	FltWinRight = (float)(PhdWinMinX + PhdWinRight + 1);
@@ -368,7 +368,7 @@ void __cdecl S_InsertRoom(__int16 *ptrObj, BOOL isNoFarClip) {
 	FltWinCenterX = (float)(PhdWinMinX + PhdWinCenterX);
 	FltWinCenterY = (float)(PhdWinMinY + PhdWinCenterY);
 
-	ptrObj = calc_roomvert(ptrObj, isNoFarClip?0x00:0x10);
+	ptrObj = calc_roomvert(ptrObj, isOutside?0x00:0x10);
 	ptrObj = ins_objectGT4(ptrObj+1, *ptrObj, ST_MaxZ);
 	ptrObj = ins_objectGT3(ptrObj+1, *ptrObj, ST_MaxZ);
 	ptrObj = ins_room_sprite(ptrObj+1, *ptrObj);
