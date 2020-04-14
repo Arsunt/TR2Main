@@ -38,6 +38,15 @@ typedef struct {
 	((JMP*)(from))->offset = (DWORD)(to) - ((DWORD)(from) + sizeof(JMP)); \
 }
 
+#ifdef _DEBUG
+#define TRACE(func,line) { \
+	printf("%s: line %d\n", func, line); \
+	fflush(stdout); \
+}
+#else
+#define TRACE(func,line)
+#endif
+
 /*
  * Defined values
  */
