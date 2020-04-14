@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For the Gold mode, Spider and Big Spider AI replaced by Wolf and Bear AI. Also Monk Spirits have no shadow.
 - For the Gold mode, the credits slideshow starts from *CREDIT00.PCX*. For the original game mode, it starts from *CREDIT01.PCX*.
 - For the Gold mode, the selection of any levels (including bonus levels) is activated after collecting all the secrets (available before the final statistics). The ability to select levels remains even after relaunching the game.
-- For the Gold mode, pictures with "g" filename suffix (TITLEg.PCX, LEGALg.PCX, etc.) have higher priority that pictures without "g" filename suffix (TITLE.PCX, LEGAL.PCX, etc.)
+- For the Gold mode, pictures with "g" filename suffix (TITLEg.PCX, LEGALg.PCX, etc.) have higher priority than pictures without "g" filename suffix (TITLE.PCX, LEGAL.PCX, etc.)
 - For the Gold mode, instead of the files *"TOMBPC.DAT"* and *"MAIN.SFX"*, the files *"TOMBPCg.DAT"* and *"MAINg.SFX"* are used. However, for both Gold and the original game, *"MAIN.SFX"* is still used for the *"TITLE.TR2"* and *"ASSAULT.TR2"* levels.
 - Added separate subfolders for saved games of Gold and the original game.
 
