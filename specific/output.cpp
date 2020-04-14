@@ -845,7 +845,7 @@ void __cdecl S_SyncPictureBufferPalette() {
 
 	SyncSurfacePalettes(desc.lpSurface, width, height, desc.lPitch, PicPalette, desc.lpSurface, desc.lPitch, GamePalette8, TRUE);
 	WinVidBufferUnlock(PictureBufferSurface, &desc);
-	memcpy(PicPalette, GamePalette8, sizeof(RGB888)*256);
+	memcpy(PicPalette, GamePalette8, sizeof(PicPalette));
 }
 
 void __cdecl S_DontDisplayPicture() {
@@ -955,7 +955,7 @@ void __cdecl S_CopyScreenToBuffer() {
 			}
 			WinVidBufferUnlock(PictureBufferSurface, &desc);
 		}
-		memcpy(PicPalette, GamePalette8, sizeof(RGB888)*256);
+		memcpy(PicPalette, GamePalette8, sizeof(PicPalette));
 	}
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	else if( !IsInventoryActive || InvBackgroundMode == 0 ) {
@@ -971,7 +971,7 @@ void __cdecl S_CopyBufferToScreen() {
 		if( PictureBufferSurface == NULL ) { // NOTE: additional check just in case
 			return;
 		}
-		if( memcmp(GamePalette8, PicPalette, sizeof(RGB888)*256) ) {
+		if( memcmp(GamePalette8, PicPalette, sizeof(PicPalette)) ) {
 			S_SyncPictureBufferPalette();
 		}
 #ifdef FEATURE_BACKGROUND_IMPROVED

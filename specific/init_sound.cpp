@@ -221,8 +221,8 @@ BOOL CALLBACK DSoundEnumCallback(LPGUID lpGuid, LPCTSTR lpcstrDescription, LPCTS
 }
 
 void __cdecl WinSndStart(HWND hWnd) {
-	memset(SampleBuffers, 0, sizeof(LPDIRECTSOUNDBUFFER)*256);
-	memset(ChannelBuffers, 0, sizeof(LPDIRECTSOUNDBUFFER)*32);
+	memset(SampleBuffers, 0, sizeof(SampleBuffers));
+	memset(ChannelBuffers, 0, sizeof(ChannelBuffers));
 
 	IsLaraMicEnabled = SavedAppSettings.LaraMic;
 	IsSoundEnabled = false;

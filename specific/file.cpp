@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -430,7 +430,7 @@ BOOL __cdecl LoadDepthQ(HANDLE hFile) {
 	if( GameVid_IsWindowedVga ) {
 		CopyBitmapPalette(GamePalette8, DepthQTable[0].index, 32*sizeof(DEPTHQ_ENTRY), paletteBuffer);
 		SyncSurfacePalettes(DepthQTable, 256, 32, 256, GamePalette8, DepthQTable, 256, paletteBuffer, true);
-		memcpy(GamePalette8, paletteBuffer, sizeof(RGB888)*256);
+		memcpy(GamePalette8, paletteBuffer, sizeof(GamePalette8));
 		for( i=0; i<256; ++i ) {
 			DepthQIndex[i] = S_COLOUR(GamePalette8[i].red, GamePalette8[i].green, GamePalette8[i].blue);
 		}
@@ -623,7 +623,7 @@ BOOL __cdecl LoadSamples(HANDLE hFile) {
 	WinSndFreeAllSamples();
 
 	// Load Sample Lut
-	ReadFileSync(hFile, SampleLut, sizeof(__int16)*370, &bytesRead, NULL);
+	ReadFileSync(hFile, SampleLut, sizeof(SampleLut), &bytesRead, NULL);
 
 	// Load Sample Infos
 	ReadFileSync(hFile, &SampleInfoCount, sizeof(DWORD), &bytesRead, NULL);
@@ -816,7 +816,7 @@ void __cdecl S_UnloadLevelFile() {
 	if( SavedAppSettings.RenderMode == RM_Hardware ) {
 		HWR_FreeTexturePages();
 	}
-	memset(TexturePageBuffer8, 0, sizeof(LPVOID)*32);
+	memset(TexturePageBuffer8, 0, sizeof(TexturePageBuffer8));
 	*LevelFileName = 0;
 	TextureInfoCount = 0;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -214,8 +214,8 @@ bool __cdecl HWR_VertexBufferFull() {
 }
 
 bool __cdecl HWR_Init() {
-	memset(HWR_VertexBuffer, 0, sizeof(D3DTLVERTEX)*0x2000);
-	memset(HWR_TexturePageIndexes, 0xFF, sizeof(int)*32); // fill indexes by -1
+	memset(HWR_VertexBuffer, 0, sizeof(HWR_VertexBuffer));
+	memset(HWR_TexturePageIndexes, 0xFF, sizeof(HWR_TexturePageIndexes)); // fill indexes by -1
 	return true;
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -448,7 +448,7 @@ void __cdecl S_SaveSettings() {
 	SetRegistryDwordValue(REG_SOUND_VOLUME, SoundVolume);
 	SetRegistryDwordValue(REG_DETAIL_LEVEL, DetailLevel);
 	SetRegistryFloatValue(REG_GAME_SIZER, GameSizer);
-	SetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)Layout[CTRL_Custom].key, sizeof(UINT16)*14);
+	SetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)Layout[CTRL_Custom].key, sizeof(CONTROL_LAYOUT));
 	CloseGameRegistryKey();
 
 #ifdef FEATURE_VIEW_IMPROVED
@@ -471,7 +471,7 @@ void __cdecl S_LoadSettings() {
 	GetRegistryDwordValue(REG_SOUND_VOLUME, &soundVol, 10);
 	GetRegistryDwordValue(REG_DETAIL_LEVEL, &DetailLevel, 1);
 	GetRegistryFloatValue(REG_GAME_SIZER, &GameSizer, 1.0);
-	GetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)Layout[CTRL_Custom].key, sizeof(UINT16)*14, NULL);
+	GetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)Layout[CTRL_Custom].key, sizeof(CONTROL_LAYOUT), NULL);
 
 #ifdef FEATURE_HUD_IMPROVED
 	GetRegistryDwordValue(REG_INVTEXTBOX_MODE, &InvTextBoxMode, 0);

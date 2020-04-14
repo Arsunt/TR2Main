@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -191,7 +191,7 @@ void __cdecl CreateWindowPalette() {
 	int i;
 	DWORD dwFlags = DDPCAPS_8BIT;
 
-	memset(WinVidPalette, 0, sizeof(PALETTEENTRY)*256);
+	memset(WinVidPalette, 0, sizeof(WinVidPalette));
 
 	if( GameVid_IsWindowedVga ) {
 		for( i=0; i<10; ++i ) {
