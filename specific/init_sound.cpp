@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -231,9 +231,8 @@ void __cdecl WinSndStart(HWND hWnd) {
 		return;
 
 	SOUND_ADAPTER *preferred = &SavedAppSettings.PreferredSoundAdapter->body;
+	CurrentSoundAdapter = *preferred;
 
-	CurrentSoundAdapter.lpAdapterGuid = preferred->lpAdapterGuid;
-	CurrentSoundAdapter.adapterGuid = preferred->adapterGuid;
 	FlaggedStringCopy(&CurrentSoundAdapter.description, &preferred->description);
 	FlaggedStringCopy(&CurrentSoundAdapter.module, &preferred->module);
 
