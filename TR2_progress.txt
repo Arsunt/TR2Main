@@ -307,8 +307,8 @@ x function is unused / included in another function
 0x0041C610:		DoLotsOfBlood
 0x0041C6C0:		ControlBlood1
 0x0041C750:		ControlExplosion1
-0x0041C7D0:		Richochet
-0x0041C850:		ControlRichochet1
+0x0041C7D0:	+	Richochet
+0x0041C850:	+	ControlRichochet1
 0x0041C880:		CreateBubble
 0x0041C8F0:		LaraBubbles
 0x0041C970:		ControlBubble1
@@ -465,8 +465,8 @@ x function is unused / included in another function
 0x004271B0:		ItemNewRoom
 0x00427250:	+	GlobalItemReplace
 0x004272D0:		InitialiseFXArray
-0x00427300:		CreateEffect
-0x00427370:		KillEffect
+0x00427300:	*	CreateEffect
+0x00427370:	*	KillEffect
 0x00427460:		EffectNewRoom
 0x00427500:		ClearBodyBag
 

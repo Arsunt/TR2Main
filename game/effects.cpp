@@ -21,9 +21,36 @@
 
 #include "global/precompiled.h"
 #include "game/effects.h"
+#include "game/items.h"
+#include "game/sound.h"
+#include "specific/game.h"
 #include "global/vars.h"
 
+void __cdecl Richochet(GAME_VECTOR *pos) {
+	short fxID;
+	FX_INFO *fx;
 
+	fxID = CreateEffect(pos->roomNumber);
+	if (fxID != -1) {
+		fx = &Effects[fxID];
+		fx->pos.x = pos->x;
+		fx->pos.y = pos->y;
+		fx->pos.z = pos->z;
+		fx->counter = 4;
+		fx->object_number = ID_RICOCHET;
+		fx->frame_number = (32767 - 3 * GetRandomDraw()) >> 15;
+		PlaySoundEffect(10, &fx->pos, 0);
+	}
+}
+
+void __cdecl ControlRichochet1(__int16 fxID) {
+	FX_INFO *fx;
+
+	fx = &Effects[fxID];
+	--fx->counter;
+	if (!fx->counter)
+		KillEffect(fxID);
+}
 
 /*
  * Inject function
@@ -35,8 +62,10 @@ void Inject_Effects() {
 //	INJECT(0x0041C610, DoLotsOfBlood);
 //	INJECT(0x0041C6C0, ControlBlood1);
 //	INJECT(0x0041C750, ControlExplosion1);
-//	INJECT(0x0041C7D0, Richochet);
-//	INJECT(0x0041C850, ControlRichochet1);
+
+	INJECT(0x0041C7D0, Richochet);
+	INJECT(0x0041C850, ControlRichochet1);
+
 //	INJECT(0x0041C880, CreateBubble);
 //	INJECT(0x0041C8F0, LaraBubbles);
 //	INJECT(0x0041C970, ControlBubble1);

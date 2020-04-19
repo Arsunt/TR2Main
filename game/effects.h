@@ -35,8 +35,10 @@
 //	0x0041C610:		DoLotsOfBlood
 //	0x0041C6C0:		ControlBlood1
 //	0x0041C750:		ControlExplosion1
-//	0x0041C7D0:		Richochet
-//	0x0041C850:		ControlRichochet1
+
+void __cdecl Richochet(GAME_VECTOR *pos); // 0x0041C7D0
+void __cdecl ControlRichochet1(__int16 fxID); // 0x0041C850
+
 //	0x0041C880:		CreateBubble
 //	0x0041C8F0:		LaraBubbles
 //	0x0041C970:		ControlBubble1

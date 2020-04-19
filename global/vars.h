@@ -315,6 +315,7 @@
 #define SaveGame					VAR_U_(0x0051E9E0, SAVEGAME_INFO)
 #define Lara						VAR_U_(0x005206E0, LARA_INFO)
 #define LaraItem					VAR_U_(0x005207BC, ITEM_INFO*)
+#define Effects						VAR_U_(0x005207C0, FX_INFO*)
 #define NextItemFree				VAR_U_(0x005207C6, __int16)
 #define NextItemActive				VAR_U_(0x005207C8, __int16)
 #define PrevItemActive				VAR_U_(0x005207CC, __int16)

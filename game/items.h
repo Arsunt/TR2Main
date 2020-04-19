@@ -44,8 +44,10 @@ void __cdecl AddActiveItem(__int16 itemIndex); // 0x00427150
 int __cdecl GlobalItemReplace(int oldItemID, int newItemID); // 0x00427250
 
 // 0x004272D0:		InitialiseFXArray
-// 0x00427300:		CreateEffect
-// 0x00427370:		KillEffect
+
+#define CreateEffect ((__int16(__cdecl*)(__int16)) 0x00427300)
+#define KillEffect ((void(__cdecl*)(__int16)) 0x00427370)
+
 // 0x00427460:		EffectNewRoom
 // 0x00427500:		ClearBodyBag
 
