@@ -40,8 +40,8 @@ int __cdecl ControlPhase(int nFrames, BOOL demoMode);
 
 // 0x004150D0:		RefreshCamera
 // 0x004151C0:		TestTriggers
-// 0x004158A0:		TriggerActive
 
+#define TriggerActive ((int(__cdecl*)(ITEM_INFO*)) 0x004158A0)
 #define GetCeiling ((int(__cdecl*)(FLOOR_INFO*, int, int, int)) 0x00415900)
 
 // 0x00415B60:		GetDoor
@@ -50,7 +50,9 @@ int __cdecl ControlPhase(int nFrames, BOOL demoMode);
 // 0x00415F40:		xLOS
 // 0x00416230:		ClipTarget
 // 0x00416310:		ObjectOnLOS
-// 0x00416610:		FlipMap
+
+#define FlipMap ((void(__cdecl*)(void)) 0x00416610)
+
 // 0x004166D0:		RemoveRoomFlipItems
 // 0x00416770:		AddRoomFlipItems
 // 0x004167D0:		TriggerCDTrack

@@ -56,8 +56,8 @@
 //	0x004428F0:		DartEmitterControl
 //	0x00442A30:		DartsControl
 //	0x00442B90:		DartEffectControl
-//	0x00442BE0:		FlameEmitterControl
 
+void __cdecl FlameEmitterControl(__int16 item_id); // 0x00442BE0
 void __cdecl FlameControl(__int16 fx_id); // 0x00442C70
 void __cdecl LaraBurn(); // 0x00442DE0
 void __cdecl LavaBurn(ITEM_INFO *item); // 0x00442E30
