@@ -341,7 +341,7 @@ void __cdecl phd_TranslateAbs(int x, int y, int z) {
 	PhdMatrixPtr->_23 = x * PhdMatrixPtr->_20 + y * PhdMatrixPtr->_21 + z * PhdMatrixPtr->_22;
 }
 
-void __cdecl phd_PutPolygons(__int16 *ptrObj) {
+void __cdecl phd_PutPolygons(__int16 *ptrObj, int clip) {
 	FltWinLeft = (float)PhdWinMinX;
 	FltWinTop = (float)PhdWinMinY;
 	FltWinRight = (float)(PhdWinMinX + PhdWinMaxX + 1);
@@ -433,6 +433,10 @@ __int16 *__cdecl calc_object_vertices(__int16 *ptrObj) {
 
 	ptrObj++; // skip poly counter
 	vtxCount = *(ptrObj++); // get vertex counter
+
+	if( vtxCount < 0 ) {
+		printf("vtxCount=%d", vtxCount);
+	}
 
 	for( int i = 0; i < vtxCount; ++i ) {
 		xv = (double)(PhdMatrixPtr->_00 * ptrObj[0] +
