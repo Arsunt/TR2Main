@@ -30,9 +30,17 @@ extern DWORD ShadowMode;
 
 static VERTEX_INFO VBuffer[40]; // NOTE: original size was 20
 static D3DTLVERTEX VBufferD3D[32];
+static D3DCOLOR GlobalTint = 0; // NOTE: not presented in the original code
 
 static D3DCOLOR shadeColor(DWORD red, DWORD green, DWORD blue, DWORD alpha, DWORD shade) {
 	CLAMPG(shade, 0x1FFF);
+
+	if( GlobalTint ) {
+		red = RGBA_GETRED(GlobalTint);
+		green = RGBA_GETGREEN(GlobalTint);
+		blue = RGBA_GETBLUE(GlobalTint);
+		alpha = RGBA_GETALPHA(GlobalTint);
+	}
 
 	if( shade > 0 ) {
 		DWORD brightness = 0x1FFF - shade;
