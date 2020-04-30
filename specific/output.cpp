@@ -307,8 +307,8 @@ void __cdecl S_PrintShadow(__int16 radius, __int16 *bPtr, ITEM_INFO *item) {
 		ShadowInfo.vertexCount = 32;
 		for( int i = 0; i < ShadowInfo.vertexCount; ++i ) {
 			int angle = (PHD_180 + i * PHD_360) / ShadowInfo.vertexCount;
-			ShadowInfo.vertex[i].x = midX + (xAdd * 2) * phd_sin(angle) / (PHD_IONE / 2);
-			ShadowInfo.vertex[i].z = midZ + (zAdd * 2) * phd_cos(angle) / (PHD_IONE / 2);
+			ShadowInfo.vertex[i].x = midX + (xAdd * 2) * phd_sin(angle) / PHD_IONE;
+			ShadowInfo.vertex[i].z = midZ + (zAdd * 2) * phd_cos(angle) / PHD_IONE;
 		}
 	} else
 #endif // FEATURE_SHADOW_IMPROVED
@@ -777,7 +777,7 @@ void __cdecl S_SetupAboveWater(BOOL underwater) {
 void __cdecl S_AnimateTextures(int nFrames) {
 	WibbleOffset = (WibbleOffset + nFrames/2) % WIBBLE_SIZE;
 	RoomLightShades[1] = GetRandomDraw() & (WIBBLE_SIZE-1);
-	RoomLightShades[2] = (WIBBLE_SIZE-1) * (phd_sin(WibbleOffset * PHD_360 / WIBBLE_SIZE) + PHD_IONE/2) / PHD_IONE;
+	RoomLightShades[2] = (WIBBLE_SIZE-1) * (phd_sin(WibbleOffset * PHD_360 / WIBBLE_SIZE) + PHD_IONE) * 2 / PHD_IONE;
 
 	if( GF_SunsetEnabled ) {
 		AnimFramesCounter += nFrames;
