@@ -48,9 +48,9 @@ double InvGUI_Scale = 1.0;
 extern int CalculateFogShade(int depth);
 #endif // FEATURE_VIEW_IMPROVED
 
-#ifdef FEATURE_SHADOW_IMPROVED
+#ifdef FEATURE_VIDEOFX_IMPROVED
 DWORD ShadowMode = 0;
-#endif // FEATURE_SHADOW_IMPROVED
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
 #include "modding/background_new.h"
@@ -301,7 +301,7 @@ void __cdecl S_PrintShadow(__int16 radius, __int16 *bPtr, ITEM_INFO *item) {
 	midZ = (z0 + z1) / 2;
 	zAdd = (z1 - z0) * radius / 0x400;
 
-#ifdef FEATURE_SHADOW_IMPROVED
+#ifdef FEATURE_VIDEOFX_IMPROVED
 	if( ShadowMode == 1 ) {
 		// The shadow is a circle
 		ShadowInfo.vertexCount = 32;
@@ -311,7 +311,7 @@ void __cdecl S_PrintShadow(__int16 radius, __int16 *bPtr, ITEM_INFO *item) {
 			ShadowInfo.vertex[i].z = midZ + (zAdd * 2) * phd_cos(angle) / PHD_IONE;
 		}
 	} else
-#endif // FEATURE_SHADOW_IMPROVED
+#endif // FEATURE_VIDEOFX_IMPROVED
 	{
 		// The shadow is an octagon
 		ShadowInfo.vertexCount = 8;

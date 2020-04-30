@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -24,9 +24,9 @@
 #include "specific/hwr.h"
 #include "global/vars.h"
 
-#ifdef FEATURE_SHADOW_IMPROVED
+#ifdef FEATURE_VIDEOFX_IMPROVED
 extern DWORD ShadowMode;
-#endif // FEATURE_SHADOW_IMPROVED
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 static VERTEX_INFO VBuffer[40]; // NOTE: original size was 20
 static D3DTLVERTEX VBufferD3D[32];
@@ -1206,11 +1206,11 @@ void __cdecl InsertTrans8(PHD_VBUF *vbuf, __int16 shade) {
 	int i, nPoints, polyZ;
 	char clipOR = 0x00;
 	char clipAND = 0xFF;
-#ifdef FEATURE_SHADOW_IMPROVED
+#ifdef FEATURE_VIDEOFX_IMPROVED
 	int nVtx = ( ShadowMode == 1 ) ? 32 : 8;
-#else // FEATURE_SHADOW_IMPROVED
+#else // FEATURE_VIDEOFX_IMPROVED
 	int nVtx = 8;
-#endif // FEATURE_SHADOW_IMPROVED
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 	for( i = 0; i < nVtx; ++i ) {
 		clipOR  |= LOBYTE(vbuf[i].clip);
@@ -1237,19 +1237,19 @@ void __cdecl InsertTrans8(PHD_VBUF *vbuf, __int16 shade) {
 		if( nPoints == 0) return;
 	}
 
-#ifdef FEATURE_SHADOW_IMPROVED
+#ifdef FEATURE_VIDEOFX_IMPROVED
 	double polyZflt = 0.0;
 	for( i = 0; i < nVtx; ++i ) {
 		polyZflt += (double)vbuf[i].zv / (double)nVtx;
 	}
 	polyZ = polyZflt;
-#else // FEATURE_SHADOW_IMPROVED
+#else // FEATURE_VIDEOFX_IMPROVED
 	polyZ = 0;
 	for( i = 0; i < nVtx; ++i ) {
 		polyZ += vbuf[i].zv;
 	}
 	polyZ /= nVtx;
-#endif // FEATURE_SHADOW_IMPROVED
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 	Sort3dPtr->_0 = (int)Info3dPtr;
 	Sort3dPtr->_1 = polyZ;
@@ -2571,11 +2571,11 @@ void __cdecl InsertTrans8_Sorted(PHD_VBUF *vbuf, __int16 shade) {
 	int i, nPoints, polyZ;
 	char clipOR = 0x00;
 	char clipAND = 0xFF;
-#ifdef FEATURE_SHADOW_IMPROVED
+#ifdef FEATURE_VIDEOFX_IMPROVED
 	int nVtx = ( ShadowMode == 1 ) ? 32 : 8;
-#else // FEATURE_SHADOW_IMPROVED
+#else // FEATURE_VIDEOFX_IMPROVED
 	int nVtx = 8;
-#endif // FEATURE_SHADOW_IMPROVED
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 	for( i = 0; i < nVtx; ++i ) {
 		clipOR  |= LOBYTE(vbuf[i].clip);
@@ -2603,19 +2603,19 @@ void __cdecl InsertTrans8_Sorted(PHD_VBUF *vbuf, __int16 shade) {
 		if( nPoints == 0) return;
 	}
 
-#ifdef FEATURE_SHADOW_IMPROVED
+#ifdef FEATURE_VIDEOFX_IMPROVED
 	double polyZflt = 0.0;
 	for( i = 0; i < nVtx; ++i ) {
 		polyZflt += (double)vbuf[i].zv / (double)nVtx;
 	}
 	polyZ = polyZflt;
-#else // FEATURE_SHADOW_IMPROVED
+#else // FEATURE_VIDEOFX_IMPROVED
 	polyZ = 0;
 	for( i = 0; i < nVtx; ++i ) {
 		polyZ += vbuf[i].zv;
 	}
 	polyZ /= nVtx;
-#endif // FEATURE_SHADOW_IMPROVED
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 	InsertPoly_Gouraud(nPoints, (float)(polyZ - 0x20000), 0, 0, 0, POLY_HWR_trans);
 }
