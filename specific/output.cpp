@@ -50,6 +50,7 @@ extern int CalculateFogShade(int depth);
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
 DWORD ShadowMode = 0;
+void FreeEnvmapTexture();
 #endif // FEATURE_VIDEOFX_IMPROVED
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
@@ -144,6 +145,9 @@ void __cdecl S_InitialisePolyList(BOOL clearBackBuffer) {
 		HWR_EnableZBuffer(true, true);
 	}
 	phd_InitPolyList();
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	FreeEnvmapTexture();
+#endif // FEATURE_VIDEOFX_IMPROVED
 }
 
 DWORD __cdecl S_DumpScreen() {

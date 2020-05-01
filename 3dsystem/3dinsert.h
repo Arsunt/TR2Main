@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -27,6 +27,11 @@
 /*
  * Function list
  */
+#ifdef FEATURE_VIDEOFX_IMPROVED
+__int16 *InsertObjectEM4(__int16 *ptrObj, int number, D3DCOLOR tint, PHD_UV *em_uv);
+__int16 *InsertObjectEM3(__int16 *ptrObj, int number, D3DCOLOR tint, PHD_UV *em_uv);
+#endif // FEATURE_VIDEOFX_IMPROVED
+
 // NOTE: this function is not presented in the original game
 void InsertGourQuad(int x0, int y0, int x1, int y1, int z, D3DCOLOR color0, D3DCOLOR color1, D3DCOLOR color2, D3DCOLOR color3);
 

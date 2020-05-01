@@ -61,6 +61,8 @@ extern DWORD PictureStretchLimit;
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
 extern DWORD ShadowMode;
+extern DWORD ReflectionMode;
+extern DWORD ReflectionBlur;
 #endif // FEATURE_VIDEOFX_IMPROVED
 
 #ifdef FEATURE_SCREENSHOT_IMPROVED
@@ -490,6 +492,10 @@ void __cdecl S_LoadSettings() {
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
 	GetRegistryDwordValue(REG_SHADOW_MODE, &ShadowMode, 0);
+	GetRegistryDwordValue(REG_REFLECTION_MODE, &ReflectionMode, 0);
+	GetRegistryDwordValue(REG_REFLECTION_BLUR, &ReflectionBlur, 2);
+	CLAMPG(ReflectionMode, 2);
+	CLAMPG(ReflectionBlur, 7);
 #endif // FEATURE_VIDEOFX_IMPROVED
 
 #ifdef FEATURE_SCREENSHOT_IMPROVED

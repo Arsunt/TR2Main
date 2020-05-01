@@ -80,6 +80,86 @@ int CalculateFogShade(int depth) {
 }
 #endif // FEATURE_VIEW_IMPROVED
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+extern DWORD ReflectionMode;
+
+static bool IsReflect3 = false;
+static bool IsReflect4 = false;
+
+void ClearMeshReflectState() {
+	IsReflect3 = false;
+	IsReflect4 = false;
+}
+
+void SetMeshReflectState(int objID, int meshIdx) {
+	// Disable reflection by default
+	ClearMeshReflectState();
+	if( !ReflectionMode ) return;
+
+	switch( objID ) {
+	case ID_SPINNING_BLADE :
+		// Reflect only quads, not triangles
+		IsReflect4 = true;
+		break;
+	case ID_BLADE :
+		// Reflect the whole object
+		IsReflect3 = true;
+		IsReflect4 = true;
+		break;
+	case ID_KILLER_STATUE :
+		// Reflect sword only (mesh #7)
+		if( meshIdx == 7 ) {
+			IsReflect3 = true;
+			IsReflect4 = true;
+		}
+		break;
+	}
+}
+
+static void __cdecl phd_PutEnvmapPolygons(__int16 *ptrObj) {
+	if( ptrObj == NULL || *ptrObj <= 0
+		|| (!IsReflect4 && !IsReflect3)
+		|| SavedAppSettings.RenderMode != RM_Hardware
+		|| !SavedAppSettings.ZBuffer ) return;
+
+	int vtxCount = *ptrObj++;
+	PHD_UV *uv = new PHD_UV[vtxCount];
+
+	for( int i = 0; i < vtxCount; ++i ) {
+		// rotate normal vectors for X/Y, no translation
+		int x = (PhdMatrixPtr->_00 * ptrObj[0] +
+				 PhdMatrixPtr->_01 * ptrObj[1] +
+				 PhdMatrixPtr->_02 * ptrObj[2]) >> W2V_SHIFT;
+
+		int y = (PhdMatrixPtr->_10 * ptrObj[0] +
+				 PhdMatrixPtr->_11 * ptrObj[1] +
+				 PhdMatrixPtr->_12 * ptrObj[2]) >> W2V_SHIFT;
+
+		// mirror X coordinate if such option is enabled
+		if( ReflectionMode == 2 ) {
+			x = -x;
+		}
+		CLAMP(x, -PHD_IONE, PHD_IONE);
+		CLAMP(y, -PHD_IONE, PHD_IONE);
+		uv[i].u = PHD_ONE/PHD_IONE * (x + PHD_IONE)/2;
+		uv[i].v = PHD_ONE/PHD_IONE * (y + PHD_IONE)/2;
+		ptrObj += 3;
+	}
+
+	// overlaid faces supposed to be semitransparent
+	D3DCOLOR tint = RGBA_MAKE(0xFF,0xFF,0xFF,0x80);
+
+	// overlay textured faces
+	ptrObj = InsertObjectEM4(ptrObj+1, *ptrObj, tint, IsReflect4?uv:NULL);
+	ptrObj = InsertObjectEM3(ptrObj+1, *ptrObj, tint, IsReflect3?uv:NULL);
+	// overlay colored faces (if any presented)
+	ptrObj = InsertObjectEM4(ptrObj+1, *ptrObj, tint, IsReflect4?uv:NULL);
+	ptrObj = InsertObjectEM3(ptrObj+1, *ptrObj, tint, IsReflect3?uv:NULL);
+
+	delete[] uv;
+}
+#endif // FEATURE_VIDEOFX_IMPROVED
+
 void phd_GenerateW2V(PHD_3DPOS *viewPos) {
 	int sx = phd_sin(viewPos->rotX);
 	int cx = phd_cos(viewPos->rotX);
@@ -352,11 +432,17 @@ void __cdecl phd_PutPolygons(__int16 *ptrObj, int clip) {
 	ptrObj += 4; // skip x, y, z, radius
 	ptrObj = calc_object_vertices(ptrObj);
 	if( ptrObj != NULL ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		__int16 *ptrEnv = ptrObj;
+#endif // FEATURE_VIDEOFX_IMPROVED
 		ptrObj = calc_vertice_light(ptrObj);
 		ptrObj = ins_objectGT4(ptrObj+1, *ptrObj, ST_AvgZ);
 		ptrObj = ins_objectGT3(ptrObj+1, *ptrObj, ST_AvgZ);
 		ptrObj = ins_objectG4(ptrObj+1, *ptrObj, ST_AvgZ);
 		ptrObj = ins_objectG3(ptrObj+1, *ptrObj, ST_AvgZ);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		phd_PutEnvmapPolygons(ptrEnv);
+#endif // FEATURE_VIDEOFX_IMPROVED
 	}
 }
 

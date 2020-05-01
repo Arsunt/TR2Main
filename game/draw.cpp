@@ -26,6 +26,11 @@
 #include "specific/output.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+extern void ClearMeshReflectState();
+extern void SetMeshReflectState(int objID, int meshIdx);
+#endif // FEATURE_VIDEOFX_IMPROVED
+
 void __cdecl DrawRooms(__int16 currentRoom) {
 	ROOM_INFO *room = &RoomInfo[currentRoom];
 
@@ -158,7 +163,13 @@ void __cdecl DrawAnimatingItem(ITEM_INFO *item) {
 			phd_RotYXZsuperpack_I(&rot1, &rot2, 0);
 
 			if( CHK_ANY(item->meshBits, 1) ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+				SetMeshReflectState(item->objectID, 0);
+#endif // FEATURE_VIDEOFX_IMPROVED
 				phd_PutPolygons_I(meshPtr[0], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+				ClearMeshReflectState();
+#endif // FEATURE_VIDEOFX_IMPROVED
 			}
 
 			for( int i = 1; i < obj->nMeshes; ++i ) {
@@ -185,7 +196,13 @@ void __cdecl DrawAnimatingItem(ITEM_INFO *item) {
 				bonePtr+=4;
 				bit <<= 1;
 				if( CHK_ANY(item->meshBits, bit) ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+					SetMeshReflectState(item->objectID, i);
+#endif // FEATURE_VIDEOFX_IMPROVED
 					phd_PutPolygons_I(meshPtr[i], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+					ClearMeshReflectState();
+#endif // FEATURE_VIDEOFX_IMPROVED
 				}
 			}
 		} else {
@@ -194,7 +211,13 @@ void __cdecl DrawAnimatingItem(ITEM_INFO *item) {
 			phd_RotYXZsuperpack(&rot, 0);
 
 			if( CHK_ANY(item->meshBits, 1) ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+				SetMeshReflectState(item->objectID, 0);
+#endif // FEATURE_VIDEOFX_IMPROVED
 				phd_PutPolygons(meshPtr[0], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+				ClearMeshReflectState();
+#endif // FEATURE_VIDEOFX_IMPROVED
 			}
 
 			for( int i = 1; i < obj->nMeshes; ++i) {
@@ -221,7 +244,13 @@ void __cdecl DrawAnimatingItem(ITEM_INFO *item) {
 				bonePtr += 4;
 				bit <<= 1;
 				if( CHK_ANY(item->meshBits, bit) ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+					SetMeshReflectState(item->objectID, i);
+#endif // FEATURE_VIDEOFX_IMPROVED
 					phd_PutPolygons(meshPtr[i], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+					ClearMeshReflectState();
+#endif // FEATURE_VIDEOFX_IMPROVED
 				}
 			}
 		}

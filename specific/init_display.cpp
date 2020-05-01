@@ -86,6 +86,7 @@ static LPCTSTR ErrorStringTable[] = {
 
 #if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED) || defined(FEATURE_VIDEOFX_IMPROVED)
 LPDIRECTDRAWSURFACE3 CaptureBufferSurface = NULL; // used for screen capture in windowed mode
+LPDIRECTDRAWSURFACE3 EnvmapBufferSurface = NULL; // used as environment map for the reflection effect
 
 static int __cdecl CreateCaptureBuffer() {
 	DDSURFACEDESC dsp;
@@ -393,6 +394,10 @@ void __cdecl RestoreLostBuffers() {
 		if FAILED(DDrawSurfaceRestoreLost(CaptureBufferSurface, PrimaryBufferSurface, true))
 			goto REBUILD;
 	}
+	if( EnvmapBufferSurface ) {
+		if FAILED(DDrawSurfaceRestoreLost(EnvmapBufferSurface, NULL, false))
+			goto REBUILD;
+	}
 #endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED) || defined(FEATURE_VIDEOFX_IMPROVED)
 	return;
 
@@ -619,6 +624,10 @@ void __cdecl RenderFinish(bool needToClearTextures) {
 	if( CaptureBufferSurface != NULL ) {
 		CaptureBufferSurface->Release();
 		CaptureBufferSurface = NULL;
+	}
+	if( EnvmapBufferSurface != NULL ) {
+		EnvmapBufferSurface->Release();
+		EnvmapBufferSurface = NULL;
 	}
 #endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED) || defined(FEATURE_VIDEOFX_IMPROVED)
 
