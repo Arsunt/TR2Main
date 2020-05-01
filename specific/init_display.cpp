@@ -84,7 +84,7 @@ static LPCTSTR ErrorStringTable[] = {
 	"GetDisplayMode",
 };
 
-#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED) || defined(FEATURE_VIDEOFX_IMPROVED)
 LPDIRECTDRAWSURFACE3 CaptureBufferSurface = NULL; // used for screen capture in windowed mode
 
 static int __cdecl CreateCaptureBuffer() {
@@ -106,7 +106,7 @@ static int __cdecl CreateCaptureBuffer() {
 	WinVidClearBuffer(CaptureBufferSurface, NULL, 0);
 	return 0;
 }
-#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED) || defined(FEATURE_VIDEOFX_IMPROVED)
 
 void __cdecl CreateScreenBuffers() {
 	DDSCAPS ddsCaps;
@@ -325,11 +325,11 @@ void __cdecl ClearBuffers(DWORD flags, DWORD fillColor) {
 	// Common checks
 	if( (flags & CLRB_PrimaryBuffer) != 0 ) {
 		WinVidClearBuffer(PrimaryBufferSurface, &winRect, fillColor);
-#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED) || defined(FEATURE_VIDEOFX_IMPROVED)
 		if( CaptureBufferSurface != NULL ) {
 			WinVidClearBuffer(CaptureBufferSurface, &winRect, fillColor);
 		}
-#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED) || defined(FEATURE_VIDEOFX_IMPROVED)
 	}
 
 	if( (flags & CLRB_ThirdBuffer) != 0 )
@@ -388,12 +388,12 @@ void __cdecl RestoreLostBuffers() {
 		if FAILED(DDrawSurfaceRestoreLost(PictureBufferSurface, NULL, false))
 			goto REBUILD;
 	}
-#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED) || defined(FEATURE_VIDEOFX_IMPROVED)
 	if( CaptureBufferSurface ) {
 		if FAILED(DDrawSurfaceRestoreLost(CaptureBufferSurface, PrimaryBufferSurface, true))
 			goto REBUILD;
 	}
-#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED) || defined(FEATURE_VIDEOFX_IMPROVED)
 	return;
 
 REBUILD:
@@ -423,11 +423,11 @@ void __cdecl UpdateFrame(bool needRunMessageLoop, LPRECT rect) {
 
 		LPDIRECTDRAWSURFACE3 surface = ( SavedAppSettings.RenderMode == RM_Software ) ? RenderBufferSurface : BackBufferSurface;
 		PrimaryBufferSurface->Blt(&dstRect, surface, pSrcRect, DDBLT_WAIT, NULL);
-#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED) || defined(FEATURE_VIDEOFX_IMPROVED)
 		if( CaptureBufferSurface != NULL ) {
 			CaptureBufferSurface->Blt(pSrcRect, BackBufferSurface, pSrcRect, DDBLT_WAIT, NULL);
 		}
-#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED) || defined(FEATURE_VIDEOFX_IMPROVED)
 	}
 
 	if( needRunMessageLoop ) {
@@ -506,9 +506,9 @@ void __cdecl RenderStart(bool isReset) {
 		CreatePrimarySurface();
 		if( SavedAppSettings.RenderMode == RM_Hardware ) {
 			CreateBackBuffer();
-#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED) || defined(FEATURE_VIDEOFX_IMPROVED)
 			CreateCaptureBuffer();
-#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED) || defined(FEATURE_VIDEOFX_IMPROVED)
 		}
 
 		CreateClipper();
@@ -615,12 +615,12 @@ void __cdecl RenderFinish(bool needToClearTextures) {
 		BackBufferSurface = NULL;
 	}
 
-#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED) || defined(FEATURE_VIDEOFX_IMPROVED)
 	if( CaptureBufferSurface != NULL ) {
 		CaptureBufferSurface->Release();
 		CaptureBufferSurface = NULL;
 	}
-#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED) || defined(FEATURE_VIDEOFX_IMPROVED)
 
 	if( PrimaryBufferSurface != NULL ) {
 		PrimaryBufferSurface->Release();
