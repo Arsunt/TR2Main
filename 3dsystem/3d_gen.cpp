@@ -126,6 +126,10 @@ static void __cdecl phd_PutEnvmapPolygons(__int16 *ptrObj) {
 	PHD_UV *uv = new PHD_UV[vtxCount];
 
 	for( int i = 0; i < vtxCount; ++i ) {
+		// set lighting that depends only from fog distance
+		PhdVBuf[i].g = LsAdder;
+		CLAMP(PhdVBuf[i].g, 0, 0x1FFF);
+
 		// rotate normal vectors for X/Y, no translation
 		int x = (PhdMatrixPtr->_00 * ptrObj[0] +
 				 PhdMatrixPtr->_01 * ptrObj[1] +
