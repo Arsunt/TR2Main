@@ -781,7 +781,7 @@ void __cdecl S_SetupAboveWater(BOOL underwater) {
 void __cdecl S_AnimateTextures(int nFrames) {
 	WibbleOffset = (WibbleOffset + nFrames/2) % WIBBLE_SIZE;
 	RoomLightShades[1] = GetRandomDraw() & (WIBBLE_SIZE-1);
-	RoomLightShades[2] = (WIBBLE_SIZE-1) * (phd_sin(WibbleOffset * PHD_360 / WIBBLE_SIZE) + PHD_IONE) * 2 / PHD_IONE;
+	RoomLightShades[2] = (WIBBLE_SIZE-1) * (phd_sin(WibbleOffset * PHD_360 / WIBBLE_SIZE) + PHD_IONE) / 2 / PHD_IONE;
 
 	if( GF_SunsetEnabled ) {
 		AnimFramesCounter += nFrames;
