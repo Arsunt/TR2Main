@@ -102,9 +102,11 @@ void SetMeshReflectState(int objID, int meshIdx) {
 		IsReflect4 = true;
 		break;
 	case ID_BLADE :
-		// Reflect the whole object
-		IsReflect3 = true;
-		IsReflect4 = true;
+		// Reflect blade only (mesh #1)
+		if( meshIdx == 1 ) {
+			IsReflect3 = true;
+			IsReflect4 = true;
+		}
 		break;
 	case ID_KILLER_STATUE :
 		// Reflect sword only (mesh #7)
