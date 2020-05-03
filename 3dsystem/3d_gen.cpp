@@ -109,6 +109,19 @@ void SetMeshReflectState(int objID, int meshIdx) {
 	if( !ReflectionMode ) return;
 
 	switch( objID ) {
+	case ID_WORKER5 :
+		// Reflect the black glass mask of flamethrower buddy (his head is mesh #15)
+		if( meshIdx == 15 ) {
+			// The reflective polys are 22..26
+			ReflectFilter.gt4[0].idx = 22;
+			ReflectFilter.gt4[0].num = 5;
+			// Other polys are not reflective
+			ReflectFilter.gt3[0].idx = ~0;
+			ReflectFilter.g4[0].idx = ~0;
+			ReflectFilter.g3[0].idx = ~0;
+			IsReflect = true;
+		}
+		break;
 	case ID_SPINNING_BLADE :
 		// Reflect only quads, not triangles
 		ReflectFilter.gt3[0].idx = ~0;
