@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -29,8 +29,7 @@
  */
 #define DoDemoSequence ((int(__cdecl*)(int)) 0x004168E0)
 #define StartDemo ((int(__cdecl*)(int)) 0x00416940)
-
-// 0x00416AF0:		LoadLaraDemoPos
-// 0x00416BC0:		GetDemoInput
+#define LoadLaraDemoPos ((void(__cdecl*)(void)) 0x00416AF0)
+#define GetDemoInput ((void(__cdecl*)(void)) 0x00416BC0)
 
 #endif // DEMO_H_INCLUDED

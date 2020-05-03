@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -30,10 +30,9 @@
 int __cdecl GetRealTrack(int trackID); // 0x0043F430
 
 #define PlaySoundEffect ((void(__cdecl*)(DWORD, PHD_3DPOS *, DWORD)) 0x0043F470)
-
-// 0x0043F910:		StopSoundEffect
-// 0x0043F970:		SOUND_EndScene
-// 0x0043FA00:		SOUND_Stop
+#define StopSoundEffect ((void(__cdecl*)(int)) 0x0043F910)
+#define SOUND_EndScene ((void(__cdecl*)(void)) 0x0043F970)
+#define SOUND_Stop ((void(__cdecl*)(void)) 0x0043FA00)
 
 void __cdecl SOUND_Init(); // 0x0043FA30
 

@@ -237,8 +237,8 @@ x function is unused / included in another function
 	game/demo.cpp
 0x004168E0:	 *	DoDemoSequence
 0x00416940:	 *	StartDemo
-0x00416AF0:		LoadLaraDemoPos
-0x00416BC0:		GetDemoInput
+0x00416AF0:	 *	LoadLaraDemoPos
+0x00416BC0:	 *	GetDemoInput
 
 	game/diver.cpp
 0x00416BF0:		Harpoon
@@ -888,9 +888,9 @@ x function is unused / included in another function
 	game/sound.cpp
 0x0043F430:	+	GetRealTrack
 0x0043F470:	 *	PlaySoundEffect
-0x0043F910:		StopSoundEffect
-0x0043F970:		SOUND_EndScene
-0x0043FA00:		SOUND_Stop
+0x0043F910:	 *	StopSoundEffect
+0x0043F970:	 *	SOUND_EndScene
+0x0043FA00:	 *	SOUND_Stop
 0x0043FA30:	+	SOUND_Init
 
 	game/sphere.cpp
