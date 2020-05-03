@@ -26,11 +26,6 @@
 #include "specific/output.h"
 #include "global/vars.h"
 
-#ifdef FEATURE_VIDEOFX_IMPROVED
-extern void ClearMeshReflectState();
-extern void SetMeshReflectState(int objID, int meshIdx);
-#endif // FEATURE_VIDEOFX_IMPROVED
-
 void __cdecl DrawRooms(__int16 currentRoom) {
 	ROOM_INFO *room = &RoomInfo[currentRoom];
 

@@ -27,6 +27,11 @@
 /*
  * Function list
  */
+#ifdef FEATURE_VIDEOFX_IMPROVED
+void ClearMeshReflectState();
+void SetMeshReflectState(int objID, int meshIdx);
+#endif // FEATURE_VIDEOFX_IMPROVED
+
 void phd_GenerateW2V(PHD_3DPOS *viewPos); // 0x00401000
 void __cdecl phd_LookAt(int xsrc, int ysrc, int zsrc, int xtar, int ytar, int ztar, __int16 roll); // 0x004011D0
 void __cdecl phd_GetVectorAngles(int x, int y, int z, VECTOR_ANGLES *angles); // 0x00401250
