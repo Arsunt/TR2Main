@@ -83,44 +83,88 @@ int CalculateFogShade(int depth) {
 #ifdef FEATURE_VIDEOFX_IMPROVED
 extern DWORD ReflectionMode;
 
-static bool IsReflect3 = false;
-static bool IsReflect4 = false;
+// Filter is presented by an array of poly index and polys number (starting from the index).
+// The filter is always terminated by an index 0.
+// If the first item has index=~0 then there are no polys to reflect.
+// If the first item has index=0 and number=0 then all polys reflect.
+#define FILTER_SIZE 256
+typedef struct {UINT16 idx; UINT16 num;} POLYINDEX;
+static struct {
+	POLYINDEX gt4[FILTER_SIZE];
+	POLYINDEX gt3[FILTER_SIZE];
+	POLYINDEX g4[FILTER_SIZE];
+	POLYINDEX g3[FILTER_SIZE];
+} ReflectFilter;
+
+static bool IsReflect = false;
 
 void ClearMeshReflectState() {
-	IsReflect3 = false;
-	IsReflect4 = false;
+	memset(&ReflectFilter, 0 , sizeof(ReflectFilter));
+	IsReflect = false;
 }
 
 void SetMeshReflectState(int objID, int meshIdx) {
-	// Disable reflection by default
+	// Clear poly filters and disable reflection by default
 	ClearMeshReflectState();
 	if( !ReflectionMode ) return;
 
 	switch( objID ) {
 	case ID_SPINNING_BLADE :
 		// Reflect only quads, not triangles
-		IsReflect4 = true;
+		ReflectFilter.gt3[0].idx = ~0;
+		ReflectFilter.g3[0].idx = ~0;
+		IsReflect = true;
 		break;
 	case ID_BLADE :
 		// Reflect blade only (mesh #1)
 		if( meshIdx == 1 ) {
-			IsReflect3 = true;
-			IsReflect4 = true;
+			IsReflect = true;
 		}
 		break;
 	case ID_KILLER_STATUE :
-		// Reflect sword only (mesh #7)
+		// Reflect the sword only (mesh #7)
 		if( meshIdx == 7 ) {
-			IsReflect3 = true;
-			IsReflect4 = true;
+			IsReflect = true;
 		}
 		break;
 	}
 }
 
-static void __cdecl phd_PutEnvmapPolygons(__int16 *ptrObj) {
-	if( ptrObj == NULL || *ptrObj <= 0
-		|| (!IsReflect4 && !IsReflect3)
+static __int16 *InsertEnvmapFiltered(__int16 *ptrObj, int vtxCount, D3DCOLOR tint, PHD_UV *uv, POLYINDEX *filter) {
+	int polyNumber = *ptrObj++;
+
+	if( !filter[0].idx && !filter[0].num ) {
+		// filter is disabled, just insert all polys
+		for( int i = 0; i < polyNumber; ++i ) {
+			InsertObjectEM(ptrObj, vtxCount, tint, uv);
+			ptrObj += vtxCount+1;
+		}
+	} else {
+		int polyIndex = 0;
+		for( int i=0; i<FILTER_SIZE; i++ ) {
+			if( filter[i].idx < polyIndex || filter[i].idx >= polyNumber ) {
+				break;
+			}
+			int skip = filter[i].idx - polyIndex;
+			if( skip > 0 ) {
+				ptrObj += skip*(vtxCount+1);
+				polyIndex += skip;
+			}
+			int number = MIN(filter[i].num, polyNumber - polyIndex);
+			for( int j = 0; j < number; ++j ) {
+				InsertObjectEM(ptrObj, vtxCount, tint, uv);
+				ptrObj += vtxCount+1;
+			}
+			polyIndex += number;
+		}
+		ptrObj += (polyNumber-polyIndex)*(vtxCount+1);
+	}
+
+	return ptrObj;
+}
+
+static void phd_PutEnvmapPolygons(__int16 *ptrObj) {
+	if( ptrObj == NULL || *ptrObj <= 0 || !IsReflect
 		|| SavedAppSettings.RenderMode != RM_Hardware
 		|| !SavedAppSettings.ZBuffer ) return;
 
@@ -156,11 +200,11 @@ static void __cdecl phd_PutEnvmapPolygons(__int16 *ptrObj) {
 	D3DCOLOR tint = RGBA_MAKE(0xFF,0xFF,0xFF,0x80);
 
 	// overlay textured faces
-	ptrObj = InsertObjectEM4(ptrObj+1, *ptrObj, tint, IsReflect4?uv:NULL);
-	ptrObj = InsertObjectEM3(ptrObj+1, *ptrObj, tint, IsReflect3?uv:NULL);
+	ptrObj = InsertEnvmapFiltered(ptrObj, 4, tint, uv, ReflectFilter.gt4);
+	ptrObj = InsertEnvmapFiltered(ptrObj, 3, tint, uv, ReflectFilter.gt3);
 	// overlay colored faces (if any presented)
-	ptrObj = InsertObjectEM4(ptrObj+1, *ptrObj, tint, IsReflect4?uv:NULL);
-	ptrObj = InsertObjectEM3(ptrObj+1, *ptrObj, tint, IsReflect3?uv:NULL);
+	ptrObj = InsertEnvmapFiltered(ptrObj, 4, tint, uv, ReflectFilter.g4);
+	ptrObj = InsertEnvmapFiltered(ptrObj, 3, tint, uv, ReflectFilter.g3);
 
 	delete[] uv;
 }

@@ -63,55 +63,30 @@ static D3DCOLOR shadeColor(DWORD red, DWORD green, DWORD blue, DWORD alpha, DWOR
 }
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
-__int16 *InsertObjectEM4(__int16 *ptrObj, int number, D3DCOLOR tint, PHD_UV *em_uv) {
+bool InsertObjectEM(__int16 *ptrObj, int vtxCount, D3DCOLOR tint, PHD_UV *em_uv) {
 	PHD_VBUF *vtx[4];
-	PHD_TEXTURE texture;
-
-	// if UV is absent just skip an object
-	if( em_uv == NULL ) {
-		return ptrObj + number * 5;
-	}
-
-	texture.drawtype = DRAW_ColorKey;
-	texture.tpage = (UINT16)~0;
-
-	GlobalTint = tint;
-	for( int i = 0; i < number; ++i ) {
-		for( int j = 0; j < 4; ++ j ) {
-			vtx[j] = &PhdVBuf[ptrObj[j]];
-			texture.uv[j] = em_uv[ptrObj[j]];
-		}
-		InsertGT4_ZBuffered(vtx[0], vtx[1], vtx[2], vtx[3], &texture);
-		ptrObj += 5;
-	}
-	GlobalTint = 0;
-	return ptrObj;
-}
-
-__int16 *InsertObjectEM3(__int16 *ptrObj, int number, D3DCOLOR tint, PHD_UV *em_uv) {
-	PHD_VBUF *vtx[3];
 	PHD_TEXTURE texture;
 	PHD_UV *uv = texture.uv;
 
-	// if UV is absent just skip an object
-	if( em_uv == NULL ) {
-		return ptrObj + number * 4;
+	if( ptrObj == NULL || em_uv == NULL || vtxCount < 3 || vtxCount > 4 ) {
+		return false;
 	}
 
 	texture.drawtype = DRAW_ColorKey;
 	texture.tpage = (UINT16)~0;
+	for( int i = 0; i < vtxCount; ++ i ) {
+		vtx[i] = &PhdVBuf[ptrObj[i]];
+		texture.uv[i] = em_uv[ptrObj[i]];
+	}
 
 	GlobalTint = tint;
-	for( int i = 0; i < number; ++i ) {
-		for( int j = 0; j < 3; ++ j ) {
-			vtx[j] = &PhdVBuf[ptrObj[j]];
-			texture.uv[j] = em_uv[ptrObj[j]];
-		}
+	if( vtxCount == 4 ) {
+		InsertGT4_ZBuffered(vtx[0], vtx[1], vtx[2], vtx[3], &texture);
+	} else {
 		InsertGT3_ZBuffered(vtx[0], vtx[1], vtx[2], &texture, &uv[0], &uv[1], &uv[2]);
-		ptrObj += 4;
 	}
 	GlobalTint = 0;
-	return ptrObj;
+	return true;
 }
 #endif // FEATURE_VIDEOFX_IMPROVED
 

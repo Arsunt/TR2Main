@@ -28,8 +28,7 @@
  * Function list
  */
 #ifdef FEATURE_VIDEOFX_IMPROVED
-__int16 *InsertObjectEM4(__int16 *ptrObj, int number, D3DCOLOR tint, PHD_UV *em_uv);
-__int16 *InsertObjectEM3(__int16 *ptrObj, int number, D3DCOLOR tint, PHD_UV *em_uv);
+bool InsertObjectEM(__int16 *ptrObj, int vtxCount, D3DCOLOR tint, PHD_UV *em_uv);
 #endif // FEATURE_VIDEOFX_IMPROVED
 
 // NOTE: this function is not presented in the original game
