@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -96,7 +96,7 @@
 // 0x00428A30:		extra_as_startanim
 // 0x00428A80:		extra_as_starthouse
 // 0x00428B30:		extra_as_finalanim
-// 0x00428BE0:		LaraCollideIsFloorFallen
+// 0x00428BE0:		LaraFallen
 // 0x00428C40:		LaraCollideStop
 // 0x00428D00:		lara_col_walk
 // 0x00428EA0:		lara_col_run
@@ -137,8 +137,7 @@
 // ----------:		lara_col_usepuzzle
 // 0x00429C10:		lara_col_roll
 // 0x00429CB0:		lara_col_roll2
-// 0x00429D80:		lara_col_null
-// ----------:		lara_col_special
+// 0x00429D80:		lara_col_special
 // ----------:		lara_col_usemidas
 // ----------:		lara_col_diemidas
 // 0x00429DA0:		lara_col_swandive
@@ -154,7 +153,7 @@
 
 void __cdecl lara_col_jumper(ITEM_INFO *item, COLL_INFO *coll); // 0x0042A040
 
-// ----------:		lara_col_kick
+// 0x0042A120:		lara_col_kick
 // ----------:		lara_col_deathslide
 
 #define GetLaraCollisionInfo ((void (__cdecl*)(ITEM_INFO *item, COLL_INFO *coll)) 0x0042A130)

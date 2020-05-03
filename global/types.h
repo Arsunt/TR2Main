@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -38,6 +38,15 @@ typedef struct {
 	((JMP*)(from))->offset = (DWORD)(to) - ((DWORD)(from) + sizeof(JMP)); \
 }
 
+#ifdef _DEBUG
+#define TRACE(func,line) { \
+	printf("%s: line %d\n", func, line); \
+	fflush(stdout); \
+}
+#else
+#define TRACE(func,line)
+#endif
+
 /*
  * Defined values
  */
@@ -54,7 +63,7 @@ typedef struct {
 #define W2V_SHIFT			(14) // World to View shift value
 #define W2V_SCALE			(1<<W2V_SHIFT) // World to View scale value
 #define PHD_ONE				(0x10000) // unsigned short int equivalent of 1.0
-#define PHD_IONE			(PHD_ONE/2) // signed short int equivalent of 1.0
+#define PHD_IONE			(PHD_ONE/4) // signed short int equivalent of 1.0
 #define PHD_HALF			(0x100) // half size of PHD_ONE
 
 // Flag check macros
@@ -192,6 +201,10 @@ typedef struct {
 #define GF_EXIT_TO_OPTION	(0x0800)
 #define GF_TITLE_DESELECT	(0x0900)
 #define GF_ERROR			(-1)
+
+// Room flags
+#define ROOM_UNDERWATER		(0x01)
+#define ROOM_OUTSIDE		(0x08)
 
 // SFX flags
 #define SFX_UNDERWATER		(1)
@@ -1917,8 +1930,6 @@ typedef struct FxInfo_t {
 	__int16 frame_number;
 	__int16 counter;
 	__int16 shade;
-	UINT16 flag1;
-	UINT16 flag2;
 } FX_INFO;
 
 typedef struct CreatureInfo_t {

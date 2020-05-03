@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -48,9 +48,10 @@ double InvGUI_Scale = 1.0;
 extern int CalculateFogShade(int depth);
 #endif // FEATURE_VIEW_IMPROVED
 
-#ifdef FEATURE_SHADOW_IMPROVED
+#ifdef FEATURE_VIDEOFX_IMPROVED
 DWORD ShadowMode = 0;
-#endif // FEATURE_SHADOW_IMPROVED
+void FreeEnvmapTexture();
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
 #include "modding/background_new.h"
@@ -144,6 +145,9 @@ void __cdecl S_InitialisePolyList(BOOL clearBackBuffer) {
 		HWR_EnableZBuffer(true, true);
 	}
 	phd_InitPolyList();
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	FreeEnvmapTexture();
+#endif // FEATURE_VIDEOFX_IMPROVED
 }
 
 DWORD __cdecl S_DumpScreen() {
@@ -301,17 +305,17 @@ void __cdecl S_PrintShadow(__int16 radius, __int16 *bPtr, ITEM_INFO *item) {
 	midZ = (z0 + z1) / 2;
 	zAdd = (z1 - z0) * radius / 0x400;
 
-#ifdef FEATURE_SHADOW_IMPROVED
+#ifdef FEATURE_VIDEOFX_IMPROVED
 	if( ShadowMode == 1 ) {
 		// The shadow is a circle
 		ShadowInfo.vertexCount = 32;
 		for( int i = 0; i < ShadowInfo.vertexCount; ++i ) {
 			int angle = (PHD_180 + i * PHD_360) / ShadowInfo.vertexCount;
-			ShadowInfo.vertex[i].x = midX + (xAdd * 2) * phd_sin(angle) / (PHD_IONE / 2);
-			ShadowInfo.vertex[i].z = midZ + (zAdd * 2) * phd_cos(angle) / (PHD_IONE / 2);
+			ShadowInfo.vertex[i].x = midX + (xAdd * 2) * phd_sin(angle) / PHD_IONE;
+			ShadowInfo.vertex[i].z = midZ + (zAdd * 2) * phd_cos(angle) / PHD_IONE;
 		}
 	} else
-#endif // FEATURE_SHADOW_IMPROVED
+#endif // FEATURE_VIDEOFX_IMPROVED
 	{
 		// The shadow is an octagon
 		ShadowInfo.vertexCount = 8;
@@ -777,7 +781,7 @@ void __cdecl S_SetupAboveWater(BOOL underwater) {
 void __cdecl S_AnimateTextures(int nFrames) {
 	WibbleOffset = (WibbleOffset + nFrames/2) % WIBBLE_SIZE;
 	RoomLightShades[1] = GetRandomDraw() & (WIBBLE_SIZE-1);
-	RoomLightShades[2] = (WIBBLE_SIZE-1) * (phd_sin(WibbleOffset * PHD_360 / WIBBLE_SIZE) + PHD_IONE/2) / PHD_IONE;
+	RoomLightShades[2] = (WIBBLE_SIZE-1) * (phd_sin(WibbleOffset * PHD_360 / WIBBLE_SIZE) + PHD_IONE) / 2 / PHD_IONE;
 
 	if( GF_SunsetEnabled ) {
 		AnimFramesCounter += nFrames;
@@ -845,7 +849,7 @@ void __cdecl S_SyncPictureBufferPalette() {
 
 	SyncSurfacePalettes(desc.lpSurface, width, height, desc.lPitch, PicPalette, desc.lpSurface, desc.lPitch, GamePalette8, TRUE);
 	WinVidBufferUnlock(PictureBufferSurface, &desc);
-	memcpy(PicPalette, GamePalette8, sizeof(RGB888)*256);
+	memcpy(PicPalette, GamePalette8, sizeof(PicPalette));
 }
 
 void __cdecl S_DontDisplayPicture() {
@@ -918,28 +922,30 @@ void __cdecl S_CopyScreenToBuffer() {
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	DWORD width = PhdWinWidth;
 	DWORD height = PhdWinHeight;
-
-	if( PictureBufferSurface != NULL &&
-		(BGND_PictureWidth != width || BGND_PictureHeight != height) )
-	{
-		PictureBufferSurface->Release();
-		PictureBufferSurface = NULL;
-	}
-	if( PictureBufferSurface == NULL ) {
-		BGND_PictureWidth = width;
-		BGND_PictureHeight = height;
-		try {
-			CreatePictureBuffer();
-		} catch(...) {
-			return;
-		}
-	}
 #else // !FEATURE_BACKGROUND_IMPROVED
 	DWORD width = 640;
 	DWORD height = 480;
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 	if( SavedAppSettings.RenderMode == RM_Software ) {
+#ifdef FEATURE_BACKGROUND_IMPROVED
+		if( PictureBufferSurface != NULL &&
+			(BGND_PictureWidth != width || BGND_PictureHeight != height) )
+		{
+			PictureBufferSurface->Release();
+			PictureBufferSurface = NULL;
+		}
+		if( PictureBufferSurface == NULL ) {
+			BGND_PictureWidth = width;
+			BGND_PictureHeight = height;
+			try {
+				CreatePictureBuffer();
+			} catch(...) {
+				return;
+			}
+		}
+#endif // FEATURE_BACKGROUND_IMPROVED
+
 		PictureBufferSurface->Blt(NULL, RenderBufferSurface, &GameVidRect, DDBLT_WAIT, NULL);
 
 		if SUCCEEDED(WinVidBufferLock(PictureBufferSurface, &desc, DDLOCK_WRITEONLY|DDLOCK_WAIT)) {
@@ -953,7 +959,7 @@ void __cdecl S_CopyScreenToBuffer() {
 			}
 			WinVidBufferUnlock(PictureBufferSurface, &desc);
 		}
-		memcpy(PicPalette, GamePalette8, sizeof(RGB888)*256);
+		memcpy(PicPalette, GamePalette8, sizeof(PicPalette));
 	}
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	else if( !IsInventoryActive || InvBackgroundMode == 0 ) {
@@ -969,7 +975,7 @@ void __cdecl S_CopyBufferToScreen() {
 		if( PictureBufferSurface == NULL ) { // NOTE: additional check just in case
 			return;
 		}
-		if( memcmp(GamePalette8, PicPalette, sizeof(RGB888)*256) ) {
+		if( memcmp(GamePalette8, PicPalette, sizeof(PicPalette)) ) {
 			S_SyncPictureBufferPalette();
 		}
 #ifdef FEATURE_BACKGROUND_IMPROVED
@@ -978,19 +984,13 @@ void __cdecl S_CopyBufferToScreen() {
 		RenderBufferSurface->Blt(&rect, PictureBufferSurface, NULL, DDBLT_WAIT, NULL);
 	}
 	else if( BGND_PictureIsReady && (!BGND_IsCaptured || !IsInventoryActive || InvBackgroundMode == 0 ) ) {
-#else // !FEATURE_BACKGROUND_IMPROVED
-		RenderBufferSurface->Blt(&GameVidRect, PictureBufferSurface, NULL, DDBLT_WAIT, NULL);
-	}
-	else if( BGND_PictureIsReady ) {
-#endif // FEATURE_BACKGROUND_IMPROVED
-		BGND_GetPageHandles();
 		HWR_EnableZBuffer(false, false);
-#ifdef FEATURE_BACKGROUND_IMPROVED
 		RECT rect = PhdWinRect;
 		if( !BGND_IsCaptured ) {
 			BGND2_LoadPicture(NULL, FALSE, TRUE); // reload picture if required
 		}
 		BGND_DrawInGameBlack(); // draw black background for picture margins
+		BGND_GetPageHandles();
 		BGND2_CalculatePictureRect(&rect);
 		BGND2_DrawTexture(&rect, BGND_PageHandles[0],
 						  0, 0, BGND_PictureWidth, BGND_PictureHeight,
@@ -1000,6 +1000,12 @@ void __cdecl S_CopyBufferToScreen() {
 		}
 
 #else // !FEATURE_BACKGROUND_IMPROVED
+		RenderBufferSurface->Blt(&GameVidRect, PictureBufferSurface, NULL, DDBLT_WAIT, NULL);
+	}
+	else if( BGND_PictureIsReady ) {
+		BGND_GetPageHandles();
+		HWR_EnableZBuffer(false, false);
+
 		static const int tileX[4] = {0, 256, 512, 640};
 		static const int tileY[3] = {0, 256, 480};
 		int i, x[4], y[3];

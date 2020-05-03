@@ -3,7 +3,6 @@
 	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="TR2Main" />
-		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
@@ -54,6 +53,19 @@
 			<Add option="-DDIRECT3D_VERSION=0x500" />
 			<Add option="-DDIRECTINPUT_VERSION=0x500" />
 			<Add option="-DDIRECTSOUND_VERSION=0x500" />
+			<Add option="-DFEATURE_ASSAULT_SAVE" />
+			<Add option="-DFEATURE_BACKGROUND_IMPROVED" />
+			<Add option="-DFEATURE_GOLD" />
+			<Add option="-DFEATURE_HUD_IMPROVED" />
+			<Add option="-DFEATURE_JUMP_COLLISION_FIX" />
+			<Add option="-DFEATURE_NOCD_DATA" />
+			<Add option="-DFEATURE_PAULD_CDAUDIO" />
+			<Add option="-DFEATURE_SCREENSHOT_IMPROVED" />
+			<Add option="-DFEATURE_SUBFOLDERS" />
+			<Add option="-DFEATURE_VIDEOFX_IMPROVED" />
+			<Add option="-DFEATURE_VIDMODESORT" />
+			<Add option="-DFEATURE_VIEW_IMPROVED" />
+			<Add option="-DFEATURE_WINDOW_STYLE_FIX" />
 			<Add directory="." />
 			<Add directory="./main" />
 			<Add directory="../DX7_SDK/include" />
@@ -89,7 +101,6 @@
 			<Option weight="0" />
 		</Unit>
 
-		<Unit filename="global/features.h" />
 		<Unit filename="global/types.h" />
 		<Unit filename="global/resource.h" />
 		<Unit filename="global/vars.h" />

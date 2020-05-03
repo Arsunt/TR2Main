@@ -47,7 +47,25 @@
 
 #ifdef FEATURE_GOLD
 extern bool IsGold();
-#endif
+#endif // FEATURE_GOLD
+
+#ifdef FEATURE_SUBFOLDERS
+#include "modding/file_utils.h"
+
+static int GetSaveFileName(LPSTR destName, DWORD destSize, int slotNumber) {
+	if( destName == NULL || destSize == 0 || slotNumber < 0 ) {
+		return -1;
+	}
+#ifdef FEATURE_GOLD
+	snprintf(destName, destSize, ".\\saves%s\\savegame.%d", IsGold()?"Gold":"", slotNumber);
+#else // !FEATURE_GOLD
+	snprintf(destName, destSize, ".\\saves\\savegame.%d", slotNumber);
+#endif // !FEATURE_GOLD
+	return 0;
+}
+
+#endif // FEATURE_SUBFOLDERS
+
 
 __int16 __cdecl StartGame(int levelID, GF_LEVEL_TYPE levelType) {
 	if( levelType == GFL_NORMAL || levelType == GFL_SAVED || levelType == GFL_DEMO )
@@ -405,15 +423,23 @@ BOOL __cdecl S_FrontEndCheck() {
 	HANDLE hFile;
 	DWORD bytesRead;
 	DWORD saveCounter;
-	char fileName[16] = {0};
 	char levelName[80] = {0};
 	char saveCountStr[16] = {0};
+#ifdef FEATURE_SUBFOLDERS
+	char fileName[256] = {0};
+#else // !FEATURE_SUBFOLDERS
+	char fileName[16] = {0};
+#endif // !FEATURE_SUBFOLDERS
 
 	Init_Requester(&LoadGameRequester);
 	SavedGamesCount = 0;
 
 	for( int i=0; i<16; ++i ) {
+#ifdef FEATURE_SUBFOLDERS
+		GetSaveFileName(fileName, sizeof(fileName), i);
+#else // !FEATURE_SUBFOLDERS
 		wsprintf(fileName, "savegame.%d", i);
+#endif // !FEATURE_SUBFOLDERS
 		hFile = CreateFile(fileName, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
 		if( hFile == INVALID_HANDLE_VALUE ) {
@@ -447,12 +473,20 @@ BOOL __cdecl S_FrontEndCheck() {
 BOOL __cdecl S_SaveGame(LPCVOID saveData, DWORD saveSize, int slotNumber) {
 	HANDLE hFile;
 	DWORD bytesWritten;
-	char fileName[16] = {0};
 	char levelName[80] = {0};
 	char saveCountStr[16] = {0};
 
-
+#ifdef FEATURE_SUBFOLDERS
+	char fileName[256] = {0};
+	GetSaveFileName(fileName, sizeof(fileName), slotNumber);
+	if( CreateDirectories(fileName, true) ) {
+		return FALSE;
+	}
+#else // !FEATURE_SUBFOLDERS
+	char fileName[16] = {0};
 	wsprintf(fileName, "savegame.%d", slotNumber);
+#endif // !FEATURE_SUBFOLDERS
+
 	hFile = CreateFile(fileName, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if( hFile == INVALID_HANDLE_VALUE )
 		return FALSE;
@@ -484,10 +518,16 @@ BOOL __cdecl S_LoadGame(LPVOID saveData, DWORD saveSize, int slotNumber) {
 	HANDLE hFile;
 	DWORD bytesRead;
 	DWORD saveCounter;
-	char fileName[16] = {0};
 	char levelName[80] = {0};
 
+#ifdef FEATURE_SUBFOLDERS
+	char fileName[256] = {0};
+	GetSaveFileName(fileName, sizeof(fileName), slotNumber);
+#else // !FEATURE_SUBFOLDERS
+	char fileName[16] = {0};
 	wsprintf(fileName, "savegame.%d", slotNumber);
+#endif // !FEATURE_SUBFOLDERS
+
 	hFile = CreateFile(fileName, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if( hFile == INVALID_HANDLE_VALUE )
 		return FALSE;

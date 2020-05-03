@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -26,6 +26,82 @@
 #include "specific/winvid.h"
 #include "global/vars.h"
 #include <limits.h>
+
+#ifdef FEATURE_VIDEOFX_IMPROVED
+DWORD ReflectionMode = 0;
+DWORD ReflectionBlur = 2;
+
+extern LPDIRECTDRAWSURFACE3 EnvmapBufferSurface;
+extern LPDIRECTDRAWSURFACE3 CaptureBufferSurface;
+
+static LPDIRECT3DTEXTURE2 EnvmapTexture = NULL;
+static D3DTEXTUREHANDLE EnvmapTextureHandle = 0;
+
+static int __cdecl CreateEnvmapBuffer() {
+	DDSURFACEDESC dsp;
+
+	if( !ReflectionMode ) return -1;
+	DWORD side = 1;
+	DWORD sideLimit = MIN(GameVidBufWidth, GameVidBufHeight);
+	CLAMPG(sideLimit, MAX_SURFACE_SIZE);
+	while( side<<ReflectionBlur <= sideLimit ) side <<= 1;
+
+	memset(&dsp, 0, sizeof(DDSURFACEDESC));
+	dsp.dwSize = sizeof(DDSURFACEDESC);
+	dsp.dwFlags = DDSD_WIDTH|DDSD_HEIGHT|DDSD_CAPS;
+	dsp.dwWidth = side;
+	dsp.dwHeight = side;
+	dsp.ddsCaps.dwCaps = DDSCAPS_VIDEOMEMORY|DDSCAPS_TEXTURE;
+
+	if FAILED(DDrawSurfaceCreate(&dsp, &EnvmapBufferSurface))
+		return -1;
+
+	WinVidClearBuffer(EnvmapBufferSurface, NULL, 0);
+	return 0;
+}
+
+void FreeEnvmapTexture() {
+	if( EnvmapTexture ) {
+		EnvmapTexture->Release();
+		EnvmapTexture = NULL;
+	}
+	EnvmapTextureHandle = 0;
+}
+
+D3DTEXTUREHANDLE GetEnvmapTextureHandle() {
+	if( EnvmapTextureHandle ) {
+		return EnvmapTextureHandle;
+	}
+
+	if( !EnvmapTexture ) {
+		if( !EnvmapBufferSurface && CreateEnvmapBuffer() ) {
+			return 0;
+		}
+
+		// Getting centred square area of the screen
+		int side = MIN(GameVidWidth, GameVidHeight);
+		int x = (GameVidWidth - side) / 2;
+		int y = (GameVidHeight - side) / 2;
+		RECT srcRect = {
+			.left	= GameVidRect.left + x,
+			.top	= GameVidRect.top  + y,
+			.right	= GameVidRect.left + x + side,
+			.bottom	= GameVidRect.top  + y + side,
+		};
+
+		EnvmapBufferSurface->Blt(NULL, CaptureBufferSurface ? CaptureBufferSurface : PrimaryBufferSurface, &srcRect, DDBLT_WAIT, NULL);
+		EnvmapTexture = Create3DTexture(EnvmapBufferSurface);
+		if( !EnvmapTexture ) return 0;
+	}
+
+	if FAILED(EnvmapTexture->GetHandle(_Direct3DDevice2, &EnvmapTextureHandle)) {
+		FreeEnvmapTexture();
+		return 0;
+	}
+
+	return EnvmapTextureHandle;
+}
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 void __cdecl CopyBitmapPalette(RGB888 *srcPal, BYTE *srcBitmap, int bitmapSize, RGB888 *destPal) {
 	int i, j;
@@ -486,8 +562,8 @@ void __cdecl CleanupTextures() {
 }
 
 bool __cdecl InitTextures() {
-	memset(TexturePages,  0, sizeof(TEXPAGE_DESC)*32);
-	memset(DDrawPalettes, 0, sizeof(LPDIRECTDRAWPALETTE)*16);
+	memset(TexturePages,  0, sizeof(TexturePages));
+	memset(DDrawPalettes, 0, sizeof(DDrawPalettes));
 	return true;
 }
 

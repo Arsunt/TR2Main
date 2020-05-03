@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -127,7 +127,7 @@ void Inject_Lara() {
 //	INJECT(0x00428A30, extra_as_startanim);
 //	INJECT(0x00428A80, extra_as_starthouse);
 //	INJECT(0x00428B30, extra_as_finalanim);
-//	INJECT(0x00428BE0, LaraCollideIsFloorFallen);
+//	INJECT(0x00428BE0, LaraFallen);
 //	INJECT(0x00428C40, LaraCollideStop);
 //	INJECT(0x00428D00, lara_col_walk);
 //	INJECT(0x00428EA0, lara_col_run);
@@ -168,8 +168,7 @@ void Inject_Lara() {
 //	INJECT(----------, lara_col_usepuzzle);
 //	INJECT(0x00429C10, lara_col_roll);
 //	INJECT(0x00429CB0, lara_col_roll2);
-//	INJECT(0x00429D80, lara_col_null);
-//	INJECT(----------, lara_col_special);
+//	INJECT(0x00429D80, lara_col_special);
 //	INJECT(----------, lara_col_usemidas);
 //	INJECT(----------, lara_col_diemidas);
 //	INJECT(0x00429DA0, lara_col_swandive);
@@ -185,7 +184,7 @@ void Inject_Lara() {
 
 	INJECT(0x0042A040, lara_col_jumper);
 
-//	INJECT(----------, lara_col_kick);
+//	INJECT(0x0042A120, lara_col_kick);
 //	INJECT(----------, lara_col_deathslide);
 //	INJECT(0x0042A130, GetLaraCollisionInfo);
 //	INJECT(0x0042A170, lara_slide_slope);

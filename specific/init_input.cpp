@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -187,9 +187,8 @@ bool __cdecl DInputJoystickSelect() {
 		return false;
 
 	JOYSTICK *preferred = &SavedAppSettings.PreferredJoystick->body;
+	CurrentJoystick = *preferred;
 
-	CurrentJoystick.lpJoystickGuid = preferred->lpJoystickGuid;
-	CurrentJoystick.joystickGuid = preferred->joystickGuid;
 	FlaggedStringCopy(&CurrentJoystick.productName, &preferred->productName);
 	FlaggedStringCopy(&CurrentJoystick.instanceName, &preferred->instanceName);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -221,8 +221,8 @@ BOOL CALLBACK DSoundEnumCallback(LPGUID lpGuid, LPCTSTR lpcstrDescription, LPCTS
 }
 
 void __cdecl WinSndStart(HWND hWnd) {
-	memset(SampleBuffers, 0, sizeof(LPDIRECTSOUNDBUFFER)*256);
-	memset(ChannelBuffers, 0, sizeof(LPDIRECTSOUNDBUFFER)*32);
+	memset(SampleBuffers, 0, sizeof(SampleBuffers));
+	memset(ChannelBuffers, 0, sizeof(ChannelBuffers));
 
 	IsLaraMicEnabled = SavedAppSettings.LaraMic;
 	IsSoundEnabled = false;
@@ -231,9 +231,8 @@ void __cdecl WinSndStart(HWND hWnd) {
 		return;
 
 	SOUND_ADAPTER *preferred = &SavedAppSettings.PreferredSoundAdapter->body;
+	CurrentSoundAdapter = *preferred;
 
-	CurrentSoundAdapter.lpAdapterGuid = preferred->lpAdapterGuid;
-	CurrentSoundAdapter.adapterGuid = preferred->adapterGuid;
 	FlaggedStringCopy(&CurrentSoundAdapter.description, &preferred->description);
 	FlaggedStringCopy(&CurrentSoundAdapter.module, &preferred->module);
 

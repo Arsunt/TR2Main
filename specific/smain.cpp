@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -59,9 +59,11 @@ extern DWORD InvBackgroundMode;
 extern DWORD PictureStretchLimit;
 #endif // FEATURE_BACKGROUND_IMPROVED
 
-#ifdef FEATURE_SHADOW_IMPROVED
+#ifdef FEATURE_VIDEOFX_IMPROVED
 extern DWORD ShadowMode;
-#endif // FEATURE_SHADOW_IMPROVED
+extern DWORD ReflectionMode;
+extern DWORD ReflectionBlur;
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 #ifdef FEATURE_SCREENSHOT_IMPROVED
 extern DWORD ScreenshotFormat;
@@ -448,7 +450,7 @@ void __cdecl S_SaveSettings() {
 	SetRegistryDwordValue(REG_SOUND_VOLUME, SoundVolume);
 	SetRegistryDwordValue(REG_DETAIL_LEVEL, DetailLevel);
 	SetRegistryFloatValue(REG_GAME_SIZER, GameSizer);
-	SetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)Layout[CTRL_Custom].key, sizeof(UINT16)*14);
+	SetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)Layout[CTRL_Custom].key, sizeof(CONTROL_LAYOUT));
 	CloseGameRegistryKey();
 
 #ifdef FEATURE_VIEW_IMPROVED
@@ -471,7 +473,7 @@ void __cdecl S_LoadSettings() {
 	GetRegistryDwordValue(REG_SOUND_VOLUME, &soundVol, 10);
 	GetRegistryDwordValue(REG_DETAIL_LEVEL, &DetailLevel, 1);
 	GetRegistryFloatValue(REG_GAME_SIZER, &GameSizer, 1.0);
-	GetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)Layout[CTRL_Custom].key, sizeof(UINT16)*14, NULL);
+	GetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)Layout[CTRL_Custom].key, sizeof(CONTROL_LAYOUT), NULL);
 
 #ifdef FEATURE_HUD_IMPROVED
 	GetRegistryDwordValue(REG_INVTEXTBOX_MODE, &InvTextBoxMode, 0);
@@ -488,9 +490,13 @@ void __cdecl S_LoadSettings() {
 	GetRegistryDwordValue(REG_PICTURE_STRETCH, &PictureStretchLimit, 10);
 #endif // FEATURE_BACKGROUND_IMPROVED
 
-#ifdef FEATURE_SHADOW_IMPROVED
+#ifdef FEATURE_VIDEOFX_IMPROVED
 	GetRegistryDwordValue(REG_SHADOW_MODE, &ShadowMode, 0);
-#endif // FEATURE_SHADOW_IMPROVED
+	GetRegistryDwordValue(REG_REFLECTION_MODE, &ReflectionMode, 0);
+	GetRegistryDwordValue(REG_REFLECTION_BLUR, &ReflectionBlur, 2);
+	CLAMPG(ReflectionMode, 2);
+	CLAMPG(ReflectionBlur, 7);
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 #ifdef FEATURE_SCREENSHOT_IMPROVED
 	GetRegistryDwordValue(REG_SCREENSHOT_FORMAT, &ScreenshotFormat, 0);

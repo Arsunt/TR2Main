@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -26,6 +26,88 @@
 #include "specific/output.h"
 #include "global/vars.h"
 
+void __cdecl DrawRooms(__int16 currentRoom) {
+	ROOM_INFO *room = &RoomInfo[currentRoom];
+
+	PhdWinLeft = room->left = 0;
+	PhdWinTop = room->top = 0;
+	PhdWinRight = room->right = PhdWinMaxX;
+	PhdWinBottom = room->bottom = PhdWinMaxY;
+
+	room->boundActive = 2;
+	BoundRooms[0] = currentRoom;
+	BoundStart = 0;
+	BoundEnd = 1;
+	DrawRoomsCount = 0;
+	OutsideCamera = room->flags & ROOM_OUTSIDE;
+
+	if( OutsideCamera ) {
+		OutsideLeft = 0;
+		OutsideTop = 0;
+		OutsideRight = PhdWinMaxX;
+		OutsideBottom = PhdWinMaxY;
+	} else {
+		OutsideLeft = PhdWinMaxX;
+		OutsideTop = PhdWinMaxY;
+		OutsideRight = 0;
+		OutsideBottom = 0;
+	}
+
+	UnderwaterCamera = room->flags & ROOM_UNDERWATER;
+	GetRoomBounds();
+	MidSort = 0;
+
+	if( OutsideCamera ) {
+		PhdWinLeft = OutsideLeft;
+		PhdWinRight = OutsideRight;
+		PhdWinBottom = OutsideBottom;
+		PhdWinTop = OutsideTop;
+		if( Objects[ID_SKYBOX].loaded ) {
+			// Draw skybox background
+			S_SetupAboveWater(UnderwaterCamera);
+			phd_PushMatrix();
+			PhdMatrixPtr->_03 = PhdMatrixPtr->_13 = PhdMatrixPtr->_23 = 0;
+
+			UINT16 *ptr = (UINT16 *)&Anims[Objects[ID_SKYBOX].animIndex].framePtr[9];
+			phd_RotYXZsuperpack(&ptr, 0);
+			S_InitialisePolyList(0);
+			S_InsertBackground(MeshPtr[Objects[ID_SKYBOX].meshIndex]);
+			--PhdMatrixPtr;
+		} else {
+			S_InitialisePolyList(1); // Fill backbuffer with black
+			OutsideCamera = -1;
+		}
+	} else {
+#ifdef FEATURE_VIEW_IMPROVED
+		S_InitialisePolyList(1); // Fill backbuffer with black
+#else // !FEATURE_VIEW_IMPROVED
+		S_InitialisePolyList(0); // Leave backbuffer uncleaned
+#endif // FEATURE_VIEW_IMPROVED
+	}
+
+	// Draw Lara
+	if( Objects[ID_LARA].loaded && !(LaraItem->flags & IFL_INVISIBLE) ) {
+		if( RoomInfo[LaraItem->roomNumber].flags & ROOM_UNDERWATER ) {
+			S_SetupBelowWater(UnderwaterCamera);
+		} else {
+			S_SetupAboveWater(UnderwaterCamera);
+		}
+		MidSort = RoomInfo[LaraItem->roomNumber].boundActive >> 8;
+		if( MidSort ) --MidSort;
+		DrawLara(LaraItem);
+	}
+
+	// Draw rooms
+	for( int i = 0; i < DrawRoomsCount; ++i ) {
+		PrintRooms(DrawRoomsArray[i]);
+	}
+
+	// Draw movable and static objects
+	for( int i = 0; i < DrawRoomsCount; ++i ) {
+		PrintObjects(DrawRoomsArray[i]);
+	}
+}
+
 void __cdecl DrawSpriteItem(ITEM_INFO *item) {
 	OBJECT_INFO *obj;
 
@@ -43,6 +125,132 @@ void __cdecl DrawSpriteItem(ITEM_INFO *item) {
 }
 
 void __cdecl DrawDummyItem(ITEM_INFO *item) {
+}
+
+void __cdecl DrawAnimatingItem(ITEM_INFO *item) {
+	static __int16 no_rotation[12] = {0};
+	__int16 *frames[2] = {0};
+	int rate = 0;
+	DWORD bit = 1;
+	int frac = GetFrames(item, frames, &rate);
+	OBJECT_INFO *obj = &Objects[item->objectID];
+
+	if( obj->shadowSize ) {
+		S_PrintShadow(obj->shadowSize, frames[0], item);
+	}
+
+	phd_PushMatrix();
+	phd_TranslateAbs(item->pos.x, item->pos.y, item->pos.z);
+	phd_RotYXZ(item->pos.rotY, item->pos.rotX, item->pos.rotZ);
+	int clip = S_GetObjectBounds(frames[0]);
+
+	if( clip ) {
+		CalculateObjectLighting(item, frames[0]);
+
+		__int16 *rots = item->data ? (__int16 *)item->data : no_rotation;
+		__int16 **meshPtr = &MeshPtr[obj->meshIndex];
+		int *bonePtr = &AnimBones[obj->boneIndex];
+		if( frac ) {
+			InitInterpolate(frac, rate);
+			phd_TranslateRel_ID(frames[0][6], frames[0][7], frames[0][8], frames[1][6], frames[1][7], frames[1][8]);
+			UINT16 *rot1 = (UINT16 *)&frames[0][9];
+			UINT16 *rot2 = (UINT16 *)&frames[1][9];
+			phd_RotYXZsuperpack_I(&rot1, &rot2, 0);
+
+			if( CHK_ANY(item->meshBits, 1) ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+				SetMeshReflectState(item->objectID, 0);
+#endif // FEATURE_VIDEOFX_IMPROVED
+				phd_PutPolygons_I(meshPtr[0], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+				ClearMeshReflectState();
+#endif // FEATURE_VIDEOFX_IMPROVED
+			}
+
+			for( int i = 1; i < obj->nMeshes; ++i ) {
+				DWORD state = *bonePtr;
+				if( CHK_ANY(state, 1) ) {
+					phd_PopMatrix_I();
+				}
+				if( CHK_ANY(state, 2) ) {
+					phd_PushMatrix_I();
+				}
+				phd_TranslateRel_I(bonePtr[1], bonePtr[2], bonePtr[3]);
+				phd_RotYXZsuperpack_I(&rot1, &rot2, 0);
+				if( CHK_ANY(state, 0x1C) ) {
+					if( CHK_ANY(state, 0x08) ) {
+						phd_RotY_I(*(rots++));
+					}
+					if( CHK_ANY(state, 0x04) ) {
+						phd_RotX_I(*(rots++));
+					}
+					if( CHK_ANY(state, 0x10) ) {
+						phd_RotZ_I(*(rots++));
+					}
+				}
+				bonePtr+=4;
+				bit <<= 1;
+				if( CHK_ANY(item->meshBits, bit) ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+					SetMeshReflectState(item->objectID, i);
+#endif // FEATURE_VIDEOFX_IMPROVED
+					phd_PutPolygons_I(meshPtr[i], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+					ClearMeshReflectState();
+#endif // FEATURE_VIDEOFX_IMPROVED
+				}
+			}
+		} else {
+			phd_TranslateRel(frames[0][6], frames[0][7], frames[0][8]);
+			UINT16 *rot = (UINT16 *)&frames[0][9];
+			phd_RotYXZsuperpack(&rot, 0);
+
+			if( CHK_ANY(item->meshBits, 1) ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+				SetMeshReflectState(item->objectID, 0);
+#endif // FEATURE_VIDEOFX_IMPROVED
+				phd_PutPolygons(meshPtr[0], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+				ClearMeshReflectState();
+#endif // FEATURE_VIDEOFX_IMPROVED
+			}
+
+			for( int i = 1; i < obj->nMeshes; ++i) {
+				DWORD state = *bonePtr;
+				if( CHK_ANY(state, 1) ) {
+					phd_PopMatrix();
+				}
+				if( CHK_ANY(state, 2) ) {
+					phd_PushMatrix();
+				}
+				phd_TranslateRel(bonePtr[1], bonePtr[2], bonePtr[3]);
+				phd_RotYXZsuperpack(&rot, 0);
+				if( CHK_ANY(state, 0x1C) ) {
+					if( CHK_ANY(state, 0x08) ) {
+						phd_RotY(*(rots++));
+					}
+					if( CHK_ANY(state, 0x04) ) {
+						phd_RotX(*(rots++));
+					}
+					if( CHK_ANY(state, 0x10) ) {
+						phd_RotZ(*(rots++));
+					}
+				}
+				bonePtr += 4;
+				bit <<= 1;
+				if( CHK_ANY(item->meshBits, bit) ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+					SetMeshReflectState(item->objectID, i);
+#endif // FEATURE_VIDEOFX_IMPROVED
+					phd_PutPolygons(meshPtr[i], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+					ClearMeshReflectState();
+#endif // FEATURE_VIDEOFX_IMPROVED
+				}
+			}
+		}
+	}
+	phd_PopMatrix();
 }
 
 void __cdecl phd_RotYXZsuperpack(UINT16 **pptr, int index) {
@@ -73,13 +281,22 @@ void __cdecl phd_RotYXZsuperpack(UINT16 **pptr, int index) {
 	}
 }
 
+void __cdecl phd_PutPolygons_I(__int16 *ptrObj, int clip) {
+	phd_PushMatrix();
+	InterpolateMatrix();
+	phd_PutPolygons(ptrObj, clip);
+	phd_PopMatrix();
+}
+
 /*
  * Inject function
  */
 void Inject_Draw() {
 //	INJECT(0x00418920, DrawPhaseCinematic);
 //	INJECT(0x00418960, DrawPhaseGame);
-//	INJECT(0x004189A0, DrawRooms);
+
+	INJECT(0x004189A0, DrawRooms);
+
 //	INJECT(0x00418C50, GetRoomBounds);
 //	INJECT(0x00418E20, SetRoomBounds);
 //	INJECT(0x004191A0, ClipRoom);
@@ -88,9 +305,9 @@ void Inject_Draw() {
 //	INJECT(0x00419870, DrawEffect);
 
 	INJECT(0x004199C0, DrawSpriteItem);
-
 //	INJECT(----------, DrawDummyItem);
-//	INJECT(0x00419A50, DrawAnimatingItem);
+	INJECT(0x00419A50, DrawAnimatingItem);
+
 //	INJECT(0x00419DD0, DrawLara);
 //	INJECT(0x0041AB00, DrawLaraInt);
 //	INJECT(0x0041B6F0, InitInterpolate);
@@ -105,8 +322,8 @@ void Inject_Draw() {
 //	INJECT(0x0041B940, phd_RotYXZsuperpack_I);
 
 	INJECT(0x0041B980, phd_RotYXZsuperpack);
+	INJECT(0x0041BA30, phd_PutPolygons_I);
 
-//	INJECT(0x0041BA30, phd_PutPolygons_I);
 //	INJECT(0x0041BA60, InterpolateMatrix);
 //	INJECT(0x0041BC10, InterpolateArmMatrix);
 //	INJECT(0x0041BD10, DrawGunFlash);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -64,7 +64,7 @@
 //	0x0041D230:		ControlLaraAlarm
 //	0x0041D270:		ControlAlarmSound
 //	0x0041D2E0:		ControlBirdTweeter
-//	0x0041D340:		ControlClockChimes_SubFunc
+//	0x0041D340:		DoChimeSound
 //	0x0041D3A0:		ControlClockChimes
 //	0x0041D410:		SphereOfDoomCollision
 //	0x0041D540:		SphereOfDoom

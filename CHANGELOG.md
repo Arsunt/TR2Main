@@ -15,8 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For the Gold mode, Spider and Big Spider AI replaced by Wolf and Bear AI. Also Monk Spirits have no shadow.
 - For the Gold mode, the credits slideshow starts from *CREDIT00.PCX*. For the original game mode, it starts from *CREDIT01.PCX*.
 - For the Gold mode, the selection of any levels (including bonus levels) is activated after collecting all the secrets (available before the final statistics). The ability to select levels remains even after relaunching the game.
-- For the Gold mode, pictures with "g" filename suffix (TITLEg.PCX, LEGALg.PCX, etc.) have higher priority that pictures without "g" filename suffix (TITLE.PCX, LEGAL.PCX, etc.)
+- For the Gold mode, pictures with "g" filename suffix (TITLEg.PCX, LEGALg.PCX, etc.) have higher priority than pictures without "g" filename suffix (TITLE.PCX, LEGAL.PCX, etc.)
 - For the Gold mode, instead of the files *"TOMBPC.DAT"* and *"MAIN.SFX"*, the files *"TOMBPCg.DAT"* and *"MAINg.SFX"* are used. However, for both Gold and the original game, *"MAIN.SFX"* is still used for the *"TITLE.TR2"* and *"ASSAULT.TR2"* levels.
+- Added separate subfolders for saved games of Gold and the original game.
+- Added PlayStation reflection visual effect.
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.
@@ -27,9 +29,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a bug that does not happen in the official levels (this situation is not in the script). Suppose a magnum and magnum ammo are set as a bonus for collecting all the secrets in the level. If Lara does not have a magnum at the moment of picking the last secret, she receives the magnum only, but not the magnum ammo. This is fixed now.
 - Fixed a bug that hid the ammo indicator in demo levels if *"New Game+"* is activated.
 - Fixed a bug that produced black triangles originating from the top left of the screen on some laptop graphic adapters.
+- Fixed a bug that produced traces of previous textures in untextured areas.
 
 ### TR2Main bugfixes
+- Background capture is optimized even more, now it is 3-4 times faster than v0.8.2. No lags anymore (broken since v0.8.0).
 - Fixed game crash in Software Rendered mode with PlayStation styled inventory text box enabled (broken since v0.8.0).
+- Fixed a rare game crash occurring when launching the game (broken since v0.1.0).
 
 ## [0.8.2] - 2019-05-26
 ### TR2Main bugfixes

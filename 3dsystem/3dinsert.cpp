@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -24,15 +24,24 @@
 #include "specific/hwr.h"
 #include "global/vars.h"
 
-#ifdef FEATURE_SHADOW_IMPROVED
+#ifdef FEATURE_VIDEOFX_IMPROVED
 extern DWORD ShadowMode;
-#endif // FEATURE_SHADOW_IMPROVED
+extern D3DTEXTUREHANDLE GetEnvmapTextureHandle();
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 static VERTEX_INFO VBuffer[40]; // NOTE: original size was 20
 static D3DTLVERTEX VBufferD3D[32];
+static D3DCOLOR GlobalTint = 0; // NOTE: not presented in the original code
 
 static D3DCOLOR shadeColor(DWORD red, DWORD green, DWORD blue, DWORD alpha, DWORD shade) {
 	CLAMPG(shade, 0x1FFF);
+
+	if( GlobalTint ) {
+		red = RGBA_GETRED(GlobalTint);
+		green = RGBA_GETGREEN(GlobalTint);
+		blue = RGBA_GETBLUE(GlobalTint);
+		alpha = RGBA_GETALPHA(GlobalTint);
+	}
 
 	if( shade > 0 ) {
 		DWORD brightness = 0x1FFF - shade;
@@ -52,6 +61,34 @@ static D3DCOLOR shadeColor(DWORD red, DWORD green, DWORD blue, DWORD alpha, DWOR
 	}
 	return RGBA_MAKE(red, green, blue, alpha);
 }
+
+#ifdef FEATURE_VIDEOFX_IMPROVED
+bool InsertObjectEM(__int16 *ptrObj, int vtxCount, D3DCOLOR tint, PHD_UV *em_uv) {
+	PHD_VBUF *vtx[4];
+	PHD_TEXTURE texture;
+	PHD_UV *uv = texture.uv;
+
+	if( ptrObj == NULL || em_uv == NULL || vtxCount < 3 || vtxCount > 4 ) {
+		return false;
+	}
+
+	texture.drawtype = DRAW_ColorKey;
+	texture.tpage = (UINT16)~0;
+	for( int i = 0; i < vtxCount; ++ i ) {
+		vtx[i] = &PhdVBuf[ptrObj[i]];
+		texture.uv[i] = em_uv[ptrObj[i]];
+	}
+
+	GlobalTint = tint;
+	if( vtxCount == 4 ) {
+		InsertGT4_ZBuffered(vtx[0], vtx[1], vtx[2], vtx[3], &texture);
+	} else {
+		InsertGT3_ZBuffered(vtx[0], vtx[1], vtx[2], &texture, &uv[0], &uv[1], &uv[2]);
+	}
+	GlobalTint = 0;
+	return true;
+}
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 // NOTE: this function is not presented in the original game
 void __cdecl InsertGourQuad(int x0, int y0, int x1, int y1, int z, D3DCOLOR color0, D3DCOLOR color1, D3DCOLOR color2, D3DCOLOR color3) {
@@ -1206,11 +1243,11 @@ void __cdecl InsertTrans8(PHD_VBUF *vbuf, __int16 shade) {
 	int i, nPoints, polyZ;
 	char clipOR = 0x00;
 	char clipAND = 0xFF;
-#ifdef FEATURE_SHADOW_IMPROVED
+#ifdef FEATURE_VIDEOFX_IMPROVED
 	int nVtx = ( ShadowMode == 1 ) ? 32 : 8;
-#else // FEATURE_SHADOW_IMPROVED
+#else // FEATURE_VIDEOFX_IMPROVED
 	int nVtx = 8;
-#endif // FEATURE_SHADOW_IMPROVED
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 	for( i = 0; i < nVtx; ++i ) {
 		clipOR  |= LOBYTE(vbuf[i].clip);
@@ -1237,19 +1274,19 @@ void __cdecl InsertTrans8(PHD_VBUF *vbuf, __int16 shade) {
 		if( nPoints == 0) return;
 	}
 
-#ifdef FEATURE_SHADOW_IMPROVED
+#ifdef FEATURE_VIDEOFX_IMPROVED
 	double polyZflt = 0.0;
 	for( i = 0; i < nVtx; ++i ) {
 		polyZflt += (double)vbuf[i].zv / (double)nVtx;
 	}
 	polyZ = polyZflt;
-#else // FEATURE_SHADOW_IMPROVED
+#else // FEATURE_VIDEOFX_IMPROVED
 	polyZ = 0;
 	for( i = 0; i < nVtx; ++i ) {
 		polyZ += vbuf[i].zv;
 	}
 	polyZ /= nVtx;
-#endif // FEATURE_SHADOW_IMPROVED
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 	Sort3dPtr->_0 = (int)Info3dPtr;
 	Sort3dPtr->_1 = polyZ;
@@ -1368,7 +1405,11 @@ void __cdecl InsertGT3_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2,
 			VBufferD3D[2].tu = (double)uv2->u / (double)PHD_ONE;
 			VBufferD3D[2].tv = (double)uv2->v / (double)PHD_ONE;
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+			HWR_TexSource(texture->tpage == (UINT16)~0 ? GetEnvmapTextureHandle() : HWR_PageHandles[texture->tpage]);
+#else // !FEATURE_VIDEOFX_IMPROVED
 			HWR_TexSource(HWR_PageHandles[texture->tpage]);
+#endif // !FEATURE_VIDEOFX_IMPROVED
 			HWR_EnableColorKey(texture->drawtype != DRAW_Opaque);
 
 			_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLELIST, D3DVT_TLVERTEX, VBufferD3D, 3, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
@@ -1437,7 +1478,11 @@ void __cdecl InsertGT3_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2,
 	nPoints = XYGUVClipper(nPoints, VBuffer);
 	if( nPoints == 0 ) return;
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	HWR_TexSource(texture->tpage == (UINT16)~0 ? GetEnvmapTextureHandle() : HWR_PageHandles[texture->tpage]);
+#else // !FEATURE_VIDEOFX_IMPROVED
 	HWR_TexSource(HWR_PageHandles[texture->tpage]);
+#endif // !FEATURE_VIDEOFX_IMPROVED
 	HWR_EnableColorKey(texture->drawtype != DRAW_Opaque);
 	DrawClippedPoly_Textured(nPoints);
 }
@@ -1511,7 +1556,11 @@ void __cdecl InsertGT4_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2,
 		VBufferD3D[3].tu = (double)texture->uv[3].u / (double)PHD_ONE;
 		VBufferD3D[3].tv = (double)texture->uv[3].v / (double)PHD_ONE;
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		HWR_TexSource(texture->tpage == (UINT16)~0 ? GetEnvmapTextureHandle() : HWR_PageHandles[texture->tpage]);
+#else // !FEATURE_VIDEOFX_IMPROVED
 		HWR_TexSource(HWR_PageHandles[texture->tpage]);
+#endif // !FEATURE_VIDEOFX_IMPROVED
 		HWR_EnableColorKey(texture->drawtype != DRAW_Opaque);
 
 		_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, VBufferD3D, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
@@ -2571,11 +2620,11 @@ void __cdecl InsertTrans8_Sorted(PHD_VBUF *vbuf, __int16 shade) {
 	int i, nPoints, polyZ;
 	char clipOR = 0x00;
 	char clipAND = 0xFF;
-#ifdef FEATURE_SHADOW_IMPROVED
+#ifdef FEATURE_VIDEOFX_IMPROVED
 	int nVtx = ( ShadowMode == 1 ) ? 32 : 8;
-#else // FEATURE_SHADOW_IMPROVED
+#else // FEATURE_VIDEOFX_IMPROVED
 	int nVtx = 8;
-#endif // FEATURE_SHADOW_IMPROVED
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 	for( i = 0; i < nVtx; ++i ) {
 		clipOR  |= LOBYTE(vbuf[i].clip);
@@ -2603,19 +2652,19 @@ void __cdecl InsertTrans8_Sorted(PHD_VBUF *vbuf, __int16 shade) {
 		if( nPoints == 0) return;
 	}
 
-#ifdef FEATURE_SHADOW_IMPROVED
+#ifdef FEATURE_VIDEOFX_IMPROVED
 	double polyZflt = 0.0;
 	for( i = 0; i < nVtx; ++i ) {
 		polyZflt += (double)vbuf[i].zv / (double)nVtx;
 	}
 	polyZ = polyZflt;
-#else // FEATURE_SHADOW_IMPROVED
+#else // FEATURE_VIDEOFX_IMPROVED
 	polyZ = 0;
 	for( i = 0; i < nVtx; ++i ) {
 		polyZ += vbuf[i].zv;
 	}
 	polyZ /= nVtx;
-#endif // FEATURE_SHADOW_IMPROVED
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 	InsertPoly_Gouraud(nPoints, (float)(polyZ - 0x20000), 0, 0, 0, POLY_HWR_trans);
 }

@@ -64,8 +64,8 @@
 #define InvMainObjectsCount			VAR_I_(0x004654E0, __int16,			8)
 #define InventoryChosen				VAR_I_(0x00465A50, __int16,			-1)
 #define InventoryMode				VAR_I_(0x00465A54, INVENTORY_MODE,	INV_TitleMode)
-#define InvNFrames					VAR_I_(0x004644F8, int,             0)
-#define InvDemoMode					VAR_I_(0x004D7990, int,             0)
+#define InvNFrames					VAR_I_(0x004644F8, int,				0)
+#define InvDemoMode					VAR_I_(0x004D7990, int,				0)
 #define SoundVolume					VAR_I_(0x00465A5C, __int16,			165) // NOTE: value should be 10
 #define MusicVolume					VAR_I_(0x00465A60, __int16,			255) // NOTE: value should be 10
 #define BGND_PaletteIndex			VAR_I_(0x00466400, int,				-1)
@@ -88,7 +88,7 @@
 #define XGen_y1						VAR_I_(0x0046C2FC, int,				0)
 
 // Uninitialized variables
-#define GymInvOpenEnabled           VAR_U_(0x00465618, BOOL)
+#define GymInvOpenEnabled			VAR_U_(0x00465618, BOOL)
 #define PhdWinTop					VAR_U_(0x0046E300, int)
 #define LsAdder						VAR_U_(0x00470308, int)
 #define FltWinBottom				VAR_U_(0x0047030C, float)
@@ -143,6 +143,8 @@
 #define StopInventory				VAR_U_(0x004D7794, BOOL)
 #define IsDemoLevelType				VAR_U_(0x004D779C, BOOL)
 #define IsDemoLoaded				VAR_U_(0x004D77A0, BOOL)
+#define BoundStart					VAR_U_(0x004D77B0, int)
+#define BoundEnd					VAR_U_(0x004D77B4, int)
 #define IsAssaultTimerDisplay		VAR_U_(0x004D77D0, BOOL)
 #define AmmoTextInfo				VAR_U_(0x004D791C, TEXT_STR_INFO*)
 #define DisplayModeTextInfo			VAR_U_(0x004D7920, TEXT_STR_INFO*)
@@ -325,16 +327,22 @@
 #define SoundEffects				VAR_U_(0x00521FE0, OBJECT_VECTOR*)
 #define AnimFrames					VAR_U_(0x005251B0, __int16*)
 #define MeshPtr						VAR_U_(0x005252B0, __int16**)
-#define RoomIsOutside               VAR_U_(0x005252B4, int)
+#define OutsideCamera				VAR_U_(0x005252B4, int)
+#define DrawRoomsCount				VAR_U_(0x005252B8, int)
 #define Anims						VAR_U_(0x005258F4, ANIM_STRUCT*)
+#define OutsideBottom				VAR_U_(0x00525B00, int)
 #define AnimRanges					VAR_U_(0x00525B04, RANGE_STRUCT*)
 #define AnimCommands				VAR_U_(0x00525B08, __int16*)
 #define AnimBones					VAR_U_(0x00525BE8, int*)
 #define DynamicLightCount			VAR_U_(0x00525BEC, int)
+#define OutsideLeft					VAR_U_(0x00526178, int)
 #define AnimChanges					VAR_U_(0x0052617C, CHANGE_STRUCT*)
 #define RoomCount					VAR_U_(0x00526180, __int16)
 #define RoomInfo					VAR_U_(0x0052618C, ROOM_INFO*)
+#define UnderwaterCamera			VAR_U_(0x00526190, int)
 #define AnimFramesCounter			VAR_U_(0x00526194, int)
+#define OutsideRight				VAR_U_(0x00526198, int)
+#define OutsideTop					VAR_U_(0x005261AC, int)
 #define DemoPtr						VAR_U_(0x005261B0, LPVOID)
 #define DemoCount					VAR_U_(0x005261B4, int)
 #define Items						VAR_U_(0x005262F0, ITEM_INFO*)
@@ -347,16 +355,6 @@
 #define Overlaps					VAR_U_(0x005263C8, UINT16*)
 #define Boxes						VAR_U_(0x005263CC, BOX_INFO*)
 #define BoxesCount					VAR_U_(0x005263D0, DWORD)
-#define RecursiveRoomGetCount                           VAR_U_(0x004D77B0, int)
-#define RecursiveRoomSetCount                           VAR_U_(0x004D77B4, int)
-#define RecursiveRoomArray                              ARRAY_(0x00525900, DWORD, [128])
-#define DrawRoomArray                                   ARRAY_(0x00525B20, __int16, [100])
-#define DrawRoomsCount                                  VAR_U_(0x005252B8, int)
-#define RoomLeft                                        VAR_U_(0x00526178, int)
-#define RoomRight                                       VAR_U_(0x00526198, int)
-#define RoomTop                                         VAR_U_(0x005261AC, int)
-#define RoomBottom                                      VAR_U_(0x00525B00, int)
-#define Effects                                         VAR_U_(0x005207C0, FX_INFO*)
 
 // Initialized arrays
 #define TrackIDs					ARRAY_(0x004642F0, __int16, [16]) /* = {2, 0}; */
@@ -497,6 +495,8 @@
 #define PickupInfos					ARRAY_(0x00521CA0, PICKUP_INFO, [12])
 #define Objects						ARRAY_(0x00522000, OBJECT_INFO, [265])
 #define DynamicLights				ARRAY_(0x005251C0, LIGHT_INFO, [10])
+#define BoundRooms					ARRAY_(0x00525900, int, [128])
+#define DrawRoomsArray				ARRAY_(0x00525B20, __int16, [100])
 #define StaticObjects				ARRAY_(0x00525C00, STATIC_INFO, [50])
 #define GroundZones					ARRAY_(0x005263A0, __int16*, [8])
 #define FlyZones					ARRAY_(0x005263C0, __int16*, [2])
@@ -590,12 +590,12 @@
 #define GF_Key4StringBuffer			VAR_U_(0x00521E7C, char*)
 
 // GameFlow/Inventory arrays
-#define InvOptionList               ARRAY_(0x00465608, INVENTORY_ITEM*, [4]) /* = {
-    &InvPassportOption,
-    &InvDetailOption,
-    &InvControlOption,
-    &InvSoundOption,
-    &InvPhotoOption
+#define InvOptionList				ARRAY_(0x00465608, INVENTORY_ITEM*, [4]) /* = {
+	&InvPassportOption,
+	&InvDetailOption,
+	&InvControlOption,
+	&InvSoundOption,
+	&InvPhotoOption
 }; */
 
 #define InvMainQtys					ARRAY_(0x004654E8, UINT16, [23]) /* = {1, 1, 1, 1, 1, 1, 1, 1, 1, 0}; */

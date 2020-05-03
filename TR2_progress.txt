@@ -124,10 +124,10 @@ x function is unused / included in another function
 0x0040CB10:		InitialiseBoat
 0x0040CB50:		BoatCheckGeton
 0x0040CCC0:		BoatCollision
-0x0040CE20:		Boat_SomeFunc
+0x0040CE20:		TestWaterHeight
 0x0040CF20:		DoBoatShift
 0x0040D0F0:		DoWakeEffect
-0x0040D270:		BoatControl_SubFunc
+0x0040D270:		DoBoatDynamics
 0x0040D2C0:		BoatDynamics
 0x0040D7A0:		BoatUserControl
 0x0040D930:		BoatAnimation
@@ -138,8 +138,8 @@ x function is unused / included in another function
 0x0040E190:	 *	InitialiseCreature
 0x0040E1C0:		CreatureActive
 0x0040E210:	 *	CreatureAIInfo
-0x0040E470:		SearchLOT_SubFunc
-0x0040E670:		SearchLOT
+0x0040E470:		SearchLOT
+0x0040E670:		UpdateLOT
 0x0040E6E0:		TargetBox
 0x0040E780:		StalkBox
 0x0040E880:		EscapeBox
@@ -251,7 +251,7 @@ x function is unused / included in another function
 
 	game/dragon.cpp
 0x00417780:		ControlTwinkle
-0x00417900:		DragonBartoliControl_SubFunc
+0x00417900:		CreateBartoliLight
 0x004179E0:		DragonFire
 0x00417A90:	 *	DragonCollision
 0x00417D80:		DragonBones
@@ -263,38 +263,38 @@ x function is unused / included in another function
 	game/draw.cpp
 0x00418920:	 *	DrawPhaseCinematic
 0x00418960:	 *	DrawPhaseGame
-0x004189A0:		DrawRooms
-0x00418C50:		GetRoomBounds
-0x00418E20:		SetRoomBounds
-0x004191A0:		ClipRoom
-0x00419580:		PrintRooms
-0x00419640:		PrintObjects
-0x00419870:		DrawEffect
+0x004189A0:	+	DrawRooms
+0x00418C50:	 *	GetRoomBounds
+0x00418E20:	 *	SetRoomBounds
+0x004191A0:	 *	ClipRoom
+0x00419580:	 *	PrintRooms
+0x00419640:	 *	PrintObjects
+0x00419870:	 *	DrawEffect
 0x004199C0:	+	DrawSpriteItem
 ----------:	+	DrawDummyItem
-0x00419A50:	 *	DrawAnimatingItem
-0x00419DD0:		DrawLara
-0x0041AB00:		DrawLaraInt
-0x0041B6F0:		InitInterpolate
-0x0041B730:		phd_PopMatrix_I
-0x0041B760:		phd_PushMatrix_I
-0x0041B790:		phd_RotY_I
-0x0041B7D0:		phd_RotX_I
-0x0041B810:		phd_RotZ_I
-0x0041B850:		phd_TranslateRel_I
-0x0041B8A0:		phd_TranslateRel_ID
-0x0041B8F0:		phd_RotYXZ_I
-0x0041B940:		phd_RotYXZsuperpack_I
+0x00419A50:	+	DrawAnimatingItem
+0x00419DD0:	 *	DrawLara
+0x0041AB00:	 *	DrawLaraInt
+0x0041B6F0:	 *	InitInterpolate
+0x0041B730:	 *	phd_PopMatrix_I
+0x0041B760:	 *	phd_PushMatrix_I
+0x0041B790:	 *	phd_RotY_I
+0x0041B7D0:	 *	phd_RotX_I
+0x0041B810:	 *	phd_RotZ_I
+0x0041B850:	 *	phd_TranslateRel_I
+0x0041B8A0:	 *	phd_TranslateRel_ID
+0x0041B8F0:	 *	phd_RotYXZ_I
+0x0041B940:	 *	phd_RotYXZsuperpack_I
 0x0041B980:	+	phd_RotYXZsuperpack
-0x0041BA30:		phd_PutPolygons_I
-0x0041BA60:		InterpolateMatrix
-0x0041BC10:		InterpolateArmMatrix
-0x0041BD10:		DrawGunFlash
-0x0041BE80:		CalculateObjectLighting
-0x0041BF70:		GetFrames
-0x0041C010:		GetBoundsAccurate
-0x0041C090:		GetBestFrame
-0x0041C0D0:		AddDynamicLight
+0x0041BA30:	+	phd_PutPolygons_I
+0x0041BA60:	 *	InterpolateMatrix
+0x0041BC10:	 *	InterpolateArmMatrix
+0x0041BD10:	 *	DrawGunFlash
+0x0041BE80:	 *	CalculateObjectLighting
+0x0041BF70:	 *	GetFrames
+0x0041C010:	 *	GetBoundsAccurate
+0x0041C090:	 *	GetBestFrame
+0x0041C0D0:	 *	AddDynamicLight
 
 	game/eel.cpp
 0x0041C120:	 *	BigEelControl
@@ -336,7 +336,7 @@ x function is unused / included in another function
 0x0041D230:		ControlLaraAlarm
 0x0041D270:		ControlAlarmSound
 0x0041D2E0:		ControlBirdTweeter
-0x0041D340:		ControlClockChimes_SubFunc
+0x0041D340:		DoChimeSound
 0x0041D3A0:		ControlClockChimes
 0x0041D410:		SphereOfDoomCollision
 0x0041D540:		SphereOfDoom
@@ -366,10 +366,10 @@ x function is unused / included in another function
 0x0041DFE0:	 *	MonkControl
 0x0041E4B0:	 *	Worker3Control
 0x0041EAC0:	 *	DrawXianLord
-0x0041EEC0:		XianLordControl_SubFunc
+0x0041EEC0:		XianDamage
 0x0041EF70:	 *	InitialiseXianLord
 0x0041EFD0:	 *	XianLordControl
-0x0041F5B0:		WarriorControl_SubFunc
+0x0041F5B0:		WarriorSparkleTrail
 0x0041F650:	 *	WarriorControl
 
 	game/gameflow.cpp
@@ -540,7 +540,7 @@ x function is unused / included in another function
 0x00428A30:		extra_as_startanim
 0x00428A80:		extra_as_starthouse
 0x00428B30:		extra_as_finalanim
-0x00428BE0:		LaraCollideIsFloorFallen
+0x00428BE0:		LaraFallen
 0x00428C40:		LaraCollideStop
 0x00428D00:		lara_col_walk
 0x00428EA0:		lara_col_run
@@ -581,8 +581,7 @@ x function is unused / included in another function
 ----------:		lara_col_usepuzzle
 0x00429C10:		lara_col_roll
 0x00429CB0:		lara_col_roll2
-0x00429D80:		lara_col_null
-----------:		lara_col_special
+0x00429D80:		lara_col_special
 ----------:		lara_col_usemidas
 ----------:		lara_col_diemidas
 0x00429DA0:		lara_col_swandive
@@ -596,8 +595,7 @@ x function is unused / included in another function
 ----------:		lara_col_twist
 0x0042A000:		lara_default_col
 0x0042A040:	+	lara_col_jumper
-0x0042A120:	  x	nullsub
-----------:		lara_col_kick
+0x0042A120:		lara_col_kick
 ----------:		lara_col_deathslide
 0x0042A130:	 *	GetLaraCollisionInfo
 0x0042A170:		lara_slide_slope
@@ -626,7 +624,7 @@ x function is unused / included in another function
 0x0042BD00:		ready_shotgun
 0x0042BD70:		RifleHandler
 0x0042BE70:		FireShotgun
-0x0042BF70:		AnimateShotgun_SubFunc
+0x0042BF70:		FireM16
 0x0042BFF0:		FireHarpoon
 0x0042C180:		ControlHarpoonBolt
 0x0042C4D0:		FireRocket
@@ -868,18 +866,18 @@ x function is unused / included in another function
 0x0043CF20:		SkidooCheckGeton
 0x0043D010:		SkidooCollision
 0x0043D110:		SkidooBaddieCollision
-0x0043D310:		Skidoo_SomeFunc
+0x0043D310:		TestHeight
 0x0043D3D0:		DoShift
-0x0043D650:		SkidooControl_SubFunc
+0x0043D650:		DoDynamics
 0x0043D6B0:		GetCollisionAnim
 0x0043D740:		DoSnowEffect
 0x0043D880:		SkidooDynamics
 0x0043DD20:		SkidooUserControl
 0x0043DEE0:		SkidooCheckGetOffOK
 0x0043DFF0:		SkidooAnimation
-0x0043E2D0:		SkidooExplodingDeath
+0x0043E2D0:		SkidooExplode
 0x0043E350:		SkidooCheckGetOff
-0x0043E590:		SkidooFireWeapon
+0x0043E590:		SkidooGuns
 0x0043E6B0:		SkidooControl
 0x0043EB10:	 *	DrawSkidoo
 0x0043EDF0:	 *	InitialiseSkidman

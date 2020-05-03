@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -82,7 +82,7 @@ bool FlaggedStringCopy(STRING_FLAGGED *dst, STRING_FLAGGED *src) {
 
 	size_t srcLen = lstrlen(src->lpString);
 
-	FlaggedStringDelete(dst);
+	dst->isPresented = false;
 	dst->lpString = new char[srcLen + 1];
 
 	if( dst->lpString == NULL )
@@ -781,7 +781,7 @@ bool __cdecl WinVidGetDisplayAdapters() {
 
 void __thiscall FlaggedStringDelete(STRING_FLAGGED *item) {
 	if( item->isPresented && item->lpString ) {
-		delete(item->lpString);
+		delete[] item->lpString;
 		item->lpString = NULL;
 		item->isPresented = false;
 	}

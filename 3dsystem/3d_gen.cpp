@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -79,6 +79,149 @@ int CalculateFogShade(int depth) {
 	return (depth - fogBegin) * 0x1FFF / (fogEnd - fogBegin);
 }
 #endif // FEATURE_VIEW_IMPROVED
+
+#ifdef FEATURE_VIDEOFX_IMPROVED
+extern DWORD ReflectionMode;
+
+// Filter is presented by an array of poly index and polys number (starting from the index).
+// The filter is always terminated by an index 0.
+// If the first item has index=~0 then there are no polys to reflect.
+// If the first item has index=0 and number=0 then all polys reflect.
+#define FILTER_SIZE 256
+typedef struct {UINT16 idx; UINT16 num;} POLYINDEX;
+static struct {
+	POLYINDEX gt4[FILTER_SIZE];
+	POLYINDEX gt3[FILTER_SIZE];
+	POLYINDEX g4[FILTER_SIZE];
+	POLYINDEX g3[FILTER_SIZE];
+} ReflectFilter;
+
+static bool IsReflect = false;
+
+void ClearMeshReflectState() {
+	memset(&ReflectFilter, 0 , sizeof(ReflectFilter));
+	IsReflect = false;
+}
+
+void SetMeshReflectState(int objID, int meshIdx) {
+	// Clear poly filters and disable reflection by default
+	ClearMeshReflectState();
+	if( !ReflectionMode ) return;
+
+	switch( objID ) {
+	case ID_WORKER5 :
+		// Reflect the black glass mask of flamethrower buddy (his head is mesh #15)
+		if( meshIdx == 15 ) {
+			// The reflective polys are 22..26
+			ReflectFilter.gt4[0].idx = 22;
+			ReflectFilter.gt4[0].num = 5;
+			// Other polys are not reflective
+			ReflectFilter.gt3[0].idx = ~0;
+			ReflectFilter.g4[0].idx = ~0;
+			ReflectFilter.g3[0].idx = ~0;
+			IsReflect = true;
+		}
+		break;
+	case ID_SPINNING_BLADE :
+		// Reflect only quads, not triangles
+		ReflectFilter.gt3[0].idx = ~0;
+		ReflectFilter.g3[0].idx = ~0;
+		IsReflect = true;
+		break;
+	case ID_BLADE :
+		// Reflect blade only (mesh #1)
+		if( meshIdx == 1 ) {
+			IsReflect = true;
+		}
+		break;
+	case ID_KILLER_STATUE :
+		// Reflect the sword only (mesh #7)
+		if( meshIdx == 7 ) {
+			IsReflect = true;
+		}
+		break;
+	}
+}
+
+static __int16 *InsertEnvmapFiltered(__int16 *ptrObj, int vtxCount, D3DCOLOR tint, PHD_UV *uv, POLYINDEX *filter) {
+	int polyNumber = *ptrObj++;
+
+	if( !filter[0].idx && !filter[0].num ) {
+		// filter is disabled, just insert all polys
+		for( int i = 0; i < polyNumber; ++i ) {
+			InsertObjectEM(ptrObj, vtxCount, tint, uv);
+			ptrObj += vtxCount+1;
+		}
+	} else {
+		int polyIndex = 0;
+		for( int i=0; i<FILTER_SIZE; i++ ) {
+			if( filter[i].idx < polyIndex || filter[i].idx >= polyNumber ) {
+				break;
+			}
+			int skip = filter[i].idx - polyIndex;
+			if( skip > 0 ) {
+				ptrObj += skip*(vtxCount+1);
+				polyIndex += skip;
+			}
+			int number = MIN(filter[i].num, polyNumber - polyIndex);
+			for( int j = 0; j < number; ++j ) {
+				InsertObjectEM(ptrObj, vtxCount, tint, uv);
+				ptrObj += vtxCount+1;
+			}
+			polyIndex += number;
+		}
+		ptrObj += (polyNumber-polyIndex)*(vtxCount+1);
+	}
+
+	return ptrObj;
+}
+
+static void phd_PutEnvmapPolygons(__int16 *ptrObj) {
+	if( ptrObj == NULL || *ptrObj <= 0 || !IsReflect
+		|| SavedAppSettings.RenderMode != RM_Hardware
+		|| !SavedAppSettings.ZBuffer ) return;
+
+	int vtxCount = *ptrObj++;
+	PHD_UV *uv = new PHD_UV[vtxCount];
+
+	for( int i = 0; i < vtxCount; ++i ) {
+		// set lighting that depends only from fog distance
+		PhdVBuf[i].g = LsAdder;
+		CLAMP(PhdVBuf[i].g, 0, 0x1FFF);
+
+		// rotate normal vectors for X/Y, no translation
+		int x = (PhdMatrixPtr->_00 * ptrObj[0] +
+				 PhdMatrixPtr->_01 * ptrObj[1] +
+				 PhdMatrixPtr->_02 * ptrObj[2]) >> W2V_SHIFT;
+
+		int y = (PhdMatrixPtr->_10 * ptrObj[0] +
+				 PhdMatrixPtr->_11 * ptrObj[1] +
+				 PhdMatrixPtr->_12 * ptrObj[2]) >> W2V_SHIFT;
+
+		// mirror X coordinate if such option is enabled
+		if( ReflectionMode == 2 ) {
+			x = -x;
+		}
+		CLAMP(x, -PHD_IONE, PHD_IONE);
+		CLAMP(y, -PHD_IONE, PHD_IONE);
+		uv[i].u = PHD_ONE/PHD_IONE * (x + PHD_IONE)/2;
+		uv[i].v = PHD_ONE/PHD_IONE * (y + PHD_IONE)/2;
+		ptrObj += 3;
+	}
+
+	// overlaid faces supposed to be semitransparent
+	D3DCOLOR tint = RGBA_MAKE(0xFF,0xFF,0xFF,0x80);
+
+	// overlay textured faces
+	ptrObj = InsertEnvmapFiltered(ptrObj, 4, tint, uv, ReflectFilter.gt4);
+	ptrObj = InsertEnvmapFiltered(ptrObj, 3, tint, uv, ReflectFilter.gt3);
+	// overlay colored faces (if any presented)
+	ptrObj = InsertEnvmapFiltered(ptrObj, 4, tint, uv, ReflectFilter.g4);
+	ptrObj = InsertEnvmapFiltered(ptrObj, 3, tint, uv, ReflectFilter.g3);
+
+	delete[] uv;
+}
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 void phd_GenerateW2V(PHD_3DPOS *viewPos) {
 	int sx = phd_sin(viewPos->rotX);
@@ -341,7 +484,7 @@ void __cdecl phd_TranslateAbs(int x, int y, int z) {
 	PhdMatrixPtr->_23 = x * PhdMatrixPtr->_20 + y * PhdMatrixPtr->_21 + z * PhdMatrixPtr->_22;
 }
 
-void __cdecl phd_PutPolygons(__int16 *ptrObj) {
+void __cdecl phd_PutPolygons(__int16 *ptrObj, int clip) {
 	FltWinLeft = (float)PhdWinMinX;
 	FltWinTop = (float)PhdWinMinY;
 	FltWinRight = (float)(PhdWinMinX + PhdWinMaxX + 1);
@@ -352,15 +495,21 @@ void __cdecl phd_PutPolygons(__int16 *ptrObj) {
 	ptrObj += 4; // skip x, y, z, radius
 	ptrObj = calc_object_vertices(ptrObj);
 	if( ptrObj != NULL ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		__int16 *ptrEnv = ptrObj;
+#endif // FEATURE_VIDEOFX_IMPROVED
 		ptrObj = calc_vertice_light(ptrObj);
 		ptrObj = ins_objectGT4(ptrObj+1, *ptrObj, ST_AvgZ);
 		ptrObj = ins_objectGT3(ptrObj+1, *ptrObj, ST_AvgZ);
 		ptrObj = ins_objectG4(ptrObj+1, *ptrObj, ST_AvgZ);
 		ptrObj = ins_objectG3(ptrObj+1, *ptrObj, ST_AvgZ);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		phd_PutEnvmapPolygons(ptrEnv);
+#endif // FEATURE_VIDEOFX_IMPROVED
 	}
 }
 
-void __cdecl S_InsertRoom(__int16 *ptrObj, BOOL isNoFarClip) {
+void __cdecl S_InsertRoom(__int16 *ptrObj, BOOL isOutside) {
 	FltWinLeft = (float)(PhdWinMinX + PhdWinLeft);
 	FltWinTop = (float)(PhdWinMinY + PhdWinTop);
 	FltWinRight = (float)(PhdWinMinX + PhdWinRight + 1);
@@ -368,7 +517,7 @@ void __cdecl S_InsertRoom(__int16 *ptrObj, BOOL isNoFarClip) {
 	FltWinCenterX = (float)(PhdWinMinX + PhdWinCenterX);
 	FltWinCenterY = (float)(PhdWinMinY + PhdWinCenterY);
 
-	ptrObj = calc_roomvert(ptrObj, isNoFarClip?0x00:0x10);
+	ptrObj = calc_roomvert(ptrObj, isOutside?0x00:0x10);
 	ptrObj = ins_objectGT4(ptrObj+1, *ptrObj, ST_MaxZ);
 	ptrObj = ins_objectGT3(ptrObj+1, *ptrObj, ST_MaxZ);
 	ptrObj = ins_room_sprite(ptrObj+1, *ptrObj);
@@ -433,6 +582,10 @@ __int16 *__cdecl calc_object_vertices(__int16 *ptrObj) {
 
 	ptrObj++; // skip poly counter
 	vtxCount = *(ptrObj++); // get vertex counter
+
+	if( vtxCount < 0 ) {
+		printf("vtxCount=%d", vtxCount);
+	}
 
 	for( int i = 0; i < vtxCount; ++i ) {
 		xv = (double)(PhdMatrixPtr->_00 * ptrObj[0] +
