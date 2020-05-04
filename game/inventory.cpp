@@ -77,7 +77,6 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 
 	memset(&ring, 0, sizeof(RING_INFO));
 	memset(&motion, 0, sizeof(INV_MOTION_INFO));
-	InventoryMode = invMode;
 
 	if( InventoryMode == INV_KeysMode && !InvKeyObjectsCount ) {
 		InventoryChosen = -1;
@@ -87,6 +86,7 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 	T_RemovePrint(AmmoTextInfo);
 	AmmoTextInfo = NULL;
 	AlterFOV(80*PHD_DEGREE);
+	InventoryMode = invMode;
 	InvNFrames = 2;
 	Construct_Inventory();
 
@@ -352,14 +352,14 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 								InvMainCurrent = ring.currentObj;
 								item = InvMainList[ring.currentObj];
 								break;
-							case RING_Keys :
-								InvKeysCurrent = ring.currentObj;
-								item = InvKeysList[ring.currentObj];
-								break;
 							case RING_Option :
-							default :
 								InvOptionCurrent = ring.currentObj;
 								item = InvOptionList[ring.currentObj];
+								break;
+							case RING_Keys :
+							default :
+								InvKeysCurrent = ring.currentObj;
+								item = InvKeysList[ring.currentObj];
 								break;
 						}
 
@@ -484,8 +484,8 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 
 					ring.itemList = InvMainList;
 					ring.type = RING_Main;
-					InvOptionObjectsCount = ring.objCount;
-					InvOptionCurrent = ring.currentObj;
+					InvKeyObjectsCount = ring.objCount;
+					InvKeysCurrent = ring.currentObj;
 					ring.objCount = InvMainObjectsCount;
 					ring.currentObj = InvMainCurrent;
 
@@ -615,13 +615,6 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 
 	if( isDemoNeeded ) {
 		return GF_START_DEMO;
-	}
-
-	if( InventoryChosen == -1 ) {
-		if( InventoryMode != INV_TitleMode ) {
-			S_CDVolume(MusicVolume * 25 + 5);
-		}
-		return 0;
 	}
 
 	switch( InventoryChosen ) {
