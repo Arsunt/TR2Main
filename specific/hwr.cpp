@@ -25,6 +25,10 @@
 #include "specific/texture.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+extern D3DTEXTUREHANDLE GetEnvmapTextureHandle();
+#endif // FEATURE_VIDEOFX_IMPROVED
+
 void __cdecl HWR_InitState() {
 	DWORD filter, blend;
 
@@ -135,7 +139,11 @@ void __cdecl HWR_DrawPolyList() {
 		switch( polyType ) {
 			case POLY_HWR_GTmap: // triangle fan (texture)
 			case POLY_HWR_WGTmap: // triangle fan (texture + colorkey)
+#ifdef FEATURE_VIDEOFX_IMPROVED
+				HWR_TexSource(texPage == (UINT16)~0 ? GetEnvmapTextureHandle() : HWR_PageHandles[texPage]);
+#else // !FEATURE_VIDEOFX_IMPROVED
 				HWR_TexSource(HWR_PageHandles[texPage]);
+#endif // !FEATURE_VIDEOFX_IMPROVED
 				HWR_EnableColorKey(polyType == POLY_HWR_WGTmap);
 				_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 				break;

@@ -178,13 +178,14 @@ static __int16 *InsertEnvmapFiltered(__int16 *ptrObj, int vtxCount, D3DCOLOR tin
 
 static void phd_PutEnvmapPolygons(__int16 *ptrObj) {
 	if( ptrObj == NULL || *ptrObj <= 0 || !IsReflect
-		|| SavedAppSettings.RenderMode != RM_Hardware
-		|| !SavedAppSettings.ZBuffer ) return;
+		|| SavedAppSettings.RenderMode != RM_Hardware ) return;
 
 	int vtxCount = *ptrObj++;
 	PHD_UV *uv = new PHD_UV[vtxCount];
 
 	for( int i = 0; i < vtxCount; ++i ) {
+		// make sure that reflection will be drawn after normal poly
+		PhdVBuf[i].zv -= (double)(W2V_SCALE/2);
 		// set lighting that depends only from fog distance
 		PhdVBuf[i].g = LsAdder;
 		CLAMP(PhdVBuf[i].g, 0, 0x1FFF);

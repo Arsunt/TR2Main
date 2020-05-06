@@ -81,9 +81,17 @@ bool InsertObjectEM(__int16 *ptrObj, int vtxCount, D3DCOLOR tint, PHD_UV *em_uv)
 
 	GlobalTint = tint;
 	if( vtxCount == 4 ) {
-		InsertGT4_ZBuffered(vtx[0], vtx[1], vtx[2], vtx[3], &texture);
+		if( SavedAppSettings.ZBuffer ) {
+			InsertGT4_ZBuffered(vtx[0], vtx[1], vtx[2], vtx[3], &texture);
+		} else {
+			InsertGT4_Sorted(vtx[0], vtx[1], vtx[2], vtx[3], &texture, ST_AvgZ);
+		}
 	} else {
-		InsertGT3_ZBuffered(vtx[0], vtx[1], vtx[2], &texture, &uv[0], &uv[1], &uv[2]);
+		if( SavedAppSettings.ZBuffer ) {
+			InsertGT3_ZBuffered(vtx[0], vtx[1], vtx[2], &texture, &uv[0], &uv[1], &uv[2]);
+		} else {
+			InsertGT3_Sorted(vtx[0], vtx[1], vtx[2], &texture, &uv[0], &uv[1], &uv[2], ST_AvgZ);
+		}
 	}
 	GlobalTint = 0;
 	return true;
