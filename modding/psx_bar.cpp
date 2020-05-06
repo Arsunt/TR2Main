@@ -144,4 +144,27 @@ void __cdecl PSX_DrawAirBar(int x0, int y0, int x1, int y1, int bar, int pixel) 
 	PSX_DrawBar(x0, y0, x1, y1, bar, pixel, left, right, frame);
 }
 
+static void PSX_InsertBar(int polytype, int x0, int y0, int x1, int y1, int bar, int pixel) {
+	Sort3dPtr->_0 = (int)Info3dPtr;
+	Sort3dPtr->_1 = PhdNearZ;
+	++Sort3dPtr;
+	++SurfaceCount;
+
+	*(Info3dPtr++) = polytype;
+	*(Info3dPtr++) = x0;
+	*(Info3dPtr++) = y0;
+	*(Info3dPtr++) = x1;
+	*(Info3dPtr++) = y1;
+	*(Info3dPtr++) = bar;
+	*(Info3dPtr++) = pixel;
+}
+
+void __cdecl PSX_InsertHealthBar(int x0, int y0, int x1, int y1, int bar, int pixel) {
+	PSX_InsertBar(POLY_HWR_healthbar, x0, y0, x1, y1, bar, pixel);
+}
+
+void __cdecl PSX_InsertAirBar(int x0, int y0, int x1, int y1, int bar, int pixel) {
+	PSX_InsertBar(POLY_HWR_airbar, x0, y0, x1, y1, bar, pixel);
+}
+
 #endif // FEATURE_HUD_IMPROVED

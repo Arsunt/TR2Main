@@ -620,8 +620,12 @@ void __cdecl S_DrawHealthBar(int percent) {
 	// Disable underwater shading
 	IsShadeEffect = false;
 
-	if( HealthBarMode != 0 && SavedAppSettings.RenderMode == RM_Hardware && SavedAppSettings.ZBuffer ) {
-		PSX_DrawHealthBar(x0, y0, x1, y1, bar, pixel);
+	if( HealthBarMode != 0 && SavedAppSettings.RenderMode == RM_Hardware ) {
+		if( SavedAppSettings.ZBuffer ) {
+			PSX_DrawHealthBar(x0, y0, x1, y1, bar, pixel);
+		} else {
+			PSX_InsertHealthBar(x0, y0, x1, y1, bar, pixel);
+		}
 		return;
 	}
 
@@ -689,8 +693,12 @@ void __cdecl S_DrawAirBar(int percent) {
 	// Disable underwater shading
 	IsShadeEffect = false;
 
-	if( HealthBarMode != 0 && SavedAppSettings.RenderMode == RM_Hardware && SavedAppSettings.ZBuffer ) {
-		PSX_DrawAirBar(x0, y0, x1, y1, bar, pixel);
+	if( HealthBarMode != 0 && SavedAppSettings.RenderMode == RM_Hardware ) {
+		if( SavedAppSettings.ZBuffer ) {
+			PSX_DrawAirBar(x0, y0, x1, y1, bar, pixel);
+		} else {
+			PSX_InsertAirBar(x0, y0, x1, y1, bar, pixel);
+		}
 		return;
 	}
 

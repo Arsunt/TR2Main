@@ -682,6 +682,10 @@ typedef enum {
 	POLY_HWR_gouraud,	// gouraud shaded poly (color)
 	POLY_HWR_line,		// line (color)
 	POLY_HWR_trans,		// shadow poly (color + semitransparent)
+#ifdef FEATURE_HUD_IMPROVED
+	POLY_HWR_healthbar,	// health bar
+	POLY_HWR_airbar,	// air bar
+#endif // FEATURE_HUD_IMPROVED
 } POLYTYPE;
 
 typedef enum {

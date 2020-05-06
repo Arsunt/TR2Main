@@ -29,6 +29,10 @@
 extern D3DTEXTUREHANDLE GetEnvmapTextureHandle();
 #endif // FEATURE_VIDEOFX_IMPROVED
 
+#ifdef FEATURE_HUD_IMPROVED
+#include "modding/psx_bar.h"
+#endif // FEATURE_HUD_IMPROVED
+
 void __cdecl HWR_InitState() {
 	DWORD filter, blend;
 
@@ -132,6 +136,22 @@ void __cdecl HWR_DrawPolyList() {
 		bufPtr = (UINT16 *)SortBuffer[i]._0;
 
 		polyType = *(bufPtr++);
+#ifdef FEATURE_HUD_IMPROVED
+		if( polyType == POLY_HWR_healthbar || polyType == POLY_HWR_airbar ) {
+			UINT16 x0 = *(bufPtr++);
+			UINT16 y0 = *(bufPtr++);
+			UINT16 x1 = *(bufPtr++);
+			UINT16 y1 = *(bufPtr++);
+			UINT16 bar = *(bufPtr++);
+			UINT16 pixel = *(bufPtr++);
+			if( polyType == POLY_HWR_healthbar ) {
+				PSX_DrawHealthBar(x0, y0, x1, y1, bar, pixel);
+			} else {
+				PSX_DrawAirBar(x0, y0, x1, y1, bar, pixel);
+			}
+			continue;
+		}
+#endif // FEATURE_HUD_IMPROVED
 		texPage = ( polyType == POLY_HWR_GTmap || polyType == POLY_HWR_WGTmap ) ? *(bufPtr++) : 0;
 		vtxCount = *(bufPtr++);
 		vtxPtr = *(D3DTLVERTEX **)bufPtr;
