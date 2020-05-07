@@ -464,9 +464,10 @@ BOOL __cdecl LoadPalettes(HANDLE hFile) {
 	GamePalette8[0].blue = 0;
 
 	for( int i=1; i<256; ++i ) {
-		GamePalette8[i].red   *= 4;
-		GamePalette8[i].green *= 4;
-		GamePalette8[i].blue  *= 4;
+		// NOTE: the original code just shifts left 2 bits. But this way is slightly better
+		GamePalette8[i].red   = (GamePalette8[i].red   << 2) | (GamePalette8[i].red   >> 4);
+		GamePalette8[i].green = (GamePalette8[i].green << 2) | (GamePalette8[i].green >> 4);
+		GamePalette8[i].blue  = (GamePalette8[i].blue  << 2) | (GamePalette8[i].blue  >> 4);
 	}
 
 	ReadFileSync(hFile, GamePalette16, 256*sizeof(PALETTEENTRY), &bytesRead, NULL);
