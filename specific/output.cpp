@@ -198,7 +198,7 @@ void __cdecl S_OutputPolyList() {
 			phd_SortPolyList();
 		}
 		HWR_DrawPolyList();
-		_Direct3DDevice2->EndScene();
+		D3DDev->EndScene();
 	}
 }
 
@@ -899,7 +899,7 @@ void __cdecl FadeToPal(int fadeValue, RGB888 *palette) {
 			WinVidPalette[i].peGreen = palette[i].green;
 			WinVidPalette[i].peBlue  = palette[i].blue;
 		}
-		_DirectDrawPalette->SetEntries(0, palStartIdx, palSize, &WinVidPalette[palStartIdx]);
+		DDrawPalette->SetEntries(0, palStartIdx, palSize, &WinVidPalette[palStartIdx]);
 		return;
 	}
 
@@ -913,7 +913,7 @@ void __cdecl FadeToPal(int fadeValue, RGB888 *palette) {
 			WinVidPalette[i].peGreen = fadePal[i].peGreen + (palette[i].green - fadePal[i].peGreen) * j / fadeValue;
 			WinVidPalette[i].peBlue  = fadePal[i].peBlue  + (palette[i].blue  - fadePal[i].peBlue)  * j / fadeValue;
 		}
-		_DirectDrawPalette->SetEntries(0, palStartIdx, palSize, &WinVidPalette[palStartIdx]);
+		DDrawPalette->SetEntries(0, palStartIdx, palSize, &WinVidPalette[palStartIdx]);
 		S_DumpScreen();
 	}
 }

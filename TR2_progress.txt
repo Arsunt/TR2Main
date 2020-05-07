@@ -986,14 +986,14 @@ x function is unused / included in another function
 
 	specific/init_3d.cpp
 0x004445F0:	+	Enumerate3DDevices
-0x00444620:	+	Direct3D2Create
-0x00444640:	+	Direct3D2Release
+0x00444620:	+	D3DCreate
+0x00444640:	+	D3DRelease
 0x00444660:	+	Enum3DDevicesCallback
 0x00444720:	+	D3DIsSupported
 0x00444760:	+	D3DSetViewport
 0x00444820:	+	D3DDeviceCreate
 0x004449E0:	+	Direct3DRelease
-0x00444A30:	+	Direct3dInit
+0x00444A30:	+	Direct3DInit
 0x00444A40:	  x	unused
 0x00444A50:	  x	unused
 0x00444A80:	  x	unused

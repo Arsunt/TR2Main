@@ -178,13 +178,13 @@ void __cdecl CreateBackBuffer() {
 
 void __cdecl CreateClipper() {
 
-	if FAILED(_DirectDraw2->CreateClipper(0, &_DirectDrawClipper, NULL))
+	if FAILED(DDraw->CreateClipper(0, &DDrawClipper, NULL))
 		throw ERR_CreateClipper;
 
-	if FAILED(_DirectDrawClipper->SetHWnd(0, HGameWindow))
+	if FAILED(DDrawClipper->SetHWnd(0, HGameWindow))
 		throw ERR_SetClipperHWnd;
 
-	if FAILED(PrimaryBufferSurface->SetClipper(_DirectDrawClipper))
+	if FAILED(PrimaryBufferSurface->SetClipper(DDrawClipper))
 		throw ERR_SetClipper;
 }
 
@@ -213,10 +213,10 @@ void __cdecl CreateWindowPalette() {
 		dwFlags |= DDPCAPS_ALLOW256;
 	}
 
-	if FAILED(_DirectDraw2->CreatePalette(dwFlags, WinVidPalette, &_DirectDrawPalette, NULL))
+	if FAILED(DDraw->CreatePalette(dwFlags, WinVidPalette, &DDrawPalette, NULL))
 		throw ERR_CreatePalette;
 
-	if FAILED(PrimaryBufferSurface->SetPalette(_DirectDrawPalette))
+	if FAILED(PrimaryBufferSurface->SetPalette(DDrawPalette))
 		throw ERR_SetPalette;
 }
 
@@ -315,7 +315,7 @@ void __cdecl ClearBuffers(DWORD flags, DWORD fillColor) {
 			d3dRect.y1 = winRect.top;
 			d3dRect.x2 = winRect.right;
 			d3dRect.y2 = winRect.bottom;
-			_Direct3DViewport2->Clear(1, &d3dRect, d3dClearFlags);
+			D3DView->Clear(1, &d3dRect, d3dClearFlags);
 		}
 	} else {
 	// Software Renderer Checks
@@ -600,14 +600,14 @@ void __cdecl RenderFinish(bool needToClearTextures) {
 		}
 	}
 
-	if( _DirectDrawPalette != NULL ) {
-		_DirectDrawPalette->Release();
-		_DirectDrawPalette = NULL;
+	if( DDrawPalette != NULL ) {
+		DDrawPalette->Release();
+		DDrawPalette = NULL;
 	}
 
-	if( _DirectDrawClipper != NULL ) {
-		_DirectDrawClipper->Release();
-		_DirectDrawClipper = NULL;
+	if( DDrawClipper != NULL ) {
+		DDrawClipper->Release();
+		DDrawClipper = NULL;
 	}
 
 	if( ThirdBufferSurface != NULL ) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -83,7 +83,7 @@ static void __cdecl DrawCololoredRect(float sx0, float sy0, float sx1, float sy1
 
 	HWR_TexSource(0);
 	HWR_EnableColorKey(false);
-	_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DVT_TLVERTEX, &vertex, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DVT_TLVERTEX, &vertex, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 }
 
 static void PSX_DrawBar(int x0, int y0, int x1, int y1, int bar, int pixel, D3DCOLOR *left, D3DCOLOR *right, D3DCOLOR *frame) {

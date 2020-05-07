@@ -98,24 +98,24 @@ bool FlaggedStringCopy(STRING_FLAGGED *dst, STRING_FLAGGED *src) {
 }
 
 bool __cdecl DDrawCreate(LPGUID lpGUID) {
-	if FAILED(DirectDrawCreate(lpGUID, &_DirectDraw, 0))
+	if FAILED(DirectDrawCreate(lpGUID, &DDrawInterface, 0))
 		return false;
 
-	if FAILED(_DirectDraw->QueryInterface(IID_IDirectDraw2, (LPVOID *)&_DirectDraw2))
+	if FAILED(DDrawInterface->QueryInterface(IID_IDirectDraw2, (LPVOID *)&DDraw))
 		return false;
 
-	_DirectDraw2->SetCooperativeLevel(HGameWindow, DDSCL_NORMAL);
+	DDraw->SetCooperativeLevel(HGameWindow, DDSCL_NORMAL);
 	return true;
 }
 
 void __cdecl DDrawRelease() {
-	if( _DirectDraw2 ) {
-		_DirectDraw2->Release();
-		_DirectDraw2 = NULL;
+	if( DDraw ) {
+		DDraw->Release();
+		DDraw = NULL;
 	}
-	if( _DirectDraw ) {
-		_DirectDraw->Release();
-		_DirectDraw = NULL;
+	if( DDrawInterface ) {
+		DDrawInterface->Release();
+		DDrawInterface = NULL;
 	}
 }
 
@@ -295,7 +295,7 @@ bool __cdecl ShowDDrawGameWindow(bool active) {
 	HRESULT rc;
 	RECT rect;
 
-	if( !HGameWindow || !_DirectDraw2 )
+	if( !HGameWindow || !DDraw )
 		return false;
 
 	if( IsDDrawGameWindowShow )
@@ -313,7 +313,7 @@ bool __cdecl ShowDDrawGameWindow(bool active) {
 		flags |= DDSCL_NOWINDOWCHANGES;
 
 	IsGameWindowUpdating = TRUE;
-	rc = _DirectDraw2->SetCooperativeLevel(HGameWindow, flags);
+	rc = DDraw->SetCooperativeLevel(HGameWindow, flags);
 	IsGameWindowUpdating = FALSE;
 
 	if SUCCEEDED(rc) {
@@ -326,7 +326,7 @@ bool __cdecl ShowDDrawGameWindow(bool active) {
 bool __cdecl HideDDrawGameWindow() {
 	bool result = false;
 
-	if( HGameWindow == NULL || _DirectDraw2 == NULL )
+	if( HGameWindow == NULL || DDraw == NULL )
 		return false;
 
 	if( !IsDDrawGameWindowShow )
@@ -335,7 +335,7 @@ bool __cdecl HideDDrawGameWindow() {
 	WinVidHideGameWindow();
 
 	IsGameWindowUpdating = TRUE;
-	if SUCCEEDED(_DirectDraw2->SetCooperativeLevel(HGameWindow, DDSCL_NORMAL)) {
+	if SUCCEEDED(DDraw->SetCooperativeLevel(HGameWindow, DDSCL_NORMAL)) {
 		IsDDrawGameWindowShow = FALSE;
 		SetWindowPos(HGameWindow, 0, GameWindow_X, GameWindow_Y, 0, 0, SWP_NOCOPYBITS|SWP_NOACTIVATE|SWP_NOZORDER|SWP_NOSIZE);
 		result = true;
@@ -352,7 +352,7 @@ void __cdecl WinVidSetGameWindowSize(int width, int height) {
 
 HRESULT __cdecl DDrawSurfaceCreate(LPDDSURFACEDESC dsp, LPDIRECTDRAWSURFACE3 *surface) {
 	LPDIRECTDRAWSURFACE subSurface;
-	HRESULT rc = _DirectDraw2->CreateSurface(dsp, &subSurface, NULL);
+	HRESULT rc = DDraw->CreateSurface(dsp, &subSurface, NULL);
 
 	if SUCCEEDED(rc) {
 		rc = subSurface->QueryInterface(IID_IDirectDrawSurface3, (LPVOID *)surface);
@@ -489,7 +489,7 @@ bool __cdecl WinVidGetDisplayMode(DISPLAY_MODE *dispMode) {
 	memset(&dsp, 0, sizeof(DDSURFACEDESC));
 	dsp.dwSize = sizeof(DDSURFACEDESC);
 
-	if( SUCCEEDED(_DirectDraw2->GetDisplayMode(&dsp)) &&
+	if( SUCCEEDED(DDraw->GetDisplayMode(&dsp)) &&
 		((dsp.dwFlags & DDSD_WIDTH) != 0) &&
 		((dsp.dwFlags & DDSD_HEIGHT) != 0) &&
 		((dsp.dwFlags & DDSD_PIXELFORMAT) != 0) &&
@@ -526,7 +526,7 @@ bool __cdecl WinVidGoFullScreen(DISPLAY_MODE *dispMode) {
 		goto FAIL;
 
 	IsGameWindowUpdating = true;
-	rc = _DirectDraw2->SetDisplayMode(dispMode->width, dispMode->height, dispMode->bpp, 0, (dispMode->vga == 3));
+	rc = DDraw->SetDisplayMode(dispMode->width, dispMode->height, dispMode->bpp, 0, (dispMode->vga == 3));
 	IsGameWindowUpdating = false;
 
 	if FAILED(rc)
@@ -649,7 +649,7 @@ bool __cdecl WinVidGetDisplayModes() {
 	for( adapter = DisplayAdapterList.head; adapter; adapter = adapter->next ) {
 		DDrawCreate(adapter->body.lpAdapterGuid);
 		ShowDDrawGameWindow(false);
-		_DirectDraw2->EnumDisplayModes(DDEDM_STANDARDVGAMODES, NULL, (LPVOID)&adapter->body, EnumDisplayModesCallback);
+		DDraw->EnumDisplayModes(DDEDM_STANDARDVGAMODES, NULL, (LPVOID)&adapter->body, EnumDisplayModesCallback);
 		HideDDrawGameWindow();
 		DDrawRelease();
 	}
@@ -805,7 +805,7 @@ BOOL WINAPI EnumDisplayAdaptersCallback(GUID FAR *lpGUID, LPTSTR lpDriverDescrip
 	driverCaps.dwSize = sizeof(DDCAPS);
 	helCaps.dwSize = sizeof(DDCAPS);
 
-	if FAILED(_DirectDraw2->GetCaps(&driverCaps, &helCaps))
+	if FAILED(DDraw->GetCaps(&driverCaps, &helCaps))
 		goto CLEANUP;
 
 	listNode->next = NULL;
@@ -982,8 +982,8 @@ LRESULT CALLBACK WinVidGameWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
 			return 0;
 
 		case WM_ACTIVATE :
-			if( LOWORD(wParam) && _DirectDrawPalette && PrimaryBufferSurface )
-				PrimaryBufferSurface->SetPalette(_DirectDrawPalette);
+			if( LOWORD(wParam) && DDrawPalette && PrimaryBufferSurface )
+				PrimaryBufferSurface->SetPalette(DDrawPalette);
 			break;
 
 		case WM_ERASEBKGND :
@@ -1041,7 +1041,7 @@ LRESULT CALLBACK WinVidGameWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
 			break;
 
 		case WM_PALETTECHANGED :
-			if( hWnd != (HWND)wParam && !IsGameFullScreen && _DirectDrawPalette )
+			if( hWnd != (HWND)wParam && !IsGameFullScreen && DDrawPalette )
 				InvalidateRect(hWnd, NULL, FALSE);
 			break;
 	}

@@ -138,7 +138,7 @@ void RenderTexturedFarQuad(VERTEX2D *vtx0, VERTEX2D *vtx1, VERTEX2D *vtx2, VERTE
 
 	HWR_TexSource(txr->handle);
 	HWR_EnableColorKey(false);
-	_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DVT_TLVERTEX, &vtx, 4, 0);
+	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DVT_TLVERTEX, &vtx, 4, 0);
 }
 
 /**
@@ -817,10 +817,10 @@ void __cdecl BGND2_DrawTexture(RECT *rect, D3DTEXTUREHANDLE texSource,
 
 	HWR_TexSource(texSource);
 	HWR_EnableColorKey(false);
-	_Direct3DDevice2->GetRenderState(AlphaBlendEnabler, &alphaState);
-	_Direct3DDevice2->SetRenderState(AlphaBlendEnabler, TRUE);
-	_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DVT_TLVERTEX, &vertex, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
-	_Direct3DDevice2->SetRenderState(AlphaBlendEnabler, alphaState);
+	D3DDev->GetRenderState(AlphaBlendEnabler, &alphaState);
+	D3DDev->SetRenderState(AlphaBlendEnabler, TRUE);
+	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DVT_TLVERTEX, &vertex, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+	D3DDev->SetRenderState(AlphaBlendEnabler, alphaState);
 }
 
 int __cdecl BGND2_CalculatePictureRect(RECT *rect) {

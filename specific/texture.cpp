@@ -94,7 +94,7 @@ D3DTEXTUREHANDLE GetEnvmapTextureHandle() {
 		if( !EnvmapTexture ) return 0;
 	}
 
-	if FAILED(EnvmapTexture->GetHandle(_Direct3DDevice2, &EnvmapTextureHandle)) {
+	if FAILED(EnvmapTexture->GetHandle(D3DDev, &EnvmapTextureHandle)) {
 		FreeEnvmapTexture();
 		return 0;
 	}
@@ -211,7 +211,7 @@ int __cdecl CreateTexturePalette(RGB888 *pal) {
 		palEntries[i].peFlags = 0;
 	}
 
-	if FAILED(_DirectDraw2->CreatePalette(DDPCAPS_ALLOW256|DDPCAPS_8BIT, palEntries, &DDrawPalettes[palIndex], NULL))
+	if FAILED(DDraw->CreatePalette(DDPCAPS_ALLOW256|DDPCAPS_8BIT, palEntries, &DDrawPalettes[palIndex], NULL))
 		return -1;
 
 	return palIndex;
@@ -315,7 +315,7 @@ bool __cdecl TexturePageInit(TEXPAGE_DESC *page) {
 		return false;
 	}
 
-	if FAILED(page->texture3d->GetHandle(_Direct3DDevice2, &page->texHandle)) {
+	if FAILED(page->texture3d->GetHandle(D3DDev, &page->texHandle)) {
 		page->texture3d->Release();
 		page->texture3d = NULL;
 
@@ -550,7 +550,7 @@ HRESULT CALLBACK EnumTextureFormatsCallback(LPDDSURFACEDESC lpDdsd, LPVOID lpCon
 
 HRESULT __cdecl EnumerateTextureFormats() {
 	memset(&TextureFormat, 0, sizeof(TEXTURE_FORMAT));
-	return _Direct3DDevice2->EnumTextureFormats(EnumTextureFormatsCallback, NULL);
+	return D3DDev->EnumTextureFormats(EnumTextureFormatsCallback, NULL);
 }
 
 void __cdecl CleanupTextures() {

@@ -36,24 +36,24 @@ extern D3DTEXTUREHANDLE GetEnvmapTextureHandle();
 void __cdecl HWR_InitState() {
 	DWORD filter, blend;
 
-	_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_FILLMODE, D3DFILL_SOLID);
-	_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_SHADEMODE, D3DSHADE_GOURAUD);
-	_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_CULLMODE, D3DCULL_NONE);
-	_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
-	_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	D3DDev->SetRenderState(D3DRENDERSTATE_FILLMODE, D3DFILL_SOLID);
+	D3DDev->SetRenderState(D3DRENDERSTATE_SHADEMODE, D3DSHADE_GOURAUD);
+	D3DDev->SetRenderState(D3DRENDERSTATE_CULLMODE, D3DCULL_NONE);
+	D3DDev->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+	D3DDev->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
 	filter = SavedAppSettings.BilinearFiltering ? D3DFILTER_LINEAR : D3DFILTER_NEAREST;
 	blend = (CurrentDisplayAdapter.D3DHWDeviceDesc.dpcTriCaps.dwTextureBlendCaps & D3DPTBLENDCAPS_MODULATEALPHA) ? D3DTBLEND_MODULATEALPHA : D3DTBLEND_MODULATE;
 
-	_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_TEXTUREMAG, filter);
-	_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_TEXTUREMIN, filter);
-	_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_TEXTUREMAPBLEND, blend);
-	_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE, SavedAppSettings.PerspectiveCorrect ? TRUE : FALSE);
-	_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_DITHERENABLE, SavedAppSettings.Dither ? TRUE : FALSE);
+	D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREMAG, filter);
+	D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREMIN, filter);
+	D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREMAPBLEND, blend);
+	D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE, SavedAppSettings.PerspectiveCorrect ? TRUE : FALSE);
+	D3DDev->SetRenderState(D3DRENDERSTATE_DITHERENABLE, SavedAppSettings.Dither ? TRUE : FALSE);
 	AlphaBlendEnabler = CurrentDisplayAdapter.shadeRestricted ? D3DRENDERSTATE_STIPPLEDALPHA : D3DRENDERSTATE_ALPHABLENDENABLE;
 
 	// NOTE: the next line is absent in the original game, but it fixes a texture bleeding in some cases
-	_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_TEXTUREADDRESS, D3DTADDRESS_CLAMP);
+	D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREADDRESS, D3DTADDRESS_CLAMP);
 
 	HWR_ResetTexSource();
 	HWR_ResetColorKey();
@@ -62,31 +62,31 @@ void __cdecl HWR_InitState() {
 
 void __cdecl HWR_ResetTexSource() {
 	CurrentTexSource = 0;
-	_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE, 0);
-	_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_FLUSHBATCH, 0);
+	D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE, 0);
+	D3DDev->SetRenderState(D3DRENDERSTATE_FLUSHBATCH, 0);
 }
 
 void __cdecl HWR_ResetColorKey() {
 	ColorKeyState = FALSE;
-	_Direct3DDevice2->SetRenderState(TexturesAlphaChannel ? D3DRENDERSTATE_ALPHABLENDENABLE : D3DRENDERSTATE_COLORKEYENABLE, FALSE);
+	D3DDev->SetRenderState(TexturesAlphaChannel ? D3DRENDERSTATE_ALPHABLENDENABLE : D3DRENDERSTATE_COLORKEYENABLE, FALSE);
 }
 
 void __cdecl HWR_ResetZBuffer() {
 	ZEnableState = FALSE;
 	ZWriteEnableState = FALSE;
 	if( ZBufferSurface != NULL ) {
-		_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_ZFUNC, D3DCMP_ALWAYS);
-		_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_ZENABLE, SavedAppSettings.ZBuffer ? TRUE : FALSE);
+		D3DDev->SetRenderState(D3DRENDERSTATE_ZFUNC, D3DCMP_ALWAYS);
+		D3DDev->SetRenderState(D3DRENDERSTATE_ZENABLE, SavedAppSettings.ZBuffer ? TRUE : FALSE);
 	} else {
-		_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_ZFUNC, D3DCMP_LESSEQUAL);
-		_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_ZENABLE, FALSE);
+		D3DDev->SetRenderState(D3DRENDERSTATE_ZFUNC, D3DCMP_LESSEQUAL);
+		D3DDev->SetRenderState(D3DRENDERSTATE_ZENABLE, FALSE);
 	}
-	_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
+	D3DDev->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
 }
 
 void __cdecl HWR_TexSource(D3DTEXTUREHANDLE texSource) {
 	if( CurrentTexSource != texSource ) {
-		_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE, texSource);
+		D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE, texSource);
 		CurrentTexSource = texSource;
 	}
 }
@@ -94,9 +94,9 @@ void __cdecl HWR_TexSource(D3DTEXTUREHANDLE texSource) {
 void __cdecl HWR_EnableColorKey(bool state) {
 	if( ColorKeyState != state ) {
 		if( TexturesAlphaChannel )
-			_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, state ? TRUE : FALSE);
+			D3DDev->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, state ? TRUE : FALSE);
 		else
-			_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_COLORKEYENABLE, state ? TRUE : FALSE);
+			D3DDev->SetRenderState(D3DRENDERSTATE_COLORKEYENABLE, state ? TRUE : FALSE);
 		ColorKeyState = state;
 	}
 }
@@ -106,15 +106,15 @@ void __cdecl HWR_EnableZBuffer(bool ZWriteEnable, bool ZEnable) {
 		return;
 
 	if( ZWriteEnableState != ZWriteEnable ) {
-		_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, ZWriteEnable ? TRUE : FALSE);
+		D3DDev->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, ZWriteEnable ? TRUE : FALSE);
 		ZWriteEnableState = ZWriteEnable;
 	}
 
 	if( ZEnableState != ZEnable ) {
 		if( ZBufferSurface != NULL )
-			_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_ZFUNC, ZEnable ? D3DCMP_LESSEQUAL : D3DCMP_ALWAYS);
+			D3DDev->SetRenderState(D3DRENDERSTATE_ZFUNC, ZEnable ? D3DCMP_LESSEQUAL : D3DCMP_ALWAYS);
 		else
-			_Direct3DDevice2->SetRenderState(D3DRENDERSTATE_ZENABLE, ZEnable ? TRUE : FALSE);
+			D3DDev->SetRenderState(D3DRENDERSTATE_ZENABLE, ZEnable ? TRUE : FALSE);
 		ZEnableState = ZEnable;
 	}
 }
@@ -122,7 +122,7 @@ void __cdecl HWR_EnableZBuffer(bool ZWriteEnable, bool ZEnable) {
 void __cdecl HWR_BeginScene() {
 	HWR_GetPageHandles();
 	WaitPrimaryBufferFlip();
-	_Direct3DDevice2->BeginScene();
+	D3DDev->BeginScene();
 }
 
 void __cdecl HWR_DrawPolyList() {
@@ -165,27 +165,27 @@ void __cdecl HWR_DrawPolyList() {
 				HWR_TexSource(HWR_PageHandles[texPage]);
 #endif // !FEATURE_VIDEOFX_IMPROVED
 				HWR_EnableColorKey(polyType == POLY_HWR_WGTmap);
-				_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+				D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 				break;
 
 			case POLY_HWR_gouraud: // triangle fan (color)
 				HWR_TexSource(0);
 				HWR_EnableColorKey(false);
-				_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+				D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 				break;
 
 			case POLY_HWR_line: // line strip (color)
 				HWR_TexSource(0);
 				HWR_EnableColorKey(false);
-				_Direct3DDevice2->DrawPrimitive(D3DPT_LINESTRIP, D3DVT_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+				D3DDev->DrawPrimitive(D3DPT_LINESTRIP, D3DVT_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 				break;
 
 			case POLY_HWR_trans: // triangle fan (color + semitransparent)
 				HWR_TexSource(0);
-				_Direct3DDevice2->GetRenderState(AlphaBlendEnabler, &alphaState);
-				_Direct3DDevice2->SetRenderState(AlphaBlendEnabler, TRUE);
-				_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
-				_Direct3DDevice2->SetRenderState(AlphaBlendEnabler, alphaState);
+				D3DDev->GetRenderState(AlphaBlendEnabler, &alphaState);
+				D3DDev->SetRenderState(AlphaBlendEnabler, TRUE);
+				D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+				D3DDev->SetRenderState(AlphaBlendEnabler, alphaState);
 				break;
 		}
 	}
