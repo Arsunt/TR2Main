@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For the Gold mode, pictures with "g" filename suffix (TITLEg.PCX, LEGALg.PCX, etc.) have higher priority than pictures without "g" filename suffix (TITLE.PCX, LEGAL.PCX, etc.)
 - For the Gold mode, instead of the files *"TOMBPC.DAT"* and *"MAIN.SFX"*, the files *"TOMBPCg.DAT"* and *"MAINg.SFX"* are used. However, for both Gold and the original game, *"MAIN.SFX"* is still used for the *"TITLE.TR2"* and *"ASSAULT.TR2"* levels.
 - Added separate subfolders for saved games of Gold and the original game.
+- Added PlayStation reflection visual effect.
+- Z-Buffer is no longer required for PlayStation styled gradient health/air bars.
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.

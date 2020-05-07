@@ -59,9 +59,11 @@ extern DWORD InvBackgroundMode;
 extern DWORD PictureStretchLimit;
 #endif // FEATURE_BACKGROUND_IMPROVED
 
-#ifdef FEATURE_SHADOW_IMPROVED
+#ifdef FEATURE_VIDEOFX_IMPROVED
 extern DWORD ShadowMode;
-#endif // FEATURE_SHADOW_IMPROVED
+extern DWORD ReflectionMode;
+extern DWORD ReflectionBlur;
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 #ifdef FEATURE_SCREENSHOT_IMPROVED
 extern DWORD ScreenshotFormat;
@@ -488,9 +490,13 @@ void __cdecl S_LoadSettings() {
 	GetRegistryDwordValue(REG_PICTURE_STRETCH, &PictureStretchLimit, 10);
 #endif // FEATURE_BACKGROUND_IMPROVED
 
-#ifdef FEATURE_SHADOW_IMPROVED
+#ifdef FEATURE_VIDEOFX_IMPROVED
 	GetRegistryDwordValue(REG_SHADOW_MODE, &ShadowMode, 0);
-#endif // FEATURE_SHADOW_IMPROVED
+	GetRegistryDwordValue(REG_REFLECTION_MODE, &ReflectionMode, 0);
+	GetRegistryDwordValue(REG_REFLECTION_BLUR, &ReflectionBlur, 2);
+	CLAMPG(ReflectionMode, 2);
+	CLAMPG(ReflectionBlur, 7);
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 #ifdef FEATURE_SCREENSHOT_IMPROVED
 	GetRegistryDwordValue(REG_SCREENSHOT_FORMAT, &ScreenshotFormat, 0);

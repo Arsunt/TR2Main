@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -52,6 +52,8 @@
 #define REG_INVBGND_MODE		"InvBackgroundMode"
 #define REG_PICTURE_STRETCH		"PictureStretchLimit"
 #define REG_SHADOW_MODE			"ShadowMode"
+#define REG_REFLECTION_MODE		"ReflectionMode"
+#define REG_REFLECTION_BLUR		"ReflectionBlur"
 #define REG_INVTEXTBOX_MODE		"InvTextBoxMode"
 #define REG_HEALTHBAR_MODE		"HealthBarMode"
 #define REG_SCREENSHOT_FORMAT	"ScreenshotFormat"

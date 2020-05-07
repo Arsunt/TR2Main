@@ -25,6 +25,14 @@
 #include "specific/texture.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+extern D3DTEXTUREHANDLE GetEnvmapTextureHandle();
+#endif // FEATURE_VIDEOFX_IMPROVED
+
+#ifdef FEATURE_HUD_IMPROVED
+#include "modding/psx_bar.h"
+#endif // FEATURE_HUD_IMPROVED
+
 void __cdecl HWR_InitState() {
 	DWORD filter, blend;
 
@@ -128,6 +136,22 @@ void __cdecl HWR_DrawPolyList() {
 		bufPtr = (UINT16 *)SortBuffer[i]._0;
 
 		polyType = *(bufPtr++);
+#ifdef FEATURE_HUD_IMPROVED
+		if( polyType == POLY_HWR_healthbar || polyType == POLY_HWR_airbar ) {
+			UINT16 x0 = *(bufPtr++);
+			UINT16 y0 = *(bufPtr++);
+			UINT16 x1 = *(bufPtr++);
+			UINT16 y1 = *(bufPtr++);
+			UINT16 bar = *(bufPtr++);
+			UINT16 pixel = *(bufPtr++);
+			if( polyType == POLY_HWR_healthbar ) {
+				PSX_DrawHealthBar(x0, y0, x1, y1, bar, pixel);
+			} else {
+				PSX_DrawAirBar(x0, y0, x1, y1, bar, pixel);
+			}
+			continue;
+		}
+#endif // FEATURE_HUD_IMPROVED
 		texPage = ( polyType == POLY_HWR_GTmap || polyType == POLY_HWR_WGTmap ) ? *(bufPtr++) : 0;
 		vtxCount = *(bufPtr++);
 		vtxPtr = *(D3DTLVERTEX **)bufPtr;
@@ -135,7 +159,11 @@ void __cdecl HWR_DrawPolyList() {
 		switch( polyType ) {
 			case POLY_HWR_GTmap: // triangle fan (texture)
 			case POLY_HWR_WGTmap: // triangle fan (texture + colorkey)
+#ifdef FEATURE_VIDEOFX_IMPROVED
+				HWR_TexSource(texPage == (UINT16)~0 ? GetEnvmapTextureHandle() : HWR_PageHandles[texPage]);
+#else // !FEATURE_VIDEOFX_IMPROVED
 				HWR_TexSource(HWR_PageHandles[texPage]);
+#endif // !FEATURE_VIDEOFX_IMPROVED
 				HWR_EnableColorKey(polyType == POLY_HWR_WGTmap);
 				_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 				break;

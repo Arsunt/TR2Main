@@ -781,7 +781,7 @@ bool __cdecl WinVidGetDisplayAdapters() {
 
 void __thiscall FlaggedStringDelete(STRING_FLAGGED *item) {
 	if( item->isPresented && item->lpString ) {
-		delete(item->lpString);
+		delete[] item->lpString;
 		item->lpString = NULL;
 		item->isPresented = false;
 	}

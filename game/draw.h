@@ -33,43 +33,39 @@
 void __cdecl DrawRooms(__int16 currentRoom); // 0x004189A0
 
 #define GetRoomBounds ((void(__cdecl*)(void)) 0x00418C50)
-
-// 0x00418E20:		SetRoomBounds
-// 0x004191A0:		ClipRoom
-
+#define SetRoomBounds ((void(__cdecl*)(__int16, int, ROOM_INFO*)) 0x00418E20)
+#define ClipRoom ((void(__cdecl*)(ROOM_INFO*)) 0x004191A0)
 #define PrintRooms ((void(__cdecl*)(__int16)) 0x00419580)
 #define PrintObjects ((void(__cdecl*)(__int16)) 0x00419640)
-
-// 0x00419870:		DrawEffect
+#define DrawEffect ((void(__cdecl*)(__int16)) 0x00419870)
 
 void __cdecl DrawSpriteItem(ITEM_INFO *item); // 0x004199C0
 void __cdecl DrawDummyItem(ITEM_INFO *item);
+void __cdecl DrawAnimatingItem(ITEM_INFO *item); // 0x00419A50
 
-#define DrawAnimatingItem ((void(__cdecl*)(ITEM_INFO*)) 0x00419A50)
 #define DrawLara ((void(__cdecl*)(ITEM_INFO*)) 0x00419DD0)
-
-// 0x0041AB00:		DrawLaraInt
-// 0x0041B6F0:		InitInterpolate
-// 0x0041B730:		phd_PopMatrix_I
-// 0x0041B760:		phd_PushMatrix_I
-// 0x0041B790:		phd_RotY_I
-// 0x0041B7D0:		phd_RotX_I
-// 0x0041B810:		phd_RotZ_I
-// 0x0041B850:		phd_TranslateRel_I
-// 0x0041B8A0:		phd_TranslateRel_ID
-// 0x0041B8F0:		phd_RotYXZ_I
-// 0x0041B940:		phd_RotYXZsuperpack_I
+#define DrawLaraInt ((void(__cdecl*)(ITEM_INFO*, __int16*, __int16*, int, int)) 0x0041AB00)
+#define InitInterpolate ((void(__cdecl*)(int, int)) 0x0041B6F0)
+#define phd_PopMatrix_I ((void(__cdecl*)(void)) 0x0041B730)
+#define phd_PushMatrix_I ((void(__cdecl*)(void)) 0x0041B760)
+#define phd_RotY_I ((void(__cdecl*)(__int16)) 0x0041B790)
+#define phd_RotX_I ((void(__cdecl*)(__int16)) 0x0041B7D0)
+#define phd_RotZ_I ((void(__cdecl*)(__int16)) 0x0041B810)
+#define phd_TranslateRel_I ((void(__cdecl*)(int, int, int)) 0x0041B850)
+#define phd_TranslateRel_ID ((void(__cdecl*)(int, int, int, int, int, int)) 0x0041B8A0)
+#define phd_RotYXZ_I ((void(__cdecl*)(int, int, int)) 0x0041B8F0)
+#define phd_RotYXZsuperpack_I ((void(__cdecl*)(UINT16**, UINT16**, int)) 0x0041B940)
 
 void __cdecl phd_RotYXZsuperpack(UINT16 **pptr, int index); // 0x0041B980
+void __cdecl phd_PutPolygons_I(__int16 *ptrObj, int clip); // 0x0041BA30
 
-// 0x0041BA30:		phd_PutPolygons_I
-// 0x0041BA60:		InterpolateMatrix
-// 0x0041BC10:		InterpolateArmMatrix
-// 0x0041BD10:		DrawGunFlash
-// 0x0041BE80:		CalculateObjectLighting
-// 0x0041BF70:		GetFrames
-// 0x0041C010:		GetBoundsAccurate
-// 0x0041C090:		GetBestFrame
-// 0x0041C0D0:		AddDynamicLight
+#define InterpolateMatrix ((void(__cdecl*)(void)) 0x0041BA60)
+#define InterpolateArmMatrix ((void(__cdecl*)(void)) 0x0041BC10)
+#define DrawGunFlash ((void(__cdecl*)(int, int)) 0x0041BD10)
+#define CalculateObjectLighting ((void(__cdecl*)(ITEM_INFO*, __int16*)) 0x0041BE80)
+#define GetFrames ((int(__cdecl*)(ITEM_INFO*, __int16**, int*)) 0x0041BF70)
+#define GetBoundsAccurate ((__int16*(__cdecl*)(ITEM_INFO*)) 0x0041C010)
+#define GetBestFrame ((__int16*(__cdecl*)(ITEM_INFO*)) 0x0041C090)
+#define AddDynamicLight ((void(__cdecl*)(int, int, int, int, int)) 0x0041C0D0)
 
 #endif // DRAW_H_INCLUDED

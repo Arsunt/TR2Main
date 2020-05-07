@@ -61,8 +61,8 @@
 			<Add option="-DFEATURE_NOCD_DATA" />
 			<Add option="-DFEATURE_PAULD_CDAUDIO" />
 			<Add option="-DFEATURE_SCREENSHOT_IMPROVED" />
-			<Add option="-DFEATURE_SHADOW_IMPROVED" />
 			<Add option="-DFEATURE_SUBFOLDERS" />
+			<Add option="-DFEATURE_VIDEOFX_IMPROVED" />
 			<Add option="-DFEATURE_VIDMODESORT" />
 			<Add option="-DFEATURE_VIEW_IMPROVED" />
 			<Add option="-DFEATURE_WINDOW_STYLE_FIX" />

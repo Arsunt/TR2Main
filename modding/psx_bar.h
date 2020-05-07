@@ -30,5 +30,7 @@
 
 void __cdecl PSX_DrawHealthBar(int x0, int y0, int x1, int y1, int bar, int pixel);
 void __cdecl PSX_DrawAirBar(int x0, int y0, int x1, int y1, int bar, int pixel);
+void __cdecl PSX_InsertHealthBar(int x0, int y0, int x1, int y1, int bar, int pixel);
+void __cdecl PSX_InsertAirBar(int x0, int y0, int x1, int y1, int bar, int pixel);
 
 #endif // PSX_BAR_H_INCLUDED

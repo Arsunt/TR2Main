@@ -127,6 +127,132 @@ void __cdecl DrawSpriteItem(ITEM_INFO *item) {
 void __cdecl DrawDummyItem(ITEM_INFO *item) {
 }
 
+void __cdecl DrawAnimatingItem(ITEM_INFO *item) {
+	static __int16 no_rotation[12] = {0};
+	__int16 *frames[2] = {0};
+	int rate = 0;
+	DWORD bit = 1;
+	int frac = GetFrames(item, frames, &rate);
+	OBJECT_INFO *obj = &Objects[item->objectID];
+
+	if( obj->shadowSize ) {
+		S_PrintShadow(obj->shadowSize, frames[0], item);
+	}
+
+	phd_PushMatrix();
+	phd_TranslateAbs(item->pos.x, item->pos.y, item->pos.z);
+	phd_RotYXZ(item->pos.rotY, item->pos.rotX, item->pos.rotZ);
+	int clip = S_GetObjectBounds(frames[0]);
+
+	if( clip ) {
+		CalculateObjectLighting(item, frames[0]);
+
+		__int16 *rots = item->data ? (__int16 *)item->data : no_rotation;
+		__int16 **meshPtr = &MeshPtr[obj->meshIndex];
+		int *bonePtr = &AnimBones[obj->boneIndex];
+		if( frac ) {
+			InitInterpolate(frac, rate);
+			phd_TranslateRel_ID(frames[0][6], frames[0][7], frames[0][8], frames[1][6], frames[1][7], frames[1][8]);
+			UINT16 *rot1 = (UINT16 *)&frames[0][9];
+			UINT16 *rot2 = (UINT16 *)&frames[1][9];
+			phd_RotYXZsuperpack_I(&rot1, &rot2, 0);
+
+			if( CHK_ANY(item->meshBits, 1) ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+				SetMeshReflectState(item->objectID, 0);
+#endif // FEATURE_VIDEOFX_IMPROVED
+				phd_PutPolygons_I(meshPtr[0], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+				ClearMeshReflectState();
+#endif // FEATURE_VIDEOFX_IMPROVED
+			}
+
+			for( int i = 1; i < obj->nMeshes; ++i ) {
+				DWORD state = *bonePtr;
+				if( CHK_ANY(state, 1) ) {
+					phd_PopMatrix_I();
+				}
+				if( CHK_ANY(state, 2) ) {
+					phd_PushMatrix_I();
+				}
+				phd_TranslateRel_I(bonePtr[1], bonePtr[2], bonePtr[3]);
+				phd_RotYXZsuperpack_I(&rot1, &rot2, 0);
+				if( CHK_ANY(state, 0x1C) ) {
+					if( CHK_ANY(state, 0x08) ) {
+						phd_RotY_I(*(rots++));
+					}
+					if( CHK_ANY(state, 0x04) ) {
+						phd_RotX_I(*(rots++));
+					}
+					if( CHK_ANY(state, 0x10) ) {
+						phd_RotZ_I(*(rots++));
+					}
+				}
+				bonePtr+=4;
+				bit <<= 1;
+				if( CHK_ANY(item->meshBits, bit) ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+					SetMeshReflectState(item->objectID, i);
+#endif // FEATURE_VIDEOFX_IMPROVED
+					phd_PutPolygons_I(meshPtr[i], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+					ClearMeshReflectState();
+#endif // FEATURE_VIDEOFX_IMPROVED
+				}
+			}
+		} else {
+			phd_TranslateRel(frames[0][6], frames[0][7], frames[0][8]);
+			UINT16 *rot = (UINT16 *)&frames[0][9];
+			phd_RotYXZsuperpack(&rot, 0);
+
+			if( CHK_ANY(item->meshBits, 1) ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+				SetMeshReflectState(item->objectID, 0);
+#endif // FEATURE_VIDEOFX_IMPROVED
+				phd_PutPolygons(meshPtr[0], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+				ClearMeshReflectState();
+#endif // FEATURE_VIDEOFX_IMPROVED
+			}
+
+			for( int i = 1; i < obj->nMeshes; ++i) {
+				DWORD state = *bonePtr;
+				if( CHK_ANY(state, 1) ) {
+					phd_PopMatrix();
+				}
+				if( CHK_ANY(state, 2) ) {
+					phd_PushMatrix();
+				}
+				phd_TranslateRel(bonePtr[1], bonePtr[2], bonePtr[3]);
+				phd_RotYXZsuperpack(&rot, 0);
+				if( CHK_ANY(state, 0x1C) ) {
+					if( CHK_ANY(state, 0x08) ) {
+						phd_RotY(*(rots++));
+					}
+					if( CHK_ANY(state, 0x04) ) {
+						phd_RotX(*(rots++));
+					}
+					if( CHK_ANY(state, 0x10) ) {
+						phd_RotZ(*(rots++));
+					}
+				}
+				bonePtr += 4;
+				bit <<= 1;
+				if( CHK_ANY(item->meshBits, bit) ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+					SetMeshReflectState(item->objectID, i);
+#endif // FEATURE_VIDEOFX_IMPROVED
+					phd_PutPolygons(meshPtr[i], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+					ClearMeshReflectState();
+#endif // FEATURE_VIDEOFX_IMPROVED
+				}
+			}
+		}
+	}
+	phd_PopMatrix();
+}
+
 void __cdecl phd_RotYXZsuperpack(UINT16 **pptr, int index) {
 	for( int i = 0; i < index; ++i ) {
 		if( (**pptr >> 14) == 0 )
@@ -155,6 +281,13 @@ void __cdecl phd_RotYXZsuperpack(UINT16 **pptr, int index) {
 	}
 }
 
+void __cdecl phd_PutPolygons_I(__int16 *ptrObj, int clip) {
+	phd_PushMatrix();
+	InterpolateMatrix();
+	phd_PutPolygons(ptrObj, clip);
+	phd_PopMatrix();
+}
+
 /*
  * Inject function
  */
@@ -172,9 +305,9 @@ void Inject_Draw() {
 //	INJECT(0x00419870, DrawEffect);
 
 	INJECT(0x004199C0, DrawSpriteItem);
-
 //	INJECT(----------, DrawDummyItem);
-//	INJECT(0x00419A50, DrawAnimatingItem);
+	INJECT(0x00419A50, DrawAnimatingItem);
+
 //	INJECT(0x00419DD0, DrawLara);
 //	INJECT(0x0041AB00, DrawLaraInt);
 //	INJECT(0x0041B6F0, InitInterpolate);
@@ -189,8 +322,8 @@ void Inject_Draw() {
 //	INJECT(0x0041B940, phd_RotYXZsuperpack_I);
 
 	INJECT(0x0041B980, phd_RotYXZsuperpack);
+	INJECT(0x0041BA30, phd_PutPolygons_I);
 
-//	INJECT(0x0041BA30, phd_PutPolygons_I);
 //	INJECT(0x0041BA60, InterpolateMatrix);
 //	INJECT(0x0041BC10, InterpolateArmMatrix);
 //	INJECT(0x0041BD10, DrawGunFlash);

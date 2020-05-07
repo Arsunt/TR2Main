@@ -237,8 +237,8 @@ x function is unused / included in another function
 	game/demo.cpp
 0x004168E0:	 *	DoDemoSequence
 0x00416940:	 *	StartDemo
-0x00416AF0:		LoadLaraDemoPos
-0x00416BC0:		GetDemoInput
+0x00416AF0:	 *	LoadLaraDemoPos
+0x00416BC0:	 *	GetDemoInput
 
 	game/diver.cpp
 0x00416BF0:		Harpoon
@@ -265,36 +265,36 @@ x function is unused / included in another function
 0x00418960:	 *	DrawPhaseGame
 0x004189A0:	+	DrawRooms
 0x00418C50:	 *	GetRoomBounds
-0x00418E20:		SetRoomBounds
-0x004191A0:		ClipRoom
+0x00418E20:	 *	SetRoomBounds
+0x004191A0:	 *	ClipRoom
 0x00419580:	 *	PrintRooms
 0x00419640:	 *	PrintObjects
-0x00419870:		DrawEffect
+0x00419870:	 *	DrawEffect
 0x004199C0:	+	DrawSpriteItem
 ----------:	+	DrawDummyItem
-0x00419A50:	 *	DrawAnimatingItem
+0x00419A50:	+	DrawAnimatingItem
 0x00419DD0:	 *	DrawLara
-0x0041AB00:		DrawLaraInt
-0x0041B6F0:		InitInterpolate
-0x0041B730:		phd_PopMatrix_I
-0x0041B760:		phd_PushMatrix_I
-0x0041B790:		phd_RotY_I
-0x0041B7D0:		phd_RotX_I
-0x0041B810:		phd_RotZ_I
-0x0041B850:		phd_TranslateRel_I
-0x0041B8A0:		phd_TranslateRel_ID
-0x0041B8F0:		phd_RotYXZ_I
-0x0041B940:		phd_RotYXZsuperpack_I
+0x0041AB00:	 *	DrawLaraInt
+0x0041B6F0:	 *	InitInterpolate
+0x0041B730:	 *	phd_PopMatrix_I
+0x0041B760:	 *	phd_PushMatrix_I
+0x0041B790:	 *	phd_RotY_I
+0x0041B7D0:	 *	phd_RotX_I
+0x0041B810:	 *	phd_RotZ_I
+0x0041B850:	 *	phd_TranslateRel_I
+0x0041B8A0:	 *	phd_TranslateRel_ID
+0x0041B8F0:	 *	phd_RotYXZ_I
+0x0041B940:	 *	phd_RotYXZsuperpack_I
 0x0041B980:	+	phd_RotYXZsuperpack
-0x0041BA30:		phd_PutPolygons_I
-0x0041BA60:		InterpolateMatrix
-0x0041BC10:		InterpolateArmMatrix
-0x0041BD10:		DrawGunFlash
-0x0041BE80:		CalculateObjectLighting
-0x0041BF70:		GetFrames
-0x0041C010:		GetBoundsAccurate
-0x0041C090:		GetBestFrame
-0x0041C0D0:		AddDynamicLight
+0x0041BA30:	+	phd_PutPolygons_I
+0x0041BA60:	 *	InterpolateMatrix
+0x0041BC10:	 *	InterpolateArmMatrix
+0x0041BD10:	 *	DrawGunFlash
+0x0041BE80:	 *	CalculateObjectLighting
+0x0041BF70:	 *	GetFrames
+0x0041C010:	 *	GetBoundsAccurate
+0x0041C090:	 *	GetBestFrame
+0x0041C0D0:	 *	AddDynamicLight
 
 	game/eel.cpp
 0x0041C120:	 *	BigEelControl
@@ -399,13 +399,13 @@ x function is unused / included in another function
 0x00422030:	+	DrawModeInfo
 
 	game/inventory.cpp
-0x00422060:	 *	Display_Inventory
-0x004232F0:		Construct_Inventory
-0x00423450:		SelectMeshes
-0x004234E0:		AnimateInventoryItem
-0x00423570:		DrawInventoryItem
+0x00422060:	+	Display_Inventory
+0x004232F0:	+	Construct_Inventory
+0x00423450:	+	SelectMeshes
+0x004234E0:	+	AnimateInventoryItem
+0x00423570:	+	DrawInventoryItem
 0x004239A0:	+	GetDebouncedInput
-0x004239C0:		DoInventoryPicture
+0x004239C0:	+	DoInventoryPicture
 0x004239D0:	+	DoInventoryBackground
 
 	game/invfunc.cpp
@@ -888,9 +888,9 @@ x function is unused / included in another function
 	game/sound.cpp
 0x0043F430:	+	GetRealTrack
 0x0043F470:	 *	PlaySoundEffect
-0x0043F910:		StopSoundEffect
-0x0043F970:		SOUND_EndScene
-0x0043FA00:		SOUND_Stop
+0x0043F910:	 *	StopSoundEffect
+0x0043F970:	 *	SOUND_EndScene
+0x0043FA00:	 *	SOUND_Stop
 0x0043FA30:	+	SOUND_Init
 
 	game/sphere.cpp

@@ -63,7 +63,7 @@ typedef struct {
 #define W2V_SHIFT			(14) // World to View shift value
 #define W2V_SCALE			(1<<W2V_SHIFT) // World to View scale value
 #define PHD_ONE				(0x10000) // unsigned short int equivalent of 1.0
-#define PHD_IONE			(PHD_ONE/2) // signed short int equivalent of 1.0
+#define PHD_IONE			(PHD_ONE/4) // signed short int equivalent of 1.0
 #define PHD_HALF			(0x100) // half size of PHD_ONE
 
 // Flag check macros
@@ -682,6 +682,10 @@ typedef enum {
 	POLY_HWR_gouraud,	// gouraud shaded poly (color)
 	POLY_HWR_line,		// line (color)
 	POLY_HWR_trans,		// shadow poly (color + semitransparent)
+#ifdef FEATURE_HUD_IMPROVED
+	POLY_HWR_healthbar,	// health bar
+	POLY_HWR_airbar,	// air bar
+#endif // FEATURE_HUD_IMPROVED
 } POLYTYPE;
 
 typedef enum {

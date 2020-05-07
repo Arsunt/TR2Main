@@ -48,9 +48,10 @@ double InvGUI_Scale = 1.0;
 extern int CalculateFogShade(int depth);
 #endif // FEATURE_VIEW_IMPROVED
 
-#ifdef FEATURE_SHADOW_IMPROVED
+#ifdef FEATURE_VIDEOFX_IMPROVED
 DWORD ShadowMode = 0;
-#endif // FEATURE_SHADOW_IMPROVED
+void FreeEnvmapTexture();
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
 #include "modding/background_new.h"
@@ -144,6 +145,9 @@ void __cdecl S_InitialisePolyList(BOOL clearBackBuffer) {
 		HWR_EnableZBuffer(true, true);
 	}
 	phd_InitPolyList();
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	FreeEnvmapTexture();
+#endif // FEATURE_VIDEOFX_IMPROVED
 }
 
 DWORD __cdecl S_DumpScreen() {
@@ -301,17 +305,17 @@ void __cdecl S_PrintShadow(__int16 radius, __int16 *bPtr, ITEM_INFO *item) {
 	midZ = (z0 + z1) / 2;
 	zAdd = (z1 - z0) * radius / 0x400;
 
-#ifdef FEATURE_SHADOW_IMPROVED
+#ifdef FEATURE_VIDEOFX_IMPROVED
 	if( ShadowMode == 1 ) {
 		// The shadow is a circle
 		ShadowInfo.vertexCount = 32;
 		for( int i = 0; i < ShadowInfo.vertexCount; ++i ) {
 			int angle = (PHD_180 + i * PHD_360) / ShadowInfo.vertexCount;
-			ShadowInfo.vertex[i].x = midX + (xAdd * 2) * phd_sin(angle) / (PHD_IONE / 2);
-			ShadowInfo.vertex[i].z = midZ + (zAdd * 2) * phd_cos(angle) / (PHD_IONE / 2);
+			ShadowInfo.vertex[i].x = midX + (xAdd * 2) * phd_sin(angle) / PHD_IONE;
+			ShadowInfo.vertex[i].z = midZ + (zAdd * 2) * phd_cos(angle) / PHD_IONE;
 		}
 	} else
-#endif // FEATURE_SHADOW_IMPROVED
+#endif // FEATURE_VIDEOFX_IMPROVED
 	{
 		// The shadow is an octagon
 		ShadowInfo.vertexCount = 8;
@@ -616,8 +620,12 @@ void __cdecl S_DrawHealthBar(int percent) {
 	// Disable underwater shading
 	IsShadeEffect = false;
 
-	if( HealthBarMode != 0 && SavedAppSettings.RenderMode == RM_Hardware && SavedAppSettings.ZBuffer ) {
-		PSX_DrawHealthBar(x0, y0, x1, y1, bar, pixel);
+	if( HealthBarMode != 0 && SavedAppSettings.RenderMode == RM_Hardware ) {
+		if( SavedAppSettings.ZBuffer ) {
+			PSX_DrawHealthBar(x0, y0, x1, y1, bar, pixel);
+		} else {
+			PSX_InsertHealthBar(x0, y0, x1, y1, bar, pixel);
+		}
 		return;
 	}
 
@@ -685,8 +693,12 @@ void __cdecl S_DrawAirBar(int percent) {
 	// Disable underwater shading
 	IsShadeEffect = false;
 
-	if( HealthBarMode != 0 && SavedAppSettings.RenderMode == RM_Hardware && SavedAppSettings.ZBuffer ) {
-		PSX_DrawAirBar(x0, y0, x1, y1, bar, pixel);
+	if( HealthBarMode != 0 && SavedAppSettings.RenderMode == RM_Hardware ) {
+		if( SavedAppSettings.ZBuffer ) {
+			PSX_DrawAirBar(x0, y0, x1, y1, bar, pixel);
+		} else {
+			PSX_InsertAirBar(x0, y0, x1, y1, bar, pixel);
+		}
 		return;
 	}
 
@@ -777,7 +789,7 @@ void __cdecl S_SetupAboveWater(BOOL underwater) {
 void __cdecl S_AnimateTextures(int nFrames) {
 	WibbleOffset = (WibbleOffset + nFrames/2) % WIBBLE_SIZE;
 	RoomLightShades[1] = GetRandomDraw() & (WIBBLE_SIZE-1);
-	RoomLightShades[2] = (WIBBLE_SIZE-1) * (phd_sin(WibbleOffset * PHD_360 / WIBBLE_SIZE) + PHD_IONE/2) / PHD_IONE;
+	RoomLightShades[2] = (WIBBLE_SIZE-1) * (phd_sin(WibbleOffset * PHD_360 / WIBBLE_SIZE) + PHD_IONE) / 2 / PHD_IONE;
 
 	if( GF_SunsetEnabled ) {
 		AnimFramesCounter += nFrames;
