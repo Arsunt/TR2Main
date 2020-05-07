@@ -26,6 +26,10 @@
 #include "global/resource.h"
 #include "global/vars.h"
 
+#if (DIRECT3D_VERSION > 0x500)
+DISPLAY_ADAPTER CurrentDisplayAdapter;
+#endif // (DIRECT3D_VERSION > 0x500)
+
 #ifdef FEATURE_WINDOW_STYLE_FIX
 static void setWindowStyle(bool isFullScreen) {
 	static const DWORD fullScreenFlags = WS_POPUP;

@@ -193,7 +193,11 @@
 #define HGameWindow					VAR_U_(0x004D7F00, HWND)
 #define GameWindowHeight			VAR_U_(0x004D7F04, int)
 #define PrimaryDisplayAdapter		VAR_U_(0x004D7F08, DISPLAY_ADAPTER_NODE*)
+#if (DIRECT3D_VERSION > 0x500)
+extern DISPLAY_ADAPTER CurrentDisplayAdapter;
+#else // (DIRECT3D_VERSION > 0x500)
 #define CurrentDisplayAdapter		VAR_U_(0x004D7F10, DISPLAY_ADAPTER)
+#endif // (DIRECT3D_VERSION > 0x500)
 #define LockedBufferCount			VAR_U_(0x004D8328, DWORD)
 #define GameWindowPositionX			VAR_U_(0x004D832C, int)
 #define GameWindowPositionY			VAR_U_(0x004D8330, int)
