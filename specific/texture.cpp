@@ -509,14 +509,14 @@ int __cdecl AddTexturePage16(int width, int height, BYTE *pageBuffer) {
 }
 
 HRESULT CALLBACK EnumTextureFormatsCallback(LPDDSURFACEDESC lpDdsd, LPVOID lpContext) {
-	DDPIXELFORMAT pixelFormat = lpDdsd->ddpfPixelFormat;
+	LPDDPIXELFORMAT lpDDPixFmt = &lpDdsd->ddpfPixelFormat;
 
-	if( pixelFormat.dwRGBBitCount < 8 )
+	if( lpDDPixFmt->dwRGBBitCount < 8 )
 		return D3DENUMRET_OK;
 
-	if( SavedAppSettings.Disable16BitTextures || pixelFormat.dwRGBBitCount < 16 ) {
-		if( pixelFormat.dwFlags & DDPF_PALETTEINDEXED8 ) {
-			TextureFormat.pixelFmt = lpDdsd->ddpfPixelFormat;
+	if( SavedAppSettings.Disable16BitTextures || lpDDPixFmt->dwRGBBitCount < 16 ) {
+		if( CHK_ANY(lpDDPixFmt->dwFlags, DDPF_PALETTEINDEXED8) ) {
+			TextureFormat.pixelFmt = *lpDDPixFmt;
 			TextureFormat.bpp = 8;
 			TexturesAlphaChannel = false;
 		}
@@ -524,11 +524,11 @@ HRESULT CALLBACK EnumTextureFormatsCallback(LPDDSURFACEDESC lpDdsd, LPVOID lpCon
 		return D3DENUMRET_OK;
 	}
 
-	if( pixelFormat.dwFlags & DDPF_RGB ) {
-		TextureFormat.pixelFmt = lpDdsd->ddpfPixelFormat;
+	if( CHK_ANY(lpDDPixFmt->dwFlags, DDPF_RGB) ) {
+		TextureFormat.pixelFmt = *lpDDPixFmt;
 		TextureFormat.bpp = 16;
-		TexturesAlphaChannel = ( (pixelFormat.dwFlags & DDPF_ALPHAPIXELS) != 0 );
-		WinVidGetColorBitMasks(&TextureFormat.colorBitMasks, &pixelFormat);
+		TexturesAlphaChannel = CHK_ANY(lpDDPixFmt->dwFlags, DDPF_ALPHAPIXELS);
+		WinVidGetColorBitMasks(&TextureFormat.colorBitMasks, lpDDPixFmt);
 		if( TextureFormat.bpp == 16 &&
 			TextureFormat.colorBitMasks.dwRGBAlphaBitDepth	== 1  &&
 			TextureFormat.colorBitMasks.dwRBitDepth			== 5  &&
