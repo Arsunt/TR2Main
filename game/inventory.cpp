@@ -78,7 +78,7 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 	memset(&ring, 0, sizeof(RING_INFO));
 	memset(&motion, 0, sizeof(INV_MOTION_INFO));
 
-	if( InventoryMode == INV_KeysMode && !InvKeyObjectsCount ) {
+	if( invMode == INV_KeysMode && !InvKeyObjectsCount ) {
 		InventoryChosen = -1;
 		return 0;
 	}
