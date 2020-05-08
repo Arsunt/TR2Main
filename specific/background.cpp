@@ -131,7 +131,7 @@ void __cdecl DrawQuad(float sx, float sy, float width, float height, D3DCOLOR co
 
 	HWR_TexSource(0);
 	HWR_EnableColorKey(false);
-	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DVT_TLVERTEX, &vertex, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3D_TLVERTEX, &vertex, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 }
 
 void __cdecl BGND_DrawInGameBackground() {
@@ -144,7 +144,7 @@ void __cdecl BGND_DrawInGameBackground() {
 	int x_count, y_count;
 	int y0_pos, y1_pos;
 	int tu, tv, twidth, theight;
-	D3DTEXTUREHANDLE texSource;
+	HWR_TEXHANDLE texSource;
 	D3DCOLOR color[4];
 
 	if( !Objects[ID_INV_BACKGROUND].loaded ) {
@@ -242,7 +242,7 @@ BLACK : // NOTE: some additional checks are absent in the original code, so I've
 	HWR_EnableZBuffer(true, true);
 }
 
-void __cdecl DrawTextureTile(int sx, int sy, int width, int height, D3DTEXTUREHANDLE texSource,
+void __cdecl DrawTextureTile(int sx, int sy, int width, int height, HWR_TEXHANDLE texSource,
 							 int tu, int tv, int t_width, int t_height,
 							 D3DCOLOR color0, D3DCOLOR color1, D3DCOLOR color2, D3DCOLOR color3)
 {
@@ -294,7 +294,7 @@ void __cdecl DrawTextureTile(int sx, int sy, int width, int height, D3DTEXTUREHA
 
 	HWR_TexSource(texSource);
 	HWR_EnableColorKey(false);
-	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DVT_TLVERTEX, &vertex, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3D_TLVERTEX, &vertex, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 }
 
 D3DCOLOR __cdecl BGND_CenterLighting(int x, int y, int width, int height) {

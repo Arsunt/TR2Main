@@ -26,7 +26,7 @@
 #include "global/vars.h"
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
-extern D3DTEXTUREHANDLE GetEnvmapTextureHandle();
+extern HWR_TEXHANDLE GetEnvmapTextureHandle();
 #endif // FEATURE_VIDEOFX_IMPROVED
 
 #ifdef FEATURE_HUD_IMPROVED
@@ -84,7 +84,7 @@ void __cdecl HWR_ResetZBuffer() {
 	D3DDev->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
 }
 
-void __cdecl HWR_TexSource(D3DTEXTUREHANDLE texSource) {
+void __cdecl HWR_TexSource(HWR_TEXHANDLE texSource) {
 	if( CurrentTexSource != texSource ) {
 		D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE, texSource);
 		CurrentTexSource = texSource;
@@ -165,26 +165,26 @@ void __cdecl HWR_DrawPolyList() {
 				HWR_TexSource(HWR_PageHandles[texPage]);
 #endif // !FEATURE_VIDEOFX_IMPROVED
 				HWR_EnableColorKey(polyType == POLY_HWR_WGTmap);
-				D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+				D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 				break;
 
 			case POLY_HWR_gouraud: // triangle fan (color)
 				HWR_TexSource(0);
 				HWR_EnableColorKey(false);
-				D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+				D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 				break;
 
 			case POLY_HWR_line: // line strip (color)
 				HWR_TexSource(0);
 				HWR_EnableColorKey(false);
-				D3DDev->DrawPrimitive(D3DPT_LINESTRIP, D3DVT_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+				D3DDev->DrawPrimitive(D3DPT_LINESTRIP, D3D_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 				break;
 
 			case POLY_HWR_trans: // triangle fan (color + semitransparent)
 				HWR_TexSource(0);
 				D3DDev->GetRenderState(AlphaBlendEnabler, &alphaState);
 				D3DDev->SetRenderState(AlphaBlendEnabler, TRUE);
-				D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+				D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 				D3DDev->SetRenderState(AlphaBlendEnabler, alphaState);
 				break;
 		}

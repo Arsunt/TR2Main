@@ -31,14 +31,14 @@
 DWORD ReflectionMode = 0;
 DWORD ReflectionBlur = 2;
 
-extern LPDIRECTDRAWSURFACE3 EnvmapBufferSurface;
-extern LPDIRECTDRAWSURFACE3 CaptureBufferSurface;
+extern LPDDS EnvmapBufferSurface;
+extern LPDDS CaptureBufferSurface;
 
 static LPDIRECT3DTEXTURE2 EnvmapTexture = NULL;
-static D3DTEXTUREHANDLE EnvmapTextureHandle = 0;
+static HWR_TEXHANDLE EnvmapTextureHandle = 0;
 
 static int __cdecl CreateEnvmapBuffer() {
-	DDSURFACEDESC dsp;
+	DDSDESC dsp;
 
 	if( !ReflectionMode ) return -1;
 	DWORD side = 1;
@@ -46,8 +46,8 @@ static int __cdecl CreateEnvmapBuffer() {
 	CLAMPG(sideLimit, MAX_SURFACE_SIZE);
 	while( side<<ReflectionBlur <= sideLimit ) side <<= 1;
 
-	memset(&dsp, 0, sizeof(DDSURFACEDESC));
-	dsp.dwSize = sizeof(DDSURFACEDESC);
+	memset(&dsp, 0, sizeof(dsp));
+	dsp.dwSize = sizeof(dsp);
 	dsp.dwFlags = DDSD_WIDTH|DDSD_HEIGHT|DDSD_CAPS;
 	dsp.dwWidth = side;
 	dsp.dwHeight = side;
@@ -68,7 +68,7 @@ void FreeEnvmapTexture() {
 	EnvmapTextureHandle = 0;
 }
 
-D3DTEXTUREHANDLE GetEnvmapTextureHandle() {
+HWR_TEXHANDLE GetEnvmapTextureHandle() {
 	if( EnvmapTextureHandle ) {
 		return EnvmapTextureHandle;
 	}
@@ -257,10 +257,10 @@ int __cdecl CreateTexturePage(int width, int height, LPDIRECTDRAWPALETTE palette
 }
 
 bool __cdecl CreateTexturePageSurface(TEXPAGE_DESC *desc) {
-	DDSURFACEDESC dsp;
+	DDSDESC dsp;
 
-	memset(&dsp, 0, sizeof(DDSURFACEDESC));
-	dsp.dwSize = sizeof(DDSURFACEDESC);
+	memset(&dsp, 0, sizeof(dsp));
+	dsp.dwSize = sizeof(dsp);
 	dsp.dwFlags = DDSD_PIXELFORMAT|DDSD_WIDTH|DDSD_HEIGHT|DDSD_CAPS;
 	dsp.dwWidth  = desc->width;
 	dsp.dwHeight = desc->height;
@@ -281,11 +281,11 @@ int __cdecl GetFreeTexturePageIndex() {
 }
 
 bool __cdecl TexturePageInit(TEXPAGE_DESC *page) {
-	DDSURFACEDESC dsp;
+	DDSDESC dsp;
 	DDCOLORKEY colorKey;
 
-	memset(&dsp, 0, sizeof(DDSURFACEDESC));
-	dsp.dwSize = sizeof(DDSURFACEDESC);
+	memset(&dsp, 0, sizeof(dsp));
+	dsp.dwSize = sizeof(dsp);
 	dsp.dwFlags = DDSD_PIXELFORMAT|DDSD_WIDTH|DDSD_HEIGHT|DDSD_CAPS;
 	dsp.dwWidth = page->width;;
 	dsp.dwHeight = page->height;
@@ -329,7 +329,7 @@ bool __cdecl TexturePageInit(TEXPAGE_DESC *page) {
 	return true;
 }
 
-LPDIRECT3DTEXTURE2 __cdecl Create3DTexture(LPDIRECTDRAWSURFACE3 surface) {
+LPDIRECT3DTEXTURE2 __cdecl Create3DTexture(LPDDS surface) {
 	LPDIRECT3DTEXTURE2 texture3d = NULL;
 	if FAILED(surface->QueryInterface(IID_IDirect3DTexture2, (LPVOID *)&texture3d)) {
 		return NULL;
@@ -416,7 +416,7 @@ bool __cdecl LoadTexturePage(int pageIndex, bool reset) {
 }
 
 
-D3DTEXTUREHANDLE __cdecl GetTexturePageHandle(int pageIndex) {
+HWR_TEXHANDLE __cdecl GetTexturePageHandle(int pageIndex) {
 	if( pageIndex < 0 )
 		return 0;
 
@@ -432,7 +432,7 @@ D3DTEXTUREHANDLE __cdecl GetTexturePageHandle(int pageIndex) {
 int __cdecl AddTexturePage8(int width, int height, BYTE *pageBuffer, int palIndex) {
 	int pageIndex;
 	BYTE *src, *dst;
-	DDSURFACEDESC desc;
+	DDSDESC desc;
 
 	if( palIndex < 0 )
 		return -1;
@@ -463,7 +463,7 @@ int __cdecl AddTexturePage16(int width, int height, BYTE *pageBuffer) {
 	BYTE *src, *dst, *subdst;
 	BYTE srcRed, srcGreen, srcBlue, srcAlpha;
 	DWORD compatibleColor;
-	DDSURFACEDESC desc;
+	DDSDESC desc;
 
 	pageIndex = CreateTexturePage(width, height, NULL);
 	if( pageIndex < 0 )
@@ -508,7 +508,7 @@ int __cdecl AddTexturePage16(int width, int height, BYTE *pageBuffer) {
 	return pageIndex;
 }
 
-HRESULT CALLBACK EnumTextureFormatsCallback(LPDDSURFACEDESC lpDdsd, LPVOID lpContext) {
+HRESULT CALLBACK EnumTextureFormatsCallback(LPDDSDESC lpDdsd, LPVOID lpContext) {
 	LPDDPIXELFORMAT lpDDPixFmt = &lpDdsd->ddpfPixelFormat;
 
 	if( lpDDPixFmt->dwRGBBitCount < 8 )

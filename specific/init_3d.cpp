@@ -94,7 +94,7 @@ bool __cdecl D3DSetViewport() {
 	return SUCCEEDED(D3DDev->SetCurrentViewport(D3DView));
 }
 
-void __cdecl D3DDeviceCreate(LPDIRECTDRAWSURFACE3 lpBackBuffer) {
+void __cdecl D3DDeviceCreate(LPDDS lpBackBuffer) {
 	D3DMATERIAL matData;
 	D3DMATERIALHANDLE matHandle;
 

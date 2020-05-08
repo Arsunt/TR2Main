@@ -37,7 +37,7 @@
 #include "global/vars.h"
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
-extern LPDIRECTDRAWSURFACE3 CaptureBufferSurface;
+extern LPDDS CaptureBufferSurface;
 
 #ifdef FEATURE_GOLD
 extern bool IsGold();
@@ -83,7 +83,7 @@ typedef struct {
 
 /// Texture data structure
 typedef struct {
-	D3DTEXTUREHANDLE handle; ///< Handle of texture
+	HWR_TEXHANDLE handle; ///< Handle of texture
 	int u; ///< Texture U coordinate (pixels)
 	int v; ///< Texture V coordinate (pixels)
 	int width;	///< Texture width (pixels)
@@ -138,7 +138,7 @@ void RenderTexturedFarQuad(VERTEX2D *vtx0, VERTEX2D *vtx1, VERTEX2D *vtx2, VERTE
 
 	HWR_TexSource(txr->handle);
 	HWR_EnableColorKey(false);
-	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DVT_TLVERTEX, &vtx, 4, 0);
+	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3D_TLVERTEX, &vtx, 4, 0);
 }
 
 /**
@@ -154,7 +154,7 @@ void RenderTexturedFarQuad(VERTEX2D *vtx0, VERTEX2D *vtx1, VERTEX2D *vtx2, VERTE
  * @param[in] shortWavePhase Lighting short wave phase in Integer representation
  * @param[in] longWavePhase Lighting long wave phase in Integer representation
  */
-void PSX_Background(D3DTEXTUREHANDLE texSource, int tu, int tv, int t_width, int t_height, int halfRowCount,
+void PSX_Background(HWR_TEXHANDLE texSource, int tu, int tv, int t_width, int t_height, int halfRowCount,
 					__int16 amplitude, __int16 deformWavePhase, __int16 shortWavePhase, __int16 longWavePhase)
 {
 	int halfColCount = MulDiv(halfRowCount, PhdWinWidth*3, PhdWinHeight*4) + 1;
@@ -476,7 +476,7 @@ int __cdecl BGND2_CapturePicture() {
 	DWORD height = 0;
 	RECT rect = {0, 0, 0, 0};
 
-	LPDIRECTDRAWSURFACE3 surface = CaptureBufferSurface ? CaptureBufferSurface : PrimaryBufferSurface;
+	LPDDS surface = CaptureBufferSurface ? CaptureBufferSurface : PrimaryBufferSurface;
 
 	BGND_PictureIsReady = false;
 	BGND_IsCaptured = false;
@@ -762,7 +762,7 @@ int __cdecl BGND2_ShowPicture(DWORD fadeIn, DWORD waitIn, DWORD fadeOut, DWORD w
 	return 0;
 }
 
-void __cdecl BGND2_DrawTexture(RECT *rect, D3DTEXTUREHANDLE texSource,
+void __cdecl BGND2_DrawTexture(RECT *rect, HWR_TEXHANDLE texSource,
 							   int tu, int tv, int t_width, int t_height, int t_side,
 							   D3DCOLOR color0, D3DCOLOR color1, D3DCOLOR color2, D3DCOLOR color3)
 {
@@ -819,7 +819,7 @@ void __cdecl BGND2_DrawTexture(RECT *rect, D3DTEXTUREHANDLE texSource,
 	HWR_EnableColorKey(false);
 	D3DDev->GetRenderState(AlphaBlendEnabler, &alphaState);
 	D3DDev->SetRenderState(AlphaBlendEnabler, TRUE);
-	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DVT_TLVERTEX, &vertex, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3D_TLVERTEX, &vertex, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 	D3DDev->SetRenderState(AlphaBlendEnabler, alphaState);
 }
 

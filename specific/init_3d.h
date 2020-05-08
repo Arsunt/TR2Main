@@ -33,7 +33,7 @@ void __cdecl D3DRelease(); // 0x00444640
 HRESULT CALLBACK Enum3DDevicesCallback(GUID FAR* lpGuid, LPTSTR lpDeviceDescription, LPTSTR lpDeviceName, LPD3DDEVICEDESC lpD3DHWDeviceDesc, LPD3DDEVICEDESC lpD3DHELDeviceDesc, LPVOID lpContext); // 0x00444660
 bool __cdecl D3DIsSupported(LPD3DDEVICEDESC desc); // 0x00444720
 bool __cdecl D3DSetViewport(); // 0x00444760
-void __cdecl D3DDeviceCreate(LPDIRECTDRAWSURFACE3 lpBackBuffer); // 0x00444820
+void __cdecl D3DDeviceCreate(LPDDS lpBackBuffer); // 0x00444820
 void __cdecl Direct3DRelease(); // 0x004449E0
 bool __cdecl Direct3DInit(); // 0x00444A30
 

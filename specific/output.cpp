@@ -183,7 +183,7 @@ void __cdecl S_InitialiseScreen(GF_LEVEL_TYPE levelType) {
 }
 
 void __cdecl S_OutputPolyList() {
-	struct _DDSURFACEDESC desc;
+	DDSDESC desc;
 
 	if( SavedAppSettings.RenderMode == RM_Software ) {
 		// Software renderer
@@ -845,7 +845,7 @@ void __cdecl S_DisplayPicture(LPCTSTR fileName, BOOL isTitle) {
 }
 
 void __cdecl S_SyncPictureBufferPalette() {
-	DDSURFACEDESC desc;
+	DDSDESC desc;
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	int width = BGND_PictureWidth;
 	int height = BGND_PictureHeight;
@@ -928,7 +928,7 @@ void __cdecl ScreenClear(bool isPhdWinSize) {
 }
 
 void __cdecl S_CopyScreenToBuffer() {
-	DDSURFACEDESC desc;
+	DDSDESC desc;
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	DWORD width = PhdWinWidth;
 	DWORD height = PhdWinHeight;

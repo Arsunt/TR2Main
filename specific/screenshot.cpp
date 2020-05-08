@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -28,7 +28,7 @@
 #include "modding/file_utils.h"
 #include "modding/gdi_utils.h"
 
-extern LPDIRECTDRAWSURFACE3 CaptureBufferSurface;
+extern LPDDS CaptureBufferSurface;
 
 DWORD ScreenshotFormat = 0;
 char ScreenshotPath[MAX_PATH];
@@ -52,7 +52,7 @@ static DWORD WINAPI SaveImageTask(CONST LPVOID lpParam) {
 	ExitThread(0);
 }
 
-static void __cdecl ScreenShotPNG(LPDIRECTDRAWSURFACE3 screen) {
+static void __cdecl ScreenShotPNG(LPDDS screen) {
 	static SYSTEMTIME lastTime = {0, 0, 0, 0, 0, 0, 0, 0};
 	static int lastIndex = 0;
 	RECT rect = {0, 0, 0, 0};
@@ -106,11 +106,11 @@ static TGA_HEADER ScreenShotTgaHeader = {
 // NOTE: This function is not presented in the original code
 // but the code is taken away form ScreenShot() and extended
 // to be compatible with 24/32 bit
-static void __cdecl ScreenShotTGA(LPDIRECTDRAWSURFACE3 screen, BYTE tgaBpp) {
+static void __cdecl ScreenShotTGA(LPDDS screen, BYTE tgaBpp) {
 	static int scrshotNumber = 0;
 	DWORD i, j;
 	BYTE *src, *dst;
-	DDSURFACEDESC desc;
+	DDSDESC desc;
 	BYTE *tgaPic = NULL;
 	HANDLE hFile = INVALID_HANDLE_VALUE;
 	DWORD bytesWritten;
@@ -125,8 +125,8 @@ static void __cdecl ScreenShotTGA(LPDIRECTDRAWSURFACE3 screen, BYTE tgaBpp) {
 	if( tgaBpp != 16 && tgaBpp != 24 )
 		return;
 
-	memset(&desc, 0, sizeof(DDSURFACEDESC));
-	desc.dwSize = sizeof(DDSURFACEDESC);
+	memset(&desc, 0, sizeof(desc));
+	desc.dwSize = sizeof(desc);
 
 #if defined(FEATURE_SCREENSHOT_IMPROVED)
 	HRESULT rc;
@@ -246,8 +246,8 @@ CLEANUP :
 void __cdecl ScreenShotPCX() {
 	static int scrshotNumber = 0;
 	HRESULT rc;
-	LPDIRECTDRAWSURFACE3 screen;
-	DDSURFACEDESC desc;
+	LPDDS screen;
+	DDSDESC desc;
 	BYTE *pcxData = NULL;
 	DWORD pcxSize;
 	HANDLE hFile = INVALID_HANDLE_VALUE;
@@ -259,7 +259,7 @@ void __cdecl ScreenShotPCX() {
 #endif // FEATURE_SCREENSHOT_IMPROVED
 
 	screen = ( SavedAppSettings.RenderMode == RM_Software ) ? RenderBufferSurface : PrimaryBufferSurface;
-	desc.dwSize = sizeof(DDSURFACEDESC);
+	desc.dwSize = sizeof(desc);
 
 	do {
 		rc = screen->Lock(NULL, &desc, DDLOCK_SURFACEMEMORYPTR, NULL);
@@ -394,7 +394,7 @@ DWORD __cdecl EncodePutPCX(BYTE value, BYTE num, BYTE *buffer) {
 }
 
 
-void __cdecl ScreenShot(LPDIRECTDRAWSURFACE3 screen) {
+void __cdecl ScreenShot(LPDDS screen) {
 #if defined(FEATURE_SCREENSHOT_IMPROVED)
 	if( SavedAppSettings.RenderMode == RM_Software ) {
 		screen = RenderBufferSurface;
@@ -408,10 +408,10 @@ void __cdecl ScreenShot(LPDIRECTDRAWSURFACE3 screen) {
 	}
 #endif // FEATURE_SCREENSHOT_IMPROVED
 
-	DDSURFACEDESC desc;
+	DDSDESC desc;
 
-	memset(&desc, 0, sizeof(DDSURFACEDESC));
-	desc.dwSize = sizeof(DDSURFACEDESC);
+	memset(&desc, 0, sizeof(desc));
+	desc.dwSize = sizeof(desc);
 
 	if SUCCEEDED( screen->GetSurfaceDesc(&desc)) {
 		switch( desc.ddpfPixelFormat.dwRGBBitCount ) {

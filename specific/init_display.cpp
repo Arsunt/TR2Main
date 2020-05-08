@@ -85,14 +85,14 @@ static LPCTSTR ErrorStringTable[] = {
 };
 
 #if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED) || defined(FEATURE_VIDEOFX_IMPROVED)
-LPDIRECTDRAWSURFACE3 CaptureBufferSurface = NULL; // used for screen capture in windowed mode
-LPDIRECTDRAWSURFACE3 EnvmapBufferSurface = NULL; // used as environment map for the reflection effect
+LPDDS CaptureBufferSurface = NULL; // used for screen capture in windowed mode
+LPDDS EnvmapBufferSurface = NULL; // used as environment map for the reflection effect
 
 static int __cdecl CreateCaptureBuffer() {
-	DDSURFACEDESC dsp;
+	DDSDESC dsp;
 
-	memset(&dsp, 0, sizeof(DDSURFACEDESC));
-	dsp.dwSize = sizeof(DDSURFACEDESC);
+	memset(&dsp, 0, sizeof(dsp));
+	dsp.dwSize = sizeof(dsp);
 	dsp.dwFlags = DDSD_WIDTH|DDSD_HEIGHT|DDSD_CAPS;
 	dsp.dwWidth = GameVidBufWidth;
 	dsp.dwHeight = GameVidBufHeight;
@@ -111,10 +111,10 @@ static int __cdecl CreateCaptureBuffer() {
 
 void __cdecl CreateScreenBuffers() {
 	DDSCAPS ddsCaps;
-	DDSURFACEDESC dsp;
+	DDSDESC dsp;
 
-	memset(&dsp, 0, sizeof(DDSURFACEDESC));
-	dsp.dwSize = sizeof(DDSURFACEDESC);
+	memset(&dsp, 0, sizeof(dsp));
+	dsp.dwSize = sizeof(dsp);
 	dsp.dwFlags = DDSD_BACKBUFFERCOUNT|DDSD_CAPS;
 	dsp.dwBackBufferCount = (SavedAppSettings.TripleBuffering) ? 2 : 1;
 	dsp.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE|DDSCAPS_FLIP|DDSCAPS_COMPLEX;
@@ -142,14 +142,14 @@ void __cdecl CreateScreenBuffers() {
 }
 
 void __cdecl CreatePrimarySurface() {
-	DDSURFACEDESC dsp;
+	DDSDESC dsp;
 
 	if( ( GameVid_IsVga && SavedAppSettings.RenderMode == RM_Hardware) ||
 		(!GameVid_IsVga && SavedAppSettings.RenderMode == RM_Software) )
 		throw ERR_WrongBitDepth;
 
-	memset(&dsp, 0, sizeof(DDSURFACEDESC));
-	dsp.dwSize = sizeof(DDSURFACEDESC);
+	memset(&dsp, 0, sizeof(dsp));
+	dsp.dwSize = sizeof(dsp);
 	dsp.dwFlags = DDSD_CAPS;
 	dsp.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
 
@@ -158,10 +158,10 @@ void __cdecl CreatePrimarySurface() {
 }
 
 void __cdecl CreateBackBuffer() {
-	DDSURFACEDESC dsp;
+	DDSDESC dsp;
 
-	memset(&dsp, 0, sizeof(DDSURFACEDESC));
-	dsp.dwSize = sizeof(DDSURFACEDESC);
+	memset(&dsp, 0, sizeof(dsp));
+	dsp.dwSize = sizeof(dsp);
 	dsp.dwFlags = DDSD_WIDTH|DDSD_HEIGHT|DDSD_CAPS;
 	dsp.dwWidth = GameVidBufWidth;
 	dsp.dwHeight = GameVidBufHeight;
@@ -221,13 +221,13 @@ void __cdecl CreateWindowPalette() {
 }
 
 void __cdecl CreateZBuffer() {
-	DDSURFACEDESC dsp;
+	DDSDESC dsp;
 
 	if( (CurrentDisplayAdapter.D3DHWDeviceDesc.dpcTriCaps.dwRasterCaps & D3DPRASTERCAPS_ZBUFFERLESSHSR) != 0 )
 		return;
 
-	memset(&dsp, 0, sizeof(DDSURFACEDESC));
-	dsp.dwSize = sizeof(DDSURFACEDESC);
+	memset(&dsp, 0, sizeof(dsp));
+	dsp.dwSize = sizeof(dsp);
 	dsp.dwFlags = DDSD_ZBUFFERBITDEPTH|DDSD_WIDTH|DDSD_HEIGHT|DDSD_CAPS;
 	dsp.dwWidth = GameVidBufWidth;
 	dsp.dwHeight = GameVidBufHeight;
@@ -250,10 +250,10 @@ DWORD __cdecl GetZBufferDepth() {
 }
 
 void __cdecl CreateRenderBuffer() {
-	DDSURFACEDESC dsp;
+	DDSDESC dsp;
 
-	memset(&dsp, 0, sizeof(DDSURFACEDESC));
-	dsp.dwSize = sizeof(DDSURFACEDESC);
+	memset(&dsp, 0, sizeof(dsp));
+	dsp.dwSize = sizeof(dsp);
 	dsp.dwFlags = DDSD_WIDTH|DDSD_HEIGHT|DDSD_CAPS;
 	dsp.dwWidth = GameVidBufWidth;
 	dsp.dwHeight = GameVidBufHeight;
@@ -267,10 +267,10 @@ void __cdecl CreateRenderBuffer() {
 }
 
 void __cdecl CreatePictureBuffer() {
-	DDSURFACEDESC dsp;
+	DDSDESC dsp;
 
-	memset(&dsp, 0, sizeof(DDSURFACEDESC));
-	dsp.dwSize = sizeof(DDSURFACEDESC);
+	memset(&dsp, 0, sizeof(dsp));
+	dsp.dwSize = sizeof(dsp);
 	dsp.dwFlags = DDSD_WIDTH|DDSD_HEIGHT|DDSD_CAPS;
 	dsp.ddsCaps.dwCaps = DDSCAPS_SYSTEMMEMORY|DDSCAPS_OFFSCREENPLAIN;
 #ifdef FEATURE_BACKGROUND_IMPROVED
@@ -426,7 +426,7 @@ void __cdecl UpdateFrame(bool needRunMessageLoop, LPRECT rect) {
 		dstRect.right = GameWindowPositionX + pSrcRect->right;
 		dstRect.bottom = GameWindowPositionY + pSrcRect->bottom;
 
-		LPDIRECTDRAWSURFACE3 surface = ( SavedAppSettings.RenderMode == RM_Software ) ? RenderBufferSurface : BackBufferSurface;
+		LPDDS surface = ( SavedAppSettings.RenderMode == RM_Software ) ? RenderBufferSurface : BackBufferSurface;
 		PrimaryBufferSurface->Blt(&dstRect, surface, pSrcRect, DDBLT_WAIT, NULL);
 #if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED) || defined(FEATURE_VIDEOFX_IMPROVED)
 		if( CaptureBufferSurface != NULL ) {

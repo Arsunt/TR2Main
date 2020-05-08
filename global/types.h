@@ -223,6 +223,16 @@ typedef struct {
 #define IFL_CLEARBODY	(0x8000)
 
 /*
+ * DirectX type definitions
+ */
+
+#define D3D_TLVERTEX D3DVT_TLVERTEX
+typedef LPDIRECTDRAWSURFACE3 LPDDS;
+typedef DDSURFACEDESC DDSDESC;
+typedef LPDDSURFACEDESC LPDDSDESC;
+typedef D3DTEXTUREHANDLE HWR_TEXHANDLE;
+
+/*
  * Enums
  */
 
@@ -1167,11 +1177,11 @@ typedef struct AppSettings_t {
 } APP_SETTINGS;
 
 struct TEXPAGE_DESC {
-	LPDIRECTDRAWSURFACE3 sysMemSurface;
-	LPDIRECTDRAWSURFACE3 vidMemSurface;
+	LPDDS sysMemSurface;
+	LPDDS vidMemSurface;
 	LPDIRECTDRAWPALETTE palette;
 	LPDIRECT3DTEXTURE2 texture3d;
-	D3DTEXTUREHANDLE texHandle;
+	HWR_TEXHANDLE texHandle;
 	int width;
 	int height;
 	int status;

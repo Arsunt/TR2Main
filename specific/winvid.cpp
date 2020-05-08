@@ -354,7 +354,7 @@ void __cdecl WinVidSetGameWindowSize(int width, int height) {
 	SetWindowPos(HGameWindow, NULL, 0, 0, width, height, SWP_NOCOPYBITS|SWP_NOACTIVATE|SWP_NOZORDER|SWP_NOMOVE);
 }
 
-HRESULT __cdecl DDrawSurfaceCreate(LPDDSURFACEDESC dsp, LPDIRECTDRAWSURFACE3 *surface) {
+HRESULT __cdecl DDrawSurfaceCreate(LPDDSDESC dsp, LPDDS *surface) {
 	LPDIRECTDRAWSURFACE subSurface;
 	HRESULT rc = DDraw->CreateSurface(dsp, &subSurface, NULL);
 
@@ -366,7 +366,7 @@ HRESULT __cdecl DDrawSurfaceCreate(LPDDSURFACEDESC dsp, LPDIRECTDRAWSURFACE3 *su
 	return rc;
 }
 
-HRESULT __cdecl DDrawSurfaceRestoreLost(LPDIRECTDRAWSURFACE3 surface1, LPDIRECTDRAWSURFACE3 surface2, bool blank) {
+HRESULT __cdecl DDrawSurfaceRestoreLost(LPDDS surface1, LPDDS surface2, bool blank) {
 	if( surface1 == NULL ) // NOTE: additional check just in case
 		return 0;
 
@@ -381,7 +381,7 @@ HRESULT __cdecl DDrawSurfaceRestoreLost(LPDIRECTDRAWSURFACE3 surface1, LPDIRECTD
 	return rc;
 }
 
-bool __cdecl WinVidClearBuffer(LPDIRECTDRAWSURFACE3 surface, LPRECT rect, DWORD fillColor) {
+bool __cdecl WinVidClearBuffer(LPDDS surface, LPRECT rect, DWORD fillColor) {
 	DDBLTFX bltFx;
 
 	if( surface == NULL ) // NOTE: additional check just in case
@@ -394,9 +394,9 @@ bool __cdecl WinVidClearBuffer(LPDIRECTDRAWSURFACE3 surface, LPRECT rect, DWORD 
 	return SUCCEEDED(surface->Blt(rect, NULL, NULL, DDBLT_WAIT|DDBLT_COLORFILL, &bltFx));
 }
 
-HRESULT __cdecl WinVidBufferLock(LPDIRECTDRAWSURFACE3 surface, LPDDSURFACEDESC desc, DWORD flags) {
-	memset(desc, 0, sizeof(DDSURFACEDESC));
-	desc->dwSize = sizeof(DDSURFACEDESC);
+HRESULT __cdecl WinVidBufferLock(LPDDS surface, LPDDSDESC desc, DWORD flags) {
+	memset(desc, 0, sizeof(DDSDESC));
+	desc->dwSize = sizeof(DDSDESC);
 
 	HRESULT result = surface->Lock(NULL, desc, flags, NULL);
 	if SUCCEEDED(result) {
@@ -405,7 +405,7 @@ HRESULT __cdecl WinVidBufferLock(LPDIRECTDRAWSURFACE3 surface, LPDDSURFACEDESC d
 	return result;
 }
 
-HRESULT __cdecl WinVidBufferUnlock(LPDIRECTDRAWSURFACE3 surface, LPDDSURFACEDESC desc) {
+HRESULT __cdecl WinVidBufferUnlock(LPDDS surface, LPDDSDESC desc) {
 	HRESULT result = surface->Unlock(desc->lpSurface);
 	if SUCCEEDED(result) {
 		--LockedBufferCount;
@@ -413,10 +413,10 @@ HRESULT __cdecl WinVidBufferUnlock(LPDIRECTDRAWSURFACE3 surface, LPDDSURFACEDESC
 	return result;
 }
 
-bool __cdecl WinVidCopyBitmapToBuffer(LPDIRECTDRAWSURFACE3 surface, BYTE *bitmap) {
+bool __cdecl WinVidCopyBitmapToBuffer(LPDDS surface, BYTE *bitmap) {
 	DWORD i;
 	BYTE *src, *dst;
-	DDSURFACEDESC desc;
+	DDSDESC desc;
 	if( surface == NULL || bitmap == NULL ) // NOTE: additional check just in case
 		return false;
 
@@ -488,10 +488,10 @@ DWORD __cdecl CalculateCompatibleColor(COLOR_BIT_MASKS *mask, int red, int green
 }
 
 bool __cdecl WinVidGetDisplayMode(DISPLAY_MODE *dispMode) {
-	DDSURFACEDESC dsp;
+	DDSDESC dsp;
 
-	memset(&dsp, 0, sizeof(DDSURFACEDESC));
-	dsp.dwSize = sizeof(DDSURFACEDESC);
+	memset(&dsp, 0, sizeof(dsp));
+	dsp.dwSize = sizeof(dsp);
 
 	if( SUCCEEDED(DDraw->GetDisplayMode(&dsp)) &&
 		((dsp.dwFlags & DDSD_WIDTH) != 0) &&
@@ -660,7 +660,7 @@ bool __cdecl WinVidGetDisplayModes() {
 	return true;
 }
 
-HRESULT WINAPI EnumDisplayModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOID lpContext) {
+HRESULT WINAPI EnumDisplayModesCallback(LPDDSDESC lpDDSurfaceDesc, LPVOID lpContext) {
 	DISPLAY_ADAPTER *adapter = (DISPLAY_ADAPTER *)lpContext;
 	DISPLAY_MODE videoMode;
 	VGA_MODE vgaMode = VGA_NoVga;
@@ -892,7 +892,7 @@ bool __cdecl WinVidRegisterGameWindowClass() {
 
 LRESULT CALLBACK WinVidGameWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
 	HDC hdc;
-	LPDIRECTDRAWSURFACE3 surface;
+	LPDDS surface;
 	HBRUSH hBrush;
 	PAINTSTRUCT paint;
 
