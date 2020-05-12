@@ -27,7 +27,11 @@ extern void __thiscall FlaggedStringDelete(STRING_FLAGGED *item);
 extern bool FlaggedStringCopy(STRING_FLAGGED *dst, STRING_FLAGGED *src);
 
 bool __cdecl DInputCreate() {
+#if (DIRECTINPUT_VERSION >= 0x700)
+	return SUCCEEDED(DirectInputCreateEx(GameModule, DIRECTINPUT_VERSION, IID_IDirectInput7, (LPVOID *)&DInput, NULL));
+#else // (DIRECTINPUT_VERSION >= 0x700)
 	return SUCCEEDED(DirectInputCreate(GameModule, DIRECTINPUT_VERSION, &DInput, NULL));
+#endif // (DIRECTINPUT_VERSION >= 0x700)
 }
 
 void __cdecl DInputRelease() {
@@ -164,8 +168,13 @@ JOYSTICK_NODE *__cdecl GetJoystick(GUID *lpGuid) {
 }
 
 void __cdecl DInputKeyboardCreate() {
+#if (DIRECTINPUT_VERSION >= 0x700)
+	if FAILED(DInput->CreateDeviceEx(GUID_SysKeyboard, IID_IDirectInputDevice7, (LPVOID *)&IDID_SysKeyboard, NULL))
+		throw ERR_CantCreateKeyboardDevice;
+#else // (DIRECTINPUT_VERSION >= 0x700)
 	if FAILED(DInput->CreateDevice(GUID_SysKeyboard, &IDID_SysKeyboard, NULL))
 		throw ERR_CantCreateKeyboardDevice;
+#endif // (DIRECTINPUT_VERSION >= 0x700)
 	if FAILED(IDID_SysKeyboard->SetCooperativeLevel(HGameWindow, DISCL_FOREGROUND|DISCL_NONEXCLUSIVE))
 		throw ERR_CantSetKBCooperativeLevel;
 	if FAILED(IDID_SysKeyboard->SetDataFormat(&c_dfDIKeyboard))
