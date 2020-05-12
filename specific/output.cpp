@@ -792,8 +792,10 @@ void __cdecl S_AnimateTextures(int nFrames) {
 	RoomLightShades[2] = (WIBBLE_SIZE-1) * (phd_sin(WibbleOffset * PHD_360 / WIBBLE_SIZE) + PHD_IONE) / 2 / PHD_IONE;
 
 	if( GF_SunsetEnabled ) {
-		AnimFramesCounter += nFrames;
-		RoomLightShades[3] = (WIBBLE_SIZE-1) * ((AnimFramesCounter < 72000) ? (AnimFramesCounter / 72000) : 1);
+		DWORD sunsetTimeout = TICKS_PER_SECOND*60*20; // sunset sets in 20 minutes
+		SunsetTimer += nFrames;
+		CLAMPG(SunsetTimer, sunsetTimeout);
+		RoomLightShades[3] = (WIBBLE_SIZE-1) * SunsetTimer / sunsetTimeout;
 	}
 	AnimateTextures(nFrames);
 }
