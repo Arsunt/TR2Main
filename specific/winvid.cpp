@@ -102,11 +102,16 @@ bool FlaggedStringCopy(STRING_FLAGGED *dst, STRING_FLAGGED *src) {
 }
 
 bool __cdecl DDrawCreate(LPGUID lpGUID) {
+#if (DIRECT3D_VERSION >= 0x700)
+	if FAILED(DirectDrawCreateEx(lpGUID, (LPVOID *)&DDraw, IID_IDirectDraw7, 0))
+		return false;
+#else // (DIRECT3D_VERSION >= 0x700)
 	if FAILED(DirectDrawCreate(lpGUID, &DDrawInterface, 0))
 		return false;
 
 	if FAILED(DDrawInterface->QueryInterface(IID_IDirectDraw2, (LPVOID *)&DDraw))
 		return false;
+#endif // (DIRECT3D_VERSION >= 0x700)
 
 	DDraw->SetCooperativeLevel(HGameWindow, DDSCL_NORMAL);
 	return true;
@@ -117,10 +122,12 @@ void __cdecl DDrawRelease() {
 		DDraw->Release();
 		DDraw = NULL;
 	}
+#if (DIRECT3D_VERSION < 0x700)
 	if( DDrawInterface ) {
 		DDrawInterface->Release();
 		DDrawInterface = NULL;
 	}
+#endif // (DIRECT3D_VERSION < 0x700)
 }
 
 void __cdecl GameWindowCalculateSizeFromClient(int *width, int *height) {
@@ -355,6 +362,9 @@ void __cdecl WinVidSetGameWindowSize(int width, int height) {
 }
 
 HRESULT __cdecl DDrawSurfaceCreate(LPDDSDESC dsp, LPDDS *surface) {
+#if (DIRECT3D_VERSION >= 0x700)
+	return DDraw->CreateSurface(dsp, surface, NULL);
+#else // (DIRECT3D_VERSION >= 0x700)
 	LPDIRECTDRAWSURFACE subSurface;
 	HRESULT rc = DDraw->CreateSurface(dsp, &subSurface, NULL);
 
@@ -364,6 +374,7 @@ HRESULT __cdecl DDrawSurfaceCreate(LPDDSDESC dsp, LPDDS *surface) {
 	}
 
 	return rc;
+#endif // (DIRECT3D_VERSION >= 0x700)
 }
 
 HRESULT __cdecl DDrawSurfaceRestoreLost(LPDDS surface1, LPDDS surface2, bool blank) {
@@ -406,7 +417,11 @@ HRESULT __cdecl WinVidBufferLock(LPDDS surface, LPDDSDESC desc, DWORD flags) {
 }
 
 HRESULT __cdecl WinVidBufferUnlock(LPDDS surface, LPDDSDESC desc) {
+#if (DIRECT3D_VERSION >= 0x700)
+	HRESULT result = surface->Unlock(NULL);
+#else // (DIRECT3D_VERSION >= 0x700)
 	HRESULT result = surface->Unlock(desc->lpSurface);
+#endif // (DIRECT3D_VERSION >= 0x700)
 	if SUCCEEDED(result) {
 		--LockedBufferCount;
 	}
@@ -621,7 +636,9 @@ void __cdecl WinVidSetDisplayAdapter(DISPLAY_ADAPTER *dispAdapter) {
 	dispAdapter->screenWidth = dispMode.width;
 	dispAdapter->swWindowedSupported = ( dispMode.vga == VGA_256Color );
 	dispAdapter->hwWindowedSupported = ( dispAdapter->hwRenderSupported &&
+#if (DIRECT3D_VERSION < 0x700)
 		((dispAdapter->D3DHWDeviceDesc.dwFlags & D3DDD_DEVICERENDERBITDEPTH) != 0) &&
+#endif // (DIRECT3D_VERSION < 0x700)
 		((GetRenderBitDepth(dispMode.bpp) & dispAdapter->D3DHWDeviceDesc.dwDeviceRenderBitDepth) != 0) );
 }
 

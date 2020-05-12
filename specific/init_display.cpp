@@ -110,7 +110,11 @@ static int __cdecl CreateCaptureBuffer() {
 #endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED) || defined(FEATURE_VIDEOFX_IMPROVED)
 
 void __cdecl CreateScreenBuffers() {
+#if (DIRECT3D_VERSION >= 0x700)
+	DDSCAPS2 ddsCaps;
+#else // (DIRECT3D_VERSION >= 0x700)
 	DDSCAPS ddsCaps;
+#endif // (DIRECT3D_VERSION >= 0x700)
 	DDSDESC dsp;
 
 	memset(&dsp, 0, sizeof(dsp));
@@ -126,6 +130,7 @@ void __cdecl CreateScreenBuffers() {
 
 	WinVidClearBuffer(PrimaryBufferSurface, NULL, 0);
 
+	memset(&ddsCaps, 0, sizeof(ddsCaps));
 	ddsCaps.dwCaps = DDSCAPS_BACKBUFFER;
 	if FAILED(PrimaryBufferSurface->GetAttachedSurface(&ddsCaps, &BackBufferSurface))
 		throw ERR_GetBackBuffer;
@@ -133,6 +138,7 @@ void __cdecl CreateScreenBuffers() {
 	WinVidClearBuffer(BackBufferSurface, NULL, 0);
 
 	if( SavedAppSettings.TripleBuffering ) {
+		memset(&ddsCaps, 0, sizeof(ddsCaps));
 		ddsCaps.dwCaps = DDSCAPS_FLIP;
 		if FAILED(BackBufferSurface->GetAttachedSurface(&ddsCaps, &ThirdBufferSurface))
 			throw ERR_GetThirdBuffer;
@@ -220,6 +226,16 @@ void __cdecl CreateWindowPalette() {
 		throw ERR_SetPalette;
 }
 
+#if (DIRECT3D_VERSION >= 0x700)
+static HRESULT WINAPI EnumZBufferCallback(DDPIXELFORMAT* pddpf, VOID* pddpfDesired) {
+	if( pddpf->dwFlags == DDPF_ZBUFFER ) {
+		memcpy(pddpfDesired, pddpf, sizeof(DDPIXELFORMAT));
+		return D3DENUMRET_CANCEL;
+	}
+	return D3DENUMRET_OK;
+}
+#endif // (DIRECT3D_VERSION >= 0x700)
+
 void __cdecl CreateZBuffer() {
 	DDSDESC dsp;
 
@@ -228,10 +244,17 @@ void __cdecl CreateZBuffer() {
 
 	memset(&dsp, 0, sizeof(dsp));
 	dsp.dwSize = sizeof(dsp);
-	dsp.dwFlags = DDSD_ZBUFFERBITDEPTH|DDSD_WIDTH|DDSD_HEIGHT|DDSD_CAPS;
 	dsp.dwWidth = GameVidBufWidth;
 	dsp.dwHeight = GameVidBufHeight;
+#if (DIRECT3D_VERSION >= 0x700)
+	dsp.dwFlags = DDSD_PIXELFORMAT|DDSD_WIDTH|DDSD_HEIGHT|DDSD_CAPS;
+	if( D3D == NULL && !D3DCreate() )
+		throw ERR_D3D_Create;
+	D3D->EnumZBufferFormats(IID_IDirect3DHALDevice, EnumZBufferCallback, &dsp.ddpfPixelFormat);
+#else // (DIRECT3D_VERSION >= 0x700)
+	dsp.dwFlags = DDSD_ZBUFFERBITDEPTH|DDSD_WIDTH|DDSD_HEIGHT|DDSD_CAPS;
 	dsp.dwZBufferBitDepth = GetZBufferDepth();
+#endif // (DIRECT3D_VERSION >= 0x700)
 	dsp.ddsCaps.dwCaps = DDSCAPS_ZBUFFER|DDSCAPS_VIDEOMEMORY;
 
 	if FAILED(DDrawSurfaceCreate(&dsp, &ZBufferSurface))
@@ -315,7 +338,11 @@ void __cdecl ClearBuffers(DWORD flags, DWORD fillColor) {
 			d3dRect.y1 = winRect.top;
 			d3dRect.x2 = winRect.right;
 			d3dRect.y2 = winRect.bottom;
+#if (DIRECT3D_VERSION >= 0x700)
+			D3DDev->Clear(1, &d3dRect, d3dClearFlags, fillColor, 1.0, 0);
+#else // (DIRECT3D_VERSION >= 0x700)
 			D3DView->Clear(1, &d3dRect, d3dClearFlags);
+#endif // (DIRECT3D_VERSION >= 0x700)
 		}
 	} else {
 	// Software Renderer Checks

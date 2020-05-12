@@ -271,7 +271,11 @@ void __cdecl ScreenShotPCX() {
 		return;
 
 	pcxSize = CompPCX((BYTE *)desc.lpSurface, desc.dwWidth, desc.dwHeight, GamePalette8, &pcxData);
+#if (DIRECT3D_VERSION >= 0x700)
+	screen->Unlock(NULL);
+#else // (DIRECT3D_VERSION >= 0x700)
 	screen->Unlock(&desc);
+#endif // (DIRECT3D_VERSION >= 0x700)
 
 	if( pcxSize == 0 || pcxData == NULL )
 		return;

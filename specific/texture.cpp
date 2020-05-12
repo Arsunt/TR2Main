@@ -34,7 +34,9 @@ DWORD ReflectionBlur = 2;
 extern LPDDS EnvmapBufferSurface;
 extern LPDDS CaptureBufferSurface;
 
+#if (DIRECT3D_VERSION < 0x700)
 static LPDIRECT3DTEXTURE2 EnvmapTexture = NULL;
+#endif // (DIRECT3D_VERSION < 0x700)
 static HWR_TEXHANDLE EnvmapTextureHandle = 0;
 
 static int __cdecl CreateEnvmapBuffer() {
@@ -51,7 +53,14 @@ static int __cdecl CreateEnvmapBuffer() {
 	dsp.dwFlags = DDSD_WIDTH|DDSD_HEIGHT|DDSD_CAPS;
 	dsp.dwWidth = side;
 	dsp.dwHeight = side;
+#if (DIRECT3D_VERSION >= 0x700)
+	dsp.dwFlags |= DDSD_TEXTURESTAGE;
+	dsp.ddsCaps.dwCaps = DDSCAPS_TEXTURE;
+	dsp.ddsCaps.dwCaps2 = DDSCAPS2_TEXTUREMANAGE;
+	dsp.dwTextureStage = 0;
+#else // (DIRECT3D_VERSION >= 0x700)
 	dsp.ddsCaps.dwCaps = DDSCAPS_VIDEOMEMORY|DDSCAPS_TEXTURE;
+#endif // (DIRECT3D_VERSION >= 0x700)
 
 	if FAILED(DDrawSurfaceCreate(&dsp, &EnvmapBufferSurface))
 		return -1;
@@ -61,10 +70,12 @@ static int __cdecl CreateEnvmapBuffer() {
 }
 
 void FreeEnvmapTexture() {
+#if (DIRECT3D_VERSION < 0x700)
 	if( EnvmapTexture ) {
 		EnvmapTexture->Release();
 		EnvmapTexture = NULL;
 	}
+#endif // (DIRECT3D_VERSION < 0x700)
 	EnvmapTextureHandle = 0;
 }
 
@@ -73,7 +84,9 @@ HWR_TEXHANDLE GetEnvmapTextureHandle() {
 		return EnvmapTextureHandle;
 	}
 
+#if (DIRECT3D_VERSION < 0x700)
 	if( !EnvmapTexture ) {
+#endif // (DIRECT3D_VERSION < 0x700)
 		if( !EnvmapBufferSurface && CreateEnvmapBuffer() ) {
 			return 0;
 		}
@@ -90,6 +103,9 @@ HWR_TEXHANDLE GetEnvmapTextureHandle() {
 		};
 
 		EnvmapBufferSurface->Blt(NULL, CaptureBufferSurface ? CaptureBufferSurface : PrimaryBufferSurface, &srcRect, DDBLT_WAIT, NULL);
+#if (DIRECT3D_VERSION >= 0x700)
+		EnvmapTextureHandle = EnvmapBufferSurface;
+#else // (DIRECT3D_VERSION >= 0x700)
 		EnvmapTexture = Create3DTexture(EnvmapBufferSurface);
 		if( !EnvmapTexture ) return 0;
 	}
@@ -98,6 +114,7 @@ HWR_TEXHANDLE GetEnvmapTextureHandle() {
 		FreeEnvmapTexture();
 		return 0;
 	}
+#endif // (DIRECT3D_VERSION >= 0x700)
 
 	return EnvmapTextureHandle;
 }
@@ -290,7 +307,14 @@ bool __cdecl TexturePageInit(TEXPAGE_DESC *page) {
 	dsp.dwWidth = page->width;;
 	dsp.dwHeight = page->height;
 	dsp.ddpfPixelFormat = TextureFormat.pixelFmt;
+#if (DIRECT3D_VERSION >= 0x700)
+	dsp.dwFlags |= DDSD_TEXTURESTAGE;
+	dsp.ddsCaps.dwCaps = DDSCAPS_TEXTURE;
+	dsp.ddsCaps.dwCaps2 = DDSCAPS2_TEXTUREMANAGE;
+	dsp.dwTextureStage = 0;
+#else // (DIRECT3D_VERSION >= 0x700)
 	dsp.ddsCaps.dwCaps = DDSCAPS_ALLOCONLOAD|DDSCAPS_VIDEOMEMORY|DDSCAPS_TEXTURE;
+#endif // (DIRECT3D_VERSION >= 0x700)
 
 	if( FAILED(DDrawSurfaceCreate(&dsp, &page->vidMemSurface)) || page->vidMemSurface == NULL ) {
 		return false;
@@ -308,6 +332,10 @@ bool __cdecl TexturePageInit(TEXPAGE_DESC *page) {
 		}
 	}
 
+#if (DIRECT3D_VERSION >= 0x700)
+	page->texture3d = NULL; // texture interface is not used by Direct3D 7
+	page->texHandle = page->vidMemSurface; // only texture surface is used
+#else // (DIRECT3D_VERSION >= 0x700)
 	page->texture3d = Create3DTexture(page->vidMemSurface);
 	if( page->texture3d == NULL ) {
 		page->vidMemSurface->Release();
@@ -325,16 +353,21 @@ bool __cdecl TexturePageInit(TEXPAGE_DESC *page) {
 		page->texHandle = 0;
 		return false;
 	}
+#endif // (DIRECT3D_VERSION >= 0x700)
 
 	return true;
 }
 
 LPDIRECT3DTEXTURE2 __cdecl Create3DTexture(LPDDS surface) {
+#if (DIRECT3D_VERSION >= 0x700)
+	return NULL;
+#else // (DIRECT3D_VERSION >= 0x700)
 	LPDIRECT3DTEXTURE2 texture3d = NULL;
 	if FAILED(surface->QueryInterface(IID_IDirect3DTexture2, (LPVOID *)&texture3d)) {
 		return NULL;
 	}
 	return texture3d;
+#endif // (DIRECT3D_VERSION >= 0x700)
 }
 
 void __cdecl SafeFreeTexturePage(int pageIndex) {
@@ -356,12 +389,12 @@ void __cdecl FreeTexturePage(int pageIndex) {
 void __cdecl TexturePageReleaseVidMemSurface(TEXPAGE_DESC *page) {
 	HWR_ResetTexSource();
 	page->texHandle = 0;
-
+#if (DIRECT3D_VERSION < 0x700)
 	if( page->texture3d ) {
 		page->texture3d->Release();
 		page->texture3d = NULL;
 	}
-
+#endif // (DIRECT3D_VERSION < 0x700)
 	if( page->vidMemSurface ) {
 		page->vidMemSurface->Release();
 		page->vidMemSurface = NULL;
@@ -403,6 +436,9 @@ bool __cdecl LoadTexturePage(int pageIndex, bool reset) {
 	if( !rc )
 		return false;
 
+#if (DIRECT3D_VERSION >= 0x700)
+	rc = SUCCEEDED(TexturePages[pageIndex].vidMemSurface->Blt(NULL, TexturePages[pageIndex].sysMemSurface, NULL, DDBLT_WAIT, NULL));
+#else // (DIRECT3D_VERSION >= 0x700)
 	DDrawSurfaceRestoreLost(TexturePages[pageIndex].sysMemSurface, NULL, false);
 	LPDIRECT3DTEXTURE2 sysMemTexture = Create3DTexture(TexturePages[pageIndex].sysMemSurface);
 
@@ -411,6 +447,7 @@ bool __cdecl LoadTexturePage(int pageIndex, bool reset) {
 
 	rc = SUCCEEDED(TexturePages[pageIndex].texture3d->Load(sysMemTexture));
 	sysMemTexture->Release();
+#endif // (DIRECT3D_VERSION >= 0x700)
 
 	return rc;
 }
@@ -508,8 +545,12 @@ int __cdecl AddTexturePage16(int width, int height, BYTE *pageBuffer) {
 	return pageIndex;
 }
 
+#if (DIRECT3D_VERSION >= 0x700)
+HRESULT CALLBACK EnumTextureFormatsCallback(LPDDPIXELFORMAT lpDDPixFmt, LPVOID lpContext) {
+#else // (DIRECT3D_VERSION >= 0x700)
 HRESULT CALLBACK EnumTextureFormatsCallback(LPDDSDESC lpDdsd, LPVOID lpContext) {
 	LPDDPIXELFORMAT lpDDPixFmt = &lpDdsd->ddpfPixelFormat;
+#endif // (DIRECT3D_VERSION >= 0x700)
 
 	if( lpDDPixFmt->dwRGBBitCount < 8 )
 		return D3DENUMRET_OK;

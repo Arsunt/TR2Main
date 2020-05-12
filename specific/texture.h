@@ -48,7 +48,11 @@ bool __cdecl ReloadTextures(bool reset); // 0x004561E0
 HWR_TEXHANDLE __cdecl GetTexturePageHandle(int pageIndex); // 0x00456220
 int __cdecl AddTexturePage8(int width, int height, BYTE *pageBuffer, int palIndex); // 0x00456260
 int __cdecl AddTexturePage16(int width, int height, BYTE *pageBuffer); // 0x00456360
+#if (DIRECT3D_VERSION >= 0x700)
+HRESULT CALLBACK EnumTextureFormatsCallback(LPDDPIXELFORMAT lpDDPixFmt, LPVOID lpContext); // 0x00456500
+#else // (DIRECT3D_VERSION >= 0x700)
 HRESULT CALLBACK EnumTextureFormatsCallback(LPDDSDESC lpDdsd, LPVOID lpContext); // 0x00456500
+#endif // (DIRECT3D_VERSION >= 0x700)
 HRESULT __cdecl EnumerateTextureFormats(); // 0x00456620
 void __cdecl CleanupTextures(); // 0x00456650
 bool __cdecl InitTextures(); // 0x00456660

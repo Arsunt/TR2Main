@@ -34,26 +34,36 @@ extern HWR_TEXHANDLE GetEnvmapTextureHandle();
 #endif // FEATURE_HUD_IMPROVED
 
 void __cdecl HWR_InitState() {
-	DWORD filter, blend;
-
 	D3DDev->SetRenderState(D3DRENDERSTATE_FILLMODE, D3DFILL_SOLID);
 	D3DDev->SetRenderState(D3DRENDERSTATE_SHADEMODE, D3DSHADE_GOURAUD);
 	D3DDev->SetRenderState(D3DRENDERSTATE_CULLMODE, D3DCULL_NONE);
 	D3DDev->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
 	D3DDev->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
-	filter = SavedAppSettings.BilinearFiltering ? D3DFILTER_LINEAR : D3DFILTER_NEAREST;
-	blend = (CurrentDisplayAdapter.D3DHWDeviceDesc.dpcTriCaps.dwTextureBlendCaps & D3DPTBLENDCAPS_MODULATEALPHA) ? D3DTBLEND_MODULATEALPHA : D3DTBLEND_MODULATE;
-
-	D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREMAG, filter);
-	D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREMIN, filter);
-	D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREMAPBLEND, blend);
 	D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE, SavedAppSettings.PerspectiveCorrect ? TRUE : FALSE);
 	D3DDev->SetRenderState(D3DRENDERSTATE_DITHERENABLE, SavedAppSettings.Dither ? TRUE : FALSE);
 	AlphaBlendEnabler = CurrentDisplayAdapter.shadeRestricted ? D3DRENDERSTATE_STIPPLEDALPHA : D3DRENDERSTATE_ALPHABLENDENABLE;
 
+#if (DIRECT3D_VERSION >= 0x700)
+	DWORD filter = SavedAppSettings.BilinearFiltering ? D3DTFG_LINEAR : D3DTFG_POINT;
+	D3DDev->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+	D3DDev->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+	D3DDev->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+	D3DDev->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+	D3DDev->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+	D3DDev->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+	D3DDev->SetTextureStageState(0, D3DTSS_MAGFILTER, filter);
+	D3DDev->SetTextureStageState(0, D3DTSS_MINFILTER, filter);
+	D3DDev->SetTextureStageState(0, D3DTSS_ADDRESS, D3DTADDRESS_CLAMP);
+#else // (DIRECT3D_VERSION >= 0x700)
+	DWORD filter = SavedAppSettings.BilinearFiltering ? D3DFILTER_LINEAR : D3DFILTER_NEAREST;
+	DWORD blend = (CurrentDisplayAdapter.D3DHWDeviceDesc.dpcTriCaps.dwTextureBlendCaps & D3DPTBLENDCAPS_MODULATEALPHA) ? D3DTBLEND_MODULATEALPHA : D3DTBLEND_MODULATE;
+	D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREMAG, filter);
+	D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREMIN, filter);
+	D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREMAPBLEND, blend);
 	// NOTE: the next line is absent in the original game, but it fixes a texture bleeding in some cases
 	D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREADDRESS, D3DTADDRESS_CLAMP);
+#endif // (DIRECT3D_VERSION >= 0x700)
 
 	HWR_ResetTexSource();
 	HWR_ResetColorKey();
@@ -62,8 +72,12 @@ void __cdecl HWR_InitState() {
 
 void __cdecl HWR_ResetTexSource() {
 	CurrentTexSource = 0;
+#if (DIRECT3D_VERSION >= 0x700)
+	D3DDev->SetTexture(0, NULL);
+#else // (DIRECT3D_VERSION >= 0x700)
 	D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE, 0);
 	D3DDev->SetRenderState(D3DRENDERSTATE_FLUSHBATCH, 0);
+#endif // (DIRECT3D_VERSION >= 0x700)
 }
 
 void __cdecl HWR_ResetColorKey() {
@@ -86,7 +100,11 @@ void __cdecl HWR_ResetZBuffer() {
 
 void __cdecl HWR_TexSource(HWR_TEXHANDLE texSource) {
 	if( CurrentTexSource != texSource ) {
+#if (DIRECT3D_VERSION >= 0x700)
+		D3DDev->SetTexture(0, texSource);
+#else // (DIRECT3D_VERSION >= 0x700)
 		D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE, texSource);
+#endif // (DIRECT3D_VERSION >= 0x700)
 		CurrentTexSource = texSource;
 	}
 }

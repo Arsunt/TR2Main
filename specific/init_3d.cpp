@@ -31,7 +31,11 @@ void __cdecl Enumerate3DDevices(DISPLAY_ADAPTER *adapter) {
 }
 
 bool __cdecl D3DCreate() {
+#if (DIRECT3D_VERSION >= 0x700)
+	return SUCCEEDED(DDraw->QueryInterface(IID_IDirect3D7, (LPVOID *)&D3D));
+#else // (DIRECT3D_VERSION >= 0x700)
 	return SUCCEEDED(DDraw->QueryInterface(IID_IDirect3D2, (LPVOID *)&D3D));
+#endif // (DIRECT3D_VERSION >= 0x700)
 }
 
 void __cdecl D3DRelease() {
@@ -41,6 +45,33 @@ void __cdecl D3DRelease() {
 	}
 }
 
+#if (DIRECT3D_VERSION >= 0x700)
+HRESULT CALLBACK Enum3DDevicesCallback(LPTSTR lpDeviceDescription, LPTSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpContext) {
+	DISPLAY_ADAPTER *adapter = (DISPLAY_ADAPTER *)lpContext;
+
+	if( lpD3DDeviceDesc && D3DIsSupported(lpD3DDeviceDesc) ) {
+		adapter->hwRenderSupported = true;
+		adapter->deviceGuid = lpD3DDeviceDesc->deviceGUID;
+		adapter->D3DHWDeviceDesc = *lpD3DDeviceDesc;
+
+		adapter->perspectiveCorrectSupported = (lpD3DDeviceDesc->dpcTriCaps.dwTextureCaps & D3DPTEXTURECAPS_PERSPECTIVE)? true:false;
+		adapter->ditherSupported = (lpD3DDeviceDesc->dpcTriCaps.dwRasterCaps & D3DPRASTERCAPS_DITHER)? true:false;
+		adapter->zBufferSupported = (lpD3DDeviceDesc->dwDeviceZBufferBitDepth)? true:false;
+		adapter->linearFilterSupported = (lpD3DDeviceDesc->dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_LINEAR)? true:false;
+		adapter->shadeRestricted = (lpD3DDeviceDesc->dpcTriCaps.dwShadeCaps & (D3DPSHADECAPS_ALPHAGOURAUDBLEND|D3DPSHADECAPS_ALPHAFLATBLEND))? false:true;
+	}
+	return D3DENUMRET_OK;
+}
+
+bool __cdecl D3DIsSupported(LPD3DDEVICEDESC7 desc) {
+	if( (desc->dpcTriCaps.dwShadeCaps & D3DPSHADECAPS_COLORGOURAUDRGB) &&
+		(desc->dpcTriCaps.dwTextureBlendCaps & D3DPTBLENDCAPS_MODULATE) )
+	{
+		return true;
+	}
+	return false;
+}
+#else // (DIRECT3D_VERSION >= 0x700)
 HRESULT CALLBACK Enum3DDevicesCallback(GUID FAR* lpGuid, LPTSTR lpDeviceDescription, LPTSTR lpDeviceName, LPD3DDEVICEDESC lpD3DHWDeviceDesc, LPD3DDEVICEDESC lpD3DHELDeviceDesc, LPVOID lpContext) {
 	DISPLAY_ADAPTER *adapter = (DISPLAY_ADAPTER *)lpContext;
 
@@ -69,38 +100,59 @@ bool __cdecl D3DIsSupported(LPD3DDEVICEDESC desc) {
 	}
 	return false;
 }
+#endif // (DIRECT3D_VERSION >= 0x700)
 
 bool __cdecl D3DSetViewport() {
+#if (DIRECT3D_VERSION >= 0x700)
+	D3DVIEWPORT7 viewPort;
+#else // (DIRECT3D_VERSION >= 0x700)
 	D3DVIEWPORT2 viewPort;
 
 	viewPort.dwSize = sizeof(D3DVIEWPORT2);
+	viewPort.dvClipX = 0.0;
+	viewPort.dvClipY = 0.0;
+	viewPort.dvClipWidth = (float)GameVidWidth;
+	viewPort.dvClipHeight = (float)GameVidHeight;
+#endif // (DIRECT3D_VERSION >= 0x700)
+
 	viewPort.dwX = 0;
 	viewPort.dwY = 0;
 	viewPort.dwWidth = GameVidWidth;
 	viewPort.dwHeight = GameVidHeight;
 
-	viewPort.dvClipX = 0.0;
-	viewPort.dvClipY = 0.0;
-	viewPort.dvClipWidth = (float)GameVidWidth;
-	viewPort.dvClipHeight = (float)GameVidHeight;
 	viewPort.dvMinZ = 0.0;
 	viewPort.dvMaxZ = 1.0;
 
+#if (DIRECT3D_VERSION >= 0x700)
+	return SUCCEEDED(D3DDev->SetViewport(&viewPort));
+#else // (DIRECT3D_VERSION >= 0x700)
 	if FAILED(D3DView->SetViewport2(&viewPort)) {
 		D3DView->GetViewport2(&viewPort);
 		return false;
 	}
 
 	return SUCCEEDED(D3DDev->SetCurrentViewport(D3DView));
+#endif // (DIRECT3D_VERSION >= 0x700)
 }
 
 void __cdecl D3DDeviceCreate(LPDDS lpBackBuffer) {
-	D3DMATERIAL matData;
-	D3DMATERIALHANDLE matHandle;
-
-	if( !D3DCreate() )
+	if( D3D == NULL && !D3DCreate() )
 		throw ERR_D3D_Create;
 
+#if (DIRECT3D_VERSION >= 0x700)
+	if FAILED(D3D->CreateDevice(IID_IDirect3DHALDevice, lpBackBuffer, &D3DDev))
+		throw ERR_CreateDevice;
+
+	if FAILED(!D3DSetViewport())
+		throw ERR_SetViewport2;
+
+	D3DMATERIAL7 matData;
+	memset(&matData, 0, sizeof(matData));
+
+	if FAILED(D3DDev->SetMaterial(&matData))
+		throw ERR_CreateViewport;
+
+#else // (DIRECT3D_VERSION >= 0x700)
 	if FAILED(D3D->CreateDevice(IID_IDirect3DHALDevice, (LPDIRECTDRAWSURFACE)lpBackBuffer, &D3DDev))
 		throw ERR_CreateDevice;
 
@@ -116,8 +168,10 @@ void __cdecl D3DDeviceCreate(LPDDS lpBackBuffer) {
 	if FAILED(D3D->CreateMaterial(&D3DMaterial, NULL))
 		throw ERR_CreateViewport;
 
-	memset(&matData, 0, sizeof(D3DMATERIAL));
-	matData.dwSize = sizeof(D3DMATERIAL);
+	D3DMATERIAL matData;
+	D3DMATERIALHANDLE matHandle;
+	memset(&matData, 0, sizeof(matData));
+	matData.dwSize = sizeof(matData);
 
 	if FAILED(D3DMaterial->SetMaterial(&matData))
 		throw ERR_CreateViewport;
@@ -127,9 +181,11 @@ void __cdecl D3DDeviceCreate(LPDDS lpBackBuffer) {
 
 	if FAILED(D3DView->SetBackground(matHandle))
 		throw ERR_CreateViewport;
+#endif // (DIRECT3D_VERSION >= 0x700)
 }
 
 void __cdecl Direct3DRelease() {
+#if (DIRECT3D_VERSION < 0x700)
 	if( D3DMaterial != NULL ) {
 		D3DMaterial->Release();
 		D3DMaterial = NULL;
@@ -138,6 +194,7 @@ void __cdecl Direct3DRelease() {
 		D3DView->Release();
 		D3DView = NULL;
 	}
+#endif // (DIRECT3D_VERSION < 0x700)
 	if( D3DDev != NULL ) {
 		D3DDev->Release();
 		D3DDev = NULL;
