@@ -24,7 +24,34 @@
 #include "game/items.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+extern DWORD AlphaBlendMode;
+#endif // FEATURE_VIDEOFX_IMPROVED
+
 __int16 __cdecl GunShot(int x, int y, int z, __int16 speed, __int16 rotY, __int16 room_number) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	if( AlphaBlendMode ) {
+		__int16 fx_id = CreateEffect(room_number);
+		if( fx_id >= 0) {
+			FX_INFO *fx = &Effects[fx_id];
+			fx->pos.x = x;
+			fx->pos.y = y;
+			fx->pos.z = z;
+			fx->room_number = room_number;
+			fx->counter = 4;
+			fx->speed = 0x400;
+			fx->frame_number = 0x200; // this is sprite scale
+			fx->fallspeed = 0;
+			fx->object_number = ID_GLOW;
+			fx->shade = 0x800;
+			// NOTE: Core's hacky way to store the sprite flags in the rotation fields
+			DWORD flags = RGB_MAKE(0x7F,0x70,0x1F);
+			flags |= SPR_BLEND_ADD|SPR_TINT|SPR_SHADE|SPR_SCALE|SPR_SEMITRANS|SPR_ABS;
+			fx->pos.rotX=(UINT16)flags;
+			fx->pos.rotY=(UINT16)(flags >> 16);
+		}
+	}
+#endif // FEATURE_VIDEOFX_IMPROVED
 	__int16 fx_id = CreateEffect(room_number);
 	if( fx_id >= 0 ) {
 		FX_INFO *fx = &Effects[fx_id];
