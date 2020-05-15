@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -120,7 +120,11 @@ void __cdecl S_DrawSprite(DWORD flags, int x, int y, int z, __int16 spriteIdx, _
 		shade = 0x1000;
 	}
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	ins_sprite(zv, x1, y1, x2, y2, spriteIdx, shade, flags);
+#else // FEATURE_VIDEOFX_IMPROVED
 	ins_sprite(zv, x1, y1, x2, y2, spriteIdx, shade);
+#endif // FEATURE_VIDEOFX_IMPROVED
 }
 
 void __cdecl S_DrawPickup(int sx, int sy, int scale, __int16 spriteIdx, __int16 shade) {
@@ -135,8 +139,13 @@ void __cdecl S_DrawPickup(int sx, int sy, int scale, __int16 spriteIdx, __int16 
 	y1 = sy + (PhdSpriteInfo[spriteIdx].y1 * scale / PHD_ONE);
 	y2 = sy + (PhdSpriteInfo[spriteIdx].y2 * scale / PHD_ONE);
 
-	if( x2 >= 0 && y2 >= 0 && x1 < PhdWinWidth && y1 < PhdWinHeight )
+	if( x2 >= 0 && y2 >= 0 && x1 < PhdWinWidth && y1 < PhdWinHeight ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		ins_sprite(200, x1, y1, x2, y2, spriteIdx, shade, 0);
+#else // FEATURE_VIDEOFX_IMPROVED
 		ins_sprite(200, x1, y1, x2, y2, spriteIdx, shade);
+#endif // FEATURE_VIDEOFX_IMPROVED
+	}
 }
 
 __int16 *__cdecl ins_room_sprite(__int16 *ptrObj, int vtxCount) {
@@ -156,8 +165,13 @@ __int16 *__cdecl ins_room_sprite(__int16 *ptrObj, int vtxCount) {
 			x2 = (int)((vbuf->xv + (double)((int)sprite->x2 << W2V_SHIFT)) / zp) + PhdWinCenterX;
 			y2 = (int)((vbuf->yv + (double)((int)sprite->y2 << W2V_SHIFT)) / zp) + PhdWinCenterY;
 
-			if( x2 >= PhdWinLeft && y2 >= PhdWinTop && x1 < PhdWinRight && y1 < PhdWinBottom )
+			if( x2 >= PhdWinLeft && y2 >= PhdWinTop && x1 < PhdWinRight && y1 < PhdWinBottom ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+				ins_sprite((int)vbuf->zv, x1, y1, x2, y2, ptrObj[1], vbuf->g, 0);
+#else // FEATURE_VIDEOFX_IMPROVED
 				ins_sprite((int)vbuf->zv, x1, y1, x2, y2, ptrObj[1], vbuf->g);
+#endif // FEATURE_VIDEOFX_IMPROVED
+			}
 		}
 		ptrObj += 2;
 	}
@@ -174,8 +188,13 @@ void __cdecl S_DrawScreenSprite2d(int sx, int sy, int sz, int scaleH, int scaleV
 	y2 = sy + sprite->y2 * scaleV / PHD_ONE;
 	z = PhdNearZ + sz * 8;
 
-	if( x2 >= 0 && y2 >= 0 && x1 < PhdWinWidth && y1 < PhdWinHeight )
+	if( x2 >= 0 && y2 >= 0 && x1 < PhdWinWidth && y1 < PhdWinHeight ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		ins_sprite(z, x1, y1, x2, y2, spriteIdx, shade, 0);
+#else // FEATURE_VIDEOFX_IMPROVED
 		ins_sprite(z, x1, y1, x2, y2, spriteIdx, shade);
+#endif // FEATURE_VIDEOFX_IMPROVED
+	}
 }
 
 void __cdecl S_DrawScreenSprite(int sx, int sy, int sz, int scaleH, int scaleV, __int16 spriteIdx, __int16 shade, UINT16 flags) {
@@ -188,8 +207,13 @@ void __cdecl S_DrawScreenSprite(int sx, int sy, int sz, int scaleH, int scaleV, 
 	y2 = sy + (sprite->y2 / 8) * scaleV / PHD_ONE;
 	z = sz * 8;
 
-	if( x2 >= 0 && y2 >= 0 && x1 < PhdWinWidth && y1 < PhdWinHeight )
+	if( x2 >= 0 && y2 >= 0 && x1 < PhdWinWidth && y1 < PhdWinHeight ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		ins_sprite(z, x1, y1, x2, y2, spriteIdx, shade, 0);
+#else // FEATURE_VIDEOFX_IMPROVED
 		ins_sprite(z, x1, y1, x2, y2, spriteIdx, shade);
+#endif // FEATURE_VIDEOFX_IMPROVED
+	}
 }
 
 void __cdecl draw_scaled_spriteC(__int16 *ptrObj) {

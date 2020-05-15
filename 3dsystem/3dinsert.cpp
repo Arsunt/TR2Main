@@ -26,6 +26,7 @@
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
 extern DWORD ShadowMode;
+extern DWORD AlphaBlendMode;
 extern HWR_TEXHANDLE GetEnvmapTextureHandle();
 #endif // FEATURE_VIDEOFX_IMPROVED
 
@@ -2481,7 +2482,11 @@ __int16 *__cdecl InsertObjectG3_Sorted(__int16 *ptrObj, int number, SORTTYPE sor
 	return ptrObj;
 }
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade, DWORD flags) {
+#else // FEATURE_VIDEOFX_IMPROVED
 void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade) {
+#endif // FEATURE_VIDEOFX_IMPROVED
 	double rhw, u0, v0, u1, v1;
 	int uOffset, vOffset, nPoints;
 
@@ -2541,7 +2546,25 @@ void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spri
 	}
 
 	IsShadeEffect = 0;
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	short polyType = POLY_HWR_WGTmap;
+	if( CHK_ANY(flags, SPR_TINT) ) {
+		GlobalTint = RGBA_SETALPHA(flags, 0xFF);
+	}
+	if( AlphaBlendMode && CHK_ANY(flags, SPR_SEMITRANS) ) {
+		short blend[4] = {
+			POLY_HWR_WGTmapHalf,
+			POLY_HWR_WGTmapAdd,
+			POLY_HWR_WGTmapSub,
+			POLY_HWR_WGTmapQrt,
+		};
+		polyType = blend[(flags & SPR_BLEND) >> 29];
+	}
+	InsertClippedPoly_Textured(nPoints, (float)z, polyType, PhdSpriteInfo[spriteIdx].texPage);
+	GlobalTint = 0;
+#else // FEATURE_VIDEOFX_IMPROVED
 	InsertClippedPoly_Textured(nPoints, (float)z, POLY_HWR_WGTmap, PhdSpriteInfo[spriteIdx].texPage);
+#endif // FEATURE_VIDEOFX_IMPROVED
 }
 
 void __cdecl InsertFlatRect_Sorted(int x0, int y0, int x1, int y1, int z, BYTE colorIdx) {
@@ -2717,7 +2740,11 @@ void __cdecl InsertTransQuad_Sorted(int x, int y, int width, int height, int z) 
 	++SurfaceCount;
 }
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+void __cdecl InsertSprite(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade, DWORD flags) {
+#else // FEATURE_VIDEOFX_IMPROVED
 void __cdecl InsertSprite(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade) {
+#endif // FEATURE_VIDEOFX_IMPROVED
 	Sort3dPtr->_0 = (int)Info3dPtr;
 	Sort3dPtr->_1 = z;
 	++Sort3dPtr;

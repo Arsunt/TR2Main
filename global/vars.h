@@ -46,7 +46,11 @@
 #define ins_trans_quad		(*(void(__cdecl **)(int,int,int,int,int))				0x00470318)
 #define ins_poly_trans8		(*(void(__cdecl **)(PHD_VBUF*,__int16))					0x0047032C)
 #define ins_flat_rect		(*(void(__cdecl **)(int,int,int,int,int,BYTE))			0x0047805C)
+#ifdef FEATURE_VIDEOFX_IMPROVED
+#define ins_sprite			(*(void(__cdecl **)(int,int,int,int,int,int,__int16,DWORD))	0x004B2A10)
+#else // FEATURE_VIDEOFX_IMPROVED
 #define ins_sprite			(*(void(__cdecl **)(int,int,int,int,int,int,__int16))	0x004B2A10)
+#endif // FEATURE_VIDEOFX_IMPROVED
 #define ins_objectGT3		(*(__int16*(__cdecl **)(__int16*,int,SORTTYPE))			0x004B2A1C)
 #define ins_objectGT4		(*(__int16*(__cdecl **)(__int16*,int,SORTTYPE))			0x004B2A20)
 #define ins_line			(*(void(__cdecl **)(int,int,int,int,int,BYTE))			0x004B2AE8)

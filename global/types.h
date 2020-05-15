@@ -211,10 +211,16 @@ typedef struct {
 #define SFX_ALWAYS			(2)
 
 // Sprite flags
+#define SPR_RGB			(0x00FFFFFF)
 #define SPR_ABS			(0x01000000)
 #define SPR_SEMITRANS	(0x02000000)
 #define SPR_SCALE		(0x04000000)
 #define SPR_SHADE		(0x08000000)
+#define SPR_TINT		(0x10000000)
+#define SPR_BLEND_ADD	(0x20000000)
+#define SPR_BLEND_SUB	(0x40000000)
+#define SPR_BLEND_QRT	(SPR_BLEND_ADD|SPR_BLEND_SUB)
+#define SPR_BLEND		(SPR_BLEND_QRT)
 
 // Item flags
 #define IFL_INVISIBLE	(0x0100)
