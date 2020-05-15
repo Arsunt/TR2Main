@@ -700,6 +700,12 @@ typedef enum {
 	POLY_HWR_gouraud,	// gouraud shaded poly (color)
 	POLY_HWR_line,		// line (color)
 	POLY_HWR_trans,		// shadow poly (color + semitransparent)
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	POLY_HWR_WGTmapHalf,// semitransparent gouraud shaded poly (texture + colorkey)
+	POLY_HWR_WGTmapAdd,	// additive blended gouraud shaded poly (texture + colorkey)
+	POLY_HWR_WGTmapSub,	// subtractive blended gouraud shaded poly (texture + colorkey)
+	POLY_HWR_WGTmapQrt,	// quarter blended gouraud shaded poly (texture + colorkey)
+#endif // FEATURE_VIDEOFX_IMPROVED
 #ifdef FEATURE_HUD_IMPROVED
 	POLY_HWR_healthbar,	// health bar
 	POLY_HWR_airbar,	// air bar

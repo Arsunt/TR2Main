@@ -25,13 +25,72 @@
 #include "specific/texture.h"
 #include "global/vars.h"
 
-#ifdef FEATURE_VIDEOFX_IMPROVED
-extern HWR_TEXHANDLE GetEnvmapTextureHandle();
-#endif // FEATURE_VIDEOFX_IMPROVED
-
 #ifdef FEATURE_HUD_IMPROVED
 #include "modding/psx_bar.h"
 #endif // FEATURE_HUD_IMPROVED
+
+#ifdef FEATURE_VIDEOFX_IMPROVED
+extern HWR_TEXHANDLE GetEnvmapTextureHandle();
+
+DWORD AlphaBlendMode = 0;
+
+typedef struct {
+	D3DBLEND src;
+	D3DBLEND dst;
+	BYTE alpha;
+} BLEND_PARAM;
+
+static BLEND_PARAM BasicBlend[4] = {
+	{D3DBLEND_SRCALPHA, D3DBLEND_INVSRCALPHA, 128},
+	{D3DBLEND_ONE, D3DBLEND_ONE, 255},
+	{D3DBLEND_ZERO, D3DBLEND_INVSRCCOLOR, 255},
+	{D3DBLEND_INVSRCALPHA, D3DBLEND_ONE, 192},
+};
+
+static BLEND_PARAM AdvancedBlend[4][2] = {
+	{{D3DBLEND_ONE, D3DBLEND_SRCALPHA,		128}, {D3DBLEND_SRCALPHA, D3DBLEND_ONE,		128}},
+	{{D3DBLEND_ONE, D3DBLEND_SRCALPHA,		255}, {D3DBLEND_SRCALPHA, D3DBLEND_ONE,		255}},
+	{{D3DBLEND_ZERO, D3DBLEND_INVSRCCOLOR,	255}, {D3DBLEND_ZERO, D3DBLEND_INVSRCCOLOR,	255}},
+	{{D3DBLEND_SRCALPHA, D3DBLEND_ONE,		128}, {D3DBLEND_INVSRCALPHA, D3DBLEND_ONE,	255}},
+};
+
+static void SetBlendMode(D3DTLVERTEX *vtxPtr, DWORD vtxCount, DWORD mode, DWORD pass) {
+	if( mode >= 4 || pass >= 2 ) return;
+	BLEND_PARAM *blend = (AlphaBlendMode == 2) ? &AdvancedBlend[mode][pass] : &BasicBlend[mode];
+	if( vtxPtr ) {
+		for( DWORD i = 0; i < vtxCount; ++i ) {
+			// divide RGB by 2 if it's a first pass of an advanced blending
+			if( AlphaBlendMode == 2 && pass == 0 ) {
+				vtxPtr[i].color = (vtxPtr[i].color & 0xFEFEFE) >> 1;
+			}
+			// set alpha
+			vtxPtr[i].color = RGBA_SETALPHA(vtxPtr[i].color, blend->alpha);
+		}
+	}
+	D3DDev->SetRenderState(D3DRENDERSTATE_SRCBLEND, blend->src);
+	D3DDev->SetRenderState(D3DRENDERSTATE_DESTBLEND, blend->dst);
+}
+
+static void DrawAlphaBlended(D3DTLVERTEX *vtxPtr, DWORD vtxCount, DWORD mode) {
+	// set render states
+	D3DDev->SetRenderState(D3DRENDERSTATE_ALPHAREF, 0x70);
+	D3DDev->SetRenderState(D3DRENDERSTATE_ALPHAFUNC, D3DCMP_GREATER);
+	D3DDev->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+	// do blending
+	SetBlendMode(vtxPtr, vtxCount, mode, 0);
+	D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+	if( AlphaBlendMode == 2 ) {
+		SetBlendMode(vtxPtr, vtxCount, mode, 1);
+		D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+	}
+	// return render states to default values
+	D3DDev->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+	D3DDev->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	D3DDev->SetRenderState(D3DRENDERSTATE_ALPHAREF, 0);
+	D3DDev->SetRenderState(D3DRENDERSTATE_ALPHAFUNC, D3DCMP_ALWAYS);
+	D3DDev->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+}
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 void __cdecl HWR_InitState() {
 	D3DDev->SetRenderState(D3DRENDERSTATE_FILLMODE, D3DFILL_SOLID);
@@ -170,7 +229,23 @@ void __cdecl HWR_DrawPolyList() {
 			continue;
 		}
 #endif // FEATURE_HUD_IMPROVED
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		switch( polyType ) {
+			case POLY_HWR_GTmap:
+			case POLY_HWR_WGTmap:
+			case POLY_HWR_WGTmapHalf:
+			case POLY_HWR_WGTmapAdd:
+			case POLY_HWR_WGTmapSub:
+			case POLY_HWR_WGTmapQrt:
+				texPage = *(bufPtr++);
+				break;
+			default:
+				texPage = 0;
+				break;
+		}
+#else // !FEATURE_VIDEOFX_IMPROVED
 		texPage = ( polyType == POLY_HWR_GTmap || polyType == POLY_HWR_WGTmap ) ? *(bufPtr++) : 0;
+#endif // !FEATURE_VIDEOFX_IMPROVED
 		vtxCount = *(bufPtr++);
 		vtxPtr = *(D3DTLVERTEX **)bufPtr;
 
@@ -178,12 +253,22 @@ void __cdecl HWR_DrawPolyList() {
 			case POLY_HWR_GTmap: // triangle fan (texture)
 			case POLY_HWR_WGTmap: // triangle fan (texture + colorkey)
 #ifdef FEATURE_VIDEOFX_IMPROVED
+			case POLY_HWR_WGTmapHalf: // triangle fan (texture + colorkey + PSX half blend)
+			case POLY_HWR_WGTmapAdd: // triangle fan (texture + colorkey + PSX additive blend)
+			case POLY_HWR_WGTmapSub: // triangle fan (texture + colorkey + PSX subtractive blend)
+			case POLY_HWR_WGTmapQrt: // triangle fan (texture + colorkey + PSX quarter blend)
 				HWR_TexSource(texPage == (UINT16)~0 ? GetEnvmapTextureHandle() : HWR_PageHandles[texPage]);
+				HWR_EnableColorKey(polyType != POLY_HWR_GTmap);
+				if( AlphaBlendMode == 0 || polyType == POLY_HWR_GTmap || polyType == POLY_HWR_WGTmap ) {
+					D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+				} else {
+					DrawAlphaBlended(vtxPtr, vtxCount, polyType-POLY_HWR_WGTmapHalf);
+				}
 #else // !FEATURE_VIDEOFX_IMPROVED
 				HWR_TexSource(HWR_PageHandles[texPage]);
-#endif // !FEATURE_VIDEOFX_IMPROVED
 				HWR_EnableColorKey(polyType == POLY_HWR_WGTmap);
 				D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+#endif // !FEATURE_VIDEOFX_IMPROVED
 				break;
 
 			case POLY_HWR_gouraud: // triangle fan (color)

@@ -54,6 +54,7 @@
 #define REG_SHADOW_MODE			"ShadowMode"
 #define REG_REFLECTION_MODE		"ReflectionMode"
 #define REG_REFLECTION_BLUR		"ReflectionBlur"
+#define REG_ALPHABLEND_MODE		"AlphaBlendMode"
 #define REG_INVTEXTBOX_MODE		"InvTextBoxMode"
 #define REG_HEALTHBAR_MODE		"HealthBarMode"
 #define REG_SCREENSHOT_FORMAT	"ScreenshotFormat"
