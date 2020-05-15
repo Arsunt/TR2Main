@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -21,9 +21,27 @@
 
 #include "global/precompiled.h"
 #include "game/people.h"
+#include "game/items.h"
 #include "global/vars.h"
 
-
+__int16 __cdecl GunShot(int x, int y, int z, __int16 speed, __int16 rotY, __int16 room_number) {
+	__int16 fx_id = CreateEffect(room_number);
+	if( fx_id >= 0 ) {
+		FX_INFO *fx = &Effects[fx_id];
+		fx->pos.x = x;
+		fx->pos.y = y;
+		fx->pos.z = z;
+		fx->room_number = room_number;
+		fx->pos.rotZ = 0;
+		fx->pos.rotX = 0;
+		fx->pos.rotY = rotY;
+		fx->counter = 3;
+		fx->frame_number = 0;
+		fx->object_number = ID_GUN_FLASH;
+		fx->shade = 0x1000;
+	}
+	return fx_id;
+}
 
 /*
  * Inject function
@@ -32,7 +50,9 @@ void Inject_People() {
 //	INJECT(0x00435EB0, Targetable);
 //	INJECT(0x00435F40, ControlGlow);
 //	INJECT(0x00435F80, ControlGunShot);
-//	INJECT(0x00435FD0, GunShot);
+
+	INJECT(0x00435FD0, GunShot);
+
 //	INJECT(0x00436040, GunHit);
 //	INJECT(0x00436100, GunMiss);
 //	INJECT(0x004361B0, ShotLara);

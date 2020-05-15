@@ -465,7 +465,7 @@ x function is unused / included in another function
 0x004271B0:		ItemNewRoom
 0x00427250:	+	GlobalItemReplace
 0x004272D0:		InitialiseFXArray
-0x00427300:		CreateEffect
+0x00427300:	 *	CreateEffect
 0x00427370:		KillEffect
 0x00427460:		EffectNewRoom
 0x00427500:		ClearBodyBag
@@ -806,7 +806,7 @@ x function is unused / included in another function
 0x00435EB0:		Targetable
 0x00435F40:		ControlGlow
 0x00435F80:		ControlGunShot
-0x00435FD0:		GunShot
+0x00435FD0:	+	GunShot
 0x00436040:		GunHit
 0x00436100:		GunMiss
 0x004361B0:		ShotLara
