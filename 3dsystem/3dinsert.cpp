@@ -64,6 +64,18 @@ static D3DCOLOR shadeColor(DWORD red, DWORD green, DWORD blue, DWORD alpha, DWOR
 }
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
+static POLYTYPE GetPolyType(UINT16 drawtype) {
+	switch( drawtype ) {
+		case DRAW_Opaque:
+			return POLY_HWR_GTmap;
+		case DRAW_Semitrans:
+			return AlphaBlendMode ? POLY_HWR_WGTmapHalf : POLY_HWR_WGTmap;
+		case DRAW_ColorKey:
+			return POLY_HWR_WGTmap;
+	}
+	return POLY_HWR_WGTmap;
+}
+
 bool InsertObjectEM(__int16 *ptrObj, int vtxCount, D3DCOLOR tint, PHD_UV *em_uv) {
 	PHD_VBUF *vtx[4];
 	PHD_TEXTURE texture;
@@ -1937,7 +1949,11 @@ void __cdecl InsertGT3_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PH
 			Sort3dPtr->_1 = (int)zv;
 			++Sort3dPtr;
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+			*Info3dPtr++ = GetPolyType(texture->drawtype);
+#else // FEATURE_VIDEOFX_IMPROVED
 			*Info3dPtr++ = ( texture->drawtype == DRAW_Opaque ) ? POLY_HWR_GTmap : POLY_HWR_WGTmap;
+#endif // FEATURE_VIDEOFX_IMPROVED
 			*Info3dPtr++ = texture->tpage;
 			*Info3dPtr++ = 3;
 			*(D3DTLVERTEX **)Info3dPtr = HWR_VertexPtr;
@@ -2051,7 +2067,11 @@ void __cdecl InsertGT3_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PH
 			break;
 	}
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	InsertClippedPoly_Textured(nPoints, zv, GetPolyType(texture->drawtype), texture->tpage);
+#else // FEATURE_VIDEOFX_IMPROVED
 	InsertClippedPoly_Textured(nPoints, zv, ( texture->drawtype == DRAW_Opaque ) ? POLY_HWR_GTmap : POLY_HWR_WGTmap, texture->tpage);
+#endif // FEATURE_VIDEOFX_IMPROVED
 }
 
 void __cdecl InsertClippedPoly_Textured(int vtxCount, float z, __int16 polyType, __int16 texPage) {
@@ -2118,8 +2138,11 @@ void __cdecl InsertGT4_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PH
 		Sort3dPtr->_0 = (int)Info3dPtr;
 		Sort3dPtr->_1 = (int)zv;
 		++Sort3dPtr;
-
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		*Info3dPtr++ = GetPolyType(texture->drawtype);
+#else // FEATURE_VIDEOFX_IMPROVED
 		*Info3dPtr++ = ( texture->drawtype == DRAW_Opaque ) ? POLY_HWR_GTmap : POLY_HWR_WGTmap;
+#endif // FEATURE_VIDEOFX_IMPROVED
 		*Info3dPtr++ = texture->tpage;
 		*Info3dPtr++ = 4;
 		*(D3DTLVERTEX **)Info3dPtr = HWR_VertexPtr;

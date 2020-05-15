@@ -687,6 +687,7 @@ typedef enum {
 typedef enum {
 	DRAW_Opaque,
 	DRAW_ColorKey,
+	DRAW_Semitrans, // NOTE: semitrans is not presented in the original code
 } DRAWTYPE;
 
 typedef enum {

@@ -46,6 +46,91 @@
 extern bool IsGold();
 #endif
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+// Filter is presented by an array of poly index and polys number (starting from the index).
+// The filter is always terminated by an index 0.
+// If the first item has index=~0 then there are no semitransparent polys.
+// If the first item has index=0 and number=0 then all polys are semitransparent.
+#define FILTER_SIZE 256
+typedef struct {UINT16 idx; UINT16 num;} POLYINDEX;
+typedef struct {
+	POLYINDEX gt4[FILTER_SIZE];
+	POLYINDEX gt3[FILTER_SIZE];
+} SEMITRANS_FILTER;
+
+static __int16 *MarkSemitransPolys(__int16 *ptrObj, int vtxCount, POLYINDEX *filter) {
+	int polyNumber = *ptrObj++;
+	if( filter == NULL || (!filter[0].idx && !filter[0].num) ) {
+		// mark all textures semitransparent
+		for( int i = 0; i < polyNumber; ++i ) {
+			ptrObj += vtxCount;
+			PhdTextureInfo[*ptrObj++].drawtype = DRAW_Semitrans;
+		}
+	} else {
+		int polyIndex = 0;
+		for( int i=0; i<FILTER_SIZE; i++ ) {
+			if( filter[i].idx < polyIndex || filter[i].idx >= polyNumber ) {
+				break;
+			}
+			int skip = filter[i].idx - polyIndex;
+			if( skip > 0 ) {
+				ptrObj += skip*(vtxCount+1);
+				polyIndex += skip;
+			}
+			int number = MIN(filter[i].num, polyNumber - polyIndex);
+			for( int j = 0; j < number; ++j ) {
+				ptrObj += vtxCount;
+				PhdTextureInfo[*ptrObj++].drawtype = DRAW_Semitrans;
+			}
+			polyIndex += number;
+		}
+		ptrObj += (polyNumber-polyIndex)*(vtxCount+1);
+	}
+
+	return ptrObj;
+}
+
+static void MarkSemitransMesh(int objID, int meshIdx, SEMITRANS_FILTER *filter) {
+	OBJECT_INFO *obj = &Objects[objID];
+	if( !obj->loaded || meshIdx >= obj->nMeshes ) return;
+
+	__int16 num;
+	__int16 *ptrObj = MeshPtr[obj->meshIndex + meshIdx];
+
+	ptrObj += 5; // skip x, y, z, radius, flags
+	num = *(ptrObj++); // get vertex counter
+	ptrObj += num * 3; // skip vertices
+	num = *(ptrObj++); // get normal counter
+	if( num <= 0 ) {
+		ptrObj += ABS(num); // skip shades
+	} else {
+		ptrObj += num * 3; // skip normals
+	}
+	ptrObj = MarkSemitransPolys(ptrObj, 4, filter ? filter->gt4 : NULL); // mark textured quads
+	ptrObj = MarkSemitransPolys(ptrObj, 3, filter ? filter->gt3 : NULL); // mark textured triangles
+	// there may be colored polys, but we don't need them
+}
+
+static void MarkSemitransObjects() {
+	static SEMITRANS_FILTER SkidooFastFilter = {
+		.gt4 = {{(UINT16)~0, 0}}, // no quads
+		.gt3 = {{48, 4}, {54, 18}, {73, 6}, {0, 0}},
+	};
+	static SEMITRANS_FILTER DetailOptionFilter = {
+		.gt4 = {{23, 8}, {44, 8}, {0, 0}},
+		.gt3 = {{0, 0}}, // all triangles
+	};
+	MarkSemitransMesh(ID_SKIDOO_FAST, 0, &SkidooFastFilter);
+	MarkSemitransMesh(ID_DETAIL_OPTION, 0, &DetailOptionFilter);
+	MarkSemitransMesh(ID_SPHERE_OF_DOOM1, 0, NULL);
+	MarkSemitransMesh(ID_SPHERE_OF_DOOM2, 0, NULL);
+	MarkSemitransMesh(ID_FLARE_FIRE, 0, NULL);
+	MarkSemitransMesh(ID_GUN_FLASH, 0, NULL);
+	MarkSemitransMesh(ID_M16_FLASH, 0, NULL);
+}
+#endif // FEATURE_VIDEOFX_IMPROVED
+
+
 static GF_LEVEL_TYPE LoadLevelType = GFL_NOLEVEL;
 
 BOOL __cdecl ReadFileSync(HANDLE hFile, LPVOID lpBuffer, DWORD nBytesToRead, LPDWORD lpnBytesRead, LPOVERLAPPED lpOverlapped) {
@@ -800,6 +885,9 @@ BOOL __cdecl LoadLevel(LPCTSTR fileName, int levelID) {
 	}
 
 	LoadDemoExternal(fullPath);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	MarkSemitransObjects();
+#endif // FEATURE_VIDEOFX_IMPROVED
 	result = TRUE;
 
 EXIT :
