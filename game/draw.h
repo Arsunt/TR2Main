@@ -37,8 +37,8 @@ void __cdecl DrawRooms(__int16 currentRoom); // 0x004189A0
 #define ClipRoom ((void(__cdecl*)(ROOM_INFO*)) 0x004191A0)
 #define PrintRooms ((void(__cdecl*)(__int16)) 0x00419580)
 #define PrintObjects ((void(__cdecl*)(__int16)) 0x00419640)
-#define DrawEffect ((void(__cdecl*)(__int16)) 0x00419870)
 
+void __cdecl DrawEffect(__int16 fx_id); // 0x00419870
 void __cdecl DrawSpriteItem(ITEM_INFO *item); // 0x004199C0
 void __cdecl DrawDummyItem(ITEM_INFO *item);
 void __cdecl DrawAnimatingItem(ITEM_INFO *item); // 0x00419A50
