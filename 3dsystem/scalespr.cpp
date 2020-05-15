@@ -71,16 +71,16 @@ void __cdecl S_DrawSprite(DWORD flags, int x, int y, int z, __int16 spriteIdx, _
 	y2 = PhdSpriteInfo[spriteIdx].y2;
 
 	if( CHK_ANY(flags, SPR_SCALE) ) { // scaling required
-		x1 = x1 * scale / PHD_ONE;
-		y1 = y1 * scale / PHD_ONE;
-		x2 = x2 * scale / PHD_ONE;
-		y2 = y2 * scale / PHD_ONE;
+		x1 = (x1 * scale) << (W2V_SHIFT - 8);
+		y1 = (y1 * scale) << (W2V_SHIFT - 8);
+		x2 = (x2 * scale) << (W2V_SHIFT - 8);
+		y2 = (y2 * scale) << (W2V_SHIFT - 8);
+	} else { // default scale
+		x1 <<= W2V_SHIFT;
+		y1 <<= W2V_SHIFT;
+		x2 <<= W2V_SHIFT;
+		y2 <<= W2V_SHIFT;
 	}
-
-	x1 <<= W2V_SHIFT;
-	y1 <<= W2V_SHIFT;
-	x2 <<= W2V_SHIFT;
-	y2 <<= W2V_SHIFT;
 
 	zp = zv / PhdPersp;
 
