@@ -28,6 +28,10 @@
 #include "specific/output.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+extern DWORD AlphaBlendMode;
+#endif // FEATURE_VIDEOFX_IMPROVED
+
 void __cdecl DrawRooms(__int16 currentRoom) {
 	ROOM_INFO *room = &RoomInfo[currentRoom];
 
@@ -430,6 +434,14 @@ void __cdecl DrawLaraInt(ITEM_INFO *item, __int16 *frame1, __int16 *frame2, int 
 					phd_RotY_I(2 * GetRandomDraw());
 					S_CalculateStaticLight(0x800);
 					phd_PutPolygons_I(MeshPtr[Objects[ID_FLARE_FIRE].meshIndex], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+					if( AlphaBlendMode ) {
+						int shade = (GetRandomDraw() & 0xFFF) + 0x1000;
+						DWORD flags = RGB_MAKE(0xFF,0x80,0x80);
+						flags |= SPR_BLEND_ADD|SPR_TINT|SPR_SHADE|SPR_SEMITRANS;
+						S_DrawSprite(flags, 0, 0, 0, Objects[ID_GLOW].meshIndex, shade, 0);
+					}
+#endif // FEATURE_VIDEOFX_IMPROVED
 				}
 			}
 			break;
@@ -568,12 +580,27 @@ void __cdecl DrawGunFlash(int weapon, int clip) {
 			phd_RotY(2 * GetRandomDraw());
 			S_CalculateStaticLight(0x800);
 			phd_PutPolygons(MeshPtr[Objects[ID_FLARE_FIRE].meshIndex], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+			if( AlphaBlendMode ) {
+				int shade = (GetRandomDraw() & 0xFFF) + 0x1000;
+				DWORD flags = RGB_MAKE(0xFF,0x80,0x80);
+				flags |= SPR_BLEND_ADD|SPR_TINT|SPR_SHADE|SPR_SEMITRANS;
+				S_DrawSprite(flags, 0, 0, 0, Objects[ID_GLOW].meshIndex, shade, 0);
+			}
+#endif // FEATURE_VIDEOFX_IMPROVED
 			return;
 		case LGT_M16:
 			phd_TranslateRel(0, 400, 99);
 			phd_RotYXZ(0, -85 * PHD_DEGREE, (2 * GetRandomDraw() & 0x4000) + 0x2000);
 			S_CalculateStaticLight(0xA00);
 			phd_PutPolygons(MeshPtr[Objects[ID_M16_FLASH].meshIndex], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+			if( AlphaBlendMode ) {
+				DWORD flags = RGB_MAKE(0x7F,0x70,0x1F);
+				flags |= SPR_BLEND_ADD|SPR_TINT|SPR_SCALE|SPR_SEMITRANS;
+				S_DrawSprite(flags, 0, 0, -65, Objects[ID_GLOW].meshIndex, 0, 0x200);
+			}
+#endif // FEATURE_VIDEOFX_IMPROVED
 			return;
 		case LGT_Magnums:
 			light = 0x1000;
@@ -595,6 +622,13 @@ void __cdecl DrawGunFlash(int weapon, int clip) {
 	phd_RotYXZ(0, -90 * PHD_DEGREE, 2 * GetRandomDraw());
 	S_CalculateStaticLight(light);
 	phd_PutPolygons(MeshPtr[Objects[ID_GUN_FLASH].meshIndex], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	if( AlphaBlendMode ) {
+		DWORD flags = RGB_MAKE(0x3F,0x38,0x0F);
+		flags |= SPR_BLEND_ADD|SPR_TINT|SPR_SCALE|SPR_SEMITRANS;
+		S_DrawSprite(flags, 0, 0, 0, Objects[ID_GLOW].meshIndex, 0, 0x200);
+	}
+#endif // FEATURE_VIDEOFX_IMPROVED
 }
 
 /*

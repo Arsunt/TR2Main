@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added PlayStation reflection visual effect.
 - Z-Buffer is no longer required for PlayStation styled gradient health/air bars.
 - Added basic/advanced alpha blending for PlayStation styled semitransparent effects.
+- Added glow effect for gunfire/flare (alpha blending required).
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.

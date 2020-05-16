@@ -22,10 +22,15 @@
 #include "global/precompiled.h"
 #include "game/laraflare.h"
 #include "3dsystem/3d_gen.h"
+#include "3dsystem/scalespr.h"
 #include "game/draw.h"
 #include "specific/game.h"
 #include "specific/output.h"
 #include "global/vars.h"
+
+#ifdef FEATURE_VIDEOFX_IMPROVED
+extern DWORD AlphaBlendMode;
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 void __cdecl DrawFlareInAir(ITEM_INFO *item) {
 	int rate;
@@ -44,6 +49,14 @@ void __cdecl DrawFlareInAir(ITEM_INFO *item) {
 			phd_RotY(2 * GetRandomDraw());
 			S_CalculateStaticLight(0x800);
 			phd_PutPolygons(MeshPtr[Objects[ID_FLARE_FIRE].meshIndex], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+			if( AlphaBlendMode ) {
+				int shade = (GetRandomDraw() & 0xFFF) + 0x1000;
+				DWORD flags = RGB_MAKE(0xFF,0x80,0x80);
+				flags |= SPR_BLEND_ADD|SPR_TINT|SPR_SHADE|SPR_SEMITRANS;
+				S_DrawSprite(flags, 0, 0, 0, Objects[ID_GLOW].meshIndex, shade, 0);
+			}
+#endif // FEATURE_VIDEOFX_IMPROVED
 		}
 	}
 	phd_PopMatrix();
