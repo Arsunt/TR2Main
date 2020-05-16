@@ -274,7 +274,7 @@ x function is unused / included in another function
 ----------:	+	DrawDummyItem
 0x00419A50:	+	DrawAnimatingItem
 0x00419DD0:	 *	DrawLara
-0x0041AB00:	 *	DrawLaraInt
+0x0041AB00:	+	DrawLaraInt
 0x0041B6F0:	 *	InitInterpolate
 0x0041B730:	 *	phd_PopMatrix_I
 0x0041B760:	 *	phd_PushMatrix_I
@@ -289,7 +289,7 @@ x function is unused / included in another function
 0x0041BA30:	+	phd_PutPolygons_I
 0x0041BA60:	 *	InterpolateMatrix
 0x0041BC10:	 *	InterpolateArmMatrix
-0x0041BD10:	 *	DrawGunFlash
+0x0041BD10:	+	DrawGunFlash
 0x0041BE80:	 *	CalculateObjectLighting
 0x0041BF70:	 *	GetFrames
 0x0041C010:	 *	GetBoundsAccurate
@@ -381,8 +381,8 @@ x function is unused / included in another function
 
 	game/hair.cpp
 0x00420E80:	 *	InitialiseHair
-0x00420F00:		HairControl
-0x00421900:		DrawHair
+0x00420F00:	 *	HairControl
+0x00421900:	 *	DrawHair
 
 	game/health.cpp
 0x00421980:	+	FlashIt
@@ -679,7 +679,7 @@ x function is unused / included in another function
 	game/laraflare.cpp
 0x0042F840:		DoFlareLight
 0x0042F8E0:		DoFlareInHand
-0x0042F9C0:		DrawFlareInAir
+0x0042F9C0:	+	DrawFlareInAir
 0x0042FAC0:		CreateFlare
 0x0042FCA0:		set_flare_arm
 0x0042FCF0:		draw_flare

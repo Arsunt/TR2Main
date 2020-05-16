@@ -638,6 +638,7 @@ typedef enum {
 	LGS_Draw,
 	LGS_Undraw,
 	LGS_Ready,
+	LGS_Special,
 } LARA_GUN_STATUS;
 
 typedef enum {
