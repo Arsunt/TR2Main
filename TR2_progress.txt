@@ -879,7 +879,7 @@ x function is unused / included in another function
 0x0043E350:		SkidooCheckGetOff
 0x0043E590:		SkidooGuns
 0x0043E6B0:		SkidooControl
-0x0043EB10:	 *	DrawSkidoo
+0x0043EB10:	+	DrawSkidoo
 0x0043EDF0:	 *	InitialiseSkidman
 0x0043EE80:	 *	SkidManControl
 0x0043F280:		SkidmanPush
