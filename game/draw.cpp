@@ -351,9 +351,9 @@ void __cdecl DrawLaraInt(ITEM_INFO *item, __int16 *frame1, __int16 *frame2, int 
 
 	phd_TranslateRel_I(bones[25], bones[26], bones[27]);
 	if ( Lara.weapon_item != -1 && Lara.gun_type == LGT_M16
-		&& (Items[Lara.weapon_item].currentAnimState != 0
-		|| Items[Lara.weapon_item].currentAnimState != 2
-		|| Items[Lara.weapon_item].currentAnimState != 4) )
+		&& (Items[Lara.weapon_item].currentAnimState == 0
+		|| Items[Lara.weapon_item].currentAnimState == 2
+		|| Items[Lara.weapon_item].currentAnimState == 4) )
 	{
 		frame = Lara.right_arm.frame_number * (Anims[Lara.right_arm.anim_number].interpolation >> 8) + 9;
 		rot1 = rot2 = (UINT16 *)&Lara.right_arm.frame_base[frame];
