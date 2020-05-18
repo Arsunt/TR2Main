@@ -60,9 +60,18 @@ static bool MarkSemitransPoly(__int16 *ptrObj, int vtxCount, bool colored, LPVOI
 }
 
 static bool MarkSemitransMesh(int objID, int meshIdx, POLYFILTER *filter) {
-	OBJECT_INFO *obj = &Objects[objID];
-	if( !obj->loaded || meshIdx >= obj->nMeshes ) return false; // no such object/mesh for patching
-	return EnumeratePolys(MeshPtr[obj->meshIndex + meshIdx], MarkSemitransPoly, filter, NULL);
+	__int16 *ptrObj = NULL;
+	// if mesh index is negative, then it's a static mesh
+	if( meshIdx < 0 ) {
+		STATIC_INFO *obj = &StaticObjects[objID];
+		if( !CHK_ANY(obj->flags, 2) ) return false; // no such drawable static for patching
+		ptrObj = MeshPtr[obj->meshIndex];
+	} else {
+		OBJECT_INFO *obj = &Objects[objID];
+		if( !obj->loaded || meshIdx >= obj->nMeshes ) return false; // no such object/mesh for patching
+		ptrObj = MeshPtr[obj->meshIndex + meshIdx];
+	}
+	return EnumeratePolys(ptrObj, MarkSemitransPoly, filter, NULL);
 }
 
 static void MarkSemitransObjects() {
@@ -80,6 +89,13 @@ static void MarkSemitransObjects() {
 		.g4 = {{~0,~0}}, // no semitrans colored quads
 		.g3 = {{~0,~0}}, // no semitrans colored triangles
 	};
+	static POLYFILTER GlassOnSinkFilter = {
+		.n_vtx = 46, .n_gt4 = 41, .n_gt3 = 0, .n_g4 = 0, .n_g3 = 0,
+		.gt4 = {{17, 9}, {0, 0}},
+		.gt3 = {{~0,~0}}, // no semitrans textured triangles
+		.g4 = {{~0,~0}}, // no semitrans colored quads
+		.g3 = {{~0,~0}}, // no semitrans colored triangles
+	};
 	MarkSemitransMesh(ID_SKIDOO_FAST, 0, &SkidooFastFilter);
 	MarkSemitransMesh(ID_DETAIL_OPTION, 0, &DetailOptionFilter);
 	MarkSemitransMesh(ID_SPHERE_OF_DOOM1, 0, NULL);
@@ -87,6 +103,19 @@ static void MarkSemitransObjects() {
 	MarkSemitransMesh(ID_FLARE_FIRE, 0, NULL);
 	MarkSemitransMesh(ID_GUN_FLASH, 0, NULL);
 	MarkSemitransMesh(ID_M16_FLASH, 0, NULL);
+	MarkSemitransMesh(21, -1, &GlassOnSinkFilter);
+}
+
+static void MarkSemitransTextureRanges() {
+	__int16 *ptr = AnimatedTextureRanges;
+	for( int i = *(ptr++); i>0; --i, ++ptr ) {
+		for ( int j = *(ptr++); j>=0; --j, ++ptr ) {
+			if( PhdTextureInfo[*ptr].drawtype == DRAW_ColorKey ) {
+				// all animated room textures with colorkey are supposed to be semitransparent
+				PhdTextureInfo[*ptr].drawtype = DRAW_Semitrans;
+			}
+		}
+	}
 }
 #endif // FEATURE_VIDEOFX_IMPROVED
 
@@ -364,6 +393,9 @@ BOOL __cdecl LoadObjects(HANDLE hFile) {
 
 	// Load static objects
 	ReadFileSync(hFile, &dwCount, sizeof(DWORD), &bytesRead, NULL);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	memset(&StaticObjects, 0, sizeof(StaticObjects)); // NOTE: we need to be sure that a static object is really loaded
+#endif // FEATURE_VIDEOFX_IMPROVED
 	for( i = 0; i < dwCount; ++i ) {
 		ReadFileSync(hFile, &objNumber, sizeof(DWORD), &bytesRead, NULL);
 		ReadFileSync(hFile, &StaticObjects[objNumber].meshIndex, sizeof(__int16), &bytesRead, NULL);
@@ -847,6 +879,7 @@ BOOL __cdecl LoadLevel(LPCTSTR fileName, int levelID) {
 	LoadDemoExternal(fullPath);
 #ifdef FEATURE_VIDEOFX_IMPROVED
 	MarkSemitransObjects();
+	MarkSemitransTextureRanges();
 #endif // FEATURE_VIDEOFX_IMPROVED
 	result = TRUE;
 
