@@ -160,10 +160,12 @@ void SetMeshReflectState(int objID, int meshIdx) {
 		}
 		break;
 	case ID_SPINNING_BLADE :
-		// Reflect only quads, not triangles
-		ReflectFilter.gt3[0].idx = ~0;
-		ReflectFilter.g3[0].idx = ~0;
-		IsReflect = true;
+		if( meshIdx == 0 ) {
+			// Reflect only quads, not triangles
+			ReflectFilter.gt3[0].idx = ~0;
+			ReflectFilter.g3[0].idx = ~0;
+			IsReflect = true;
+		}
 		break;
 	case ID_BLADE :
 		// Reflect blade only (mesh #1)
