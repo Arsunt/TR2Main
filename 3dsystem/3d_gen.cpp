@@ -99,6 +99,47 @@ void SetMeshReflectState(int objID, int meshIdx) {
 	if( !ReflectionMode ) return;
 
 	switch( objID ) {
+	case ID_SKIDOO_FAST :
+		// This one is a fast showmobile from the Golden Mask
+		// Reflect the windshield only (skidoo body is mesh #0)
+		if( meshIdx == 0 ) {
+			// Set filter conditions
+			ReflectFilter.n_vtx = 59;
+			ReflectFilter.n_gt4 = 14;
+			ReflectFilter.n_gt3 = 73;
+			ReflectFilter.n_g4 = 0;
+			ReflectFilter.n_g3 = 17;
+			// All colored triangles are reflective
+			// The only reflective textured triangle is 48
+			ReflectFilter.gt3[0].idx = 48;
+			ReflectFilter.gt3[0].num = 1;
+			// Quads are not reflective
+			ReflectFilter.gt4[0].idx = ~0;
+			ReflectFilter.g4[0].idx = ~0;
+			IsReflect = true;
+		}
+		break;
+	case ID_SKIDOO_ARMED :
+		// This one is an armed showmobile
+		// Reflect the windshield only (skidoo body is mesh #0)
+		if( meshIdx == 0 ) {
+			// Set filter conditions
+			ReflectFilter.n_vtx = 88;
+			ReflectFilter.n_gt4 = 45;
+			ReflectFilter.n_gt3 = 60;
+			ReflectFilter.n_g4 = 0;
+			ReflectFilter.n_g3 = 0;
+			// The reflective reflective textured quads are 21..22, 34..47
+			ReflectFilter.gt4[0].idx = 21;
+			ReflectFilter.gt4[0].num = 2;
+			ReflectFilter.gt3[0].idx = 34;
+			ReflectFilter.gt3[0].num = 14;
+			// Other polys are not reflective
+			ReflectFilter.g4[0].idx = ~0;
+			ReflectFilter.g3[0].idx = ~0;
+			IsReflect = true;
+		}
+		break;
 	case ID_WORKER5 :
 		// Reflect the black glass mask of flamethrower buddy (his head is mesh #15)
 		if( meshIdx == 15 ) {

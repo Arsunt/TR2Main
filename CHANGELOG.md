@@ -22,6 +22,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Z-Buffer is no longer required for PlayStation styled gradient health/air bars.
 - Added basic/advanced alpha blending for PlayStation styled semitransparent effects.
 - Added glow effect for gunfire/flare (alpha blending required).
+- Most sprites, gunfire/flare effects, sunglasses lens, the dragon spheres of doom are made semitransparent (alpha blending required). This is how they look in the PlayStation version.
+- Rolling wheel blades, wall mounted blades, swords of statues and flamethrower masks are made reflective. This is how they look in the PlayStation version.
+- The armed snowmobile windshield is made reflective. This is not presented in the PlayStation version, but probably it was supposed to be. Anyway it looks cool!
+- The original game fast snowmobile windshield is made semitransparent (alpha blending required). This is how it looks in the PlayStation version.
+- The Golden Mask fast snowmobile windshield is made reflective. In the Golden Mask it has the same windshield model as the armed snowmobile.
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.

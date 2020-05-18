@@ -65,7 +65,13 @@ void __cdecl DrawSkidoo(ITEM_INFO *item) {
 			InitInterpolate(frac, rate);
 			phd_TranslateRel_ID(frames[0][6], frames[0][7], frames[0][8], frames[1][6], frames[1][7], frames[1][8]);
 			phd_RotYXZsuperpack_I(&rot1, &rot2, 0);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+			SetMeshReflectState(CHK_ANY(flags, 4) ? ID_SKIDOO_ARMED : item->objectID, 0);
+#endif // FEATURE_VIDEOFX_IMPROVED
 			phd_PutPolygons_I(meshPtr[0], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+			ClearMeshReflectState();
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 			for( int i = 1; i < obj->nMeshes; ++i ) {
 				DWORD state = *bonePtr;
@@ -78,10 +84,22 @@ void __cdecl DrawSkidoo(ITEM_INFO *item) {
 				phd_TranslateRel_I(bonePtr[1], bonePtr[2], bonePtr[3]);
 				phd_RotYXZsuperpack_I(&rot1, &rot2, 0);
 				if( track ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+					SetMeshReflectState(ID_SKIDOO_LARA, (flags & 3) == 1 ? 1 : 7);
+#endif // FEATURE_VIDEOFX_IMPROVED
 					phd_PutPolygons_I(*track, clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+					ClearMeshReflectState();
+#endif // FEATURE_VIDEOFX_IMPROVED
 					track = NULL;
 				} else {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+					SetMeshReflectState(CHK_ANY(flags, 4) ? ID_SKIDOO_ARMED : item->objectID, i);
+#endif // FEATURE_VIDEOFX_IMPROVED
 					phd_PutPolygons_I(meshPtr[i], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+					ClearMeshReflectState();
+#endif // FEATURE_VIDEOFX_IMPROVED
 				}
 				bonePtr += 4;
 			}
@@ -89,7 +107,13 @@ void __cdecl DrawSkidoo(ITEM_INFO *item) {
 			UINT16 *rot = (UINT16 *)&frames[0][9];
 			phd_TranslateRel(frames[0][6], frames[0][7], frames[0][8]);
 			phd_RotYXZsuperpack(&rot, 0);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+			SetMeshReflectState(CHK_ANY(flags, 4) ? ID_SKIDOO_ARMED : item->objectID, 0);
+#endif // FEATURE_VIDEOFX_IMPROVED
 			phd_PutPolygons(meshPtr[0], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+			ClearMeshReflectState();
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 			for( int i = 1; i < obj->nMeshes; ++i ) {
 				DWORD state = *bonePtr;
@@ -102,10 +126,22 @@ void __cdecl DrawSkidoo(ITEM_INFO *item) {
 				phd_TranslateRel(bonePtr[1], bonePtr[2], bonePtr[3]);
 				phd_RotYXZsuperpack(&rot, 0);
 				if( track ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+					SetMeshReflectState(ID_SKIDOO_LARA, (flags & 3) == 1 ? 1 : 7);
+#endif // FEATURE_VIDEOFX_IMPROVED
 					phd_PutPolygons(*track, clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+					ClearMeshReflectState();
+#endif // FEATURE_VIDEOFX_IMPROVED
 					track = NULL;
 				} else {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+					SetMeshReflectState(CHK_ANY(flags, 4) ? ID_SKIDOO_ARMED : item->objectID, i);
+#endif // FEATURE_VIDEOFX_IMPROVED
 					phd_PutPolygons(meshPtr[i], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+					ClearMeshReflectState();
+#endif // FEATURE_VIDEOFX_IMPROVED
 				}
 				bonePtr += 4;
 			}
