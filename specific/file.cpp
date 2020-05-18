@@ -47,113 +47,33 @@ extern bool IsGold();
 #endif
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
-// Filter is presented by an array of poly index and polys number (starting from the index).
-// The filter is always terminated by an index 0.
-// If the first item has index=~0 then there are no semitransparent polys.
-// If the first item has index=0 and number=0 then all polys are semitransparent.
-#define FILTER_SIZE 256
-typedef struct {__int16 idx; __int16 num;} POLYINDEX;
-typedef struct {
-	__int16 n_vtx, n_gt4, n_gt3, n_g4, n_g3;
-	POLYINDEX gt4[FILTER_SIZE];
-	POLYINDEX gt3[FILTER_SIZE];
-	POLYINDEX g4[FILTER_SIZE];
-	POLYINDEX g3[FILTER_SIZE];
-} SEMITRANS_FILTER;
+#include "modding/mod_utils.h"
 
-static bool IsCompatibleFilter(__int16 *ptrObj, SEMITRANS_FILTER *filter) {
-	if( !ptrObj || !filter || !filter->n_vtx ) return true;
-	ptrObj += 5; // skip x, y, z, radius, flags
-	__int16 num = *(ptrObj++); // get vertex counter
-	if( num != filter->n_vtx ) return false;
-	ptrObj += num * 3; // skip vertices
-	num = *(ptrObj++); // get normal counter
-	ptrObj += (num > 0) ? num * 3 : ABS(num); // skip normals/shades
-	num = *(ptrObj++); // get gt4 number
-	if( num != filter->n_gt4 ) return false;
-	ptrObj += num * 5; // skip gt4 polys
-	num = *(ptrObj++); // get gt3 number
-	if( num != filter->n_gt3 ) return false;
-	ptrObj += num * 4; // skip gt3 polys
-	num = *(ptrObj++); // get g4 number
-	if( num != filter->n_g4 ) return false;
-	ptrObj += num * 5; // skip g4 polys
-	num = *(ptrObj++); // get g3 number
-	if( num != filter->n_g3 ) return false;
+static bool MarkSemitransPoly(__int16 *ptrObj, int vtxCount, bool colored, LPVOID param) {
+	UINT16 index = ptrObj[vtxCount];
+	if( colored ) {
+		GamePalette16[index >> 8].peFlags = 1; // semitransparent blending mode 1
+	} else {
+		PhdTextureInfo[index].drawtype = DRAW_Semitrans;
+	}
 	return true;
 }
 
-static __int16 *MarkSemitransPolys(__int16 *ptrObj, int vtxCount, bool colored, POLYINDEX *filter) {
-	int polyNumber = *ptrObj++;
-	if( filter == NULL || (!filter[0].idx && !filter[0].num) ) {
-		// mark all textures semitransparent
-		for( int i = 0; i < polyNumber; ++i ) {
-			ptrObj += vtxCount;
-			UINT16 index = *ptrObj++;
-			if( colored ) {
-				GamePalette16[index >> 8].peFlags = 1; // semitransparent blending mode 1
-			} else {
-				PhdTextureInfo[index].drawtype = DRAW_Semitrans;
-			}
-		}
-	} else {
-		int polyIndex = 0;
-		for( int i=0; i<FILTER_SIZE; i++ ) {
-			if( filter[i].idx < polyIndex || filter[i].idx >= polyNumber ) {
-				break;
-			}
-			int skip = filter[i].idx - polyIndex;
-			if( skip > 0 ) {
-				ptrObj += skip*(vtxCount+1);
-				polyIndex += skip;
-			}
-			int number = MIN(filter[i].num, polyNumber - polyIndex);
-			for( int j = 0; j < number; ++j ) {
-				ptrObj += vtxCount;
-				UINT16 index = *ptrObj++;
-				if( colored ) {
-					GamePalette16[index >> 8].peFlags = 1; // semitransparent blending mode 1
-				} else {
-					PhdTextureInfo[index].drawtype = DRAW_Semitrans;
-				}
-			}
-			polyIndex += number;
-		}
-		ptrObj += (polyNumber-polyIndex)*(vtxCount+1);
-	}
-
-	return ptrObj;
-}
-
-static bool MarkSemitransMesh(int objID, int meshIdx, SEMITRANS_FILTER *filter) {
+static bool MarkSemitransMesh(int objID, int meshIdx, POLYFILTER *filter) {
 	OBJECT_INFO *obj = &Objects[objID];
 	if( !obj->loaded || meshIdx >= obj->nMeshes ) return false; // no such object/mesh for patching
-
-	__int16 num;
-	__int16 *ptrObj = MeshPtr[obj->meshIndex + meshIdx];
-	if( !IsCompatibleFilter(ptrObj, filter) ) return false; // filter failed, let's try another one
-
-	ptrObj += 5; // skip x, y, z, radius, flags
-	num = *(ptrObj++); // get vertex counter
-	ptrObj += num * 3; // skip vertices
-	num = *(ptrObj++); // get normal counter
-	ptrObj += (num > 0) ? num * 3 : ABS(num); // skip normals/shades
-	ptrObj = MarkSemitransPolys(ptrObj, 4, false, filter ? filter->gt4 : NULL); // mark textured quads
-	ptrObj = MarkSemitransPolys(ptrObj, 3, false, filter ? filter->gt3 : NULL); // mark textured triangles
-	ptrObj = MarkSemitransPolys(ptrObj, 4, true, filter ? filter->g4 : NULL); // mark colored quads
-	ptrObj = MarkSemitransPolys(ptrObj, 3, true, filter ? filter->g3 : NULL); // mark colored triangles
-	return true;
+	return EnumeratePolys(MeshPtr[obj->meshIndex + meshIdx], MarkSemitransPoly, filter, NULL);
 }
 
 static void MarkSemitransObjects() {
-	static SEMITRANS_FILTER SkidooFastFilter = {
+	static POLYFILTER SkidooFastFilter = {
 		.n_vtx = 59, .n_gt4 = 14, .n_gt3 = 104, .n_g4 = 0, .n_g3 = 0,
 		.gt4 = {{~0,~0}}, // no semitrans textured quads
 		.gt3 = {{48, 4}, {54, 18}, {73, 6}, {0, 0}},
 		.g4 = {{~0,~0}}, // no semitrans colored quads
 		.g3 = {{~0,~0}}, // no semitrans colored triangles
 	};
-	static SEMITRANS_FILTER DetailOptionFilter = {
+	static POLYFILTER DetailOptionFilter = {
 		.n_vtx = 80, .n_gt4 = 66, .n_gt3 = 4, .n_g4 = 2, .n_g3 = 0,
 		.gt4 = {{23, 8}, {44, 8}, {0, 0}},
 		.gt3 = {{0, 0}}, // all textured triangles are semitrans
