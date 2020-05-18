@@ -1724,7 +1724,34 @@ __int16 *__cdecl InsertObjectG4_ZBuffered(__int16 *ptrObj, int number, SORTTYPE 
 
 		if( nPoints != 0 ) {
 			PALETTEENTRY *color = &GamePalette16[colorIdx >> 8];
+#ifdef FEATURE_VIDEOFX_IMPROVED
+			if( AlphaBlendMode && color->peFlags > 0 && color->peFlags <= 4 ) {
+				float zv;
+				switch( sortType ) {
+					case ST_AvgZ :
+						zv = (vtx0->zv + vtx1->zv + vtx2->zv + vtx3->zv) / 4.0;
+						break;
+
+					case ST_MaxZ :
+						zv = vtx0->zv;
+						CLAMPL(zv, vtx1->zv);
+						CLAMPL(zv, vtx2->zv);
+						CLAMPL(zv, vtx3->zv);
+						break;
+
+					case ST_FarZ :
+					default :
+						zv = 1000000000.0;
+						break;
+				}
+				short blend[4] = {POLY_HWR_half, POLY_HWR_add, POLY_HWR_sub, POLY_HWR_qrt};
+				InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, blend[color->peFlags - 1]);
+			} else {
+				DrawPoly_Gouraud(nPoints, color->peRed, color->peGreen, color->peBlue);
+			}
+#else // FEATURE_VIDEOFX_IMPROVED
 			DrawPoly_Gouraud(nPoints, color->peRed, color->peGreen, color->peBlue);
+#endif // FEATURE_VIDEOFX_IMPROVED
 		}
 	}
 
@@ -1831,7 +1858,33 @@ __int16 *__cdecl InsertObjectG3_ZBuffered(__int16 *ptrObj, int number, SORTTYPE 
 
 		if( nPoints != 0 ) {
 			PALETTEENTRY *color = &GamePalette16[colorIdx >> 8];
+#ifdef FEATURE_VIDEOFX_IMPROVED
+			if( AlphaBlendMode && color->peFlags > 0 && color->peFlags <= 4 ) {
+				float zv;
+				switch( sortType ) {
+					case ST_AvgZ :
+						zv = (vtx0->zv + vtx1->zv + vtx2->zv) / 3.0;
+						break;
+
+					case ST_MaxZ :
+						zv = vtx0->zv;
+						CLAMPL(zv, vtx1->zv);
+						CLAMPL(zv, vtx2->zv);
+						break;
+
+					case ST_FarZ :
+					default :
+						zv = 1000000000.0;
+						break;
+				}
+				short blend[4] = {POLY_HWR_half, POLY_HWR_add, POLY_HWR_sub, POLY_HWR_qrt};
+				InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, blend[color->peFlags - 1]);
+			} else {
+				DrawPoly_Gouraud(nPoints, color->peRed, color->peGreen, color->peBlue);
+			}
+#else // FEATURE_VIDEOFX_IMPROVED
 			DrawPoly_Gouraud(nPoints, color->peRed, color->peGreen, color->peBlue);
+#endif // FEATURE_VIDEOFX_IMPROVED
 		}
 	}
 
@@ -2356,7 +2409,16 @@ __int16 *__cdecl InsertObjectG4_Sorted(__int16 *ptrObj, int number, SORTTYPE sor
 				break;
 		}
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		if( AlphaBlendMode && color->peFlags > 0 && color->peFlags <= 4 ) {
+			short blend[4] = {POLY_HWR_half, POLY_HWR_add, POLY_HWR_sub, POLY_HWR_qrt};
+			InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, blend[color->peFlags - 1]);
+		} else {
+			InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, POLY_HWR_gouraud);
+		}
+#else // FEATURE_VIDEOFX_IMPROVED
 		InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, POLY_HWR_gouraud);
+#endif // FEATURE_VIDEOFX_IMPROVED
 	}
 
 	return ptrObj;
@@ -2491,7 +2553,16 @@ __int16 *__cdecl InsertObjectG3_Sorted(__int16 *ptrObj, int number, SORTTYPE sor
 				break;
 		}
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		if( AlphaBlendMode && color->peFlags > 0 && color->peFlags <= 4 ) {
+			short blend[4] = {POLY_HWR_half, POLY_HWR_add, POLY_HWR_sub, POLY_HWR_qrt};
+			InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, blend[color->peFlags - 1]);
+		} else {
+			InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, POLY_HWR_gouraud);
+		}
+#else // FEATURE_VIDEOFX_IMPROVED
 		InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, POLY_HWR_gouraud);
+#endif // FEATURE_VIDEOFX_IMPROVED
 	}
 
 	return ptrObj;

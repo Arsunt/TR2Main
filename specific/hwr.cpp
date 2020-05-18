@@ -292,9 +292,23 @@ void __cdecl HWR_DrawPolyList() {
 				break;
 
 			case POLY_HWR_gouraud: // triangle fan (color)
+#ifdef FEATURE_VIDEOFX_IMPROVED
+			case POLY_HWR_half: // triangle fan (color + PSX half blend)
+			case POLY_HWR_add: // triangle fan (color + PSX additive blend)
+			case POLY_HWR_sub: // triangle fan (color + PSX subtractive blend)
+			case POLY_HWR_qrt: // triangle fan (color + PSX quarter blend)
+				HWR_TexSource(0);
+				HWR_EnableColorKey(polyType != POLY_HWR_gouraud);
+				if( AlphaBlendMode == 0 || polyType == POLY_HWR_gouraud ) {
+					D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+				} else {
+					DrawAlphaBlended(vtxPtr, vtxCount, polyType-POLY_HWR_half);
+				}
+#else // !FEATURE_VIDEOFX_IMPROVED
 				HWR_TexSource(0);
 				HWR_EnableColorKey(false);
 				D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+#endif // !FEATURE_VIDEOFX_IMPROVED
 				break;
 
 			case POLY_HWR_line: // line strip (color)
