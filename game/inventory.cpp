@@ -826,8 +826,15 @@ void __cdecl DrawInventoryItem(INVENTORY_ITEM* invItem) {
 		int *bones = &AnimBones[obj->boneIndex];
 		__int16 mesh_num = 1;
 
-		if( mesh_num & invItem->meshesDrawn )
+		if( mesh_num & invItem->meshesDrawn ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+			SetMeshReflectState(invItem->objectID, 0);
+#endif // FEATURE_VIDEOFX_IMPROVED
 			phd_PutPolygons(MeshPtr[mesh], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+			ClearMeshReflectState();
+#endif // FEATURE_VIDEOFX_IMPROVED
+		}
 
 		for( int i = obj->nMeshes-1; i > 0; --i ) {
 			++mesh;
@@ -861,7 +868,13 @@ void __cdecl DrawInventoryItem(INVENTORY_ITEM* invItem) {
 			}
 
 			if( CHK_ANY(mesh_num, invItem->meshesDrawn) ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+				SetMeshReflectState(invItem->objectID, obj->nMeshes-i);
+#endif // FEATURE_VIDEOFX_IMPROVED
 				phd_PutPolygons(MeshPtr[mesh], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+				ClearMeshReflectState();
+#endif // FEATURE_VIDEOFX_IMPROVED
 			}
 			bones += 3;
 		}
