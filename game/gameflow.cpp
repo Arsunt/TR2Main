@@ -29,7 +29,14 @@
 #include "specific/file.h"
 #include "specific/frontend.h"
 #include "specific/game.h"
+#include "specific/output.h"
 #include "global/vars.h"
+
+#ifdef FEATURE_BACKGROUND_IMPROVED
+#include "modding/background_new.h"
+
+bool LoadingScreensEnabled = false;
+#endif // FEATURE_BACKGROUND_IMPROVED
 
 // NOTE: there is no such function in the original code
 static bool __cdecl GF_GetSequenceValue(DWORD levelID, GF_EVENTS event, __int16 *pValue, __int16 defValue) {
@@ -291,6 +298,14 @@ int __cdecl GF_InterpretSequence(__int16 *seq, GF_LEVEL_TYPE levelType, int seqT
 				if( levelType != GFL_SAVED ) {
 					sprintf(str, "PICTURE %s", GF_PictureFilesStringTable[seq[1]]);
 				}
+#ifdef FEATURE_BACKGROUND_IMPROVED
+				if( LoadingScreensEnabled && seq[1] < GF_GameFlow.num_Pictures
+					&& !BGND2_LoadPicture(GF_PictureFilesStringTable[seq[1]], FALSE, FALSE) )
+				{
+					BGND2_ShowPicture(30, 90, 10, 2, TRUE);
+					S_DontDisplayPicture();
+				}
+#endif // FEATURE_BACKGROUND_IMPROVED
 				seq += 2;
 				break;
 

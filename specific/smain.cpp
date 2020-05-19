@@ -57,6 +57,7 @@ extern double InvGUI_Scale;
 #ifdef FEATURE_BACKGROUND_IMPROVED
 extern DWORD InvBackgroundMode;
 extern DWORD PictureStretchLimit;
+extern bool LoadingScreensEnabled;
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
@@ -489,6 +490,7 @@ void __cdecl S_LoadSettings() {
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	GetRegistryDwordValue(REG_INVBGND_MODE, &InvBackgroundMode, 1);
 	GetRegistryDwordValue(REG_PICTURE_STRETCH, &PictureStretchLimit, 10);
+	GetRegistryBoolValue(REG_LOADING_SCREENS, &LoadingScreensEnabled, false);
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 #ifdef FEATURE_VIDEOFX_IMPROVED

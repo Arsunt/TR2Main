@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The original game fast snowmobile windshield is made semitransparent (alpha blending required). This is how it looks in the PlayStation version.
 - The Golden Mask fast snowmobile windshield is made reflective. In the Golden Mask it has the same windshield model as the armed snowmobile.
 - The water surfaces and the glass on the sink in Lara's room are made semitransparent (alpha blending required). This is how they look in the PlayStation version.
+- Added support for loading screens from the script.
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.

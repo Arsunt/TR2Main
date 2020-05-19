@@ -51,6 +51,7 @@
 #define REG_DETAIL_LEVEL		"DetailLevel"
 #define REG_INVBGND_MODE		"InvBackgroundMode"
 #define REG_PICTURE_STRETCH		"PictureStretchLimit"
+#define REG_LOADING_SCREENS		"LoadingScreens"
 #define REG_SHADOW_MODE			"ShadowMode"
 #define REG_REFLECTION_MODE		"ReflectionMode"
 #define REG_REFLECTION_BLUR		"ReflectionBlur"
