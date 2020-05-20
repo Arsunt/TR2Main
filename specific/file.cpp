@@ -28,6 +28,7 @@
 #include "specific/hwr.h"
 #include "specific/init.h"
 #include "specific/init_sound.h"
+#include "specific/output.h"
 #include "specific/texture.h"
 #include "specific/winvid.h"
 #include "global/vars.h"
@@ -45,6 +46,12 @@
 #ifdef FEATURE_GOLD
 extern bool IsGold();
 #endif
+
+#ifdef FEATURE_BACKGROUND_IMPROVED
+#include "modding/background_new.h"
+
+extern bool LoadingScreensEnabled;
+#endif // FEATURE_BACKGROUND_IMPROVED
 
 #if defined(FEATURE_MOD_CONFIG) || defined(FEATURE_VIDEOFX_IMPROVED)
 #include "modding/mod_utils.h"
@@ -896,6 +903,15 @@ BOOL __cdecl S_LoadLevelFile(LPCTSTR fileName, int levelID, GF_LEVEL_TYPE levelT
 #ifdef FEATURE_MOD_CONFIG
 	LoadModConfiguration(fileName);
 	BOOL result = LoadLevel(fileName, levelID);
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	if( LoadingScreensEnabled && GetModLoadingPix()
+		&& (levelType == GFL_NORMAL || levelType == GFL_SAVED)
+		&& !BGND2_LoadPicture(GetModLoadingPix(), FALSE, FALSE) )
+	{
+		BGND2_ShowPicture(30, 90, 10, 2, TRUE);
+		S_DontDisplayPicture();
+	}
+#endif // FEATURE_BACKGROUND_IMPROVED
 	return result;
 #else // FEATURE_MOD_CONFIG
 	return LoadLevel(fileName, levelID);

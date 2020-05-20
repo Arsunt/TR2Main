@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The water surfaces and the glass on the sink in Lara's room are made semitransparent (alpha blending required). This is how they look in the PlayStation version.
 - Added support for loading screens from the script.
 - Added TR2Main.json configuration file for easy game modding in the future.
+- Added support for loading screens from TR2Main.json configuration file.
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.

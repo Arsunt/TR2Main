@@ -17,6 +17,9 @@
         " - 'filename' is used to set the name of the level file for which    ",
         "   this set of parameters will be used. Just a filename with no path ",
         "   and no extension.                                                 ",
+        "                                                                     ",
+        " - 'picture' is used to set the name of the image file for the level ",
+        "   loading screen. Just a filename with no path and no extension.    ",
         "                                                                     "
     ],
     "default": {
@@ -27,61 +30,80 @@
         "filename": "TITLE"
     }, {
         "comment": "Lara's Home",
-        "filename": "ASSAULT"
+        "filename": "ASSAULT",
+        "picture": "MANSION"
     }, {
         "comment": "The Great Wall",
-        "filename": "WALL"
+        "filename": "WALL",
+        "picture": "CHINA"
     }, {
         "comment": "Venice",
-        "filename": "BOAT"
+        "filename": "BOAT",
+        "picture": "VENICE"
     }, {
         "comment": "Bartoli's Hideout",
-        "filename": "VENICE"
+        "filename": "VENICE",
+        "picture": "VENICE"
     }, {
         "comment": "Opera House",
-        "filename": "OPERA"
+        "filename": "OPERA",
+        "picture": "VENICE"
     }, {
         "comment": "Offshore Rig",
-        "filename": "RIG"
+        "filename": "RIG",
+        "picture": "RIG"
     }, {
         "comment": "Diving Area",
-        "filename": "PLATFORM"
+        "filename": "PLATFORM",
+        "picture": "RIG"
     }, {
         "comment": "40 Fathoms",
-        "filename": "UNWATER"
+        "filename": "UNWATER",
+        "picture": "TITAN"
     }, {
         "comment": "Wreck of the Maria Doria",
-        "filename": "KEEL"
+        "filename": "KEEL",
+        "picture": "TITAN"
     }, {
         "comment": "Living Quarters",
-        "filename": "LIVING"
+        "filename": "LIVING",
+        "picture": "TITAN"
     }, {
         "comment": "The Deck",
-        "filename": "DECK"
+        "filename": "DECK",
+        "picture": "TITAN"
     }, {
         "comment": "Tibetan Foothills",
-        "filename": "SKIDOO"
+        "filename": "SKIDOO",
+        "picture": "TIBET"
     }, {
         "comment": "Barkhang Monastery",
-        "filename": "MONASTRY"
+        "filename": "MONASTRY",
+        "picture": "TIBET"
     }, {
         "comment": "Catacombs of the Talion",
-        "filename": "CATACOMB"
+        "filename": "CATACOMB",
+        "picture": "TIBET"
     }, {
         "comment": "Ice Palace",
-        "filename": "ICECAVE"
+        "filename": "ICECAVE",
+        "picture": "TIBET"
     }, {
         "comment": "Temple of Xian",
-        "filename": "EMPRTOMB"
+        "filename": "EMPRTOMB",
+        "picture": "CHINA"
     }, {
         "comment": "Floating Islands",
-        "filename": "FLOATING"
+        "filename": "FLOATING",
+        "picture": "CHINA"
     }, {
         "comment": "The Dragon's Lair",
-        "filename": "XIAN"
+        "filename": "XIAN",
+        "picture": "CHINA"
     }, {
         "comment": "Home Sweet Home",
-        "filename": "HOUSE"
+        "filename": "HOUSE",
+        "picture": "MANSION"
     }, {
         "comment": "Cutscene after The Great Wall",
         "filename": "CUT1"

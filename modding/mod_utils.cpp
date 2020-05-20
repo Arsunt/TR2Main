@@ -30,6 +30,7 @@
 
 typedef struct {
 	bool isLoaded;
+	char loadingPix[256];
 } MOD_CONFIG;
 
 static MOD_CONFIG ModConfig;
@@ -113,6 +114,10 @@ bool IsModConfigLoaded() {
 	return ModConfig.isLoaded;
 }
 
+const char *GetModLoadingPix() {
+	return *ModConfig.loadingPix ? ModConfig.loadingPix : NULL;
+}
+
 static json_value *GetJsonField(json_value *root, json_type fieldType, const char *name, DWORD *pIndex) {
 	if( root == NULL || root->type != json_object ) {
 		return NULL;
@@ -157,6 +162,12 @@ static json_value *GetJsonObjectByStringField(json_value *root, const char *name
 static bool ParseLevelConfiguration(json_value *root) {
 	if( root == NULL || root->type != json_object ) {
 		return false;
+	}
+	json_value* field = NULL;
+
+	field = GetJsonField(root, json_string, "picture", NULL);
+	if( field ) {
+		snprintf(ModConfig.loadingPix, sizeof(ModConfig.loadingPix), "data\\%.*s.pcx", field->u.string.length, field->u.string.ptr);
 	}
 	return true;
 }
