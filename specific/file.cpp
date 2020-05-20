@@ -577,13 +577,13 @@ BOOL __cdecl LoadCameras(HANDLE hFile) {
 BOOL __cdecl LoadSoundEffects(HANDLE hFile) {
 	DWORD bytesRead;
 
-	ReadFileSync(hFile, &SoundEffectCount, sizeof(DWORD), &bytesRead, NULL);
-	if( SoundEffectCount != 0 ) {
-		SoundEffects = (OBJECT_VECTOR *)game_malloc(sizeof(OBJECT_VECTOR)*SoundEffectCount, GBUF_SoundFX);
-		if( SoundEffects == NULL ) {
+	ReadFileSync(hFile, &SoundFxCount, sizeof(DWORD), &bytesRead, NULL);
+	if( SoundFxCount != 0 ) {
+		SoundFx = (OBJECT_VECTOR *)game_malloc(sizeof(OBJECT_VECTOR)*SoundFxCount, GBUF_SoundFX);
+		if( SoundFx == NULL ) {
 			return FALSE;
 		}
-		ReadFileSync(hFile, SoundEffects, sizeof(OBJECT_VECTOR)*SoundEffectCount, &bytesRead, NULL);
+		ReadFileSync(hFile, SoundFx, sizeof(OBJECT_VECTOR)*SoundFxCount, &bytesRead, NULL);
 	}
 	return TRUE;
 }
