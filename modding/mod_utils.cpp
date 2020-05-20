@@ -23,6 +23,18 @@
 #include "modding/mod_utils.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_MOD_CONFIG
+#include "json-parser/json.h"
+
+#define MOD_CONFIG_NAME "TR2Main.json"
+
+typedef struct {
+	bool isLoaded;
+} MOD_CONFIG;
+
+static MOD_CONFIG ModConfig;
+#endif // FEATURE_MOD_CONFIG
+
 static bool IsCompatibleFilter(__int16 *ptrObj, POLYFILTER *filter) {
 	if( !ptrObj || !filter || !filter->n_vtx ) return true;
 	ptrObj += 5; // skip x, y, z, radius, flags
@@ -95,3 +107,103 @@ bool EnumeratePolys(__int16 *ptrObj, ENUM_POLYS_CB callback, POLYFILTER *filter,
 	ptrObj = EnumeratePolysSpecific(ptrObj, 3, true, callback, filter ? filter->g3 : NULL, param); // enumerate colored triangles
 	return true;
 }
+
+#ifdef FEATURE_MOD_CONFIG
+bool IsModConfigLoaded() {
+	return ModConfig.isLoaded;
+}
+
+static json_value *GetJsonField(json_value *root, json_type fieldType, const char *name, DWORD *pIndex) {
+	if( root == NULL || root->type != json_object ) {
+		return NULL;
+	}
+	json_value *result = NULL;
+	DWORD len = name ? strlen(name) : 0;
+	DWORD i = pIndex ? *pIndex : 0;
+	for( ; i < root->u.object.length; ++i ) {
+		if( root->u.object.values[i].value->type == fieldType ) {
+			if( !name || (len == root->u.object.values[i].name_length
+				&& !strncmp(root->u.object.values[i].name, name, len)) )
+			{
+				result = root->u.object.values[i].value;
+				break;
+			}
+		}
+	}
+	if( pIndex ) *pIndex = i;
+	return result;
+}
+
+static json_value *GetJsonObjectByStringField(json_value *root, const char *name, const char *str, bool caseSensitive, DWORD *pIndex) {
+	if( root == NULL || root->type != json_array || !name || !*name || !str ) {
+		return NULL;
+	}
+	json_value *result = NULL;
+	DWORD len = strlen(str);
+	DWORD i = pIndex ? *pIndex : 0;
+	for( ; i < root->u.array.length; ++i ) {
+		json_value *key = GetJsonField(root->u.array.values[i], json_string, name, NULL);
+		if( len == key->u.string.length &&
+			(caseSensitive ? strncmp(key->u.string.ptr, str, len) : !strncasecmp(key->u.string.ptr, str, len)) )
+		{
+			result = root->u.array.values[i];
+			break;
+		}
+	}
+	if( pIndex ) *pIndex = i;
+	return result;
+}
+
+static bool ParseLevelConfiguration(json_value *root) {
+	if( root == NULL || root->type != json_object ) {
+		return false;
+	}
+	return true;
+}
+
+static bool ParseModConfiguration(char *levelName, json_value *root) {
+	if( root == NULL || root->type != json_object ) {
+		return false;
+	}
+	// parsing default configs
+	ParseLevelConfiguration(GetJsonField(root, json_object, "default", NULL));
+	// parsing level specific configs
+	json_value* levels = GetJsonField(root, json_array, "levels", NULL);
+	if( levels ) ParseLevelConfiguration(GetJsonObjectByStringField(levels, "filename", levelName, false, NULL));
+	return true;
+}
+
+void UnloadModConfiguration() {
+	memset(&ModConfig, 0, sizeof(ModConfig));
+}
+
+bool LoadModConfiguration(LPCTSTR levelFilePath) {
+	UnloadModConfiguration();
+	if( !PathFileExists(MOD_CONFIG_NAME) ) {
+		return false;
+	}
+	char levelName[256] = {0};
+	strncpy(levelName, PathFindFileName(levelFilePath), sizeof(levelName));
+	char *ext = PathFindExtension(levelName);
+	if( ext != NULL ) *ext = 0;
+
+	DWORD bytesRead = 0;
+	HANDLE hFile = CreateFile(MOD_CONFIG_NAME, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN|FILE_ATTRIBUTE_NORMAL, NULL);
+	if( hFile == INVALID_HANDLE_VALUE ) {
+		return false;
+	}
+	DWORD cfgSize = GetFileSize(hFile, NULL);
+	void *cfgData = malloc(cfgSize);
+	ReadFile(hFile, cfgData, cfgSize, &bytesRead, NULL);
+	CloseHandle(hFile);
+
+	json_char* json = (json_char*)cfgData;
+	json_value* value = json_parse(json, cfgSize);
+	if( value != NULL ) {
+		ModConfig.isLoaded = ParseModConfiguration(levelName, value);
+	}
+	json_value_free(value);
+	free(cfgData);
+	return ModConfig.isLoaded;
+}
+#endif // FEATURE_MOD_CONFIG

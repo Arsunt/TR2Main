@@ -1,0 +1,113 @@
+{
+    "comment": [
+        "                                                                     ",
+        " This is mod configuration file for TR2Main. You can edit it,        ",
+        " if you want to create your own mod of the Tomb Raider II game.      ",
+        " This is JSON format, it's very simple. Here is info about fields:   ",
+        "                                                                     ",
+        " - 'comment' is used for comments only and it's ignored by the game. ",
+        "   You can write some notes inside it, like this one.                ",
+        "                                                                     ",
+        " - 'default' stores a set of default parameters for all levels.      ",
+        "                                                                     ",
+        " - 'levels' stores sets of parameters for each of the levels.        ",
+        "   If some parameter is set both in the 'default' and the 'levels',  ",
+        "   the parameter from 'levels' is applied.                           ",
+        "                                                                     ",
+        " - 'filename' is used to set the name of the level file for which    ",
+        "   this set of parameters will be used. Just a filename with no path ",
+        "   and no extension.                                                 ",
+        "                                                                     "
+    ],
+    "default": {
+        "comment": "Default settings for all levels"
+    },
+    "levels": [{
+        "comment": "Title",
+        "filename": "TITLE"
+    }, {
+        "comment": "Lara's Home",
+        "filename": "ASSAULT"
+    }, {
+        "comment": "The Great Wall",
+        "filename": "WALL"
+    }, {
+        "comment": "Venice",
+        "filename": "BOAT"
+    }, {
+        "comment": "Bartoli's Hideout",
+        "filename": "VENICE"
+    }, {
+        "comment": "Opera House",
+        "filename": "OPERA"
+    }, {
+        "comment": "Offshore Rig",
+        "filename": "RIG"
+    }, {
+        "comment": "Diving Area",
+        "filename": "PLATFORM"
+    }, {
+        "comment": "40 Fathoms",
+        "filename": "UNWATER"
+    }, {
+        "comment": "Wreck of the Maria Doria",
+        "filename": "KEEL"
+    }, {
+        "comment": "Living Quarters",
+        "filename": "LIVING"
+    }, {
+        "comment": "The Deck",
+        "filename": "DECK"
+    }, {
+        "comment": "Tibetan Foothills",
+        "filename": "SKIDOO"
+    }, {
+        "comment": "Barkhang Monastery",
+        "filename": "MONASTRY"
+    }, {
+        "comment": "Catacombs of the Talion",
+        "filename": "CATACOMB"
+    }, {
+        "comment": "Ice Palace",
+        "filename": "ICECAVE"
+    }, {
+        "comment": "Temple of Xian",
+        "filename": "EMPRTOMB"
+    }, {
+        "comment": "Floating Islands",
+        "filename": "FLOATING"
+    }, {
+        "comment": "The Dragon's Lair",
+        "filename": "XIAN"
+    }, {
+        "comment": "Home Sweet Home",
+        "filename": "HOUSE"
+    }, {
+        "comment": "Cutscene after The Great Wall",
+        "filename": "CUT1"
+    }, {
+        "comment": "Cutscene after Opera House",
+        "filename": "CUT2"
+    }, {
+        "comment": "Cutscene after Diving Area",
+        "filename": "CUT3"
+    }, {
+        "comment": "Cutscene after Temple of Xian",
+        "filename": "CUT4"
+    }, {
+        "comment": "The Cold War",
+        "filename": "LEVEL1"
+    }, {
+        "comment": "Fool's Gold",
+        "filename": "LEVEL2"
+    }, {
+        "comment": "Furnace of the Gods",
+        "filename": "LEVEL3"
+    }, {
+        "comment": "Kingdom",
+        "filename": "LEVEL4"
+    }, {
+        "comment": "Nightmare in Vegas",
+        "filename": "LEVEL5"
+    }]
+}

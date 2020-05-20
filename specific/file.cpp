@@ -46,9 +46,11 @@
 extern bool IsGold();
 #endif
 
-#ifdef FEATURE_VIDEOFX_IMPROVED
+#if defined(FEATURE_MOD_CONFIG) || defined(FEATURE_VIDEOFX_IMPROVED)
 #include "modding/mod_utils.h"
+#endif // defined(FEATURE_MOD_CONFIG) || defined(FEATURE_VIDEOFX_IMPROVED)
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
 static bool MarkSemitransPoly(__int16 *ptrObj, int vtxCount, bool colored, LPVOID param) {
 	UINT16 index = ptrObj[vtxCount];
 	if( colored ) {
@@ -891,7 +893,13 @@ EXIT :
 BOOL __cdecl S_LoadLevelFile(LPCTSTR fileName, int levelID, GF_LEVEL_TYPE levelType) {
 	S_UnloadLevelFile();
 	LoadLevelType = levelType; // NOTE: this line is not presented in the original game
+#ifdef FEATURE_MOD_CONFIG
+	LoadModConfiguration(fileName);
+	BOOL result = LoadLevel(fileName, levelID);
+	return result;
+#else // FEATURE_MOD_CONFIG
 	return LoadLevel(fileName, levelID);
+#endif // FEATURE_MOD_CONFIG
 }
 
 void __cdecl S_UnloadLevelFile() {
@@ -901,6 +909,9 @@ void __cdecl S_UnloadLevelFile() {
 	memset(TexturePageBuffer8, 0, sizeof(TexturePageBuffer8));
 	*LevelFileName = 0;
 	TextureInfoCount = 0;
+#ifdef FEATURE_MOD_CONFIG
+	UnloadModConfiguration();
+#endif // FEATURE_MOD_CONFIG
 }
 
 void __cdecl S_AdjustTexelCoordinates() {
