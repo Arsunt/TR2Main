@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added support for loading screens from the script.
 - Added TR2Main.json configuration file for easy game modding in the future.
 - Added support for loading screens from TR2Main.json configuration file.
+- Added support for custom water color from TR2Main.json configuration file.
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.

@@ -25,9 +25,13 @@
 #include "global/vars.h"
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
+#include "modding/mod_utils.h"
+
 extern DWORD ShadowMode;
 extern DWORD AlphaBlendMode;
 extern HWR_TEXHANDLE GetEnvmapTextureHandle();
+
+bool CustomWaterColorEnabled = false;
 #endif // FEATURE_VIDEOFX_IMPROVED
 
 static VERTEX_INFO VBuffer[40]; // NOTE: original size was 20
@@ -57,8 +61,20 @@ static D3DCOLOR shadeColor(DWORD red, DWORD green, DWORD blue, DWORD alpha, DWOR
 	CLAMPG(alpha, 0xFF);
 
 	if( IsShadeEffect ) {
+#if defined(FEATURE_VIDEOFX_IMPROVED) && defined(FEATURE_MOD_CONFIG)
+		D3DCOLOR water = GetModWaterColor();
+		if( CustomWaterColorEnabled && water ) {
+			red   = red   * RGB_GETRED(water) / 256;
+			green = green * RGB_GETGREEN(water) / 256;
+			blue  = blue  * RGB_GETBLUE(water) / 256;
+		} else {
+			red   = red   * 128 / 256;
+			green = green * 224 / 256;
+		}
+#else // defined(FEATURE_VIDEOFX_IMPROVED) && defined(FEATURE_MOD_CONFIG)
 		red   = red   * 128 / 256;
 		green = green * 224 / 256;
+#endif // defined(FEATURE_VIDEOFX_IMPROVED) && defined(FEATURE_MOD_CONFIG)
 	}
 	return RGBA_MAKE(red, green, blue, alpha);
 }

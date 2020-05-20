@@ -31,6 +31,7 @@
 typedef struct {
 	bool isLoaded;
 	char loadingPix[256];
+	DWORD waterColor;
 } MOD_CONFIG;
 
 static MOD_CONFIG ModConfig;
@@ -118,6 +119,10 @@ const char *GetModLoadingPix() {
 	return *ModConfig.loadingPix ? ModConfig.loadingPix : NULL;
 }
 
+DWORD GetModWaterColor() {
+	return ModConfig.waterColor;
+}
+
 static json_value *GetJsonField(json_value *root, json_type fieldType, const char *name, DWORD *pIndex) {
 	if( root == NULL || root->type != json_object ) {
 		return NULL;
@@ -168,6 +173,10 @@ static bool ParseLevelConfiguration(json_value *root) {
 	field = GetJsonField(root, json_string, "picture", NULL);
 	if( field ) {
 		snprintf(ModConfig.loadingPix, sizeof(ModConfig.loadingPix), "data\\%.*s.pcx", field->u.string.length, field->u.string.ptr);
+	}
+	field = GetJsonField(root, json_string, "watercolor", NULL);
+	if( field && field->u.string.length == 6 ) {
+		ModConfig.waterColor = strtol(field->u.string.ptr, NULL, 16);
 	}
 	return true;
 }

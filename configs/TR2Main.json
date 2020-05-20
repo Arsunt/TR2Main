@@ -20,10 +20,17 @@
         "                                                                     ",
         " - 'picture' is used to set the name of the image file for the level ",
         "   loading screen. Just a filename with no path and no extension.    ",
+        "                                                                     ",
+        " - 'watercolor' is used to set the water color for the level.        ",
+        "   It must be in hexadecimal format: RRGGBB (red, green, blue).      ",
+        "   PC HW Renderer uses '80C0FF', and PC SW renderer uses 'AAAAFF'.   ",
+        "   PS1 colors: '80FFFF', 'B2E6E6', 'CCFFCC', 'CCFF98', 'CCFF80'.     ",
+        "   This setting affects only hardware renderer mode.                 ",
         "                                                                     "
     ],
     "default": {
-        "comment": "Default settings for all levels"
+        "comment": "Default settings for all levels",
+        "watercolor": "80FFFF"
     },
     "levels": [{
         "comment": "Title",
@@ -35,19 +42,23 @@
     }, {
         "comment": "The Great Wall",
         "filename": "WALL",
-        "picture": "CHINA"
+        "picture": "CHINA",
+        "watercolor": "B2E6E6"
     }, {
         "comment": "Venice",
         "filename": "BOAT",
-        "picture": "VENICE"
+        "picture": "VENICE",
+        "watercolor": "CCFF80"
     }, {
         "comment": "Bartoli's Hideout",
         "filename": "VENICE",
-        "picture": "VENICE"
+        "picture": "VENICE",
+        "watercolor": "CCFF80"
     }, {
         "comment": "Opera House",
         "filename": "OPERA",
-        "picture": "VENICE"
+        "picture": "VENICE",
+        "watercolor": "CCFF80"
     }, {
         "comment": "Offshore Rig",
         "filename": "RIG",
@@ -75,7 +86,8 @@
     }, {
         "comment": "Tibetan Foothills",
         "filename": "SKIDOO",
-        "picture": "TIBET"
+        "picture": "TIBET",
+        "watercolor": "B2E6E6"
     }, {
         "comment": "Barkhang Monastery",
         "filename": "MONASTRY",
@@ -91,22 +103,26 @@
     }, {
         "comment": "Temple of Xian",
         "filename": "EMPRTOMB",
-        "picture": "CHINA"
+        "picture": "CHINA",
+        "watercolor": "CCFF98"
     }, {
         "comment": "Floating Islands",
         "filename": "FLOATING",
-        "picture": "CHINA"
+        "picture": "CHINA",
+        "watercolor": "CCFFCC"
     }, {
         "comment": "The Dragon's Lair",
         "filename": "XIAN",
-        "picture": "CHINA"
+        "picture": "CHINA",
+        "watercolor": "CCFFCC"
     }, {
         "comment": "Home Sweet Home",
         "filename": "HOUSE",
         "picture": "MANSION"
     }, {
         "comment": "Cutscene after The Great Wall",
-        "filename": "CUT1"
+        "filename": "CUT1",
+        "watercolor": "B2E6E6"
     }, {
         "comment": "Cutscene after Opera House",
         "filename": "CUT2"

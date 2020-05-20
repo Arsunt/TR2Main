@@ -50,6 +50,7 @@ bool EnumeratePolys(__int16 *ptrObj, ENUM_POLYS_CB callback, POLYFILTER *filter,
 #ifdef FEATURE_MOD_CONFIG
 bool IsModConfigLoaded();
 const char *GetModLoadingPix();
+DWORD GetModWaterColor();
 
 void UnloadModConfiguration();
 bool LoadModConfiguration(LPCTSTR levelFilePath);
