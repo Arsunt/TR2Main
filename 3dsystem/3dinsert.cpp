@@ -2844,6 +2844,7 @@ void __cdecl InsertTransQuad_Sorted(int x, int y, int width, int height, int z) 
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
 void __cdecl InsertSprite(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade, DWORD flags) {
+	if( CHK_ANY(flags, SPR_TINT) ) return; // tinted sprites are not supported by software renderer yet
 #else // FEATURE_VIDEOFX_IMPROVED
 void __cdecl InsertSprite(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade) {
 #endif // FEATURE_VIDEOFX_IMPROVED
