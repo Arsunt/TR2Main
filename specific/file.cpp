@@ -98,9 +98,16 @@ static void MarkSemitransObjects() {
 		.g4 = {{~0,~0}}, // no semitrans colored quads
 		.g3 = {{~0,~0}}, // no semitrans colored triangles
 	};
-	static POLYFILTER GlassOnSinkFilter = {
+	static POLYFILTER GlassOnSinkFilter_Home = {
 		.n_vtx = 46, .n_gt4 = 41, .n_gt3 = 0, .n_g4 = 0, .n_g3 = 0,
 		.gt4 = {{17, 9}, {0, 0}},
+		.gt3 = {{~0,~0}}, // no semitrans textured triangles
+		.g4 = {{~0,~0}}, // no semitrans colored quads
+		.g3 = {{~0,~0}}, // no semitrans colored triangles
+	};
+	static POLYFILTER GlassOnSinkFilter_Vegas = {
+		.n_vtx = 46, .n_gt4 = 60, .n_gt3 = 0, .n_g4 = 0, .n_g3 = 0,
+		.gt4 = {{23, 10}, {0, 0}},
 		.gt3 = {{~0,~0}}, // no semitrans textured triangles
 		.g4 = {{~0,~0}}, // no semitrans colored quads
 		.g3 = {{~0,~0}}, // no semitrans colored triangles
@@ -112,7 +119,8 @@ static void MarkSemitransObjects() {
 	MarkSemitransMesh(ID_FLARE_FIRE, 0, NULL);
 	MarkSemitransMesh(ID_GUN_FLASH, 0, NULL);
 	MarkSemitransMesh(ID_M16_FLASH, 0, NULL);
-	MarkSemitransMesh(21, -1, &GlassOnSinkFilter);
+	MarkSemitransMesh(21, -1, &GlassOnSinkFilter_Home); // Lara's Home / Home Sweet Home
+	MarkSemitransMesh(0, -1, &GlassOnSinkFilter_Vegas); // Nightmare in Vegas
 }
 
 static void MarkSemitransTextureRanges() {

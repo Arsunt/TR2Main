@@ -27,7 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The armed snowmobile windshield is made reflective. This is not presented in the PlayStation version, but probably it was supposed to be. Anyway it looks cool!
 - The original game fast snowmobile windshield is made semitransparent (alpha blending required). This is how it looks in the PlayStation version.
 - The Golden Mask fast snowmobile windshield is made reflective. In the Golden Mask it has the same windshield model as the armed snowmobile.
-- The water surfaces and the glass on the sink in Lara's room are made semitransparent (alpha blending required). This is how they look in the PlayStation version.
+- The water surfaces and the glass on the sink in Lara's bathroom are made semitransparent (alpha blending required). This is how they look in the PlayStation version.
+- The glass on the sink in the "Nightmare in Vegas" level is made semitransparent (alpha blending required).
 - Added support for loading screens from the script.
 - Added TR2Main.json configuration file for easy game modding in the future.
 - Added support for loading screens from TR2Main.json configuration file.
