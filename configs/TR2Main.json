@@ -26,6 +26,10 @@
         "   PC HW Renderer uses '80C0FF', and PC SW renderer uses 'AAAAFF'.   ",
         "   PS1 colors: '80FFFF', 'B2E6E6', 'CCFFCC', 'CCFF98', 'CCFF80'.     ",
         "   This setting affects only hardware renderer mode.                 ",
+        "                                                                     ",
+        " - 'barefoot' is used to indicate levels where Lara does not wear    ",
+        "   boots. It is used for alternative sound effects of Lara's steps.  ",
+        "   The parameter can be true or false.                               ",
         "                                                                     "
     ],
     "default": {
@@ -70,19 +74,23 @@
     }, {
         "comment": "40 Fathoms",
         "filename": "UNWATER",
-        "picture": "TITAN"
+        "picture": "TITAN",
+        "barefoot": true
     }, {
         "comment": "Wreck of the Maria Doria",
         "filename": "KEEL",
-        "picture": "TITAN"
+        "picture": "TITAN",
+        "barefoot": true
     }, {
         "comment": "Living Quarters",
         "filename": "LIVING",
-        "picture": "TITAN"
+        "picture": "TITAN",
+        "barefoot": true
     }, {
         "comment": "The Deck",
         "filename": "DECK",
-        "picture": "TITAN"
+        "picture": "TITAN",
+        "barefoot": true
     }, {
         "comment": "Tibetan Foothills",
         "filename": "SKIDOO",
@@ -118,7 +126,8 @@
     }, {
         "comment": "Home Sweet Home",
         "filename": "HOUSE",
-        "picture": "MANSION"
+        "picture": "MANSION",
+        "barefoot": true
     }, {
         "comment": "Cutscene after The Great Wall",
         "filename": "CUT1",

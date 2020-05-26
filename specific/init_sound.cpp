@@ -59,6 +59,12 @@ bool __cdecl WinSndMakeSample(DWORD sampleIdx, LPWAVEFORMATEX format, const LPVO
 	if( DSound == NULL || !IsSoundEnabled || sampleIdx >= 256 )
 		return false;
 
+	// NOTE: this check is absent in the original game
+	if( SampleBuffers[sampleIdx] != NULL ) {
+		SampleBuffers[sampleIdx]->Release();
+		SampleBuffers[sampleIdx] = NULL;
+	}
+
 	desc.dwSize = sizeof(DSBUFFERDESC);
 	desc.dwFlags = DSBCAPS_CTRLVOLUME|DSBCAPS_CTRLPAN|DSBCAPS_CTRLFREQUENCY|DSBCAPS_LOCSOFTWARE;
 	desc.dwBufferBytes = dataSize;

@@ -73,6 +73,10 @@ extern DWORD ScreenshotFormat;
 extern char ScreenshotPath[MAX_PATH];
 #endif // FEATURE_SCREENSHOT_IMPROVED
 
+#ifdef FEATURE_MOD_CONFIG
+extern bool BarefootSfxEnabled;
+#endif // FEATURE_MOD_CONFIG
+
 #ifdef FEATURE_VIEW_IMPROVED
 extern bool PsxFovEnabled;
 extern double ViewDistanceFactor;
@@ -517,6 +521,10 @@ void __cdecl S_LoadSettings() {
 #ifdef FEATURE_VIEW_IMPROVED
 	GetRegistryBoolValue(REG_PSXFOV_ENABLE, &PsxFovEnabled, false);
 #endif // FEATURE_VIEW_IMPROVED
+
+#ifdef FEATURE_MOD_CONFIG
+	GetRegistryBoolValue(REG_BAREFOOT_SFX_ENABLE, &BarefootSfxEnabled, false);
+#endif // FEATURE_MOD_CONFIG
 
 #ifdef FEATURE_GOLD
 	if( IsGold() ) {

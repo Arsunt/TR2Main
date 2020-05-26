@@ -77,6 +77,7 @@
 #define REG_FMV_DISABLE			"DisableFMV"
 #define REG_PSXBARPOS_ENABLE	"EnablePsxBarPos"
 #define REG_PSXFOV_ENABLE		"EnablePsxFov"
+#define REG_BAREFOOT_SFX_ENABLE	"BarefootSFX"
 
 // FLOAT value names
 #define REG_GAME_SIZER		"Sizer"

@@ -30,6 +30,7 @@
 
 typedef struct {
 	bool isLoaded;
+	bool isBarefoot;
 	char loadingPix[256];
 	DWORD waterColor;
 } MOD_CONFIG;
@@ -115,6 +116,10 @@ bool IsModConfigLoaded() {
 	return ModConfig.isLoaded;
 }
 
+bool IsModBarefoot() {
+	return ModConfig.isBarefoot;
+}
+
 const char *GetModLoadingPix() {
 	return *ModConfig.loadingPix ? ModConfig.loadingPix : NULL;
 }
@@ -177,6 +182,10 @@ static bool ParseLevelConfiguration(json_value *root) {
 	field = GetJsonField(root, json_string, "watercolor", NULL);
 	if( field && field->u.string.length == 6 ) {
 		ModConfig.waterColor = strtol(field->u.string.ptr, NULL, 16);
+	}
+	field = GetJsonField(root, json_boolean, "barefoot", NULL);
+	if( field ) {
+		ModConfig.isBarefoot = field->u.boolean;
 	}
 	return true;
 }

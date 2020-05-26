@@ -136,6 +136,56 @@ static void MarkSemitransTextureRanges() {
 }
 #endif // FEATURE_VIDEOFX_IMPROVED
 
+#if defined(FEATURE_MOD_CONFIG)
+bool BarefootSfxEnabled = false;
+
+static void LoadBareFootSFX(int *sampleIndexes, int sampleCount) {
+	if( !BarefootSfxEnabled || !IsModBarefoot() || !sampleIndexes || sampleCount < 1 ) return;
+
+	LPCTSTR sfxFileName = GetFullPath("data\\barefoot.sfx");
+	if( !PathFileExists(sfxFileName) ) return;
+
+	HANDLE hSfxFile = CreateFile(sfxFileName, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if( hSfxFile == INVALID_HANDLE_VALUE ) return;
+
+	int i, j;
+	for( i=0, j=0; i < sampleCount; ++j ) {
+		DWORD bytesRead;
+		WAVEPCM_HEADER waveHeader;
+		ReadFileSync(hSfxFile, &waveHeader, sizeof(WAVEPCM_HEADER), &bytesRead, NULL);
+
+		if( waveHeader.dwRiffChunkID != 0x46464952 || // "RIFF"
+			waveHeader.dwFormat != 0x45564157 || // "WAVE"
+			waveHeader.dwDataSubchunkID != 0x61746164 ) // "data"
+		{
+			CloseHandle(hSfxFile);
+			return;
+		}
+
+		DWORD dataSize = (waveHeader.dwDataSubchunkSize + 1) & ~1; // aligned data size
+		LPWAVEFORMATEX waveFormat = (LPWAVEFORMATEX)&waveHeader.wFormatTag;
+		waveFormat->cbSize = 0;
+
+		if( sampleIndexes[i] == j ) {
+			LPVOID waveData = game_malloc(dataSize, GBUF_Samples);
+			ReadFileSync(hSfxFile, waveData, dataSize, &bytesRead, NULL);
+			WinSndMakeSample(i, waveFormat, waveData, dataSize);
+			game_free(dataSize);
+			++i;
+		} else {
+			SetFilePointer(hSfxFile, dataSize, NULL, FILE_CURRENT);
+		}
+	}
+	for( i=0; i<4; ++i ) { // there are no more than 4 barefoot step samples
+		if( SampleInfos[i].sfxID >= 4 ) break;
+		// SFX parameters are taken from the PlayStation version
+		SampleInfos[i].volume = 0x3332;
+		SampleInfos[i].randomness = 0;
+		SampleInfos[i].flags = 0x6010;
+	}
+	CloseHandle(hSfxFile);
+}
+#endif // FEATURE_MOD_CONFIG
 
 static GF_LEVEL_TYPE LoadLevelType = GFL_NOLEVEL;
 
@@ -782,6 +832,9 @@ BOOL __cdecl LoadSamples(HANDLE hFile) {
 	}
 	CloseHandle(hSfxFile);
 	SoundIsActive = TRUE;
+#if defined(FEATURE_MOD_CONFIG)
+	LoadBareFootSFX(sampleIndexes, sampleCount);
+#endif // FEATURE_MOD_CONFIG
 	return TRUE;
 }
 

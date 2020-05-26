@@ -49,6 +49,7 @@ bool EnumeratePolys(__int16 *ptrObj, ENUM_POLYS_CB callback, POLYFILTER *filter,
 
 #ifdef FEATURE_MOD_CONFIG
 bool IsModConfigLoaded();
+bool IsModBarefoot();
 const char *GetModLoadingPix();
 DWORD GetModWaterColor();
 
