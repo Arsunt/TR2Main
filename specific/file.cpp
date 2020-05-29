@@ -125,7 +125,7 @@ static void MarkSemitransObjects() {
 
 static void MarkSemitransTextureRanges() {
 	__int16 *ptr = AnimatedTextureRanges;
-	for( int i = *(ptr++); i>0; --i, ++ptr ) {
+	for( int i = *(ptr++); i>0; --i ) {
 		for ( int j = *(ptr++); j>=0; --j, ++ptr ) {
 			if( PhdTextureInfo[*ptr].drawtype == DRAW_ColorKey ) {
 				// all animated room textures with colorkey are supposed to be semitransparent
