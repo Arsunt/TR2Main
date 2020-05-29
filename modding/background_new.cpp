@@ -345,14 +345,14 @@ static int MakeBgndTexture(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmpP
 
 	S_DontDisplayPicture(); // clean up previous textures
 
-	if( bmpPal != NULL && TextureFormat.bpp < 16 ) {
+	if( bmpPal != NULL && (SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16) ) {
 		BGND_PaletteIndex = CreateTexturePalette(bmpPal);
 	} else {
 		BGND_PaletteIndex = -1;
 	}
 
 	if( bmpPal == NULL ) { // source bitmap is not indexed
-		if( TextureFormat.bpp < 16 ) { // texture cannot be indexed in this case
+		if( SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16 ) { // texture cannot be indexed in this case
 			return -1;
 		}
 		UINT16 *tmpBmp = (UINT16 *)calloc(2, SQR(side));
@@ -442,13 +442,13 @@ static int PickBestPictureFile(LPTSTR fileName, LPCTSTR modDir) {
 	char altPath[256];
 	for( i = 0; i < numAspects; ++i ) {
 		snprintf(altPath, sizeof(altPath), ".\\%s\\%dx%d", modDir, aspects[idx[i]][0], aspects[idx[i]][1]);
-		if( 0 < AutoSelectPathAndExtension(fileName, altPath, exts, (TextureFormat.bpp < 16) ? 0 : ARRAY_SIZE(exts)) ) {
+		if( 0 < AutoSelectPathAndExtension(fileName, altPath, exts, (SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16) ? 0 : ARRAY_SIZE(exts)) ) {
 			return 2;
 		}
 	}
 
 	snprintf(altPath, sizeof(altPath), ".\\%s", modDir);
-	return AutoSelectPathAndExtension(fileName, altPath, exts, (TextureFormat.bpp < 16) ? 0 : ARRAY_SIZE(exts));
+	return AutoSelectPathAndExtension(fileName, altPath, exts, (SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16) ? 0 : ARRAY_SIZE(exts));
 }
 
 
@@ -596,7 +596,7 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 		bitmapData = (BYTE *)malloc(bitmapSize);
 		DecompPCX(fileData, fileSize, bitmapData, PicPalette);
 		isPCX = true;
-	} else if( TextureFormat.bpp >= 16 ) {
+	} else if( SavedAppSettings.RenderMode == RM_Hardware && TextureFormat.bpp >= 16 ) {
 		if( GDI_LoadImageFile(fullPath, &bitmapData, &width, &height, 16) ||
 			width > MAX_SURFACE_SIZE || height > MAX_SURFACE_SIZE )
 		{
