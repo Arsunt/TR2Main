@@ -779,6 +779,7 @@ void __cdecl FmvBackToGame() {
 void __cdecl GameApplySettings(APP_SETTINGS *newSettings) {
 	bool needInitRenderState = false;
 	bool needRebuildBuffers = false;
+	bool needAdjustTexel = false;
 	DISPLAY_MODE dispMode;
 
 	if( newSettings->PreferredDisplayAdapter != SavedAppSettings.PreferredDisplayAdapter||
@@ -793,6 +794,10 @@ void __cdecl GameApplySettings(APP_SETTINGS *newSettings) {
 		newSettings->BilinearFiltering != SavedAppSettings.BilinearFiltering )
 	{
 		needInitRenderState = true;
+	}
+
+	if( newSettings->BilinearFiltering != SavedAppSettings.BilinearFiltering ) {
+		needAdjustTexel = true;
 	}
 
 	if( newSettings->RenderMode != SavedAppSettings.RenderMode ||
@@ -848,6 +853,9 @@ void __cdecl GameApplySettings(APP_SETTINGS *newSettings) {
 	if( needRebuildBuffers ) {
 		ClearBuffers(CLRB_WindowedPrimaryBuffer, 0);
 		ApplySettings(newSettings);
+	}
+
+	if( needAdjustTexel ) {
 		S_AdjustTexelCoordinates();
 	}
 }

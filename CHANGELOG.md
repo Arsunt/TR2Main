@@ -51,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed game crash in Software Rendered mode with PlayStation styled inventory text box enabled (broken since v0.8.0).
 - Fixed a rare game crash occurring when launching the game (broken since v0.1.0).
 - Fixed sunset effect in Bartoli's Hideout level (broken since v0.1.0).
+- Fixed texel adjustment if the filtering is changed by *F8* hotkey while "Adjust when bilinear filtering" option is enabled (broken since v0.1.0).
 
 ## [0.8.2] - 2019-05-26
 ### TR2Main bugfixes

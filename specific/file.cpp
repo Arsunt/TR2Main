@@ -358,8 +358,8 @@ void __cdecl AdjustTextureUVs(bool resetUvAdd) {
 	BYTE uvFlags;
 	PHD_UV *pUV;
 
-	if( (SavedAppSettings.TexelAdjustMode == TAM_Always && SavedAppSettings.RenderMode == RM_Hardware ) ||
-		(SavedAppSettings.TexelAdjustMode == TAM_BilinearOnly && SavedAppSettings.BilinearFiltering) )
+	if( SavedAppSettings.RenderMode == RM_Hardware && (SavedAppSettings.TexelAdjustMode == TAM_Always ||
+		(SavedAppSettings.TexelAdjustMode == TAM_BilinearOnly && SavedAppSettings.BilinearFiltering)) )
 	{
 		adjustment = SavedAppSettings.LinearAdjustment; // LinearAdjustment default is 128. It can be changed in the registry only
 	} else {
