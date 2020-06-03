@@ -66,7 +66,7 @@ void __cdecl DrawSkidoo(ITEM_INFO *item) {
 			phd_TranslateRel_ID(frames[0][6], frames[0][7], frames[0][8], frames[1][6], frames[1][7], frames[1][8]);
 			phd_RotYXZsuperpack_I(&rot1, &rot2, 0);
 #ifdef FEATURE_VIDEOFX_IMPROVED
-			SetMeshReflectState(CHK_ANY(flags, 4) ? ID_SKIDOO_ARMED : item->objectID, 0);
+			SetMeshReflectState(CHK_ANY(flags, 4) ? (int)ID_SKIDOO_ARMED : item->objectID, 0);
 #endif // FEATURE_VIDEOFX_IMPROVED
 			phd_PutPolygons_I(meshPtr[0], clip);
 #ifdef FEATURE_VIDEOFX_IMPROVED
@@ -94,7 +94,7 @@ void __cdecl DrawSkidoo(ITEM_INFO *item) {
 					track = NULL;
 				} else {
 #ifdef FEATURE_VIDEOFX_IMPROVED
-					SetMeshReflectState(CHK_ANY(flags, 4) ? ID_SKIDOO_ARMED : item->objectID, i);
+					SetMeshReflectState(CHK_ANY(flags, 4) ? (int)ID_SKIDOO_ARMED : item->objectID, i);
 #endif // FEATURE_VIDEOFX_IMPROVED
 					phd_PutPolygons_I(meshPtr[i], clip);
 #ifdef FEATURE_VIDEOFX_IMPROVED
@@ -108,7 +108,7 @@ void __cdecl DrawSkidoo(ITEM_INFO *item) {
 			phd_TranslateRel(frames[0][6], frames[0][7], frames[0][8]);
 			phd_RotYXZsuperpack(&rot, 0);
 #ifdef FEATURE_VIDEOFX_IMPROVED
-			SetMeshReflectState(CHK_ANY(flags, 4) ? ID_SKIDOO_ARMED : item->objectID, 0);
+			SetMeshReflectState(CHK_ANY(flags, 4) ? (int)ID_SKIDOO_ARMED : item->objectID, 0);
 #endif // FEATURE_VIDEOFX_IMPROVED
 			phd_PutPolygons(meshPtr[0], clip);
 #ifdef FEATURE_VIDEOFX_IMPROVED
@@ -136,7 +136,7 @@ void __cdecl DrawSkidoo(ITEM_INFO *item) {
 					track = NULL;
 				} else {
 #ifdef FEATURE_VIDEOFX_IMPROVED
-					SetMeshReflectState(CHK_ANY(flags, 4) ? ID_SKIDOO_ARMED : item->objectID, i);
+					SetMeshReflectState(CHK_ANY(flags, 4) ? (int)ID_SKIDOO_ARMED : item->objectID, i);
 #endif // FEATURE_VIDEOFX_IMPROVED
 					phd_PutPolygons(meshPtr[i], clip);
 #ifdef FEATURE_VIDEOFX_IMPROVED
