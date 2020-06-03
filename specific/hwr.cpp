@@ -279,7 +279,7 @@ void __cdecl HWR_DrawPolyList() {
 			case POLY_HWR_WGTmapQrt: // triangle fan (texture + colorkey + PSX quarter blend)
 				HWR_TexSource(texPage == (UINT16)~0 ? GetEnvmapTextureHandle() : HWR_PageHandles[texPage]);
 				HWR_EnableColorKey(polyType != POLY_HWR_GTmap);
-				if( AlphaBlendMode == 0 || polyType == POLY_HWR_GTmap || polyType == POLY_HWR_WGTmap ) {
+				if( TextureFormat.bpp < 16 || AlphaBlendMode == 0 || polyType == POLY_HWR_GTmap || polyType == POLY_HWR_WGTmap ) {
 					D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 				} else {
 					DrawAlphaBlended(vtxPtr, vtxCount, polyType-POLY_HWR_WGTmapHalf);
@@ -299,7 +299,7 @@ void __cdecl HWR_DrawPolyList() {
 			case POLY_HWR_qrt: // triangle fan (color + PSX quarter blend)
 				HWR_TexSource(0);
 				HWR_EnableColorKey(polyType != POLY_HWR_gouraud);
-				if( AlphaBlendMode == 0 || polyType == POLY_HWR_gouraud ) {
+				if( TextureFormat.bpp < 16 || AlphaBlendMode == 0 || polyType == POLY_HWR_gouraud ) {
 					D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 				} else {
 					DrawAlphaBlended(vtxPtr, vtxCount, polyType-POLY_HWR_half);

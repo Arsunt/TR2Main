@@ -299,11 +299,14 @@ int __cdecl GF_InterpretSequence(__int16 *seq, GF_LEVEL_TYPE levelType, int seqT
 					sprintf(str, "PICTURE %s", GF_PictureFilesStringTable[seq[1]]);
 				}
 #ifdef FEATURE_BACKGROUND_IMPROVED
-				if( LoadingScreensEnabled && seq[1] < GF_GameFlow.num_Pictures
-					&& !BGND2_LoadPicture(GF_PictureFilesStringTable[seq[1]], FALSE, FALSE) )
-				{
-					BGND2_ShowPicture(30, 90, 10, 2, TRUE);
-					S_DontDisplayPicture();
+				if( LoadingScreensEnabled && seq[1] < GF_GameFlow.num_Pictures && (levelType == GFL_NORMAL || levelType == GFL_SAVED) ) {
+					RGB888 palette[256];
+					memcpy(palette, GamePalette8, sizeof(GamePalette8));
+					if( !BGND2_LoadPicture(GF_PictureFilesStringTable[seq[1]], FALSE, FALSE) ) {
+						BGND2_ShowPicture(30, 90, 10, 2, TRUE);
+						S_DontDisplayPicture();
+					}
+					memcpy(GamePalette8, palette, sizeof(GamePalette8));
 				}
 #endif // FEATURE_BACKGROUND_IMPROVED
 				seq += 2;
