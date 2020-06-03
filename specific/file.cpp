@@ -965,12 +965,14 @@ BOOL __cdecl S_LoadLevelFile(LPCTSTR fileName, int levelID, GF_LEVEL_TYPE levelT
 	LoadModConfiguration(fileName);
 	BOOL result = LoadLevel(fileName, levelID);
 #ifdef FEATURE_BACKGROUND_IMPROVED
-	if( LoadingScreensEnabled && GetModLoadingPix()
-		&& (levelType == GFL_NORMAL || levelType == GFL_SAVED)
-		&& !BGND2_LoadPicture(GetModLoadingPix(), FALSE, FALSE) )
-	{
-		BGND2_ShowPicture(30, 90, 10, 2, TRUE);
-		S_DontDisplayPicture();
+	if( LoadingScreensEnabled && GetModLoadingPix() && (levelType == GFL_NORMAL || levelType == GFL_SAVED) ) {
+		RGB888 palette[256];
+		memcpy(palette, GamePalette8, sizeof(GamePalette8));
+		if( !BGND2_LoadPicture(GetModLoadingPix(), FALSE, FALSE) ) {
+			BGND2_ShowPicture(30, 90, 10, 2, TRUE);
+			S_DontDisplayPicture();
+		}
+		memcpy(GamePalette8, palette, sizeof(GamePalette8));
 	}
 #endif // FEATURE_BACKGROUND_IMPROVED
 	return result;
