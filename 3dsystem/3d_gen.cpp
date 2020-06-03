@@ -96,7 +96,7 @@ void ClearMeshReflectState() {
 void SetMeshReflectState(int objID, int meshIdx) {
 	// Clear poly filters and disable reflection by default
 	ClearMeshReflectState();
-	if( !ReflectionMode ) return;
+	if( TextureFormat.bpp < 16 || !ReflectionMode ) return;
 
 	switch( objID ) {
 	case ID_SKIDOO_FAST :
