@@ -65,11 +65,19 @@ __int16 *__cdecl InsertObjectGT3_Sorted(__int16 *ptrObj, int number, SORTTYPE so
 __int16 *__cdecl InsertObjectG4_Sorted(__int16 *ptrObj, int number, SORTTYPE sortType); // 0x0040AD90
 void __cdecl InsertPoly_Gouraud(int vtxCount, float z, int red, int green, int blue, __int16 polyType); // 0x0040B1D0
 __int16 *__cdecl InsertObjectG3_Sorted(__int16 *ptrObj, int number, SORTTYPE sortType); // 0x0040B350
+#ifdef FEATURE_VIDEOFX_IMPROVED
+void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade, DWORD flags); // 0x0040B6A0
+#else // FEATURE_VIDEOFX_IMPROVED
 void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade); // 0x0040B6A0
+#endif // FEATURE_VIDEOFX_IMPROVED
 void __cdecl InsertFlatRect_Sorted(int x0, int y0, int x1, int y1, int z, BYTE colorIdx); // 0x0040B9F0
 void __cdecl InsertLine_Sorted(int x0, int y0, int x1, int y1, int z, BYTE colorIdx); // 0x0040BB70
 void __cdecl InsertTrans8_Sorted(PHD_VBUF *vbuf, __int16 shade); // 0x0040BCA0
 void __cdecl InsertTransQuad_Sorted(int x, int y, int width, int height, int z); // 0x0040BE40
+#ifdef FEATURE_VIDEOFX_IMPROVED
+void __cdecl InsertSprite(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade, DWORD flags); // 0x0040BF80
+#else // FEATURE_VIDEOFX_IMPROVED
 void __cdecl InsertSprite(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade); // 0x0040BF80
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 #endif // _3DINSERT_H_INCLUDED

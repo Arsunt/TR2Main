@@ -30,7 +30,9 @@
 //	0x00435EB0:		Targetable
 //	0x00435F40:		ControlGlow
 //	0x00435F80:		ControlGunShot
-//	0x00435FD0:		GunShot
+
+__int16 __cdecl GunShot(int x, int y, int z, __int16 speed, __int16 rotY, __int16 room_number);
+
 //	0x00436040:		GunHit
 //	0x00436100:		GunMiss
 //	0x004361B0:		ShotLara

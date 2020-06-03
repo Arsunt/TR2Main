@@ -51,9 +51,12 @@
 #define REG_DETAIL_LEVEL		"DetailLevel"
 #define REG_INVBGND_MODE		"InvBackgroundMode"
 #define REG_PICTURE_STRETCH		"PictureStretchLimit"
+#define REG_LOADING_SCREENS		"LoadingScreens"
+#define REG_CUSTOM_WATER_COLOR	"CustomWaterColor"
 #define REG_SHADOW_MODE			"ShadowMode"
 #define REG_REFLECTION_MODE		"ReflectionMode"
 #define REG_REFLECTION_BLUR		"ReflectionBlur"
+#define REG_ALPHABLEND_MODE		"AlphaBlendMode"
 #define REG_INVTEXTBOX_MODE		"InvTextBoxMode"
 #define REG_HEALTHBAR_MODE		"HealthBarMode"
 #define REG_SCREENSHOT_FORMAT	"ScreenshotFormat"
@@ -74,6 +77,7 @@
 #define REG_FMV_DISABLE			"DisableFMV"
 #define REG_PSXBARPOS_ENABLE	"EnablePsxBarPos"
 #define REG_PSXFOV_ENABLE		"EnablePsxFov"
+#define REG_BAREFOOT_SFX_ENABLE	"BarefootSFX"
 
 // FLOAT value names
 #define REG_GAME_SIZER		"Sizer"

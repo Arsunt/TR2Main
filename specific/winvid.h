@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -45,12 +45,12 @@ void __cdecl WinVidHideGameWindow(); // 0x004451C0
 void __cdecl WinVidSetGameWindowSize(int width, int height); // 0x00445200
 bool __cdecl ShowDDrawGameWindow(bool active); // 0x00445240
 bool __cdecl HideDDrawGameWindow(); // 0x004452F0
-HRESULT __cdecl DDrawSurfaceCreate(LPDDSURFACEDESC dsp, LPDIRECTDRAWSURFACE3 *surface); // 0x00445380
-HRESULT __cdecl DDrawSurfaceRestoreLost(LPDIRECTDRAWSURFACE3 surface1, LPDIRECTDRAWSURFACE3 surface2, bool blank); // 0x004453D0
-bool __cdecl WinVidClearBuffer(LPDIRECTDRAWSURFACE3 surface, LPRECT rect, DWORD fillColor); // 0x00445420
-HRESULT __cdecl WinVidBufferLock(LPDIRECTDRAWSURFACE3 surface, LPDDSURFACEDESC desc, DWORD flags); // 0x00445470
-HRESULT __cdecl WinVidBufferUnlock(LPDIRECTDRAWSURFACE3 surface, LPDDSURFACEDESC desc); // 0x004454B0
-bool __cdecl WinVidCopyBitmapToBuffer(LPDIRECTDRAWSURFACE3 surface, BYTE *bitmap); // 0x004454E0
+HRESULT __cdecl DDrawSurfaceCreate(LPDDSDESC dsp, LPDDS *surface); // 0x00445380
+HRESULT __cdecl DDrawSurfaceRestoreLost(LPDDS surface1, LPDDS surface2, bool blank); // 0x004453D0
+bool __cdecl WinVidClearBuffer(LPDDS surface, LPRECT rect, DWORD fillColor); // 0x00445420
+HRESULT __cdecl WinVidBufferLock(LPDDS surface, LPDDSDESC desc, DWORD flags); // 0x00445470
+HRESULT __cdecl WinVidBufferUnlock(LPDDS surface, LPDDSDESC desc); // 0x004454B0
+bool __cdecl WinVidCopyBitmapToBuffer(LPDDS surface, BYTE *bitmap); // 0x004454E0
 DWORD __cdecl GetRenderBitDepth(DWORD dwRGBBitCount); // 0x00445570
 void __thiscall WinVidGetColorBitMasks(COLOR_BIT_MASKS *bm, LPDDPIXELFORMAT pixelFormat); // 0x00445600
 void __cdecl BitMaskGetNumberOfBits(DWORD bitMask, DWORD *bitDepth, DWORD *bitOffset); // 0x00445680
@@ -61,7 +61,7 @@ bool __cdecl WinVidGoWindowed(int width, int height, DISPLAY_MODE *dispMode); //
 void __cdecl WinVidSetDisplayAdapter(DISPLAY_ADAPTER *dispAdapter); // 0x00445970
 bool __thiscall CompareVideoModes(DISPLAY_MODE *mode1, DISPLAY_MODE *mode2); // 0x00445A50
 bool __cdecl WinVidGetDisplayModes(); // 0x00445AA0
-HRESULT WINAPI EnumDisplayModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOID lpContext); // 0x00445B00
+HRESULT WINAPI EnumDisplayModesCallback(LPDDSDESC lpDDSurfaceDesc, LPVOID lpContext); // 0x00445B00
 bool __cdecl WinVidInit(); // 0x00445EC0
 bool __cdecl WinVidGetDisplayAdapters(); // 0x00445F00
 void __thiscall FlaggedStringDelete(STRING_FLAGGED *item); // 0x00445FB0

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -38,17 +38,21 @@ int __cdecl CreateTexturePage(int width, int height, LPDIRECTDRAWPALETTE palette
 int __cdecl GetFreeTexturePageIndex(); // 0x00455DF0
 bool __cdecl CreateTexturePageSurface(TEXPAGE_DESC *desc); // 0x00455E10
 bool __cdecl TexturePageInit(TEXPAGE_DESC *page); // 0x00455EB0
-LPDIRECT3DTEXTURE2 __cdecl Create3DTexture(LPDIRECTDRAWSURFACE3 surface); // 0x00456030
+LPDIRECT3DTEXTURE2 __cdecl Create3DTexture(LPDDS surface); // 0x00456030
 void __cdecl SafeFreeTexturePage(int pageIndex); // 0x00456060
 void __cdecl FreeTexturePage(int pageIndex); // 0x00456080
 void __cdecl TexturePageReleaseVidMemSurface(TEXPAGE_DESC *page); // 0x004560C0
 void __cdecl FreeTexturePages(); // 0x00456100
 bool __cdecl LoadTexturePage(int pageIndex, bool reset); // 0x00456130
 bool __cdecl ReloadTextures(bool reset); // 0x004561E0
-D3DTEXTUREHANDLE __cdecl GetTexturePageHandle(int pageIndex); // 0x00456220
+HWR_TEXHANDLE __cdecl GetTexturePageHandle(int pageIndex); // 0x00456220
 int __cdecl AddTexturePage8(int width, int height, BYTE *pageBuffer, int palIndex); // 0x00456260
 int __cdecl AddTexturePage16(int width, int height, BYTE *pageBuffer); // 0x00456360
-HRESULT CALLBACK EnumTextureFormatsCallback(LPDDSURFACEDESC lpDdsd, LPVOID lpContext); // 0x00456500
+#if (DIRECT3D_VERSION >= 0x700)
+HRESULT CALLBACK EnumTextureFormatsCallback(LPDDPIXELFORMAT lpDDPixFmt, LPVOID lpContext); // 0x00456500
+#else // (DIRECT3D_VERSION >= 0x700)
+HRESULT CALLBACK EnumTextureFormatsCallback(LPDDSDESC lpDdsd, LPVOID lpContext); // 0x00456500
+#endif // (DIRECT3D_VERSION >= 0x700)
 HRESULT __cdecl EnumerateTextureFormats(); // 0x00456620
 void __cdecl CleanupTextures(); // 0x00456650
 bool __cdecl InitTextures(); // 0x00456660

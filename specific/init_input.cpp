@@ -27,13 +27,17 @@ extern void __thiscall FlaggedStringDelete(STRING_FLAGGED *item);
 extern bool FlaggedStringCopy(STRING_FLAGGED *dst, STRING_FLAGGED *src);
 
 bool __cdecl DInputCreate() {
-	return SUCCEEDED(DirectInputCreate(GameModule, DIRECTINPUT_VERSION, &_DirectInput, NULL));
+#if (DIRECTINPUT_VERSION >= 0x700)
+	return SUCCEEDED(DirectInputCreateEx(GameModule, DIRECTINPUT_VERSION, IID_IDirectInput7, (LPVOID *)&DInput, NULL));
+#else // (DIRECTINPUT_VERSION >= 0x700)
+	return SUCCEEDED(DirectInputCreate(GameModule, DIRECTINPUT_VERSION, &DInput, NULL));
+#endif // (DIRECTINPUT_VERSION >= 0x700)
 }
 
 void __cdecl DInputRelease() {
-	if( _DirectInput != NULL ) {
-		_DirectInput->Release();
-		_DirectInput = NULL;
+	if( DInput != NULL ) {
+		DInput->Release();
+		DInput = NULL;
 	}
 }
 
@@ -101,7 +105,7 @@ bool __cdecl WinInputInit() {
 }
 
 bool __cdecl DInputEnumDevices(JOYSTICK_LIST *joystickList) {
-	return SUCCEEDED(_DirectInput->EnumDevices(DIDEVTYPE_JOYSTICK, DInputEnumDevicesCallback, (LPVOID)joystickList, DIEDFL_ATTACHEDONLY));
+	return SUCCEEDED(DInput->EnumDevices(DIDEVTYPE_JOYSTICK, DInputEnumDevicesCallback, (LPVOID)joystickList, DIEDFL_ATTACHEDONLY));
 }
 
 BOOL CALLBACK DInputEnumDevicesCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef) {
@@ -164,8 +168,13 @@ JOYSTICK_NODE *__cdecl GetJoystick(GUID *lpGuid) {
 }
 
 void __cdecl DInputKeyboardCreate() {
-	if FAILED(_DirectInput->CreateDevice(GUID_SysKeyboard, &IDID_SysKeyboard, NULL))
+#if (DIRECTINPUT_VERSION >= 0x700)
+	if FAILED(DInput->CreateDeviceEx(GUID_SysKeyboard, IID_IDirectInputDevice7, (LPVOID *)&IDID_SysKeyboard, NULL))
 		throw ERR_CantCreateKeyboardDevice;
+#else // (DIRECTINPUT_VERSION >= 0x700)
+	if FAILED(DInput->CreateDevice(GUID_SysKeyboard, &IDID_SysKeyboard, NULL))
+		throw ERR_CantCreateKeyboardDevice;
+#endif // (DIRECTINPUT_VERSION >= 0x700)
 	if FAILED(IDID_SysKeyboard->SetCooperativeLevel(HGameWindow, DISCL_FOREGROUND|DISCL_NONEXCLUSIVE))
 		throw ERR_CantSetKBCooperativeLevel;
 	if FAILED(IDID_SysKeyboard->SetDataFormat(&c_dfDIKeyboard))
@@ -209,8 +218,8 @@ void __cdecl WinInFinish() {
 }
 
 void __cdecl WinInRunControlPanel(HWND hWnd) {
-	if( _DirectInput != NULL )
-		_DirectInput->RunControlPanel(hWnd, 0);
+	if( DInput != NULL )
+		DInput->RunControlPanel(hWnd, 0);
 }
 
 /*

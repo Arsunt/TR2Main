@@ -47,7 +47,8 @@ void __cdecl DoSnowEffect(ITEM_INFO *item); // 0x0043D740
 //	0x0043E590:		SkidooGuns
 //	0x0043E6B0:		SkidooControl
 
-#define DrawSkidoo ((void(__cdecl*)(ITEM_INFO *)) 0x0043EB10)
+void __cdecl DrawSkidoo(ITEM_INFO *item);
+
 #define InitialiseSkidman ((void(__cdecl*)(__int16)) 0x0043EDF0)
 #define SkidManControl ((void(__cdecl*)(__int16)) 0x0043EE80)
 

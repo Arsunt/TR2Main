@@ -101,8 +101,15 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 #endif
 
 		initStatus = Init(isSetupRequested);
-		if( initStatus == 0 )
+		if( initStatus == 0 ) {
+#if (DIRECT3D_VERSION > 0x500)
+			char msg[256] = {0};
+			snprintf(msg, sizeof(msg), "Tomb Raider II requires Microsoft DirectX %d to be installed.", DIRECT3D_VERSION/0x100);
+			UT_MessageBox(msg, NULL);
+#else // (DIRECT3D_VERSION > 0x500)
 			UT_ErrorBox(IDS_DX5_REQUIRED, NULL); // "Tomb Raider II requires Microsoft DirectX 5 to be installed."
+#endif // (DIRECT3D_VERSION > 0x500)
+		}
 		if( initStatus != 1 )
 			goto EXIT;
 

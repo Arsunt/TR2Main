@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -28,12 +28,17 @@
  * Function list
  */
 void __cdecl Enumerate3DDevices(DISPLAY_ADAPTER *adapter); // 0x004445F0
-bool __cdecl Direct3D2Create(); // 0x00444620
-void __cdecl Direct3D2Release(); // 0x00444640
+bool __cdecl D3DCreate(); // 0x00444620
+void __cdecl D3DRelease(); // 0x00444640
+#if (DIRECT3D_VERSION >= 0x700)
+HRESULT CALLBACK Enum3DDevicesCallback(LPTSTR lpDeviceDescription, LPTSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpContext); // 0x00444660
+bool __cdecl D3DIsSupported(LPD3DDEVICEDESC7 desc); // 0x00444720
+#else // (DIRECT3D_VERSION >= 0x700)
 HRESULT CALLBACK Enum3DDevicesCallback(GUID FAR* lpGuid, LPTSTR lpDeviceDescription, LPTSTR lpDeviceName, LPD3DDEVICEDESC lpD3DHWDeviceDesc, LPD3DDEVICEDESC lpD3DHELDeviceDesc, LPVOID lpContext); // 0x00444660
 bool __cdecl D3DIsSupported(LPD3DDEVICEDESC desc); // 0x00444720
+#endif // (DIRECT3D_VERSION >= 0x700)
 bool __cdecl D3DSetViewport(); // 0x00444760
-void __cdecl D3DDeviceCreate(LPDIRECTDRAWSURFACE3 lpBackBuffer); // 0x00444820
+void __cdecl D3DDeviceCreate(LPDDS lpBackBuffer); // 0x00444820
 void __cdecl Direct3DRelease(); // 0x004449E0
 bool __cdecl Direct3DInit(); // 0x00444A30
 

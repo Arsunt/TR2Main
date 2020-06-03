@@ -1,0 +1,160 @@
+{
+    "comment": [
+        "                                                                     ",
+        " This is mod configuration file for TR2Main. You can edit it,        ",
+        " if you want to create your own mod of the Tomb Raider II game.      ",
+        " This is JSON format, it's very simple. Here is info about fields:   ",
+        "                                                                     ",
+        " - 'comment' is used for comments only and it's ignored by the game. ",
+        "   You can write some notes inside it, like this one.                ",
+        "                                                                     ",
+        " - 'default' stores a set of default parameters for all levels.      ",
+        "                                                                     ",
+        " - 'levels' stores sets of parameters for each of the levels.        ",
+        "   If some parameter is set both in the 'default' and the 'levels',  ",
+        "   the parameter from 'levels' is applied.                           ",
+        "                                                                     ",
+        " - 'filename' is used to set the name of the level file for which    ",
+        "   this set of parameters will be used. Just a filename with no path ",
+        "   and no extension.                                                 ",
+        "                                                                     ",
+        " - 'picture' is used to set the name of the image file for the level ",
+        "   loading screen. Just a filename with no path and no extension.    ",
+        "                                                                     ",
+        " - 'watercolor' is used to set the water color for the level.        ",
+        "   It must be in hexadecimal format: RRGGBB (red, green, blue).      ",
+        "   PC HW Renderer uses '80C0FF', and PC SW renderer uses 'AAAAFF'.   ",
+        "   PS1 colors: '80FFFF', 'B2E6E6', 'CCFFCC', 'CCFF98', 'CCFF80'.     ",
+        "   This setting affects only hardware renderer mode.                 ",
+        "                                                                     ",
+        " - 'barefoot' is used to indicate levels where Lara does not wear    ",
+        "   boots. It is used for alternative sound effects of Lara's steps.  ",
+        "   The parameter can be true or false.                               ",
+        "                                                                     "
+    ],
+    "default": {
+        "comment": "Default settings for all levels",
+        "watercolor": "80FFFF"
+    },
+    "levels": [{
+        "comment": "Title",
+        "filename": "TITLE"
+    }, {
+        "comment": "Lara's Home",
+        "filename": "ASSAULT",
+        "picture": "MANSION"
+    }, {
+        "comment": "The Great Wall",
+        "filename": "WALL",
+        "picture": "CHINA",
+        "watercolor": "B2E6E6"
+    }, {
+        "comment": "Venice",
+        "filename": "BOAT",
+        "picture": "VENICE",
+        "watercolor": "CCFF80"
+    }, {
+        "comment": "Bartoli's Hideout",
+        "filename": "VENICE",
+        "picture": "VENICE",
+        "watercolor": "CCFF80"
+    }, {
+        "comment": "Opera House",
+        "filename": "OPERA",
+        "picture": "VENICE",
+        "watercolor": "CCFF80"
+    }, {
+        "comment": "Offshore Rig",
+        "filename": "RIG",
+        "picture": "RIG"
+    }, {
+        "comment": "Diving Area",
+        "filename": "PLATFORM",
+        "picture": "RIG"
+    }, {
+        "comment": "40 Fathoms",
+        "filename": "UNWATER",
+        "picture": "TITAN",
+        "barefoot": true
+    }, {
+        "comment": "Wreck of the Maria Doria",
+        "filename": "KEEL",
+        "picture": "TITAN",
+        "barefoot": true
+    }, {
+        "comment": "Living Quarters",
+        "filename": "LIVING",
+        "picture": "TITAN",
+        "barefoot": true
+    }, {
+        "comment": "The Deck",
+        "filename": "DECK",
+        "picture": "TITAN",
+        "barefoot": true
+    }, {
+        "comment": "Tibetan Foothills",
+        "filename": "SKIDOO",
+        "picture": "TIBET",
+        "watercolor": "B2E6E6"
+    }, {
+        "comment": "Barkhang Monastery",
+        "filename": "MONASTRY",
+        "picture": "TIBET"
+    }, {
+        "comment": "Catacombs of the Talion",
+        "filename": "CATACOMB",
+        "picture": "TIBET"
+    }, {
+        "comment": "Ice Palace",
+        "filename": "ICECAVE",
+        "picture": "TIBET"
+    }, {
+        "comment": "Temple of Xian",
+        "filename": "EMPRTOMB",
+        "picture": "CHINA",
+        "watercolor": "CCFF98"
+    }, {
+        "comment": "Floating Islands",
+        "filename": "FLOATING",
+        "picture": "CHINA",
+        "watercolor": "CCFFCC"
+    }, {
+        "comment": "The Dragon's Lair",
+        "filename": "XIAN",
+        "picture": "CHINA",
+        "watercolor": "CCFFCC"
+    }, {
+        "comment": "Home Sweet Home",
+        "filename": "HOUSE",
+        "picture": "MANSION",
+        "barefoot": true
+    }, {
+        "comment": "Cutscene after The Great Wall",
+        "filename": "CUT1",
+        "watercolor": "B2E6E6"
+    }, {
+        "comment": "Cutscene after Opera House",
+        "filename": "CUT2"
+    }, {
+        "comment": "Cutscene after Diving Area",
+        "filename": "CUT3"
+    }, {
+        "comment": "Cutscene after Temple of Xian",
+        "filename": "CUT4"
+    }, {
+        "comment": "The Cold War",
+        "filename": "LEVEL1"
+    }, {
+        "comment": "Fool's Gold",
+        "filename": "LEVEL2"
+    }, {
+        "comment": "Furnace of the Gods",
+        "filename": "LEVEL3"
+    }, {
+        "comment": "Kingdom",
+        "filename": "LEVEL4"
+    }, {
+        "comment": "Nightmare in Vegas",
+        "filename": "LEVEL5"
+    }]
+}

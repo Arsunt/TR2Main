@@ -37,7 +37,7 @@
 #include "global/vars.h"
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
-extern LPDIRECTDRAWSURFACE3 CaptureBufferSurface;
+extern LPDDS CaptureBufferSurface;
 
 #ifdef FEATURE_GOLD
 extern bool IsGold();
@@ -83,7 +83,7 @@ typedef struct {
 
 /// Texture data structure
 typedef struct {
-	D3DTEXTUREHANDLE handle; ///< Handle of texture
+	HWR_TEXHANDLE handle; ///< Handle of texture
 	int u; ///< Texture U coordinate (pixels)
 	int v; ///< Texture V coordinate (pixels)
 	int width;	///< Texture width (pixels)
@@ -138,7 +138,7 @@ void RenderTexturedFarQuad(VERTEX2D *vtx0, VERTEX2D *vtx1, VERTEX2D *vtx2, VERTE
 
 	HWR_TexSource(txr->handle);
 	HWR_EnableColorKey(false);
-	_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DVT_TLVERTEX, &vtx, 4, 0);
+	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3D_TLVERTEX, &vtx, 4, 0);
 }
 
 /**
@@ -154,7 +154,7 @@ void RenderTexturedFarQuad(VERTEX2D *vtx0, VERTEX2D *vtx1, VERTEX2D *vtx2, VERTE
  * @param[in] shortWavePhase Lighting short wave phase in Integer representation
  * @param[in] longWavePhase Lighting long wave phase in Integer representation
  */
-void PSX_Background(D3DTEXTUREHANDLE texSource, int tu, int tv, int t_width, int t_height, int halfRowCount,
+void PSX_Background(HWR_TEXHANDLE texSource, int tu, int tv, int t_width, int t_height, int halfRowCount,
 					__int16 amplitude, __int16 deformWavePhase, __int16 shortWavePhase, __int16 longWavePhase)
 {
 	int halfColCount = MulDiv(halfRowCount, PhdWinWidth*3, PhdWinHeight*4) + 1;
@@ -345,14 +345,14 @@ static int MakeBgndTexture(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmpP
 
 	S_DontDisplayPicture(); // clean up previous textures
 
-	if( bmpPal != NULL && TextureFormat.bpp < 16 ) {
+	if( bmpPal != NULL && (SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16) ) {
 		BGND_PaletteIndex = CreateTexturePalette(bmpPal);
 	} else {
 		BGND_PaletteIndex = -1;
 	}
 
 	if( bmpPal == NULL ) { // source bitmap is not indexed
-		if( TextureFormat.bpp < 16 ) { // texture cannot be indexed in this case
+		if( SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16 ) { // texture cannot be indexed in this case
 			return -1;
 		}
 		UINT16 *tmpBmp = (UINT16 *)calloc(2, SQR(side));
@@ -442,13 +442,13 @@ static int PickBestPictureFile(LPTSTR fileName, LPCTSTR modDir) {
 	char altPath[256];
 	for( i = 0; i < numAspects; ++i ) {
 		snprintf(altPath, sizeof(altPath), ".\\%s\\%dx%d", modDir, aspects[idx[i]][0], aspects[idx[i]][1]);
-		if( 0 < AutoSelectPathAndExtension(fileName, altPath, exts, (TextureFormat.bpp < 16) ? 0 : ARRAY_SIZE(exts)) ) {
+		if( 0 < AutoSelectPathAndExtension(fileName, altPath, exts, (SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16) ? 0 : ARRAY_SIZE(exts)) ) {
 			return 2;
 		}
 	}
 
 	snprintf(altPath, sizeof(altPath), ".\\%s", modDir);
-	return AutoSelectPathAndExtension(fileName, altPath, exts, (TextureFormat.bpp < 16) ? 0 : ARRAY_SIZE(exts));
+	return AutoSelectPathAndExtension(fileName, altPath, exts, (SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16) ? 0 : ARRAY_SIZE(exts));
 }
 
 
@@ -476,7 +476,7 @@ int __cdecl BGND2_CapturePicture() {
 	DWORD height = 0;
 	RECT rect = {0, 0, 0, 0};
 
-	LPDIRECTDRAWSURFACE3 surface = CaptureBufferSurface ? CaptureBufferSurface : PrimaryBufferSurface;
+	LPDDS surface = CaptureBufferSurface ? CaptureBufferSurface : PrimaryBufferSurface;
 
 	BGND_PictureIsReady = false;
 	BGND_IsCaptured = false;
@@ -596,7 +596,7 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 		bitmapData = (BYTE *)malloc(bitmapSize);
 		DecompPCX(fileData, fileSize, bitmapData, PicPalette);
 		isPCX = true;
-	} else if( TextureFormat.bpp >= 16 ) {
+	} else if( SavedAppSettings.RenderMode == RM_Hardware && TextureFormat.bpp >= 16 ) {
 		if( GDI_LoadImageFile(fullPath, &bitmapData, &width, &height, 16) ||
 			width > MAX_SURFACE_SIZE || height > MAX_SURFACE_SIZE )
 		{
@@ -762,7 +762,7 @@ int __cdecl BGND2_ShowPicture(DWORD fadeIn, DWORD waitIn, DWORD fadeOut, DWORD w
 	return 0;
 }
 
-void __cdecl BGND2_DrawTexture(RECT *rect, D3DTEXTUREHANDLE texSource,
+void __cdecl BGND2_DrawTexture(RECT *rect, HWR_TEXHANDLE texSource,
 							   int tu, int tv, int t_width, int t_height, int t_side,
 							   D3DCOLOR color0, D3DCOLOR color1, D3DCOLOR color2, D3DCOLOR color3)
 {
@@ -817,10 +817,10 @@ void __cdecl BGND2_DrawTexture(RECT *rect, D3DTEXTUREHANDLE texSource,
 
 	HWR_TexSource(texSource);
 	HWR_EnableColorKey(false);
-	_Direct3DDevice2->GetRenderState(AlphaBlendEnabler, &alphaState);
-	_Direct3DDevice2->SetRenderState(AlphaBlendEnabler, TRUE);
-	_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DVT_TLVERTEX, &vertex, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
-	_Direct3DDevice2->SetRenderState(AlphaBlendEnabler, alphaState);
+	D3DDev->GetRenderState(AlphaBlendEnabler, &alphaState);
+	D3DDev->SetRenderState(AlphaBlendEnabler, TRUE);
+	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3D_TLVERTEX, &vertex, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+	D3DDev->SetRenderState(AlphaBlendEnabler, alphaState);
 }
 
 int __cdecl BGND2_CalculatePictureRect(RECT *rect) {

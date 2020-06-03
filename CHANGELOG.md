@@ -20,6 +20,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added separate subfolders for saved games of Gold and the original game.
 - Added PlayStation reflection visual effect.
 - Z-Buffer is no longer required for PlayStation styled gradient health/air bars.
+- Added basic/advanced alpha blending for PlayStation styled semitransparent effects.
+- Added glow effect for gunfire/flare (alpha blending required).
+- Most sprites, gunfire/flare effects, sunglasses lens, the dragon spheres of doom are made semitransparent (alpha blending required). This is how they look in the PlayStation version.
+- Rolling wheel blades, wall mounted blades, swords of statues and flamethrower masks are made reflective. This is how they look in the PlayStation version.
+- The armed snowmobile windshield is made reflective. This is not presented in the PlayStation version, but probably it was supposed to be. Anyway it looks cool!
+- The original game fast snowmobile windshield is made semitransparent (alpha blending required). This is how it looks in the PlayStation version.
+- The Golden Mask fast snowmobile windshield is made reflective. In the Golden Mask it has the same windshield model as the armed snowmobile.
+- The water surfaces and the glass on the sink in Lara's bathroom are made semitransparent (alpha blending required). This is how they look in the PlayStation version.
+- The glass on the sink in the "Nightmare in Vegas" level is made semitransparent (alpha blending required).
+- Added support for loading screens from the script.
+- Added TR2Main.json configuration file for easy game modding in the future.
+- Added support for loading screens from TR2Main.json configuration file.
+- Added support for custom water color from TR2Main.json configuration file.
+- Added support for barefoot steps SFX from TR2Main.json configuration file (BAREFOOT.SFX in the DATA folder required).
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.
@@ -36,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Background capture is optimized even more, now it is 3-4 times faster than v0.8.2. No lags anymore (broken since v0.8.0).
 - Fixed game crash in Software Rendered mode with PlayStation styled inventory text box enabled (broken since v0.8.0).
 - Fixed a rare game crash occurring when launching the game (broken since v0.1.0).
+- Fixed sunset effect in Bartoli's Hideout level (broken since v0.1.0).
 
 ## [0.8.2] - 2019-05-26
 ### TR2Main bugfixes

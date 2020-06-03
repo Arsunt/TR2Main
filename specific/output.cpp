@@ -183,7 +183,7 @@ void __cdecl S_InitialiseScreen(GF_LEVEL_TYPE levelType) {
 }
 
 void __cdecl S_OutputPolyList() {
-	struct _DDSURFACEDESC desc;
+	DDSDESC desc;
 
 	if( SavedAppSettings.RenderMode == RM_Software ) {
 		// Software renderer
@@ -198,7 +198,7 @@ void __cdecl S_OutputPolyList() {
 			phd_SortPolyList();
 		}
 		HWR_DrawPolyList();
-		_Direct3DDevice2->EndScene();
+		D3DDev->EndScene();
 	}
 }
 
@@ -792,8 +792,10 @@ void __cdecl S_AnimateTextures(int nFrames) {
 	RoomLightShades[2] = (WIBBLE_SIZE-1) * (phd_sin(WibbleOffset * PHD_360 / WIBBLE_SIZE) + PHD_IONE) / 2 / PHD_IONE;
 
 	if( GF_SunsetEnabled ) {
-		AnimFramesCounter += nFrames;
-		RoomLightShades[3] = (WIBBLE_SIZE-1) * ((AnimFramesCounter < 72000) ? (AnimFramesCounter / 72000) : 1);
+		DWORD sunsetTimeout = TICKS_PER_SECOND*60*20; // sunset sets in 20 minutes
+		SunsetTimer += nFrames;
+		CLAMPG(SunsetTimer, sunsetTimeout);
+		RoomLightShades[3] = (WIBBLE_SIZE-1) * SunsetTimer / sunsetTimeout;
 	}
 	AnimateTextures(nFrames);
 }
@@ -843,7 +845,7 @@ void __cdecl S_DisplayPicture(LPCTSTR fileName, BOOL isTitle) {
 }
 
 void __cdecl S_SyncPictureBufferPalette() {
-	DDSURFACEDESC desc;
+	DDSDESC desc;
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	int width = BGND_PictureWidth;
 	int height = BGND_PictureHeight;
@@ -897,7 +899,7 @@ void __cdecl FadeToPal(int fadeValue, RGB888 *palette) {
 			WinVidPalette[i].peGreen = palette[i].green;
 			WinVidPalette[i].peBlue  = palette[i].blue;
 		}
-		_DirectDrawPalette->SetEntries(0, palStartIdx, palSize, &WinVidPalette[palStartIdx]);
+		DDrawPalette->SetEntries(0, palStartIdx, palSize, &WinVidPalette[palStartIdx]);
 		return;
 	}
 
@@ -911,7 +913,7 @@ void __cdecl FadeToPal(int fadeValue, RGB888 *palette) {
 			WinVidPalette[i].peGreen = fadePal[i].peGreen + (palette[i].green - fadePal[i].peGreen) * j / fadeValue;
 			WinVidPalette[i].peBlue  = fadePal[i].peBlue  + (palette[i].blue  - fadePal[i].peBlue)  * j / fadeValue;
 		}
-		_DirectDrawPalette->SetEntries(0, palStartIdx, palSize, &WinVidPalette[palStartIdx]);
+		DDrawPalette->SetEntries(0, palStartIdx, palSize, &WinVidPalette[palStartIdx]);
 		S_DumpScreen();
 	}
 }
@@ -926,7 +928,7 @@ void __cdecl ScreenClear(bool isPhdWinSize) {
 }
 
 void __cdecl S_CopyScreenToBuffer() {
-	DDSURFACEDESC desc;
+	DDSDESC desc;
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	DWORD width = PhdWinWidth;
 	DWORD height = PhdWinHeight;

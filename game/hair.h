@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -28,8 +28,7 @@
  * Function list
  */
 #define InitialiseHair ((void(__cdecl*)(void)) 0x00420E80)
-
-// 0x00420F00:		HairControl
-// 0x00421900:		DrawHair
+#define HairControl ((void(__cdecl*)(int)) 0x00420F00)
+#define DrawHair ((void(__cdecl*)(void)) 0x00421900)
 
 #endif // HAIR_H_INCLUDED

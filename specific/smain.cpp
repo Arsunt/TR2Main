@@ -57,18 +57,25 @@ extern double InvGUI_Scale;
 #ifdef FEATURE_BACKGROUND_IMPROVED
 extern DWORD InvBackgroundMode;
 extern DWORD PictureStretchLimit;
+extern bool LoadingScreensEnabled;
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
 extern DWORD ShadowMode;
+extern DWORD AlphaBlendMode;
 extern DWORD ReflectionMode;
 extern DWORD ReflectionBlur;
+extern bool CustomWaterColorEnabled;
 #endif // FEATURE_VIDEOFX_IMPROVED
 
 #ifdef FEATURE_SCREENSHOT_IMPROVED
 extern DWORD ScreenshotFormat;
 extern char ScreenshotPath[MAX_PATH];
 #endif // FEATURE_SCREENSHOT_IMPROVED
+
+#ifdef FEATURE_MOD_CONFIG
+extern bool BarefootSfxEnabled;
+#endif // FEATURE_MOD_CONFIG
 
 #ifdef FEATURE_VIEW_IMPROVED
 extern bool PsxFovEnabled;
@@ -488,12 +495,16 @@ void __cdecl S_LoadSettings() {
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	GetRegistryDwordValue(REG_INVBGND_MODE, &InvBackgroundMode, 1);
 	GetRegistryDwordValue(REG_PICTURE_STRETCH, &PictureStretchLimit, 10);
+	GetRegistryBoolValue(REG_LOADING_SCREENS, &LoadingScreensEnabled, false);
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
 	GetRegistryDwordValue(REG_SHADOW_MODE, &ShadowMode, 0);
+	GetRegistryDwordValue(REG_ALPHABLEND_MODE, &AlphaBlendMode, 0);
 	GetRegistryDwordValue(REG_REFLECTION_MODE, &ReflectionMode, 0);
 	GetRegistryDwordValue(REG_REFLECTION_BLUR, &ReflectionBlur, 2);
+	GetRegistryBoolValue(REG_CUSTOM_WATER_COLOR, &CustomWaterColorEnabled, false);
+	CLAMPG(AlphaBlendMode, 2);
 	CLAMPG(ReflectionMode, 2);
 	CLAMPG(ReflectionBlur, 7);
 #endif // FEATURE_VIDEOFX_IMPROVED
@@ -510,6 +521,10 @@ void __cdecl S_LoadSettings() {
 #ifdef FEATURE_VIEW_IMPROVED
 	GetRegistryBoolValue(REG_PSXFOV_ENABLE, &PsxFovEnabled, false);
 #endif // FEATURE_VIEW_IMPROVED
+
+#ifdef FEATURE_MOD_CONFIG
+	GetRegistryBoolValue(REG_BAREFOOT_SFX_ENABLE, &BarefootSfxEnabled, false);
+#endif // FEATURE_MOD_CONFIG
 
 #ifdef FEATURE_GOLD
 	if( IsGold() ) {

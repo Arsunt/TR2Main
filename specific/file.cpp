@@ -28,6 +28,7 @@
 #include "specific/hwr.h"
 #include "specific/init.h"
 #include "specific/init_sound.h"
+#include "specific/output.h"
 #include "specific/texture.h"
 #include "specific/winvid.h"
 #include "global/vars.h"
@@ -45,6 +46,146 @@
 #ifdef FEATURE_GOLD
 extern bool IsGold();
 #endif
+
+#ifdef FEATURE_BACKGROUND_IMPROVED
+#include "modding/background_new.h"
+
+extern bool LoadingScreensEnabled;
+#endif // FEATURE_BACKGROUND_IMPROVED
+
+#if defined(FEATURE_MOD_CONFIG) || defined(FEATURE_VIDEOFX_IMPROVED)
+#include "modding/mod_utils.h"
+#endif // defined(FEATURE_MOD_CONFIG) || defined(FEATURE_VIDEOFX_IMPROVED)
+
+#ifdef FEATURE_VIDEOFX_IMPROVED
+static bool MarkSemitransPoly(__int16 *ptrObj, int vtxCount, bool colored, LPVOID param) {
+	UINT16 index = ptrObj[vtxCount];
+	if( colored ) {
+		GamePalette16[index >> 8].peFlags = 1; // semitransparent blending mode 1
+	} else {
+		PhdTextureInfo[index].drawtype = DRAW_Semitrans;
+	}
+	return true;
+}
+
+static bool MarkSemitransMesh(int objID, int meshIdx, POLYFILTER *filter) {
+	__int16 *ptrObj = NULL;
+	// if mesh index is negative, then it's a static mesh
+	if( meshIdx < 0 ) {
+		STATIC_INFO *obj = &StaticObjects[objID];
+		if( !CHK_ANY(obj->flags, 2) ) return false; // no such drawable static for patching
+		ptrObj = MeshPtr[obj->meshIndex];
+	} else {
+		OBJECT_INFO *obj = &Objects[objID];
+		if( !obj->loaded || meshIdx >= obj->nMeshes ) return false; // no such object/mesh for patching
+		ptrObj = MeshPtr[obj->meshIndex + meshIdx];
+	}
+	return EnumeratePolys(ptrObj, MarkSemitransPoly, filter, NULL);
+}
+
+static void MarkSemitransObjects() {
+	static POLYFILTER SkidooFastFilter = {
+		.n_vtx = 59, .n_gt4 = 14, .n_gt3 = 104, .n_g4 = 0, .n_g3 = 0,
+		.gt4 = {{~0,~0}}, // no semitrans textured quads
+		.gt3 = {{48, 4}, {54, 18}, {73, 6}, {0, 0}},
+		.g4 = {{~0,~0}}, // no semitrans colored quads
+		.g3 = {{~0,~0}}, // no semitrans colored triangles
+	};
+	static POLYFILTER DetailOptionFilter = {
+		.n_vtx = 80, .n_gt4 = 66, .n_gt3 = 4, .n_g4 = 2, .n_g3 = 0,
+		.gt4 = {{23, 8}, {44, 8}, {0, 0}},
+		.gt3 = {{0, 0}}, // all textured triangles are semitrans
+		.g4 = {{~0,~0}}, // no semitrans colored quads
+		.g3 = {{~0,~0}}, // no semitrans colored triangles
+	};
+	static POLYFILTER GlassOnSinkFilter_Home = {
+		.n_vtx = 46, .n_gt4 = 41, .n_gt3 = 0, .n_g4 = 0, .n_g3 = 0,
+		.gt4 = {{17, 9}, {0, 0}},
+		.gt3 = {{~0,~0}}, // no semitrans textured triangles
+		.g4 = {{~0,~0}}, // no semitrans colored quads
+		.g3 = {{~0,~0}}, // no semitrans colored triangles
+	};
+	static POLYFILTER GlassOnSinkFilter_Vegas = {
+		.n_vtx = 46, .n_gt4 = 60, .n_gt3 = 0, .n_g4 = 0, .n_g3 = 0,
+		.gt4 = {{23, 10}, {0, 0}},
+		.gt3 = {{~0,~0}}, // no semitrans textured triangles
+		.g4 = {{~0,~0}}, // no semitrans colored quads
+		.g3 = {{~0,~0}}, // no semitrans colored triangles
+	};
+	MarkSemitransMesh(ID_SKIDOO_FAST, 0, &SkidooFastFilter);
+	MarkSemitransMesh(ID_DETAIL_OPTION, 0, &DetailOptionFilter);
+	MarkSemitransMesh(ID_SPHERE_OF_DOOM1, 0, NULL);
+	MarkSemitransMesh(ID_SPHERE_OF_DOOM2, 0, NULL);
+	MarkSemitransMesh(ID_FLARE_FIRE, 0, NULL);
+	MarkSemitransMesh(ID_GUN_FLASH, 0, NULL);
+	MarkSemitransMesh(ID_M16_FLASH, 0, NULL);
+	MarkSemitransMesh(21, -1, &GlassOnSinkFilter_Home); // Lara's Home / Home Sweet Home
+	MarkSemitransMesh(0, -1, &GlassOnSinkFilter_Vegas); // Nightmare in Vegas
+}
+
+static void MarkSemitransTextureRanges() {
+	__int16 *ptr = AnimatedTextureRanges;
+	for( int i = *(ptr++); i>0; --i ) {
+		for ( int j = *(ptr++); j>=0; --j, ++ptr ) {
+			if( PhdTextureInfo[*ptr].drawtype == DRAW_ColorKey ) {
+				// all animated room textures with colorkey are supposed to be semitransparent
+				PhdTextureInfo[*ptr].drawtype = DRAW_Semitrans;
+			}
+		}
+	}
+}
+#endif // FEATURE_VIDEOFX_IMPROVED
+
+#if defined(FEATURE_MOD_CONFIG)
+bool BarefootSfxEnabled = false;
+
+static void LoadBareFootSFX(int *sampleIndexes, int sampleCount) {
+	if( !BarefootSfxEnabled || !IsModBarefoot() || !sampleIndexes || sampleCount < 1 ) return;
+
+	LPCTSTR sfxFileName = GetFullPath("data\\barefoot.sfx");
+	if( !PathFileExists(sfxFileName) ) return;
+
+	HANDLE hSfxFile = CreateFile(sfxFileName, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if( hSfxFile == INVALID_HANDLE_VALUE ) return;
+
+	int i, j;
+	for( i=0, j=0; i < sampleCount; ++j ) {
+		DWORD bytesRead;
+		WAVEPCM_HEADER waveHeader;
+		ReadFileSync(hSfxFile, &waveHeader, sizeof(WAVEPCM_HEADER), &bytesRead, NULL);
+
+		if( waveHeader.dwRiffChunkID != 0x46464952 || // "RIFF"
+			waveHeader.dwFormat != 0x45564157 || // "WAVE"
+			waveHeader.dwDataSubchunkID != 0x61746164 ) // "data"
+		{
+			CloseHandle(hSfxFile);
+			return;
+		}
+
+		DWORD dataSize = (waveHeader.dwDataSubchunkSize + 1) & ~1; // aligned data size
+		LPWAVEFORMATEX waveFormat = (LPWAVEFORMATEX)&waveHeader.wFormatTag;
+		waveFormat->cbSize = 0;
+
+		if( sampleIndexes[i] == j ) {
+			LPVOID waveData = game_malloc(dataSize, GBUF_Samples);
+			ReadFileSync(hSfxFile, waveData, dataSize, &bytesRead, NULL);
+			WinSndMakeSample(i, waveFormat, waveData, dataSize);
+			game_free(dataSize);
+			++i;
+		} else {
+			SetFilePointer(hSfxFile, dataSize, NULL, FILE_CURRENT);
+		}
+	}
+	for( i=0; i<4; ++i ) { // there are no more than 4 barefoot step samples
+		if( SampleInfos[i].sfxID >= 4 ) break;
+		// SFX parameters are taken from the PlayStation version
+		SampleInfos[i].volume = 0x3332;
+		SampleInfos[i].randomness = 0;
+		SampleInfos[i].flags = 0x6010;
+	}
+	CloseHandle(hSfxFile);
+}
+#endif // FEATURE_MOD_CONFIG
 
 static GF_LEVEL_TYPE LoadLevelType = GFL_NOLEVEL;
 
@@ -319,6 +460,9 @@ BOOL __cdecl LoadObjects(HANDLE hFile) {
 
 	// Load static objects
 	ReadFileSync(hFile, &dwCount, sizeof(DWORD), &bytesRead, NULL);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	memset(&StaticObjects, 0, sizeof(StaticObjects)); // NOTE: we need to be sure that a static object is really loaded
+#endif // FEATURE_VIDEOFX_IMPROVED
 	for( i = 0; i < dwCount; ++i ) {
 		ReadFileSync(hFile, &objNumber, sizeof(DWORD), &bytesRead, NULL);
 		ReadFileSync(hFile, &StaticObjects[objNumber].meshIndex, sizeof(__int16), &bytesRead, NULL);
@@ -464,9 +608,10 @@ BOOL __cdecl LoadPalettes(HANDLE hFile) {
 	GamePalette8[0].blue = 0;
 
 	for( int i=1; i<256; ++i ) {
-		GamePalette8[i].red   *= 4;
-		GamePalette8[i].green *= 4;
-		GamePalette8[i].blue  *= 4;
+		// NOTE: the original code just shifts left 2 bits. But this way is slightly better
+		GamePalette8[i].red   = (GamePalette8[i].red   << 2) | (GamePalette8[i].red   >> 4);
+		GamePalette8[i].green = (GamePalette8[i].green << 2) | (GamePalette8[i].green >> 4);
+		GamePalette8[i].blue  = (GamePalette8[i].blue  << 2) | (GamePalette8[i].blue  >> 4);
 	}
 
 	ReadFileSync(hFile, GamePalette16, 256*sizeof(PALETTEENTRY), &bytesRead, NULL);
@@ -490,13 +635,13 @@ BOOL __cdecl LoadCameras(HANDLE hFile) {
 BOOL __cdecl LoadSoundEffects(HANDLE hFile) {
 	DWORD bytesRead;
 
-	ReadFileSync(hFile, &SoundEffectCount, sizeof(DWORD), &bytesRead, NULL);
-	if( SoundEffectCount != 0 ) {
-		SoundEffects = (OBJECT_VECTOR *)game_malloc(sizeof(OBJECT_VECTOR)*SoundEffectCount, GBUF_SoundFX);
-		if( SoundEffects == NULL ) {
+	ReadFileSync(hFile, &SoundFxCount, sizeof(DWORD), &bytesRead, NULL);
+	if( SoundFxCount != 0 ) {
+		SoundFx = (OBJECT_VECTOR *)game_malloc(sizeof(OBJECT_VECTOR)*SoundFxCount, GBUF_SoundFX);
+		if( SoundFx == NULL ) {
 			return FALSE;
 		}
-		ReadFileSync(hFile, SoundEffects, sizeof(OBJECT_VECTOR)*SoundEffectCount, &bytesRead, NULL);
+		ReadFileSync(hFile, SoundFx, sizeof(OBJECT_VECTOR)*SoundFxCount, &bytesRead, NULL);
 	}
 	return TRUE;
 }
@@ -687,6 +832,9 @@ BOOL __cdecl LoadSamples(HANDLE hFile) {
 	}
 	CloseHandle(hSfxFile);
 	SoundIsActive = TRUE;
+#if defined(FEATURE_MOD_CONFIG)
+	LoadBareFootSFX(sampleIndexes, sampleCount);
+#endif // FEATURE_MOD_CONFIG
 	return TRUE;
 }
 
@@ -799,6 +947,10 @@ BOOL __cdecl LoadLevel(LPCTSTR fileName, int levelID) {
 	}
 
 	LoadDemoExternal(fullPath);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	MarkSemitransObjects();
+	MarkSemitransTextureRanges();
+#endif // FEATURE_VIDEOFX_IMPROVED
 	result = TRUE;
 
 EXIT :
@@ -809,7 +961,22 @@ EXIT :
 BOOL __cdecl S_LoadLevelFile(LPCTSTR fileName, int levelID, GF_LEVEL_TYPE levelType) {
 	S_UnloadLevelFile();
 	LoadLevelType = levelType; // NOTE: this line is not presented in the original game
+#ifdef FEATURE_MOD_CONFIG
+	LoadModConfiguration(fileName);
+	BOOL result = LoadLevel(fileName, levelID);
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	if( LoadingScreensEnabled && GetModLoadingPix()
+		&& (levelType == GFL_NORMAL || levelType == GFL_SAVED)
+		&& !BGND2_LoadPicture(GetModLoadingPix(), FALSE, FALSE) )
+	{
+		BGND2_ShowPicture(30, 90, 10, 2, TRUE);
+		S_DontDisplayPicture();
+	}
+#endif // FEATURE_BACKGROUND_IMPROVED
+	return result;
+#else // FEATURE_MOD_CONFIG
 	return LoadLevel(fileName, levelID);
+#endif // FEATURE_MOD_CONFIG
 }
 
 void __cdecl S_UnloadLevelFile() {
@@ -819,6 +986,9 @@ void __cdecl S_UnloadLevelFile() {
 	memset(TexturePageBuffer8, 0, sizeof(TexturePageBuffer8));
 	*LevelFileName = 0;
 	TextureInfoCount = 0;
+#ifdef FEATURE_MOD_CONFIG
+	UnloadModConfiguration();
+#endif // FEATURE_MOD_CONFIG
 }
 
 void __cdecl S_AdjustTexelCoordinates() {

@@ -58,6 +58,7 @@
 			<Add option="-DFEATURE_GOLD" />
 			<Add option="-DFEATURE_HUD_IMPROVED" />
 			<Add option="-DFEATURE_JUMP_COLLISION_FIX" />
+			<Add option="-DFEATURE_MOD_CONFIG" />
 			<Add option="-DFEATURE_NOCD_DATA" />
 			<Add option="-DFEATURE_PAULD_CDAUDIO" />
 			<Add option="-DFEATURE_SCREENSHOT_IMPROVED" />
@@ -357,8 +358,14 @@
 		<Unit filename="modding/gdi_utils.cpp" />
 		<Unit filename="modding/gdi_utils.h" />
 
+		<Unit filename="modding/mod_utils.cpp" />
+		<Unit filename="modding/mod_utils.h" />
+
 		<Unit filename="modding/psx_bar.cpp" />
 		<Unit filename="modding/psx_bar.h" />
+
+		<Unit filename="json-parser/json.c" />
+		<Unit filename="json-parser/json.h" />
 
 		<Extensions>
 			<code_completion />

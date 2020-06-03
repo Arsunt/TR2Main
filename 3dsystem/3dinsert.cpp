@@ -25,8 +25,13 @@
 #include "global/vars.h"
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
+#include "modding/mod_utils.h"
+
 extern DWORD ShadowMode;
-extern D3DTEXTUREHANDLE GetEnvmapTextureHandle();
+extern DWORD AlphaBlendMode;
+extern HWR_TEXHANDLE GetEnvmapTextureHandle();
+
+bool CustomWaterColorEnabled = false;
 #endif // FEATURE_VIDEOFX_IMPROVED
 
 static VERTEX_INFO VBuffer[40]; // NOTE: original size was 20
@@ -56,13 +61,37 @@ static D3DCOLOR shadeColor(DWORD red, DWORD green, DWORD blue, DWORD alpha, DWOR
 	CLAMPG(alpha, 0xFF);
 
 	if( IsShadeEffect ) {
+#if defined(FEATURE_VIDEOFX_IMPROVED) && defined(FEATURE_MOD_CONFIG)
+		D3DCOLOR water = GetModWaterColor();
+		if( CustomWaterColorEnabled && water ) {
+			red   = red   * RGB_GETRED(water) / 256;
+			green = green * RGB_GETGREEN(water) / 256;
+			blue  = blue  * RGB_GETBLUE(water) / 256;
+		} else {
+			red   = red   * 128 / 256;
+			green = green * 224 / 256;
+		}
+#else // defined(FEATURE_VIDEOFX_IMPROVED) && defined(FEATURE_MOD_CONFIG)
 		red   = red   * 128 / 256;
 		green = green * 224 / 256;
+#endif // defined(FEATURE_VIDEOFX_IMPROVED) && defined(FEATURE_MOD_CONFIG)
 	}
 	return RGBA_MAKE(red, green, blue, alpha);
 }
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
+static POLYTYPE GetPolyType(UINT16 drawtype) {
+	switch( drawtype ) {
+		case DRAW_Opaque:
+			return POLY_HWR_GTmap;
+		case DRAW_Semitrans:
+			return AlphaBlendMode ? POLY_HWR_WGTmapHalf : POLY_HWR_WGTmap;
+		case DRAW_ColorKey:
+			return POLY_HWR_WGTmap;
+	}
+	return POLY_HWR_WGTmap;
+}
+
 bool InsertObjectEM(__int16 *ptrObj, int vtxCount, D3DCOLOR tint, PHD_UV *em_uv) {
 	PHD_VBUF *vtx[4];
 	PHD_TEXTURE texture;
@@ -81,17 +110,9 @@ bool InsertObjectEM(__int16 *ptrObj, int vtxCount, D3DCOLOR tint, PHD_UV *em_uv)
 
 	GlobalTint = tint;
 	if( vtxCount == 4 ) {
-		if( SavedAppSettings.ZBuffer ) {
-			InsertGT4_ZBuffered(vtx[0], vtx[1], vtx[2], vtx[3], &texture);
-		} else {
-			InsertGT4_Sorted(vtx[0], vtx[1], vtx[2], vtx[3], &texture, ST_AvgZ);
-		}
+		InsertGT4_Sorted(vtx[0], vtx[1], vtx[2], vtx[3], &texture, ST_AvgZ);
 	} else {
-		if( SavedAppSettings.ZBuffer ) {
-			InsertGT3_ZBuffered(vtx[0], vtx[1], vtx[2], &texture, &uv[0], &uv[1], &uv[2]);
-		} else {
-			InsertGT3_Sorted(vtx[0], vtx[1], vtx[2], &texture, &uv[0], &uv[1], &uv[2], ST_AvgZ);
-		}
+		InsertGT3_Sorted(vtx[0], vtx[1], vtx[2], &texture, &uv[0], &uv[1], &uv[2], ST_AvgZ);
 	}
 	GlobalTint = 0;
 	return true;
@@ -1420,7 +1441,7 @@ void __cdecl InsertGT3_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2,
 #endif // !FEATURE_VIDEOFX_IMPROVED
 			HWR_EnableColorKey(texture->drawtype != DRAW_Opaque);
 
-			_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLELIST, D3DVT_TLVERTEX, VBufferD3D, 3, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+			D3DDev->DrawPrimitive(D3DPT_TRIANGLELIST, D3D_TLVERTEX, VBufferD3D, 3, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 			return;
 		}
 
@@ -1519,7 +1540,7 @@ void __cdecl DrawClippedPoly_Textured(int vtxCount) {
 		VBufferD3D[i].tv = tv;
 	}
 
-	_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, VBufferD3D, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+	D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, VBufferD3D, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 }
 
 void __cdecl InsertGT4_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PHD_VBUF *vtx3, PHD_TEXTURE *texture) {
@@ -1571,7 +1592,7 @@ void __cdecl InsertGT4_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2,
 #endif // !FEATURE_VIDEOFX_IMPROVED
 		HWR_EnableColorKey(texture->drawtype != DRAW_Opaque);
 
-		_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, VBufferD3D, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+		D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, VBufferD3D, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 	}
 	else if( (clipOR < 0 && visible_zclip(vtx0, vtx1, vtx2)) ||
 			 (clipOR > 0 && VBUF_VISIBLE(*vtx0, *vtx1, *vtx2)) )
@@ -1719,7 +1740,34 @@ __int16 *__cdecl InsertObjectG4_ZBuffered(__int16 *ptrObj, int number, SORTTYPE 
 
 		if( nPoints != 0 ) {
 			PALETTEENTRY *color = &GamePalette16[colorIdx >> 8];
+#ifdef FEATURE_VIDEOFX_IMPROVED
+			if( AlphaBlendMode && color->peFlags > 0 && color->peFlags <= 4 ) {
+				float zv;
+				switch( sortType ) {
+					case ST_AvgZ :
+						zv = (vtx0->zv + vtx1->zv + vtx2->zv + vtx3->zv) / 4.0;
+						break;
+
+					case ST_MaxZ :
+						zv = vtx0->zv;
+						CLAMPL(zv, vtx1->zv);
+						CLAMPL(zv, vtx2->zv);
+						CLAMPL(zv, vtx3->zv);
+						break;
+
+					case ST_FarZ :
+					default :
+						zv = 1000000000.0;
+						break;
+				}
+				short blend[4] = {POLY_HWR_half, POLY_HWR_add, POLY_HWR_sub, POLY_HWR_qrt};
+				InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, blend[color->peFlags - 1]);
+			} else {
+				DrawPoly_Gouraud(nPoints, color->peRed, color->peGreen, color->peBlue);
+			}
+#else // FEATURE_VIDEOFX_IMPROVED
 			DrawPoly_Gouraud(nPoints, color->peRed, color->peGreen, color->peBlue);
+#endif // FEATURE_VIDEOFX_IMPROVED
 		}
 	}
 
@@ -1742,7 +1790,7 @@ void __cdecl DrawPoly_Gouraud(int vtxCount, int red, int green, int blue) {
 		VBufferD3D[i].color = color;
 	}
 
-	_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLEFAN, D3DVT_TLVERTEX, VBufferD3D, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+	D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, VBufferD3D, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 }
 
 __int16 *__cdecl InsertObjectG3_ZBuffered(__int16 *ptrObj, int number, SORTTYPE sortType) {
@@ -1826,7 +1874,33 @@ __int16 *__cdecl InsertObjectG3_ZBuffered(__int16 *ptrObj, int number, SORTTYPE 
 
 		if( nPoints != 0 ) {
 			PALETTEENTRY *color = &GamePalette16[colorIdx >> 8];
+#ifdef FEATURE_VIDEOFX_IMPROVED
+			if( AlphaBlendMode && color->peFlags > 0 && color->peFlags <= 4 ) {
+				float zv;
+				switch( sortType ) {
+					case ST_AvgZ :
+						zv = (vtx0->zv + vtx1->zv + vtx2->zv) / 3.0;
+						break;
+
+					case ST_MaxZ :
+						zv = vtx0->zv;
+						CLAMPL(zv, vtx1->zv);
+						CLAMPL(zv, vtx2->zv);
+						break;
+
+					case ST_FarZ :
+					default :
+						zv = 1000000000.0;
+						break;
+				}
+				short blend[4] = {POLY_HWR_half, POLY_HWR_add, POLY_HWR_sub, POLY_HWR_qrt};
+				InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, blend[color->peFlags - 1]);
+			} else {
+				DrawPoly_Gouraud(nPoints, color->peRed, color->peGreen, color->peBlue);
+			}
+#else // FEATURE_VIDEOFX_IMPROVED
 			DrawPoly_Gouraud(nPoints, color->peRed, color->peGreen, color->peBlue);
+#endif // FEATURE_VIDEOFX_IMPROVED
 		}
 	}
 
@@ -1872,7 +1946,7 @@ void __cdecl InsertFlatRect_ZBuffered(int x0, int y0, int x1, int y1, int z, BYT
 
 	HWR_TexSource(0);
 	HWR_EnableColorKey(false);
-	_Direct3DDevice2->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DVT_TLVERTEX, VBufferD3D, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3D_TLVERTEX, VBufferD3D, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 }
 
 void __cdecl InsertLine_ZBuffered(int x0, int y0, int x1, int y1, int z, BYTE colorIdx) {
@@ -1903,7 +1977,7 @@ void __cdecl InsertLine_ZBuffered(int x0, int y0, int x1, int y1, int z, BYTE co
 
 	HWR_TexSource(0);
 	HWR_EnableColorKey(false);
-	_Direct3DDevice2->DrawPrimitive(D3DPT_LINESTRIP, D3DVT_TLVERTEX, VBufferD3D, 2, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+	D3DDev->DrawPrimitive(D3DPT_LINESTRIP, D3D_TLVERTEX, VBufferD3D, 2, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 }
 
 void __cdecl InsertGT3_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PHD_TEXTURE *texture, PHD_UV *uv0, PHD_UV *uv1, PHD_UV *uv2, SORTTYPE sortType) {
@@ -1944,7 +2018,11 @@ void __cdecl InsertGT3_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PH
 			Sort3dPtr->_1 = (int)zv;
 			++Sort3dPtr;
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+			*Info3dPtr++ = GetPolyType(texture->drawtype);
+#else // FEATURE_VIDEOFX_IMPROVED
 			*Info3dPtr++ = ( texture->drawtype == DRAW_Opaque ) ? POLY_HWR_GTmap : POLY_HWR_WGTmap;
+#endif // FEATURE_VIDEOFX_IMPROVED
 			*Info3dPtr++ = texture->tpage;
 			*Info3dPtr++ = 3;
 			*(D3DTLVERTEX **)Info3dPtr = HWR_VertexPtr;
@@ -2058,7 +2136,11 @@ void __cdecl InsertGT3_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PH
 			break;
 	}
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	InsertClippedPoly_Textured(nPoints, zv, GetPolyType(texture->drawtype), texture->tpage);
+#else // FEATURE_VIDEOFX_IMPROVED
 	InsertClippedPoly_Textured(nPoints, zv, ( texture->drawtype == DRAW_Opaque ) ? POLY_HWR_GTmap : POLY_HWR_WGTmap, texture->tpage);
+#endif // FEATURE_VIDEOFX_IMPROVED
 }
 
 void __cdecl InsertClippedPoly_Textured(int vtxCount, float z, __int16 polyType, __int16 texPage) {
@@ -2125,8 +2207,11 @@ void __cdecl InsertGT4_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PH
 		Sort3dPtr->_0 = (int)Info3dPtr;
 		Sort3dPtr->_1 = (int)zv;
 		++Sort3dPtr;
-
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		*Info3dPtr++ = GetPolyType(texture->drawtype);
+#else // FEATURE_VIDEOFX_IMPROVED
 		*Info3dPtr++ = ( texture->drawtype == DRAW_Opaque ) ? POLY_HWR_GTmap : POLY_HWR_WGTmap;
+#endif // FEATURE_VIDEOFX_IMPROVED
 		*Info3dPtr++ = texture->tpage;
 		*Info3dPtr++ = 4;
 		*(D3DTLVERTEX **)Info3dPtr = HWR_VertexPtr;
@@ -2340,7 +2425,16 @@ __int16 *__cdecl InsertObjectG4_Sorted(__int16 *ptrObj, int number, SORTTYPE sor
 				break;
 		}
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		if( AlphaBlendMode && color->peFlags > 0 && color->peFlags <= 4 ) {
+			short blend[4] = {POLY_HWR_half, POLY_HWR_add, POLY_HWR_sub, POLY_HWR_qrt};
+			InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, blend[color->peFlags - 1]);
+		} else {
+			InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, POLY_HWR_gouraud);
+		}
+#else // FEATURE_VIDEOFX_IMPROVED
 		InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, POLY_HWR_gouraud);
+#endif // FEATURE_VIDEOFX_IMPROVED
 	}
 
 	return ptrObj;
@@ -2475,13 +2569,26 @@ __int16 *__cdecl InsertObjectG3_Sorted(__int16 *ptrObj, int number, SORTTYPE sor
 				break;
 		}
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		if( AlphaBlendMode && color->peFlags > 0 && color->peFlags <= 4 ) {
+			short blend[4] = {POLY_HWR_half, POLY_HWR_add, POLY_HWR_sub, POLY_HWR_qrt};
+			InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, blend[color->peFlags - 1]);
+		} else {
+			InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, POLY_HWR_gouraud);
+		}
+#else // FEATURE_VIDEOFX_IMPROVED
 		InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, POLY_HWR_gouraud);
+#endif // FEATURE_VIDEOFX_IMPROVED
 	}
 
 	return ptrObj;
 }
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade, DWORD flags) {
+#else // FEATURE_VIDEOFX_IMPROVED
 void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade) {
+#endif // FEATURE_VIDEOFX_IMPROVED
 	double rhw, u0, v0, u1, v1;
 	int uOffset, vOffset, nPoints;
 
@@ -2541,7 +2648,25 @@ void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spri
 	}
 
 	IsShadeEffect = 0;
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	short polyType = POLY_HWR_WGTmap;
+	if( CHK_ANY(flags, SPR_TINT) ) {
+		GlobalTint = RGBA_SETALPHA(flags, 0xFF);
+	}
+	if( AlphaBlendMode && CHK_ANY(flags, SPR_SEMITRANS) ) {
+		short blend[4] = {
+			POLY_HWR_WGTmapHalf,
+			POLY_HWR_WGTmapAdd,
+			POLY_HWR_WGTmapSub,
+			POLY_HWR_WGTmapQrt,
+		};
+		polyType = blend[(flags & SPR_BLEND) >> 29];
+	}
+	InsertClippedPoly_Textured(nPoints, (float)z, polyType, PhdSpriteInfo[spriteIdx].texPage);
+	GlobalTint = 0;
+#else // FEATURE_VIDEOFX_IMPROVED
 	InsertClippedPoly_Textured(nPoints, (float)z, POLY_HWR_WGTmap, PhdSpriteInfo[spriteIdx].texPage);
+#endif // FEATURE_VIDEOFX_IMPROVED
 }
 
 void __cdecl InsertFlatRect_Sorted(int x0, int y0, int x1, int y1, int z, BYTE colorIdx) {
@@ -2717,7 +2842,12 @@ void __cdecl InsertTransQuad_Sorted(int x, int y, int width, int height, int z) 
 	++SurfaceCount;
 }
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+void __cdecl InsertSprite(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade, DWORD flags) {
+	if( CHK_ANY(flags, SPR_TINT) ) return; // tinted sprites are not supported by software renderer yet
+#else // FEATURE_VIDEOFX_IMPROVED
 void __cdecl InsertSprite(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade) {
+#endif // FEATURE_VIDEOFX_IMPROVED
 	Sort3dPtr->_0 = (int)Info3dPtr;
 	Sort3dPtr->_1 = z;
 	++Sort3dPtr;

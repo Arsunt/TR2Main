@@ -211,16 +211,40 @@ typedef struct {
 #define SFX_ALWAYS			(2)
 
 // Sprite flags
+#define SPR_RGB			(0x00FFFFFF)
 #define SPR_ABS			(0x01000000)
 #define SPR_SEMITRANS	(0x02000000)
 #define SPR_SCALE		(0x04000000)
 #define SPR_SHADE		(0x08000000)
+#define SPR_TINT		(0x10000000)
+#define SPR_BLEND_ADD	(0x20000000)
+#define SPR_BLEND_SUB	(0x40000000)
+#define SPR_BLEND_QRT	(SPR_BLEND_ADD|SPR_BLEND_SUB)
+#define SPR_BLEND		(SPR_BLEND_QRT)
 
 // Item flags
 #define IFL_INVISIBLE	(0x0100)
 #define IFL_CODEBITS	(0x3E00)
 #define IFL_REVERSE		(0x4000)
 #define IFL_CLEARBODY	(0x8000)
+
+/*
+ * DirectX type definitions
+ */
+
+#if (DIRECT3D_VERSION >= 0x700)
+#define D3D_TLVERTEX D3DFVF_TLVERTEX
+typedef LPDIRECTDRAWSURFACE7 LPDDS;
+typedef DDSURFACEDESC2 DDSDESC;
+typedef LPDDSURFACEDESC2 LPDDSDESC;
+typedef LPDIRECTDRAWSURFACE7 HWR_TEXHANDLE;
+#else // (DIRECT3D_VERSION >= 0x700)
+#define D3D_TLVERTEX D3DVT_TLVERTEX
+typedef LPDIRECTDRAWSURFACE3 LPDDS;
+typedef DDSURFACEDESC DDSDESC;
+typedef LPDDSURFACEDESC LPDDSDESC;
+typedef D3DTEXTUREHANDLE HWR_TEXHANDLE;
+#endif // (DIRECT3D_VERSION >= 0x700)
 
 /*
  * Enums
@@ -469,7 +493,7 @@ typedef enum {
 	ID_RICOCHET,
 	ID_TWINKLE,
 	ID_GUN_FLASH,
-	ID_DUST,
+	ID_M16_FLASH,
 	ID_BODY_PART,
 	ID_CAMERA_TARGET,
 	ID_WATERFALL,
@@ -614,6 +638,7 @@ typedef enum {
 	LGS_Draw,
 	LGS_Undraw,
 	LGS_Ready,
+	LGS_Special,
 } LARA_GUN_STATUS;
 
 typedef enum {
@@ -663,6 +688,7 @@ typedef enum {
 typedef enum {
 	DRAW_Opaque,
 	DRAW_ColorKey,
+	DRAW_Semitrans, // NOTE: semitrans is not presented in the original code
 } DRAWTYPE;
 
 typedef enum {
@@ -682,6 +708,16 @@ typedef enum {
 	POLY_HWR_gouraud,	// gouraud shaded poly (color)
 	POLY_HWR_line,		// line (color)
 	POLY_HWR_trans,		// shadow poly (color + semitransparent)
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	POLY_HWR_WGTmapHalf,// semitransparent gouraud shaded poly (texture + colorkey)
+	POLY_HWR_WGTmapAdd,	// additive blended gouraud shaded poly (texture + colorkey)
+	POLY_HWR_WGTmapSub,	// subtractive blended gouraud shaded poly (texture + colorkey)
+	POLY_HWR_WGTmapQrt,	// quarter blended gouraud shaded poly (texture + colorkey)
+	POLY_HWR_half,		// semitransparent gouraud shaded poly (color)
+	POLY_HWR_add,		// additive blended gouraud shaded poly (color)
+	POLY_HWR_sub,		// subtractive blended gouraud shaded poly (color)
+	POLY_HWR_qrt,		// quarter blended gouraud shaded poly (color)
+#endif // FEATURE_VIDEOFX_IMPROVED
 #ifdef FEATURE_HUD_IMPROVED
 	POLY_HWR_healthbar,	// health bar
 	POLY_HWR_airbar,	// air bar
@@ -1071,7 +1107,11 @@ typedef struct DisplayAdapter_t {
 	DDCAPS driverCaps;
 	DDCAPS helCaps;
 	GUID deviceGuid;
+#if (DIRECT3D_VERSION >= 0x700)
+	D3DDEVICEDESC7 D3DHWDeviceDesc;
+#else // (DIRECT3D_VERSION >= 0x700)
 	D3DDEVICEDESC D3DHWDeviceDesc;
+#endif // DIRECT3D_VERSION >= 0x700
 	DISPLAY_MODE_LIST hwDispModeList;
 	DISPLAY_MODE_LIST swDispModeList;
 	DISPLAY_MODE vgaMode1;
@@ -1167,11 +1207,11 @@ typedef struct AppSettings_t {
 } APP_SETTINGS;
 
 struct TEXPAGE_DESC {
-	LPDIRECTDRAWSURFACE3 sysMemSurface;
-	LPDIRECTDRAWSURFACE3 vidMemSurface;
+	LPDDS sysMemSurface;
+	LPDDS vidMemSurface;
 	LPDIRECTDRAWPALETTE palette;
 	LPDIRECT3DTEXTURE2 texture3d;
-	D3DTEXTUREHANDLE texHandle;
+	HWR_TEXHANDLE texHandle;
 	int width;
 	int height;
 	int status;

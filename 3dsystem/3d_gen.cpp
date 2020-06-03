@@ -81,21 +81,11 @@ int CalculateFogShade(int depth) {
 #endif // FEATURE_VIEW_IMPROVED
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
+#include "modding/mod_utils.h"
+
 extern DWORD ReflectionMode;
-
-// Filter is presented by an array of poly index and polys number (starting from the index).
-// The filter is always terminated by an index 0.
-// If the first item has index=~0 then there are no polys to reflect.
-// If the first item has index=0 and number=0 then all polys reflect.
-#define FILTER_SIZE 256
-typedef struct {UINT16 idx; UINT16 num;} POLYINDEX;
-static struct {
-	POLYINDEX gt4[FILTER_SIZE];
-	POLYINDEX gt3[FILTER_SIZE];
-	POLYINDEX g4[FILTER_SIZE];
-	POLYINDEX g3[FILTER_SIZE];
-} ReflectFilter;
-
+static POLYFILTER ReflectFilter;
+static D3DCOLOR ReflectTint = RGBA_MAKE(0xFF,0xFF,0xFF,0x80);
 static bool IsReflect = false;
 
 void ClearMeshReflectState() {
@@ -109,10 +99,57 @@ void SetMeshReflectState(int objID, int meshIdx) {
 	if( !ReflectionMode ) return;
 
 	switch( objID ) {
+	case ID_SKIDOO_FAST :
+		// This one is a fast showmobile from the Golden Mask
+		// Reflect the windshield only (skidoo body is mesh #0)
+		if( meshIdx == 0 ) {
+			// Set filter conditions
+			ReflectFilter.n_vtx = 59;
+			ReflectFilter.n_gt4 = 14;
+			ReflectFilter.n_gt3 = 73;
+			ReflectFilter.n_g4 = 0;
+			ReflectFilter.n_g3 = 17;
+			// All colored triangles are reflective
+			// The only reflective textured triangle is 48
+			ReflectFilter.gt3[0].idx = 48;
+			ReflectFilter.gt3[0].num = 1;
+			// Quads are not reflective
+			ReflectFilter.gt4[0].idx = ~0;
+			ReflectFilter.g4[0].idx = ~0;
+			IsReflect = true;
+		}
+		break;
+	case ID_SKIDOO_ARMED :
+		// This one is an armed showmobile
+		// Reflect the windshield only (skidoo body is mesh #0)
+		if( meshIdx == 0 ) {
+			// Set filter conditions
+			ReflectFilter.n_vtx = 88;
+			ReflectFilter.n_gt4 = 45;
+			ReflectFilter.n_gt3 = 60;
+			ReflectFilter.n_g4 = 0;
+			ReflectFilter.n_g3 = 0;
+			// The reflective reflective textured quads are 21..22, 34..47
+			ReflectFilter.gt4[0].idx = 21;
+			ReflectFilter.gt4[0].num = 2;
+			ReflectFilter.gt3[0].idx = 34;
+			ReflectFilter.gt3[0].num = 14;
+			// Other polys are not reflective
+			ReflectFilter.g4[0].idx = ~0;
+			ReflectFilter.g3[0].idx = ~0;
+			IsReflect = true;
+		}
+		break;
 	case ID_WORKER5 :
 		// Reflect the black glass mask of flamethrower buddy (his head is mesh #15)
 		if( meshIdx == 15 ) {
-			// The reflective polys are 22..26
+			// Set filter conditions
+			ReflectFilter.n_vtx = 38;
+			ReflectFilter.n_gt4 = 30;
+			ReflectFilter.n_gt3 = 12;
+			ReflectFilter.n_g4 = 0;
+			ReflectFilter.n_g3 = 0;
+			// The reflective textured quads are 22..26
 			ReflectFilter.gt4[0].idx = 22;
 			ReflectFilter.gt4[0].num = 5;
 			// Other polys are not reflective
@@ -123,10 +160,12 @@ void SetMeshReflectState(int objID, int meshIdx) {
 		}
 		break;
 	case ID_SPINNING_BLADE :
-		// Reflect only quads, not triangles
-		ReflectFilter.gt3[0].idx = ~0;
-		ReflectFilter.g3[0].idx = ~0;
-		IsReflect = true;
+		if( meshIdx == 0 ) {
+			// Reflect only quads, not triangles
+			ReflectFilter.gt3[0].idx = ~0;
+			ReflectFilter.g3[0].idx = ~0;
+			IsReflect = true;
+		}
 		break;
 	case ID_BLADE :
 		// Reflect blade only (mesh #1)
@@ -143,44 +182,23 @@ void SetMeshReflectState(int objID, int meshIdx) {
 	}
 }
 
-static __int16 *InsertEnvmapFiltered(__int16 *ptrObj, int vtxCount, D3DCOLOR tint, PHD_UV *uv, POLYINDEX *filter) {
-	int polyNumber = *ptrObj++;
-
-	if( !filter[0].idx && !filter[0].num ) {
-		// filter is disabled, just insert all polys
-		for( int i = 0; i < polyNumber; ++i ) {
-			InsertObjectEM(ptrObj, vtxCount, tint, uv);
-			ptrObj += vtxCount+1;
-		}
-	} else {
-		int polyIndex = 0;
-		for( int i=0; i<FILTER_SIZE; i++ ) {
-			if( filter[i].idx < polyIndex || filter[i].idx >= polyNumber ) {
-				break;
-			}
-			int skip = filter[i].idx - polyIndex;
-			if( skip > 0 ) {
-				ptrObj += skip*(vtxCount+1);
-				polyIndex += skip;
-			}
-			int number = MIN(filter[i].num, polyNumber - polyIndex);
-			for( int j = 0; j < number; ++j ) {
-				InsertObjectEM(ptrObj, vtxCount, tint, uv);
-				ptrObj += vtxCount+1;
-			}
-			polyIndex += number;
-		}
-		ptrObj += (polyNumber-polyIndex)*(vtxCount+1);
-	}
-
-	return ptrObj;
+static bool InsertEnvmap(__int16 *ptrObj, int vtxCount, bool colored, LPVOID param) {
+	InsertObjectEM(ptrObj, vtxCount, ReflectTint, (PHD_UV *)param);
+	return true;
 }
 
-static void phd_PutEnvmapPolygons(__int16 *ptrObj) {
-	if( ptrObj == NULL || *ptrObj <= 0 || !IsReflect
+static void phd_PutEnvmapPolygons(__int16 *ptrEnv) {
+	if( ptrEnv == NULL || !IsReflect
 		|| SavedAppSettings.RenderMode != RM_Hardware ) return;
+	__int16 *ptrObj = ptrEnv;
+
+	ptrObj += 5; // skip x, y, z, radius, flags
+	__int16 num = *(ptrObj++); // get vertex counter
+	ptrObj += num * 3; // skip vertices
 
 	int vtxCount = *ptrObj++;
+	if( vtxCount <= 0 ) return;
+
 	PHD_UV *uv = new PHD_UV[vtxCount];
 
 	for( int i = 0; i < vtxCount; ++i ) {
@@ -210,16 +228,7 @@ static void phd_PutEnvmapPolygons(__int16 *ptrObj) {
 		ptrObj += 3;
 	}
 
-	// overlaid faces supposed to be semitransparent
-	D3DCOLOR tint = RGBA_MAKE(0xFF,0xFF,0xFF,0x80);
-
-	// overlay textured faces
-	ptrObj = InsertEnvmapFiltered(ptrObj, 4, tint, uv, ReflectFilter.gt4);
-	ptrObj = InsertEnvmapFiltered(ptrObj, 3, tint, uv, ReflectFilter.gt3);
-	// overlay colored faces (if any presented)
-	ptrObj = InsertEnvmapFiltered(ptrObj, 4, tint, uv, ReflectFilter.g4);
-	ptrObj = InsertEnvmapFiltered(ptrObj, 3, tint, uv, ReflectFilter.g3);
-
+	EnumeratePolys(ptrEnv, InsertEnvmap, &ReflectFilter, (LPVOID)uv);
 	delete[] uv;
 }
 #endif // FEATURE_VIDEOFX_IMPROVED
@@ -492,13 +501,13 @@ void __cdecl phd_PutPolygons(__int16 *ptrObj, int clip) {
 	FltWinBottom = (float)(PhdWinMinY + PhdWinMaxY + 1);
 	FltWinCenterX = (float)(PhdWinMinX + PhdWinCenterX);
 	FltWinCenterY = (float)(PhdWinMinY + PhdWinCenterY);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	__int16 *ptrEnv = ptrObj;
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 	ptrObj += 4; // skip x, y, z, radius
 	ptrObj = calc_object_vertices(ptrObj);
 	if( ptrObj != NULL ) {
-#ifdef FEATURE_VIDEOFX_IMPROVED
-		__int16 *ptrEnv = ptrObj;
-#endif // FEATURE_VIDEOFX_IMPROVED
 		ptrObj = calc_vertice_light(ptrObj);
 		ptrObj = ins_objectGT4(ptrObj+1, *ptrObj, ST_AvgZ);
 		ptrObj = ins_objectGT3(ptrObj+1, *ptrObj, ST_AvgZ);

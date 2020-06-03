@@ -56,8 +56,14 @@ bool __cdecl WinSndMakeSample(DWORD sampleIdx, LPWAVEFORMATEX format, const LPVO
 	DWORD dwAudioBytes;
 	DSBUFFERDESC desc;
 
-	if( _DirectSound == NULL || !IsSoundEnabled || sampleIdx >= 256 )
+	if( DSound == NULL || !IsSoundEnabled || sampleIdx >= 256 )
 		return false;
+
+	// NOTE: this check is absent in the original game
+	if( SampleBuffers[sampleIdx] != NULL ) {
+		SampleBuffers[sampleIdx]->Release();
+		SampleBuffers[sampleIdx] = NULL;
+	}
 
 	desc.dwSize = sizeof(DSBUFFERDESC);
 	desc.dwFlags = DSBCAPS_CTRLVOLUME|DSBCAPS_CTRLPAN|DSBCAPS_CTRLFREQUENCY|DSBCAPS_LOCSOFTWARE;
@@ -65,7 +71,7 @@ bool __cdecl WinSndMakeSample(DWORD sampleIdx, LPWAVEFORMATEX format, const LPVO
 	desc.dwReserved = 0;
 	desc.lpwfxFormat = format;
 
-	if FAILED(_DirectSound->CreateSoundBuffer(&desc, &SampleBuffers[sampleIdx], NULL))
+	if FAILED(DSound->CreateSoundBuffer(&desc, &SampleBuffers[sampleIdx], NULL))
 		return false;
 
 	if FAILED(SampleBuffers[sampleIdx]->Lock(0, dataSize, &lpvAudioPtr, &dwAudioBytes, NULL, NULL, 0))
@@ -102,7 +108,7 @@ int __cdecl WinSndPlaySample(DWORD sampleIdx, int volume, DWORD pitch, int pan, 
 	if( channel < 0 )
 		return -1;
 
-	if( FAILED(_DirectSound->DuplicateSoundBuffer(SampleBuffers[sampleIdx], &dsBuffer)) ||
+	if( FAILED(DSound->DuplicateSoundBuffer(SampleBuffers[sampleIdx], &dsBuffer)) ||
 		FAILED(dsBuffer->SetVolume(volume)) ||
 		FAILED(dsBuffer->SetFrequency(SampleFreqs[sampleIdx] * pitch / PHD_ONE)) ||
 		FAILED(dsBuffer->SetPan(pan)) ||
@@ -242,7 +248,7 @@ void __cdecl WinSndStart(HWND hWnd) {
 	if( hWnd == NULL )
 		hWnd = HGameWindow;
 
-	if FAILED(_DirectSound->SetCooperativeLevel(hWnd, DSSCL_EXCLUSIVE))
+	if FAILED(DSound->SetCooperativeLevel(hWnd, DSSCL_EXCLUSIVE))
 		throw ERR_CantSetDSCooperativeLevel;
 
 	if( DSoundBufferTest() )
@@ -250,7 +256,7 @@ void __cdecl WinSndStart(HWND hWnd) {
 }
 
 bool __cdecl DSoundCreate(GUID *lpGuid) {
-	return SUCCEEDED(DirectSoundCreate(lpGuid, &_DirectSound, NULL));
+	return SUCCEEDED(DirectSoundCreate(lpGuid, &DSound, NULL));
 }
 
 bool __cdecl DSoundBufferTest() {
@@ -264,7 +270,7 @@ bool __cdecl DSoundBufferTest() {
 	desc.dwReserved = 0;
 	desc.lpwfxFormat = NULL;
 
-	if FAILED(_DirectSound->CreateSoundBuffer(&desc, &dsBuffer, NULL))
+	if FAILED(DSound->CreateSoundBuffer(&desc, &dsBuffer, NULL))
 		return false;
 
 	format.wFormatTag = WAVE_FORMAT_PCM;
@@ -282,9 +288,9 @@ bool __cdecl DSoundBufferTest() {
 
 void __cdecl WinSndFinish() {
 	WinSndFreeAllSamples();
-	if( _DirectSound != NULL ) {
-		_DirectSound->Release();
-		_DirectSound = NULL;
+	if( DSound != NULL ) {
+		DSound->Release();
+		DSound = NULL;
 	}
 }
 

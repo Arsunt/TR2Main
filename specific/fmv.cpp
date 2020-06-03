@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -33,6 +33,9 @@
 	if( proc == NULL ) throw #proc; \
 }
 
+#if (DIRECT3D_VERSION <= 0x500)
+// The original FMV playback supports DirectX 5 only
+// It does not support any newer version of DirectX
 #define ESCAPE_DLL_NAME "winplay.dll"
 static HMODULE hEscapePlay = NULL;
 
@@ -63,8 +66,12 @@ static int (__cdecl *Player_ShutDownSoundSystem)();
 static int (__cdecl *Player_ShutDownVideo)(LPVOID);
 static int (__cdecl *Player_StartTimer)(LPVOID);
 static int (__cdecl *Player_StopTimer)(LPVOID);
+#endif // (DIRECT3D_VERSION <= 0x500)
 
 bool __cdecl FMV_Init() {
+#if (DIRECT3D_VERSION > 0x500)
+	return false;
+#else // (DIRECT3D_VERSION > 0x500)
 	if( hEscapePlay != NULL ) {
 		return true;
 	}
@@ -110,13 +117,16 @@ bool __cdecl FMV_Init() {
 	}
 
 	return true;
+#endif // (DIRECT3D_VERSION > 0x500)
 }
 
 void __cdecl FMV_Cleanup() {
+#if (DIRECT3D_VERSION <= 0x500)
 	if( hEscapePlay != NULL ) {
 		FreeLibrary(hEscapePlay);
 		hEscapePlay = NULL;
 	}
+#endif // (DIRECT3D_VERSION <= 0x500)
 }
 
 bool __cdecl PlayFMV(LPCTSTR fileName) {
@@ -143,6 +153,7 @@ bool __cdecl PlayFMV(LPCTSTR fileName) {
 }
 
 void __cdecl WinPlayFMV(LPCTSTR fileName, bool isPlayback) {
+#if (DIRECT3D_VERSION <= 0x500)
 	int xSize, ySize, xOffset, yOffset;
 	int soundPrecision, soundRate, soundChannels, soundFormat;
 	bool isUncompressed;
@@ -152,7 +163,7 @@ void __cdecl WinPlayFMV(LPCTSTR fileName, bool isPlayback) {
 		return;
 	}
 
-	if( 0 != Player_PassInDirectDrawObject(_DirectDraw2) ||
+	if( 0 != Player_PassInDirectDrawObject(DDraw) ||
 		0 != Player_InitMovie(&MovieContext, 0, 0, fileName, 0x200000) ||
 		130 != Movie_GetFormat(MovieContext) )
 	{
@@ -204,9 +215,11 @@ void __cdecl WinPlayFMV(LPCTSTR fileName, bool isPlayback) {
 		if( S_UpdateInput() || CHK_ANY(InputStatus, IN_OPTION) )
 			break;
 	}
+#endif // (DIRECT3D_VERSION <= 0x500)
 }
 
 void __cdecl WinStopFMV(bool isPlayback) {
+#if (DIRECT3D_VERSION <= 0x500)
 	if( hEscapePlay == NULL ) {
 		return;
 	}
@@ -218,6 +231,7 @@ void __cdecl WinStopFMV(bool isPlayback) {
 	if( isPlayback ) {
 		Player_ReturnPlaybackMode(isPlayback);
 	}
+#endif // (DIRECT3D_VERSION <= 0x500)
 }
 
 bool __cdecl IntroFMV(LPCTSTR fileName1, LPCTSTR fileName2) {

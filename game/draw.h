@@ -37,14 +37,16 @@ void __cdecl DrawRooms(__int16 currentRoom); // 0x004189A0
 #define ClipRoom ((void(__cdecl*)(ROOM_INFO*)) 0x004191A0)
 #define PrintRooms ((void(__cdecl*)(__int16)) 0x00419580)
 #define PrintObjects ((void(__cdecl*)(__int16)) 0x00419640)
-#define DrawEffect ((void(__cdecl*)(__int16)) 0x00419870)
 
+void __cdecl DrawEffect(__int16 fx_id); // 0x00419870
 void __cdecl DrawSpriteItem(ITEM_INFO *item); // 0x004199C0
 void __cdecl DrawDummyItem(ITEM_INFO *item);
 void __cdecl DrawAnimatingItem(ITEM_INFO *item); // 0x00419A50
 
 #define DrawLara ((void(__cdecl*)(ITEM_INFO*)) 0x00419DD0)
-#define DrawLaraInt ((void(__cdecl*)(ITEM_INFO*, __int16*, __int16*, int, int)) 0x0041AB00)
+
+void __cdecl DrawLaraInt(ITEM_INFO *item, __int16 *frame1, __int16 *frame2, int frac, int rate);
+
 #define InitInterpolate ((void(__cdecl*)(int, int)) 0x0041B6F0)
 #define phd_PopMatrix_I ((void(__cdecl*)(void)) 0x0041B730)
 #define phd_PushMatrix_I ((void(__cdecl*)(void)) 0x0041B760)
@@ -61,7 +63,9 @@ void __cdecl phd_PutPolygons_I(__int16 *ptrObj, int clip); // 0x0041BA30
 
 #define InterpolateMatrix ((void(__cdecl*)(void)) 0x0041BA60)
 #define InterpolateArmMatrix ((void(__cdecl*)(void)) 0x0041BC10)
-#define DrawGunFlash ((void(__cdecl*)(int, int)) 0x0041BD10)
+
+void __cdecl DrawGunFlash(int weapon, int clip);
+
 #define CalculateObjectLighting ((void(__cdecl*)(ITEM_INFO*, __int16*)) 0x0041BE80)
 #define GetFrames ((int(__cdecl*)(ITEM_INFO*, __int16**, int*)) 0x0041BF70)
 #define GetBoundsAccurate ((__int16*(__cdecl*)(ITEM_INFO*)) 0x0041C010)
