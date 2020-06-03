@@ -21,9 +21,39 @@
 
 #include "global/precompiled.h"
 #include "game/skidoo.h"
+#include "3dsystem/phd_math.h"
+#include "game/items.h"
+#include "specific/game.h"
+#include "specific/output.h"
 #include "global/vars.h"
 
+void __cdecl DoSnowEffect(ITEM_INFO *item) {
+	__int16 fxID;
+	FX_INFO *fx;
+	int displacement;
 
+	fxID = CreateEffect(item->roomNumber);
+	if (fxID != -1) {
+		fx = &Effects[fxID];
+		displacement = 260 * (GetRandomDraw() - 16384) >> 14;
+		fx->pos.x = item->pos.x - ((500 * phd_sin(item->pos.rotY) + displacement * phd_cos(item->pos.rotY)) >> W2V_SHIFT);
+		fx->pos.y = item->pos.y + (500 * phd_sin(item->pos.rotX) >> W2V_SHIFT);
+		fx->pos.z = item->pos.z - ((500 * phd_cos(item->pos.rotY) - displacement * phd_sin(item->pos.rotY)) >> W2V_SHIFT);
+		fx->room_number = item->roomNumber;
+		fx->frame_number = 0;
+		fx->object_number = ID_SNOW_SPRITE;
+		fx->speed = 0;
+		if (item->speed < 64) {
+			fx->fallspeed = (ABS(item->speed) - 64) * GetRandomDraw() >> 15;
+		} else {
+			fx->fallspeed = 0;
+		}
+		PhdMatrixPtr->_23 = 0;
+		S_CalculateLight(fx->pos.x, fx->pos.y, fx->pos.z, fx->room_number);
+		fx->shade = LsAdder - 512;
+		CLAMPL(fx->shade, 0);
+	}
+}
 
 /*
  * Inject function
@@ -37,7 +67,9 @@ void Inject_Skidoo() {
 //	INJECT(0x0043D3D0, DoShift);
 //	INJECT(0x0043D650, DoDynamics);
 //	INJECT(0x0043D6B0, GetCollisionAnim);
-//	INJECT(0x0043D740, DoSnowEffect);
+
+	INJECT(0x0043D740, DoSnowEffect);
+
 //	INJECT(0x0043D880, SkidooDynamics);
 //	INJECT(0x0043DD20, SkidooUserControl);
 //	INJECT(0x0043DEE0, SkidooCheckGetOffOK);

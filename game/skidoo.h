@@ -35,7 +35,9 @@
 //	0x0043D3D0:		DoShift
 //	0x0043D650:		DoDynamics
 //	0x0043D6B0:		GetCollisionAnim
-//	0x0043D740:		DoSnowEffect
+
+void __cdecl DoSnowEffect(ITEM_INFO *item); // 0x0043D740
+
 //	0x0043D880:		SkidooDynamics
 //	0x0043DD20:		SkidooUserControl
 //	0x0043DEE0:		SkidooCheckGetOffOK

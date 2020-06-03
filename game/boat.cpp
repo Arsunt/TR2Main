@@ -21,9 +21,43 @@
 
 #include "global/precompiled.h"
 #include "game/boat.h"
+#include "3dsystem/phd_math.h"
+#include "game/items.h"
+#include "specific/game.h"
+#include "specific/output.h"
 #include "global/vars.h"
 
+void __cdecl DoWakeEffect(ITEM_INFO *item) {
+	__int16 frame_number, fxID;
+	int i;
+	FX_INFO *fx;
 
+	PhdMatrixPtr->_23 = 0;
+	S_CalculateLight(item->pos.x, item->pos.y, item->pos.z, item->roomNumber);
+	frame_number = Objects[ID_WATER_SPRITE].nMeshes * GetRandomDraw() >> 15;
+	for (i = 0; i < 3; ++i) {
+		fxID = CreateEffect(item->roomNumber);
+		if (fxID != -1) {
+			fx = &Effects[fxID];
+			fx->pos.x = item->pos.x + ((-700 * phd_sin(item->pos.rotY) + 300 * (i - 1) * phd_cos(item->pos.rotY)) >> W2V_SHIFT);
+			fx->pos.y = item->pos.y;
+			fx->pos.z = item->pos.z + ((-700 * phd_cos(item->pos.rotY) - 300 * (i - 1) * phd_sin(item->pos.rotY)) >> W2V_SHIFT);
+			fx->pos.rotY = 16384 * (i - 1) + item->pos.rotY;
+			fx->room_number = item->roomNumber;
+			fx->frame_number = frame_number;
+			fx->counter = 20;
+			fx->object_number = ID_WATER_SPRITE;
+			fx->speed = item->speed >> 2;
+			if (item->speed < 64) {
+				fx->fallspeed = (ABS(item->speed) - 64) * GetRandomDraw() >> 15;
+			} else {
+				fx->fallspeed = 0;
+			}
+			fx->shade = LsAdder - 768;
+			CLAMPL(fx->shade, 0);
+		}
+	}
+}
 
 /*
  * Inject function
@@ -34,7 +68,9 @@ void Inject_Boat() {
 //	INJECT(0x0040CCC0, BoatCollision);
 //	INJECT(0x0040CE20, TestWaterHeight);
 //	INJECT(0x0040CF20, DoBoatShift);
-//	INJECT(0x0040D0F0, DoWakeEffect);
+
+	INJECT(0x0040D0F0, DoWakeEffect);
+
 //	INJECT(0x0040D270, DoBoatDynamics);
 //	INJECT(0x0040D2C0, BoatDynamics);
 //	INJECT(0x0040D7A0, BoatUserControl);

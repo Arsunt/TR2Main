@@ -29,12 +29,14 @@
  */
 void __cdecl InitialiseItemArray(int itemCount); // 0x00426CD0
 
-// 0x00426D30:		KillItem
+#define KillItem ((void(__cdecl*)(__int16)) 0x00426D30)
+
 // 0x00426E50:		CreateItem
 
 void __cdecl InitialiseItem(__int16 itemIndex); // 0x00426E90
 
-// 0x00427050:		RemoveActiveItem
+#define RemoveActiveItem ((void(__cdecl*)(__int16)) 0x00427050)
+
 // 0x004270E0:		RemoveDrawnItem
 
 void __cdecl AddActiveItem(__int16 itemIndex); // 0x00427150
@@ -47,8 +49,8 @@ int __cdecl GlobalItemReplace(int oldItemID, int newItemID); // 0x00427250
 
 #define CreateEffect ((__int16(__cdecl*)(__int16)) 0x00427300)
 #define KillEffect ((void(__cdecl*)(__int16)) 0x00427370)
+#define EffectNewRoom ((void(__cdecl*)(__int16,__int16)) 0x00427460)
 
-// 0x00427460:		EffectNewRoom
 // 0x00427500:		ClearBodyBag
 
 #endif // ITEMS_H_INCLUDED

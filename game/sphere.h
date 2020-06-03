@@ -29,7 +29,9 @@
  */
 //	0x0043FA60:		TestCollision
 //	0x0043FB90:		GetSpheres
-//	0x0043FE70:		GetJointAbsPosition
+
+#define GetJointAbsPosition ((void(__cdecl*)(ITEM_INFO*,PHD_VECTOR*,int)) 0x0043FE70)
+
 //	0x00440010:		BaddieBiteEffect
 
 #endif // SPHERE_H_INCLUDED

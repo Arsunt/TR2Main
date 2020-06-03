@@ -32,7 +32,9 @@
 //	0x0040CCC0:		BoatCollision
 //	0x0040CE20:		TestWaterHeight
 //	0x0040CF20:		DoBoatShift
-//	0x0040D0F0:		DoWakeEffect
+
+void __cdecl DoWakeEffect(ITEM_INFO *item); // 0x0040D0F0
+
 //	0x0040D270:		DoBoatDynamics
 //	0x0040D2C0:		BoatDynamics
 //	0x0040D7A0:		BoatUserControl

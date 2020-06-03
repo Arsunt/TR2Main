@@ -32,20 +32,26 @@
 // 0x004146C0:		AnimateItem
 // 0x00414A30:		GetChange
 // 0x00414AE0:		TranslateItem
-// 0x00414B40:		GetFloor
-// 0x00414CE0:		GetWaterHeight
-// 0x00414E50:		GetHeight
+
+#define GetFloor ((FLOOR_INFO*(__cdecl*)(int,int,int,__int16*)) 0x00414B40)
+#define GetWaterHeight ((int(__cdecl*)(int,int,int,__int16)) 0x00414CE0)
+#define GetHeight ((int(__cdecl*)(FLOOR_INFO*,int,int,int)) 0x00414E50)
+
 // 0x004150D0:		RefreshCamera
 // 0x004151C0:		TestTriggers
-// 0x004158A0:		TriggerActive
-// 0x00415900:		GetCeiling
+
+#define TriggerActive ((int(__cdecl*)(ITEM_INFO*)) 0x004158A0)
+#define GetCeiling ((int(__cdecl*)(FLOOR_INFO*,int,int,int)) 0x00415900)
+
 // 0x00415B60:		GetDoor
 // 0x00415BB0:		LOS
 // 0x00415C50:		zLOS
 // 0x00415F40:		xLOS
 // 0x00416230:		ClipTarget
 // 0x00416310:		ObjectOnLOS
-// 0x00416610:		FlipMap
+
+#define FlipMap ((void(__cdecl*)(void)) 0x00416610)
+
 // 0x004166D0:		RemoveRoomFlipItems
 // 0x00416770:		AddRoomFlipItems
 // 0x004167D0:		TriggerCDTrack
