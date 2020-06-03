@@ -2586,6 +2586,7 @@ __int16 *__cdecl InsertObjectG3_Sorted(__int16 *ptrObj, int number, SORTTYPE sor
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
 void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade, DWORD flags) {
+	if( TextureFormat.bpp < 16 && CHK_ANY(flags, SPR_TINT) ) return; // tinted sprites are not supported for 8 bit textured mode
 #else // FEATURE_VIDEOFX_IMPROVED
 void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade) {
 #endif // FEATURE_VIDEOFX_IMPROVED
