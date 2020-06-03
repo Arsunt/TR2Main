@@ -129,7 +129,7 @@ void SetMeshReflectState(int objID, int meshIdx) {
 			ReflectFilter.n_gt3 = 60;
 			ReflectFilter.n_g4 = 0;
 			ReflectFilter.n_g3 = 0;
-			// The reflective reflective textured quads are 21..22, 34..47
+			// The reflective textured quads are 21..22, 34..47
 			ReflectFilter.gt4[0].idx = 21;
 			ReflectFilter.gt4[0].num = 2;
 			ReflectFilter.gt3[0].idx = 34;
@@ -168,7 +168,7 @@ void SetMeshReflectState(int objID, int meshIdx) {
 		}
 		break;
 	case ID_BLADE :
-		// Reflect blade only (mesh #1)
+		// Reflect the blade only (mesh #1)
 		if( meshIdx == 1 ) {
 			IsReflect = true;
 		}
