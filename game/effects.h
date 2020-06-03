@@ -28,9 +28,7 @@
  * Function list
  */
 int __cdecl ItemNearLara(PHD_3DPOS *pos, int distance); // 0x0041C4B0
-
-//	0x0041C540:		SoundEffects
-
+void __cdecl SoundEffects(); // 0x0041C540
 __int16 __cdecl DoBloodSplat(int x, int y, int z, __int16 speed, __int16 direction, __int16 roomID); // 0x0041C5B0
 void __cdecl DoLotsOfBlood(int x, int y, int z, __int16 speed, __int16 direction, __int16 roomID, int number); // 0x0041C610
 void __cdecl ControlBlood1(__int16 fxID); // 0x0041C6C0

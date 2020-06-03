@@ -50,6 +50,18 @@ int __cdecl ItemNearLara(PHD_3DPOS *pos, int distance) {
 	return 0;
 }
 
+void __cdecl SoundEffects() {
+	DWORD i;
+
+	for (i = 0; i < SoundFxCount; ++i) {
+		if ((FlipStatus && CHK_ANY(SoundFx[i].flags, 0x40)) || (!FlipStatus && CHK_ANY(SoundFx[i].flags, 0x80)))
+			PlaySoundEffect(SoundFx[i].data, (PHD_3DPOS *) &SoundFx[i].x, 0);
+	}
+	if (FlipEffect != -1)
+		(*SfxFunctions[FlipEffect])(NULL);
+	SOUND_EndScene();
+}
+
 __int16 __cdecl DoBloodSplat(int x, int y, int z, __int16 speed, __int16 direction, __int16 roomID) {
 	__int16 fxID;
 	FX_INFO *fx;
@@ -686,9 +698,7 @@ void __cdecl AssaultFinished(ITEM_INFO *item) {
  */
 void Inject_Effects() {
 	INJECT(0x0041C4B0, ItemNearLara);
-
-//	INJECT(0x0041C540, SoundEffects);
-
+	INJECT(0x0041C540, SoundEffects);
 	INJECT(0x0041C5B0, DoBloodSplat);
 	INJECT(0x0041C610, DoLotsOfBlood);
 	INJECT(0x0041C6C0, ControlBlood1);
