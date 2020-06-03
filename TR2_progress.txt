@@ -302,7 +302,7 @@ x function is unused / included in another function
 
 	game/effects.cpp
 0x0041C4B0:	+	ItemNearLara
-0x0041C540:		SoundEffects
+0x0041C540:	+	SoundEffects
 0x0041C5B0:	+	DoBloodSplat
 0x0041C610:	+	DoLotsOfBlood
 0x0041C6C0:	+	ControlBlood1
