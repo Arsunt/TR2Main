@@ -560,12 +560,12 @@ HRESULT CALLBACK EnumTextureFormatsCallback(LPDDSDESC lpDdsd, LPVOID lpContext) 
 			TextureFormat.pixelFmt = *lpDDPixFmt;
 			TextureFormat.bpp = 8;
 			TexturesAlphaChannel = false;
+			if( SavedAppSettings.Disable16BitTextures ) {
+				TexturesHaveCompatibleMasks = false;
+				return D3DENUMRET_CANCEL; // NOTE: not presented in the original code
+			}
 		}
-		TexturesHaveCompatibleMasks = false;
-		return D3DENUMRET_OK;
-	}
-
-	if( CHK_ANY(lpDDPixFmt->dwFlags, DDPF_RGB) ) {
+	} else if( CHK_ANY(lpDDPixFmt->dwFlags, DDPF_RGB) ) {
 		TextureFormat.pixelFmt = *lpDDPixFmt;
 		TextureFormat.bpp = 16;
 		TexturesAlphaChannel = CHK_ANY(lpDDPixFmt->dwFlags, DDPF_ALPHAPIXELS);
@@ -591,7 +591,13 @@ HRESULT CALLBACK EnumTextureFormatsCallback(LPDDSDESC lpDdsd, LPVOID lpContext) 
 
 HRESULT __cdecl EnumerateTextureFormats() {
 	memset(&TextureFormat, 0, sizeof(TEXTURE_FORMAT));
-	return D3DDev->EnumTextureFormats(EnumTextureFormatsCallback, NULL);
+	HRESULT ret = D3DDev->EnumTextureFormats(EnumTextureFormatsCallback, NULL);
+	// NOTE: there is no such check in the original code
+	if( SavedAppSettings.Disable16BitTextures && TextureFormat.bpp < 8 ) {
+		SavedAppSettings.Disable16BitTextures = false;
+		ret = D3DDev->EnumTextureFormats(EnumTextureFormatsCallback, NULL);
+	}
+	return ret;
 }
 
 void __cdecl CleanupTextures() {
