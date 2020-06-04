@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added support for custom water color from TR2Main.json configuration file.
 - Added support for barefoot steps SFX from TR2Main.json configuration file (BAREFOOT.SFX in the DATA folder required).
 - Added support for Legal/Title pictures with both US/EU logo (just a simple option to toggle between logo versions).
+- Remastered pictures (PNG/JPG/BMP) support can be disabled now. In this case the game will use only PCX pictures.
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.

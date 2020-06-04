@@ -78,6 +78,7 @@
 #define REG_PSXBARPOS_ENABLE	"EnablePsxBarPos"
 #define REG_PSXFOV_ENABLE		"EnablePsxFov"
 #define REG_BAREFOOT_SFX_ENABLE	"BarefootSFX"
+#define REG_REMASTER_PIX_ENABLE	"RemasteredPictures"
 
 // FLOAT value names
 #define REG_GAME_SIZER		"Sizer"

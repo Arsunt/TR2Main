@@ -59,6 +59,7 @@ static char PictureSuffix[32];
 extern DWORD InvBackgroundMode;
 extern DWORD PictureStretchLimit;
 extern bool LoadingScreensEnabled;
+extern bool RemasteredPixEnabled;
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
@@ -514,6 +515,7 @@ void __cdecl S_LoadSettings() {
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	GetRegistryDwordValue(REG_INVBGND_MODE, &InvBackgroundMode, 1);
 	GetRegistryDwordValue(REG_PICTURE_STRETCH, &PictureStretchLimit, 10);
+	GetRegistryBoolValue(REG_REMASTER_PIX_ENABLE, &RemasteredPixEnabled, true);
 	GetRegistryBoolValue(REG_LOADING_SCREENS, &LoadingScreensEnabled, false);
 	GetRegistryStringValue(REG_PICTURE_SUFFIX, PictureSuffix, sizeof(PictureSuffix), "");
 #endif // FEATURE_BACKGROUND_IMPROVED

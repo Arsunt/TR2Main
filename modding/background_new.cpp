@@ -49,6 +49,7 @@ DWORD BGND_TextureSide  = 1024;
 bool BGND_IsCaptured = false;
 
 DWORD PictureStretchLimit = 10;
+bool RemasteredPixEnabled = true;
 
 static DWORD BGND_TextureAlpha = 255;
 
@@ -439,16 +440,17 @@ static int PickBestPictureFile(LPTSTR fileName, LPCTSTR modDir) {
 		}
 	}
 
+	bool isRemasterEnabled = RemasteredPixEnabled && SavedAppSettings.RenderMode == RM_Hardware && TextureFormat.bpp >= 16;
 	char altPath[256];
 	for( i = 0; i < numAspects; ++i ) {
 		snprintf(altPath, sizeof(altPath), ".\\%s\\%dx%d", modDir, aspects[idx[i]][0], aspects[idx[i]][1]);
-		if( 0 < AutoSelectPathAndExtension(fileName, altPath, exts, (SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16) ? 0 : ARRAY_SIZE(exts)) ) {
+		if( 0 < AutoSelectPathAndExtension(fileName, altPath, exts, isRemasterEnabled ? ARRAY_SIZE(exts) : 0) ) {
 			return 2;
 		}
 	}
 
 	snprintf(altPath, sizeof(altPath), ".\\%s", modDir);
-	return AutoSelectPathAndExtension(fileName, altPath, exts, (SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16) ? 0 : ARRAY_SIZE(exts));
+	return AutoSelectPathAndExtension(fileName, altPath, exts, isRemasterEnabled ? ARRAY_SIZE(exts) : 0);
 }
 
 
