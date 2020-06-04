@@ -508,8 +508,8 @@ void __cdecl S_LoadSettings() {
 	GetRegistryBoolValue(REG_PSXBARPOS_ENABLE, &PsxBarPosEnabled, false);
 	GetRegistryFloatValue(REG_GAME_GUI_SCALE, &GameGUI_Scale, 1.0);
 	GetRegistryFloatValue(REG_INV_GUI_SCALE, &InvGUI_Scale, 1.0);
-	CLAMP(GameGUI_Scale, 1.0, 2.0);
-	CLAMP(InvGUI_Scale, 1.0, 2.0);
+	CLAMP(GameGUI_Scale, 0.5, 2.0);
+	CLAMP(InvGUI_Scale, 0.5, 2.0);
 #endif // FEATURE_HUD_IMPROVED
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
