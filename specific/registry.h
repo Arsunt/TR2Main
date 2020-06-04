@@ -95,6 +95,7 @@
 
 // STRING value names
 #define REG_SCREENSHOT_PATH	"ScreenshotPath"
+#define REG_PICTURE_SUFFIX	"PictureSuffix"
 
 // GUID string size
 #define GUID_STRING_SIZE (sizeof("{00112233-4455-6677-8899AABBCCDDEEFF}"))

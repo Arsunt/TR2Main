@@ -55,6 +55,7 @@ extern double InvGUI_Scale;
 #endif // FEATURE_HUD_IMPROVED
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
+static char PictureSuffix[32];
 extern DWORD InvBackgroundMode;
 extern DWORD PictureStretchLimit;
 extern bool LoadingScreensEnabled;
@@ -143,7 +144,16 @@ BOOL __cdecl GameMain() {
 	S_UpdateInput();
 	IsVidModeLock = true;
 #ifdef FEATURE_BACKGROUND_IMPROVED
-	if( !BGND2_LoadPicture("data\\legal.pcx", FALSE, FALSE) ) {
+	int res = -1;
+	if( *PictureSuffix ) {
+		char fname[256];
+		snprintf(fname, sizeof(fname), "data\\legal%s.pcx", PictureSuffix);
+		res = BGND2_LoadPicture(fname, FALSE, FALSE);
+	}
+	if( res ) {
+		res = BGND2_LoadPicture("data\\legal.pcx", FALSE, FALSE);
+	}
+	if( !res ) {
 		BGND2_ShowPicture(30, 90, 10, 2, TRUE);
 	}
 #else // FEATURE_BACKGROUND_IMPROVED
@@ -258,15 +268,24 @@ __int16 __cdecl TitleSequence() {
 		IsTitleLoaded = TRUE;
 	}
 
-#if defined(FEATURE_GOLD) && !defined(FEATURE_BACKGROUND_IMPROVED)
-	S_DisplayPicture(IsGold()?"data\\titleg.pcx":"data\\title.pcx", TRUE);
-#else // !defined(FEATURE_GOLD) && !defined(FEATURE_BACKGROUND_IMPROVED)
-	S_DisplayPicture("data\\title.pcx", TRUE);
-#endif // !defined(FEATURE_GOLD) && !defined(FEATURE_BACKGROUND_IMPROVED)
-
 #ifdef FEATURE_BACKGROUND_IMPROVED
-	// NOTE: title menu fade-in was absent in the original game
-	BGND2_ShowPicture(15, 0, 0, 0, FALSE);
+	int res = -1;
+	if( *PictureSuffix ) {
+		char fname[256];
+		snprintf(fname, sizeof(fname), "data\\title%s.pcx", PictureSuffix);
+		res = BGND2_LoadPicture(fname, TRUE, FALSE);
+	}
+	if( res ) {
+		res = BGND2_LoadPicture("data\\title.pcx", TRUE, FALSE);
+	}
+	if( !res ) {
+		// NOTE: title menu fade-in was absent in the original game
+		BGND2_ShowPicture(15, 0, 0, 0, FALSE);
+	}
+#elif defined(FEATURE_GOLD)
+	S_DisplayPicture(IsGold()?"data\\titleg.pcx":"data\\title.pcx", TRUE);
+#else // FEATURE_BACKGROUND_IMPROVED
+	S_DisplayPicture("data\\title.pcx", TRUE);
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 	if( GF_GameFlow.titleTrack != 0 )
@@ -496,6 +515,7 @@ void __cdecl S_LoadSettings() {
 	GetRegistryDwordValue(REG_INVBGND_MODE, &InvBackgroundMode, 1);
 	GetRegistryDwordValue(REG_PICTURE_STRETCH, &PictureStretchLimit, 10);
 	GetRegistryBoolValue(REG_LOADING_SCREENS, &LoadingScreensEnabled, false);
+	GetRegistryStringValue(REG_PICTURE_SUFFIX, PictureSuffix, sizeof(PictureSuffix), "");
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
