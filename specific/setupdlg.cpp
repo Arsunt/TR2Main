@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -825,9 +825,6 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 	if( windowedSizeAvailable ) {
 		int minPosition = 0;
 		int maxWidth = preferred->screenWidth;
-#ifdef FEATURE_VIDMODESORT
-		CLAMPG(maxWidth, MAX_SURFACE_SIZE);
-#endif // FEATURE_VIDMODESORT
 		int maxPosition = ((maxWidth - 320 ) / 32) & 0xFFFF;
 
 		SendMessage(hItem, TBM_SETRANGE, 1, ((maxPosition<<0x10)|minPosition));

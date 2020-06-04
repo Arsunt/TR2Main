@@ -45,7 +45,8 @@ static int __cdecl CreateEnvmapBuffer() {
 	if( !ReflectionMode ) return -1;
 	DWORD side = 1;
 	DWORD sideLimit = MIN(GameVidBufWidth, GameVidBufHeight);
-	CLAMPG(sideLimit, MAX_SURFACE_SIZE);
+	CLAMPG(sideLimit, CurrentDisplayAdapter.D3DHWDeviceDesc.dwMaxTextureWidth);
+	CLAMPG(sideLimit, CurrentDisplayAdapter.D3DHWDeviceDesc.dwMaxTextureHeight);
 	while( side<<ReflectionBlur <= sideLimit ) side <<= 1;
 
 	memset(&dsp, 0, sizeof(dsp));

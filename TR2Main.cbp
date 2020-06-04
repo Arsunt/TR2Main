@@ -105,6 +105,8 @@
 		<Unit filename="global/types.h" />
 		<Unit filename="global/resource.h" />
 		<Unit filename="global/vars.h" />
+		<Unit filename="global/memmem.c" />
+		<Unit filename="global/memmem.h" />
 
 		<Unit filename="3dsystem/3d_gen.cpp" />
 		<Unit filename="3dsystem/3d_gen.h" />

@@ -310,7 +310,9 @@ static DWORD CalculateTextureSide(DWORD width, DWORD height) {
 	DWORD side = 1;
 	while( side < width || side < height ) {
 		side <<= 1;
-		if( side > MAX_SURFACE_SIZE ) {
+		if( side > CurrentDisplayAdapter.D3DHWDeviceDesc.dwMaxTextureWidth ||
+			side > CurrentDisplayAdapter.D3DHWDeviceDesc.dwMaxTextureHeight )
+		{
 			return 0;
 		}
 	}
@@ -589,9 +591,7 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 		ReadFile(hFile, fileData, fileSize, &bytesRead, NULL);
 		CloseHandle(hFile);
 
-		if( GetPcxResolution(fileData, fileSize, &width, &height) ||
-			width > MAX_SURFACE_SIZE || height > MAX_SURFACE_SIZE )
-		{
+		if( GetPcxResolution(fileData, fileSize, &width, &height) ) {
 			goto FAIL;
 		}
 		bitmapSize = width * height;
@@ -599,9 +599,7 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 		DecompPCX(fileData, fileSize, bitmapData, PicPalette);
 		isPCX = true;
 	} else if( SavedAppSettings.RenderMode == RM_Hardware && TextureFormat.bpp >= 16 ) {
-		if( GDI_LoadImageFile(fullPath, &bitmapData, &width, &height, 16) ||
-			width > MAX_SURFACE_SIZE || height > MAX_SURFACE_SIZE )
-		{
+		if( GDI_LoadImageFile(fullPath, &bitmapData, &width, &height, 16) ) {
 			goto FAIL;
 		}
 		bitmapSize = width * height * 2;

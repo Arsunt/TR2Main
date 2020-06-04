@@ -115,9 +115,6 @@ typedef struct {
 #define MAX_SHADE			(0x300)
 #define MAX_ROOMLIGHT_UNIT	(0x2000 / (WIBBLE_SIZE/2))
 
-// Maximum surface dimensions for DX5
-#define MAX_SURFACE_SIZE	(2048)
-
 // SW Renderer Detail Settings
 #define SW_DETAIL_LOW		(0 * 0x400 * W2V_SCALE)
 #define SW_DETAIL_MEDIUM	(3 * 0x400 * W2V_SCALE)
