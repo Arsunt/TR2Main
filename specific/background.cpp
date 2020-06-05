@@ -93,7 +93,7 @@ int __cdecl BGND_AddTexture(int tileIndex, BYTE *bitmap, int palIndex, RGB888 *b
 }
 
 void __cdecl BGND_GetPageHandles() {
-	for( DWORD i=0; i<5; ++i ) {
+	for( DWORD i=0; i<ARRAY_SIZE(BGND_TexturePageIndexes); ++i ) {
 		if( BGND_TexturePageIndexes[i] < 0 )
 			BGND_PageHandles[i] = 0;
 		else
@@ -312,7 +312,7 @@ D3DCOLOR __cdecl BGND_CenterLighting(int x, int y, int width, int height) {
 }
 
 void __cdecl BGND_Free() {
-	for( int i=0; i<5 ; ++i ) {
+	for( DWORD i=0; i<ARRAY_SIZE(BGND_TexturePageIndexes); ++i ) {
 		if( BGND_TexturePageIndexes[i] >= 0 ) {
 			SafeFreeTexturePage(BGND_TexturePageIndexes[i]);
 			BGND_TexturePageIndexes[i] = -1;
@@ -330,7 +330,7 @@ bool __cdecl BGND_Init() {
 	BGND_PictureIsReady = false;
 	BGND_PaletteIndex = -1;
 
-	for(int i=0; i<5; ++i)
+	for( DWORD i=0; i<ARRAY_SIZE(BGND_TexturePageIndexes); ++i )
 		BGND_TexturePageIndexes[i] = -1;
 
 	return true;

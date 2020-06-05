@@ -38,9 +38,7 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload);
 
 int __cdecl BGND2_ShowPicture(DWORD fadeIn, DWORD waitIn, DWORD fadeOut, DWORD waitOut, BOOL inputCheck);
 
-void __cdecl BGND2_DrawTexture(RECT *rect, HWR_TEXHANDLE texSource,
-							   int tu, int tv, int t_width, int t_height, int t_side,
-							   D3DCOLOR color0, D3DCOLOR color1, D3DCOLOR color2, D3DCOLOR color3);
+void __cdecl BGND2_DrawTextures(RECT *rect, D3DCOLOR color);
 
 int __cdecl BGND2_CalculatePictureRect(RECT *rect);
 

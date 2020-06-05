@@ -480,8 +480,13 @@ extern DISPLAY_ADAPTER CurrentDisplayAdapter;
 #define InvItemText					ARRAY_(0x004D7938, TEXT_STR_INFO*, [2])
 #define InventoryExtraData			ARRAY_(0x004D7970, int, [8])
 #define SfxInfos					ARRAY_(0x004D7C68, SFX_INFO, [32])
+#ifdef FEATURE_BACKGROUND_IMPROVED
+extern int BGND_TexturePageIndexes[64];
+extern HWR_TEXHANDLE BGND_PageHandles[64];
+#else // FEATURE_BACKGROUND_IMPROVED
 #define BGND_TexturePageIndexes		ARRAY_(0x004D7E80, int, [5])
 #define BGND_PageHandles			ARRAY_(0x004D7E98, HWR_TEXHANDLE, [5])
+#endif // FEATURE_BACKGROUND_IMPROVED
 #define SampleFreqs					ARRAY_(0x004D8560, DWORD, [256])
 #define SampleBuffers				ARRAY_(0x004D8970, LPDIRECTSOUNDBUFFER, [256])
 #define ChannelSamples				ARRAY_(0x004D8D78, DWORD, [32])
