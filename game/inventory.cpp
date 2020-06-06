@@ -316,7 +316,7 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 						break;
 					}
 
-					if( (IsResetFlag || InventoryMode != INV_TitleMode) && CHK_ANY(InputDB, IN_DESELECT|IN_OPTION) ) {
+					if( IsResetFlag || (InventoryMode != INV_TitleMode && CHK_ANY(InputDB, IN_DESELECT|IN_OPTION)) ) {
 						PlaySoundEffect(112, 0, SFX_ALWAYS);
 						InventoryChosen = -1;
 
