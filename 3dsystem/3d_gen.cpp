@@ -41,6 +41,12 @@ static void (__cdecl *PolyDrawRoutines[])(__int16 *) = {
 	draw_scaled_spriteC		// scaled sprite (texture + colorkey)
 };
 
+#ifdef FEATURE_EXTENDED_LIMITS
+SORT_ITEM SortBuffer[16000];
+__int16 Info3dBuffer[480000];
+D3DTLVERTEX HWR_VertexBuffer[0x8000];
+#endif // FEATURE_EXTENDED_LIMITS
+
 #ifdef FEATURE_VIEW_IMPROVED
 bool PsxFovEnabled;
 

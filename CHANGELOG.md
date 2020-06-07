@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Custom HUD scale can be set to any value in 0.5 - 2.0 (previously it was limited by 1.0 - 2.0).
 - Added support for display resolutions higher than 2048x2048.
 - Background picture code is redesigned to support resolutions higher than 2048x2048.
+- The limitations of the game engine (textures, polygons) are expanded by 4 times for future TR2 mods.
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.

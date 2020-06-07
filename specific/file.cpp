@@ -473,7 +473,7 @@ BOOL __cdecl LoadObjects(HANDLE hFile) {
 
 	// Load textures info
 	ReadFileSync(hFile, &TextureInfoCount, sizeof(DWORD), &bytesRead, NULL);
-	if( TextureInfoCount > 0x800 ) {
+	if( TextureInfoCount > ARRAY_SIZE(PhdTextureInfo) ) {
 		lstrcpy(StringToShow, "Too many Textures in level");
 		return FALSE;
 	}

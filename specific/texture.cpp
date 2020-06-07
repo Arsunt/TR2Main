@@ -27,6 +27,19 @@
 #include "global/vars.h"
 #include <limits.h>
 
+#ifdef FEATURE_EXTENDED_LIMITS
+PHD_TEXTURE PhdTextureInfo[0x2000];
+BYTE LabTextureUVFlags[0x2000];
+BYTE *TexturePageBuffer8[128];
+HWR_TEXHANDLE HWR_PageHandles[128];
+int HWR_TexturePageIndexes[128];
+#endif // FEATURE_EXTENDED_LIMITS
+
+#if defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_BACKGROUND_IMPROVED)
+TEXPAGE_DESC TexturePages[256];
+LPDIRECTDRAWPALETTE DDrawPalettes[256];
+#endif // defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_BACKGROUND_IMPROVED)
+
 #ifdef FEATURE_VIDEOFX_IMPROVED
 DWORD ReflectionMode = 0;
 DWORD ReflectionBlur = 2;
@@ -242,7 +255,7 @@ int __cdecl CreateTexturePalette(RGB888 *pal) {
 }
 
 int __cdecl GetFreePaletteIndex() {
-	for( int i=0; i<16; ++i ) {
+	for( DWORD i=0; i<ARRAY_SIZE(DDrawPalettes); ++i ) {
 		if( DDrawPalettes[i] == NULL )
 			return i;
 	}
@@ -297,7 +310,7 @@ bool __cdecl CreateTexturePageSurface(TEXPAGE_DESC *desc) {
 }
 
 int __cdecl GetFreeTexturePageIndex() {
-	for( int i=0; i<32; ++i ) {
+	for( DWORD i=0; i<ARRAY_SIZE(TexturePages); ++i ) {
 		if( (TexturePages[i].status & 1) == 0 )
 			return i;
 	}
@@ -411,7 +424,7 @@ void __cdecl TexturePageReleaseVidMemSurface(TEXPAGE_DESC *page) {
 bool __cdecl ReloadTextures(bool reset) {
 	bool result = true;
 
-	for( int i=0; i<32; ++i ) {
+	for( DWORD i=0; i<ARRAY_SIZE(TexturePages); ++i ) {
 		if( (TexturePages[i].status & 1) != 0 )
 			result &= LoadTexturePage(i, reset);
 	}
@@ -419,7 +432,7 @@ bool __cdecl ReloadTextures(bool reset) {
 }
 
 void __cdecl FreeTexturePages() {
-	for( int i=0; i<32; ++i ) {
+	for( DWORD i=0; i<ARRAY_SIZE(TexturePages); ++i ) {
 		if( (TexturePages[i].status & 1) != 0 )
 			FreeTexturePage(i);
 	}
@@ -609,7 +622,7 @@ HRESULT __cdecl EnumerateTextureFormats() {
 
 void __cdecl CleanupTextures() {
 	FreeTexturePages();
-	for( int i=0; i<16; ++i ) {
+	for( DWORD i=0; i<ARRAY_SIZE(DDrawPalettes); ++i ) {
 		if( DDrawPalettes[i] != NULL )
 			FreePalette(i);
 	}

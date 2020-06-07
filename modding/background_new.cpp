@@ -43,8 +43,8 @@ extern LPDDS CaptureBufferSurface;
 extern bool IsGold();
 #endif
 
-int BGND_TexturePageIndexes[64];
-HWR_TEXHANDLE BGND_PageHandles[64];
+int BGND_TexturePageIndexes[128];
+HWR_TEXHANDLE BGND_PageHandles[128];
 
 DWORD BGND_PictureWidth  = 640;
 DWORD BGND_PictureHeight = 480;
