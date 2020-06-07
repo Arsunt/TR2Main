@@ -372,7 +372,7 @@ static int MakeBgndTexture(DWORD x, DWORD y, DWORD width, DWORD height, DWORD pi
 }
 
 static int MakeBgndTextures(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmpPal) {
-	DWORD side = MIN(CurrentDisplayAdapter.D3DHWDeviceDesc.dwMaxTextureWidth, CurrentDisplayAdapter.D3DHWDeviceDesc.dwMaxTextureHeight);
+	DWORD side = GetMaxTextureSize();
 	S_DontDisplayPicture(); // clean up previous textures
 
 	if( bmpPal != NULL && (SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16) ) {
@@ -492,7 +492,7 @@ int __cdecl BGND2_CapturePicture() {
 	width = ABS(rect.right - rect.left);
 	height = ABS(rect.bottom - rect.top);
 
-	DWORD side = MIN(CurrentDisplayAdapter.D3DHWDeviceDesc.dwMaxTextureWidth, CurrentDisplayAdapter.D3DHWDeviceDesc.dwMaxTextureHeight);
+	DWORD side = GetMaxTextureSize();
 
 	DWORD nx = (width + side - 1) / side;
 	DWORD ny = (height + side - 1) / side;

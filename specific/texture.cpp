@@ -45,9 +45,8 @@ static int __cdecl CreateEnvmapBuffer() {
 	if( !ReflectionMode ) return -1;
 	DWORD side = 1;
 	DWORD sideLimit = MIN(GameVidBufWidth, GameVidBufHeight);
-	CLAMPG(sideLimit, CurrentDisplayAdapter.D3DHWDeviceDesc.dwMaxTextureWidth);
-	CLAMPG(sideLimit, CurrentDisplayAdapter.D3DHWDeviceDesc.dwMaxTextureHeight);
 	while( side<<ReflectionBlur <= sideLimit ) side <<= 1;
+	CLAMPG(side, GetMaxTextureSize());
 
 	memset(&dsp, 0, sizeof(dsp));
 	dsp.dwSize = sizeof(dsp);
@@ -120,6 +119,13 @@ HWR_TEXHANDLE GetEnvmapTextureHandle() {
 	return EnvmapTextureHandle;
 }
 #endif // FEATURE_VIDEOFX_IMPROVED
+
+DWORD __cdecl GetMaxTextureSize() {
+	DWORD side = 2048; // NOTE: It is better to limit old DirectX texture size;
+	CLAMPG(side, CurrentDisplayAdapter.D3DHWDeviceDesc.dwMaxTextureWidth);
+	CLAMPG(side, CurrentDisplayAdapter.D3DHWDeviceDesc.dwMaxTextureHeight);
+	return side;
+}
 
 void __cdecl CopyBitmapPalette(RGB888 *srcPal, BYTE *srcBitmap, int bitmapSize, RGB888 *destPal) {
 	int i, j;
