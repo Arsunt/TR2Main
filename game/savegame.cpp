@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -100,8 +100,9 @@ void __cdecl ModifyStartInfo(int levelIdx) {
 
 		// NOTE: there was no 'default' in the original game, so new game with level selection was broken
 		default : // New Game from any other level
+			if( SaveGame.start[levelIdx-1].statistics.timer ) break; // no reset if it's not a new game
 			start->available = 1; // make level available
-			start->has_pistols = 1; // Lara have just pistols
+			start->has_pistols = 1; // Lara has just pistols
 			start->has_magnums = 0;
 			start->has_uzis = 0;
 			start->has_shotgun = 0;
@@ -126,7 +127,7 @@ void __cdecl ModifyStartInfo(int levelIdx) {
 	// Bonus game activated and level is not Assault
 	if( SaveGame.bonusFlag && levelIdx != 0 ) {
 		start->available = 1; // make level available
-		start->has_pistols = 1; // Lara have all weapons
+		start->has_pistols = 1; // Lara has all weapons
 		start->has_magnums = 1;
 		start->has_uzis = 1;
 		start->has_shotgun = 1;
