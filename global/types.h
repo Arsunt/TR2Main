@@ -225,6 +225,12 @@ typedef struct {
 #define IFL_REVERSE		(0x4000)
 #define IFL_CLEARBODY	(0x8000)
 
+// Glow tint colors
+#define GLOW_FLARE_COLOR	(0xFF8080) // Flare
+#define GLOW_PISTOL_COLOR	(0x3F380F) // Pistol/Magnums/Uzi gunfire
+#define GLOW_M16_COLOR		(0x7F701F) // M16 gunfire
+#define GLOW_GUNSHOT_COLOR	(0x7F701F) // Skidoo/Enemy gunfire
+
 /*
  * DirectX type definitions
  */

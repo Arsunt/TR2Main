@@ -45,7 +45,7 @@ __int16 __cdecl GunShot(int x, int y, int z, __int16 speed, __int16 rotY, __int1
 			fx->object_number = ID_GLOW;
 			fx->shade = 0x800;
 			// NOTE: Core's hacky way to store the sprite flags in the rotation fields
-			DWORD flags = RGB_MAKE(0x7F,0x70,0x1F);
+			DWORD flags = GLOW_GUNSHOT_COLOR;
 			flags |= SPR_BLEND_ADD|SPR_TINT|SPR_SHADE|SPR_SCALE|SPR_SEMITRANS|SPR_ABS;
 			fx->pos.rotX=(UINT16)flags;
 			fx->pos.rotY=(UINT16)(flags >> 16);
