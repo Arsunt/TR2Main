@@ -470,11 +470,76 @@ int __cdecl BGND2_FadeTo(int target, int delta) {
 	return current;
 }
 
+static void BGND2_CustomBlt(LPDDSDESC dst, DWORD dstX, DWORD dstY, LPDDSDESC src, LPRECT srcRect) {
+	DWORD srcBpp = src->ddpfPixelFormat.dwRGBBitCount/8;
+	DWORD dstBpp = dst->ddpfPixelFormat.dwRGBBitCount/8;
+	COLOR_BIT_MASKS srcMask, dstMask;
+
+	WinVidGetColorBitMasks(&srcMask, &src->ddpfPixelFormat);
+	WinVidGetColorBitMasks(&dstMask, &dst->ddpfPixelFormat);
+
+	DWORD srcX = srcRect->left;
+	DWORD srcY = srcRect->top;
+	DWORD width = srcRect->right - srcRect->left;
+	DWORD height = srcRect->bottom - srcRect->top;
+
+	BYTE *srcLine = (BYTE *)src->lpSurface + srcY * src->lPitch  + srcX * srcBpp;
+	BYTE *dstLine = (BYTE *)dst->lpSurface + dstY * dst->lPitch  + dstX * dstBpp;
+	for( DWORD j = 0; j < height; ++j ) {
+		BYTE *srcPtr = srcLine;
+		BYTE *dstPtr = dstLine;
+		for( DWORD i = 0; i < width; ++i ) {
+			DWORD color = 0;
+			memcpy(&color, srcPtr, srcBpp);
+			DWORD red   = ((color & srcMask.dwRBitMask) >> srcMask.dwRBitOffset);
+			DWORD green = ((color & srcMask.dwGBitMask) >> srcMask.dwGBitOffset);
+			DWORD blue  = ((color & srcMask.dwBBitMask) >> srcMask.dwBBitOffset);
+			if( srcMask.dwRBitDepth < dstMask.dwRBitDepth ) {
+				DWORD high = dstMask.dwRBitDepth - srcMask.dwRBitDepth;
+				DWORD low = (srcMask.dwRBitDepth > high) ? srcMask.dwRBitDepth - high : 0;
+				red = (red << high) | (red >> low);
+			} else if( srcMask.dwRBitDepth > dstMask.dwRBitDepth ) {
+				red >>= srcMask.dwRBitDepth - dstMask.dwRBitDepth;
+			}
+			if( srcMask.dwGBitDepth < dstMask.dwGBitDepth ) {
+				DWORD high = dstMask.dwGBitDepth - srcMask.dwGBitDepth;
+				DWORD low = (srcMask.dwGBitDepth > high) ? srcMask.dwGBitDepth - high : 0;
+				green = (green << high) | (green >> low);
+			} else if( srcMask.dwGBitDepth > dstMask.dwGBitDepth ) {
+				green >>= srcMask.dwGBitDepth - dstMask.dwGBitDepth;
+			}
+			if( srcMask.dwBBitDepth < dstMask.dwBBitDepth ) {
+				DWORD high = dstMask.dwBBitDepth - srcMask.dwBBitDepth;
+				DWORD low = (srcMask.dwBBitDepth > high) ? srcMask.dwBBitDepth - high : 0;
+				blue = (blue << high) | (blue >> low);
+			} else if( srcMask.dwBBitDepth > dstMask.dwBBitDepth ) {
+				blue >>= srcMask.dwBBitDepth - dstMask.dwBBitDepth;
+			}
+			color = dst->ddpfPixelFormat.dwRGBAlphaBitMask; // destination is opaque
+			color |= red   << dstMask.dwRBitOffset;
+			color |= green << dstMask.dwGBitOffset;
+			color |= blue  << dstMask.dwBBitOffset;
+			memcpy(dstPtr, &color, dstBpp);
+			srcPtr += srcBpp;
+			dstPtr += dstBpp;
+		}
+		srcLine += src->lPitch;
+		dstLine += dst->lPitch;
+	}
+}
 
 int __cdecl BGND2_CapturePicture() {
+	static bool isCustomBlt = false;
+	bool isSrcLock = false;
+	int ret = 0;
+	DDSDESC srcDesc, dstDesc;
 	DWORD width = 0;
 	DWORD height = 0;
 	RECT rect = {0, 0, 0, 0};
+
+	if( SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16 ) {
+		return -1;
+	}
 
 	LPDDS surface = CaptureBufferSurface ? CaptureBufferSurface : PrimaryBufferSurface;
 
@@ -515,18 +580,42 @@ int __cdecl BGND2_CapturePicture() {
 
 	for( DWORD j = 0; j < ny; ++j ) {
 		for( DWORD i = 0; i < nx; ++i ) {
-			int w = side;
-			int h = side;
-			if( i == nx - 1 && width % side ) w = width % side;
-			if( j == ny - 1 && height % side ) h = height % side;
-			RECT rsrc = {x[i], y[j], x[i+1], y[j+1]};
-			RECT rdst = {0, 0, w, h};
+			RECT r = {x[i], y[j], x[i+1], y[j+1]};
 			int pageIndex = CreateCaptureTexture(i + j*nx, side);
-			if( pageIndex < 0 ||
-				FAILED(TexturePages[pageIndex].sysMemSurface->Blt(&rdst, surface, &rsrc, DDBLT_WAIT, NULL)) ||
-				!LoadTexturePage(pageIndex, false) )
-			{
-				return -1;
+			if( pageIndex < 0 ) {
+				ret = -1;
+				goto CLEANUP;
+			}
+			if( !isCustomBlt && FAILED(TexturePages[pageIndex].sysMemSurface->BltFast(0, 0, surface, &r, DDBLTFAST_WAIT)) ) {
+				isCustomBlt = true; // NOTE: it seems default blitting is unsupported, fallback to custom blitting
+			}
+			if( isCustomBlt ) {
+				if( !isSrcLock ) {
+					HRESULT rc;
+					memset(&srcDesc, 0, sizeof(srcDesc));
+					srcDesc.dwSize = sizeof(srcDesc);
+					do {
+						rc = surface->Lock(&rect, &srcDesc, DDLOCK_READONLY|DDLOCK_WAIT, NULL);
+					} while( rc == DDERR_WASSTILLDRAWING );
+					if( rc == DDERR_SURFACELOST ) {
+						rc = surface->Restore();
+					}
+					if FAILED(rc) {
+						ret = -1;
+						goto CLEANUP;
+					}
+					isSrcLock = true;
+				}
+				if FAILED(WinVidBufferLock(TexturePages[pageIndex].sysMemSurface, &dstDesc, DDLOCK_WRITEONLY|DDLOCK_WAIT)) {
+					ret = -1;
+					goto CLEANUP;
+				}
+				BGND2_CustomBlt(&dstDesc, 0, 0, &srcDesc, &r);
+				WinVidBufferUnlock(TexturePages[pageIndex].sysMemSurface, &dstDesc);
+			}
+			if( !LoadTexturePage(pageIndex, false) ) {
+				ret = -1;
+				goto CLEANUP;
 			}
 		}
 	}
@@ -537,7 +626,16 @@ int __cdecl BGND2_CapturePicture() {
 	BGND_PictureHeight = height;
 	BGND_PictureIsReady = true;
 	BGND_IsCaptured = true;
-	return 0;
+
+CLEANUP :
+	if( isSrcLock ) {
+#if (DIRECT3D_VERSION >= 0x700)
+		surface->Unlock(&rect);
+#else // (DIRECT3D_VERSION >= 0x700)
+		surface->Unlock(srcDesc.lpSurface);
+#endif // (DIRECT3D_VERSION >= 0x700)
+	}
+	return ret;
 }
 
 
