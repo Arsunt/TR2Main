@@ -239,7 +239,15 @@ CLEANUP :
 	if( hFile != INVALID_HANDLE_VALUE )
 		CloseHandle(hFile);
 
+#if defined(FEATURE_SCREENSHOT_IMPROVED)
+#if (DIRECT3D_VERSION >= 0x700)
+	screen->Unlock(&rect);
+#else // (DIRECT3D_VERSION >= 0x700)
+	screen->Unlock(desc.lpSurface);
+#endif // (DIRECT3D_VERSION >= 0x700)
+#else // !FEATURE_SCREENSHOT_IMPROVED
 	WinVidBufferUnlock(screen, &desc);
+#endif // FEATURE_SCREENSHOT_IMPROVED
 }
 
 
