@@ -121,8 +121,8 @@ void __cdecl S_DrawSprite(DWORD flags, int x, int y, int z, __int16 spriteIdx, _
 	}
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
-	if( CHK_ANY(flags, SPR_TINT) ) {
-		// NOTE: PS1 tint color brightness must be multiplied by 2
+	if( CHK_ANY(flags, SPR_TINT) && !CHK_ANY(flags, SPR_SHADE) ) {
+		// NOTE: PS1 tint color brightness must be multiplied by 2 in this case
 		shade = (shade > 0x1000) ? (shade-0x1000)*2 : 0;
 	}
 	ins_sprite(zv, x1, y1, x2, y2, spriteIdx, shade, flags);
