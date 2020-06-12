@@ -666,6 +666,13 @@ typedef enum {
 } CAMERA_TYPE;
 
 typedef enum {
+	CFL_None,
+	CFL_FollowCenter,
+	CFL_NoChunky,
+	CFL_ChaseObject,
+} CAMERA_FLAG;
+
+typedef enum {
 	KM_Forward,
 	KM_Back,
 	KM_Left,
@@ -1559,31 +1566,6 @@ typedef struct Phd3dPos_t {
 	__int16 rotZ;
 } PHD_3DPOS;
 
-typedef struct CameraInfo_t {
-	GAME_VECTOR pos;
-	GAME_VECTOR target;
-	CAMERA_TYPE type;
-	int shift;
-	DWORD flags;
-	int fixedCamera;
-	int numberFrames;
-	int bounce;
-	int underwater;
-	int targetDistance;
-	int targetSquare;
-	__int16 targetAngle;
-	__int16 actualAngle;
-	__int16 targetElevation;
-	__int16 box;
-	__int16 number;
-	__int16 last;
-	__int16 timer;
-	__int16 speed;
-	LPVOID item;
-	LPVOID last_item;
-	OBJECT_VECTOR *fixed;
-} CAMERA_INFO;
-
 typedef struct ItemInfo_t {
 	int floor;
 	DWORD touchBits;
@@ -1618,6 +1600,31 @@ typedef struct ItemInfo_t {
 	UINT16 clear_body : 1;
 	UINT16 pad : 7;
 } ITEM_INFO;
+
+typedef struct CameraInfo_t {
+	GAME_VECTOR pos;
+	GAME_VECTOR target;
+	CAMERA_TYPE type;
+	int shift;
+	DWORD flags;
+	int fixedCamera;
+	int numberFrames;
+	int bounce;
+	int underwater;
+	int targetDistance;
+	int targetSquare;
+	__int16 targetAngle;
+	__int16 actualAngle;
+	__int16 targetElevation;
+	__int16 box;
+	__int16 number;
+	__int16 last;
+	__int16 timer;
+	__int16 speed;
+	ITEM_INFO *item;
+	ITEM_INFO *last_item;
+	OBJECT_VECTOR *fixed;
+} CAMERA_INFO;
 
 typedef struct CollSide_t {
 	int floor;

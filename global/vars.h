@@ -142,6 +142,7 @@
 #define IsWaterEffect				VAR_U_(0x004D6C04, BOOL)
 #define IsShadeEffect				VAR_U_(0x004D6F68, bool)
 #define CineCurrentFrame			VAR_U_(0x004D7770, int)
+#define IsChunkyCamera				VAR_U_(0x004D777C, BOOL)
 #define NoInputCounter				VAR_U_(0x004D7784, int)
 #define IsResetFlag					VAR_U_(0x004D7788, BOOL)
 #define StopInventory				VAR_U_(0x004D7794, BOOL)

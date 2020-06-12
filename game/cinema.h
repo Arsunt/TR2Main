@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -32,15 +32,12 @@ int __cdecl StartCinematic(int levelID); // 0x00411F40
 
 #define InitCinematicRooms ((void(__cdecl*)(void)) 0x00412060)
 #define DoCinematic ((int(__cdecl*)(int)) 0x00412100)
-
-// 0x00412270:		CalculateCinematicCamera
-// 0x004123B0:		GetCinematicRoom
-// 0x00412430:		ControlCinematicPlayer
-// 0x00412510:		LaraControlCinematic
-
+#define CalculateCinematicCamera ((void(__cdecl*)(void)) 0x00412270)
+#define GetCinematicRoom ((int(__cdecl*)(int, int, int)) 0x004123B0)
+#define ControlCinematicPlayer ((void(__cdecl*)(__int16)) 0x00412430)
+#define LaraControlCinematic ((void(__cdecl*)(__int16)) 0x00412510)
 #define InitialisePlayer1 ((void(__cdecl*)(__int16)) 0x004125B0)
-
-// 0x00412640:		InitialiseGenPlayer
-// 0x00412680:		InGameCinematicCamera
+#define InitialiseGenPlayer ((void(__cdecl*)(__int16)) 0x00412640)
+#define InGameCinematicCamera ((void(__cdecl*)(void)) 0x00412680)
 
 #endif // CINEMA_H_INCLUDED
