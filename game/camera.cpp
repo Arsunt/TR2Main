@@ -39,7 +39,17 @@ void __cdecl CalculateCamera() {
 	if( CHK_ANY(RoomInfo[Camera.pos.roomNumber].flags, ROOM_UNDERWATER) ) {
 		PlaySoundEffect(60, 0, SFX_ALWAYS);
 		if( !Camera.underwater ) {
-			S_CDVolume(0);
+#ifdef FEATURE_AUDIO_IMPROVED
+			extern double UnderwaterMusicMute;
+			double volume = (1.0 - UnderwaterMusicMute) * (double)(MusicVolume * 25 + 5);
+			if( volume >= 1.0 ) {
+				S_CDVolume((DWORD)volume);
+			} else {
+				S_CDVolume(0);
+			}
+#else // FEATURE_AUDIO_IMPROVED
+			S_CDVolume(0); // NOTE: Core supposed to pause CD Audio this way
+#endif // FEATURE_AUDIO_IMPROVED
 			Camera.underwater = 1;
 		}
 	} else if ( Camera.underwater ) {

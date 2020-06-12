@@ -79,6 +79,11 @@ extern char ScreenshotPath[MAX_PATH];
 extern bool BarefootSfxEnabled;
 #endif // FEATURE_MOD_CONFIG
 
+#ifdef FEATURE_AUDIO_IMPROVED
+extern double InventoryMusicMute;
+extern double UnderwaterMusicMute;
+#endif // FEATURE_AUDIO_IMPROVED
+
 #ifdef FEATURE_VIEW_IMPROVED
 extern bool PsxFovEnabled;
 extern double ViewDistanceFactor;
@@ -539,6 +544,13 @@ void __cdecl S_LoadSettings() {
 #ifdef FEATURE_ASSAULT_SAVE
 	GetRegistryBinaryValue(REG_GAME_ASSAULT, (LPBYTE)&Assault, sizeof(ASSAULT_STATS), NULL);
 #endif // FEATURE_ASSAULT_SAVE
+
+#ifdef FEATURE_AUDIO_IMPROVED
+	GetRegistryFloatValue(REG_INV_MUSIC_MUTE, &InventoryMusicMute, 1.0);
+	GetRegistryFloatValue(REG_UW_MUSIC_MUTE, &UnderwaterMusicMute, 1.0);
+	CLAMP(InventoryMusicMute, 0.0, 1.0);
+	CLAMP(UnderwaterMusicMute, 0.0, 1.0);
+#endif // FEATURE_AUDIO_IMPROVED
 
 #ifdef FEATURE_VIEW_IMPROVED
 	GetRegistryBoolValue(REG_PSXFOV_ENABLE, &PsxFovEnabled, false);

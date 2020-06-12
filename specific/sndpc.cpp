@@ -28,6 +28,11 @@
 #include "global/resource.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_AUDIO_IMPROVED
+double InventoryMusicMute = 1.0;
+double UnderwaterMusicMute = 1.0;
+#endif // FEATURE_AUDIO_IMPROVED
+
 #ifdef FEATURE_PAULD_CDAUDIO
 #include "modding/cd_pauld.h"
 static bool PaulD_isActive = false;

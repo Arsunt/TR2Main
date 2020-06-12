@@ -82,6 +82,8 @@
 
 // FLOAT value names
 #define REG_GAME_SIZER		"Sizer"
+#define REG_INV_MUSIC_MUTE	"InvMusicMute"
+#define REG_UW_MUSIC_MUTE	"UwMusicMute"
 #define REG_DRAW_DISTANCE	"DrawDistance"
 #define REG_FOG_BEGIN		"FogBegin"
 #define REG_FOG_END			"FogEnd"

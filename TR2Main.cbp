@@ -54,6 +54,7 @@
 			<Add option="-DDIRECTINPUT_VERSION=0x500" />
 			<Add option="-DDIRECTSOUND_VERSION=0x500" />
 			<Add option="-DFEATURE_ASSAULT_SAVE" />
+			<Add option="-DFEATURE_AUDIO_IMPROVED" />
 			<Add option="-DFEATURE_BACKGROUND_IMPROVED" />
 			<Add option="-DFEATURE_EXTENDED_LIMITS" />
 			<Add option="-DFEATURE_GOLD" />

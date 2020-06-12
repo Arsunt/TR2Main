@@ -99,7 +99,17 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 	SOUND_Stop();
 
 	if( InventoryMode != INV_TitleMode ) {
-		S_CDVolume(0);
+#ifdef FEATURE_AUDIO_IMPROVED
+		extern double InventoryMusicMute;
+		double volume = (1.0 - InventoryMusicMute) * (double)(MusicVolume * 25 + 5);
+		if( volume >= 1.0 ) {
+			S_CDVolume((DWORD)volume);
+		} else {
+			S_CDVolume(0);
+		}
+#else // FEATURE_AUDIO_IMPROVED
+		S_CDVolume(0); // NOTE: Core supposed to pause CD Audio this way
+#endif // FEATURE_AUDIO_IMPROVED
 	}
 
 	switch( InventoryMode ) {
