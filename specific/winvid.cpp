@@ -23,6 +23,7 @@
 #include "specific/winvid.h"
 #include "specific/init_3d.h"
 #include "specific/init_display.h"
+#include "specific/sndpc.h"
 #include "global/resource.h"
 #include "global/vars.h"
 #include "global/memmem.h"
@@ -929,6 +930,9 @@ LRESULT CALLBACK WinVidGameWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
 	LPDDS surface;
 	HBRUSH hBrush;
 	PAINTSTRUCT paint;
+#ifdef FEATURE_AUDIO_IMPROVED
+	static DWORD cdVolume = 0;
+#endif // FEATURE_AUDIO_IMPROVED
 
 	if( IsFmvPlaying ) {
 		switch( Msg ) {
@@ -1028,9 +1032,21 @@ LRESULT CALLBACK WinVidGameWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
 			return 1;
 
 		case WM_ACTIVATEAPP :
-				if( wParam && !IsGameWindowActive && IsGameFullScreen && SavedAppSettings.RenderMode == RM_Hardware )
-					WinVidNeedToResetBuffers = true;
-				IsGameWindowActive = ( wParam != 0 );
+#ifdef FEATURE_AUDIO_IMPROVED
+			// NOTE: If CD audio volume is set to zero, music is paused.
+			// To resume the music, the volume must be set to non zero value.
+			if( wParam && !IsGameWindowActive ) {
+				if( cdVolume ) {
+					S_CDVolume(cdVolume);
+				}
+			} else if ( !wParam && IsGameWindowActive ) {
+				cdVolume = S_GetCDVolume();
+				S_CDVolume(0);
+			}
+#endif // FEATURE_AUDIO_IMPROVED
+			if( wParam && !IsGameWindowActive && IsGameFullScreen && SavedAppSettings.RenderMode == RM_Hardware )
+				WinVidNeedToResetBuffers = true;
+			IsGameWindowActive = ( wParam != 0 );
 			break;
 
 		case WM_SETCURSOR :

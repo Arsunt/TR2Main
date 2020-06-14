@@ -41,6 +41,8 @@ static bool PaulD_isActive = false;
 // NOTE: There is no such flag in the original game.
 // It is added to provide additional protection against crashes
 static bool isCDAudioEnabled = false;
+// NOTE: this variable is absent in the original game
+static DWORD CDVolume = 0;
 
 int __cdecl S_SoundPlaySample(int channel, UINT16 volume, int pitch, int pan) {
 	if( !SoundIsActive )
@@ -263,6 +265,7 @@ void __cdecl S_CDVolume(DWORD volume) {
 	bool isVolumeSet = false;
 	UINT deviceID = (UINT)(-1);
 	UINT auxDevCount = auxGetNumDevs();
+	CDVolume = volume; // NOTE: store current CD Audio volume
 
 #ifdef FEATURE_PAULD_CDAUDIO
 	if( PaulD_isActive ) {
@@ -293,6 +296,10 @@ void __cdecl S_CDVolume(DWORD volume) {
 
 	if( !isVolumeSet && deviceID != (UINT)(-1) )
 		auxSetVolume(deviceID, MAKELONG(volume, volume));
+}
+
+DWORD __cdecl S_GetCDVolume() {
+	return CDVolume;
 }
 
 /*
