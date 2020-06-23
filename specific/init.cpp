@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -85,7 +85,11 @@ BOOL __cdecl S_InitialiseSystem() {
 	DumpWidth = GameVidWidth;
 	DumpHeight = GameVidHeight;
 	CalculateWibbleTable();
+#ifdef FEATURE_EXTENDED_LIMITS
+	GameMemorySize = 0x1000000; // 16 MB
+#else // FEATURE_EXTENDED_LIMITS
 	GameMemorySize = 0x380000; // 3.5 MB
+#endif // FEATURE_EXTENDED_LIMITS
 	return TRUE;
 }
 

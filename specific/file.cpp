@@ -358,8 +358,8 @@ void __cdecl AdjustTextureUVs(bool resetUvAdd) {
 	BYTE uvFlags;
 	PHD_UV *pUV;
 
-	if( (SavedAppSettings.TexelAdjustMode == TAM_Always && SavedAppSettings.RenderMode == RM_Hardware ) ||
-		(SavedAppSettings.TexelAdjustMode == TAM_BilinearOnly && SavedAppSettings.BilinearFiltering) )
+	if( SavedAppSettings.RenderMode == RM_Hardware && (SavedAppSettings.TexelAdjustMode == TAM_Always ||
+		(SavedAppSettings.TexelAdjustMode == TAM_BilinearOnly && SavedAppSettings.BilinearFiltering)) )
 	{
 		adjustment = SavedAppSettings.LinearAdjustment; // LinearAdjustment default is 128. It can be changed in the registry only
 	} else {
@@ -473,7 +473,7 @@ BOOL __cdecl LoadObjects(HANDLE hFile) {
 
 	// Load textures info
 	ReadFileSync(hFile, &TextureInfoCount, sizeof(DWORD), &bytesRead, NULL);
-	if( TextureInfoCount > 0x800 ) {
+	if( TextureInfoCount > ARRAY_SIZE(PhdTextureInfo) ) {
 		lstrcpy(StringToShow, "Too many Textures in level");
 		return FALSE;
 	}

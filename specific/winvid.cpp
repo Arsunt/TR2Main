@@ -25,6 +25,7 @@
 #include "specific/init_display.h"
 #include "global/resource.h"
 #include "global/vars.h"
+#include "global/memmem.h"
 
 #if (DIRECT3D_VERSION > 0x500)
 DISPLAY_ADAPTER CurrentDisplayAdapter;
@@ -575,11 +576,6 @@ bool __cdecl WinVidGoWindowed(int width, int height, DISPLAY_MODE *dispMode) {
 	maxWidth = dispMode->width;
 	maxHeight = CalculateWindowHeight(dispMode->width, dispMode->height);
 
-#ifdef FEATURE_VIDMODESORT
-	CLAMPG(maxWidth, MAX_SURFACE_SIZE);
-	CLAMPG(maxHeight, MAX_SURFACE_SIZE);
-#endif // FEATURE_VIDMODESORT
-
 	if( maxHeight > dispMode->height ) {
 		maxHeight = dispMode->height;
 		maxWidth = CalculateWindowWidth(dispMode->width, dispMode->height);
@@ -690,15 +686,6 @@ HRESULT WINAPI EnumDisplayModesCallback(LPDDSDESC lpDDSurfaceDesc, LPVOID lpCont
 		return DDENUMRET_OK;
 	}
 
-#ifdef FEATURE_VIDMODESORT
-	// Check that display mode is supported
-	if( lpDDSurfaceDesc->dwWidth  > MAX_SURFACE_SIZE ||
-		lpDDSurfaceDesc->dwHeight > MAX_SURFACE_SIZE )
-	{
-		return DDENUMRET_OK;
-	}
-#endif // FEATURE_VIDMODESORT
-
 	if( (lpDDSurfaceDesc->ddpfPixelFormat.dwFlags & DDPF_PALETTEINDEXED8) != 0 &&
 		lpDDSurfaceDesc->ddpfPixelFormat.dwRGBBitCount == 8 )
 	{
@@ -762,7 +749,37 @@ HRESULT WINAPI EnumDisplayModesCallback(LPDDSDESC lpDDSurfaceDesc, LPVOID lpCont
 
 bool __cdecl WinVidInit() {
 	AppResultCode = 0;
+#if (DIRECT3D_VERSION <= 0x700)
+	// NOTE: We can hack DirectDraw to support surface resolutions greater than 2048x2048.
+	// Not presented in the original game. Many thanks to Gemini-Loboto3 for this idea!
+#if (DIRECT3D_VERSION == 0x700)
+	HMODULE hd3d = LoadLibrary("d3dim700.dll");
+#else // (DIRECT3D_VERSION == 0x700)
+	HMODULE hd3d = LoadLibrary("d3dim.dll");
+#endif // (DIRECT3D_VERSION == 0x700)
+	if( hd3d ) {
+		PIMAGE_DOS_HEADER pDosHeader;
+		PIMAGE_NT_HEADERS pNtHeader;
+		DWORD dwCodeBase;
+		DWORD dwCodeSize;
+		DWORD dwPatchBase;
+		DWORD dwOldProtect;
 
+		pDosHeader = (PIMAGE_DOS_HEADER)hd3d;
+		pNtHeader = (PIMAGE_NT_HEADERS)((char*)pDosHeader + pDosHeader->e_lfanew);
+		dwCodeBase = (DWORD)hd3d + pNtHeader->OptionalHeader.BaseOfCode;
+		dwCodeSize = pNtHeader->OptionalHeader.SizeOfCode;
+
+		static BYTE wantedBytes[] = {0xB8, 0x00, 0x08, 0x00, 0x00, 0x39};
+		dwPatchBase = (DWORD)memmem((void*)dwCodeBase, dwCodeSize, wantedBytes, sizeof(wantedBytes));
+		if( dwPatchBase ) {
+			dwPatchBase++;
+			VirtualProtect((LPVOID)dwPatchBase, 4, PAGE_EXECUTE_READWRITE, &dwOldProtect);
+			*(DWORD*)dwPatchBase = ~0;
+			VirtualProtect((LPVOID)dwPatchBase, 4, dwOldProtect, &dwOldProtect);
+		}
+	}
+#endif // (DIRECT3D_VERSION <= 0x700)
 	return ( WinVidRegisterGameWindowClass() &&
 			 WinVidCreateGameWindow() &&
 			 WinVidGetDisplayAdapters() &&

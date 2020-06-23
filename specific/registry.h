@@ -78,9 +78,12 @@
 #define REG_PSXBARPOS_ENABLE	"EnablePsxBarPos"
 #define REG_PSXFOV_ENABLE		"EnablePsxFov"
 #define REG_BAREFOOT_SFX_ENABLE	"BarefootSFX"
+#define REG_REMASTER_PIX_ENABLE	"RemasteredPictures"
 
 // FLOAT value names
 #define REG_GAME_SIZER		"Sizer"
+#define REG_INV_MUSIC_MUTE	"InvMusicMute"
+#define REG_UW_MUSIC_MUTE	"UwMusicMute"
 #define REG_DRAW_DISTANCE	"DrawDistance"
 #define REG_FOG_BEGIN		"FogBegin"
 #define REG_FOG_END			"FogEnd"
@@ -95,6 +98,7 @@
 
 // STRING value names
 #define REG_SCREENSHOT_PATH	"ScreenshotPath"
+#define REG_PICTURE_SUFFIX	"PictureSuffix"
 
 // GUID string size
 #define GUID_STRING_SIZE (sizeof("{00112233-4455-6677-8899AABBCCDDEEFF}"))

@@ -54,7 +54,9 @@
 			<Add option="-DDIRECTINPUT_VERSION=0x500" />
 			<Add option="-DDIRECTSOUND_VERSION=0x500" />
 			<Add option="-DFEATURE_ASSAULT_SAVE" />
+			<Add option="-DFEATURE_AUDIO_IMPROVED" />
 			<Add option="-DFEATURE_BACKGROUND_IMPROVED" />
+			<Add option="-DFEATURE_EXTENDED_LIMITS" />
 			<Add option="-DFEATURE_GOLD" />
 			<Add option="-DFEATURE_HUD_IMPROVED" />
 			<Add option="-DFEATURE_JUMP_COLLISION_FIX" />
@@ -105,6 +107,8 @@
 		<Unit filename="global/types.h" />
 		<Unit filename="global/resource.h" />
 		<Unit filename="global/vars.h" />
+		<Unit filename="global/memmem.c" />
+		<Unit filename="global/memmem.h" />
 
 		<Unit filename="3dsystem/3d_gen.cpp" />
 		<Unit filename="3dsystem/3d_gen.h" />

@@ -48,8 +48,8 @@ static D3DCOLOR shadeColor(DWORD red, DWORD green, DWORD blue, DWORD alpha, DWOR
 		alpha = RGBA_GETALPHA(GlobalTint);
 	}
 
-	if( shade > 0 ) {
-		DWORD brightness = 0x1FFF - shade;
+	if( shade != 0x1000 ) {
+		DWORD brightness = 0x2000 - shade;
 		red   = red   * brightness >> 12;
 		green = green * brightness >> 12;
 		blue  = blue  * brightness >> 12;

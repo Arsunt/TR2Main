@@ -27,6 +27,19 @@
 #include "global/vars.h"
 #include <limits.h>
 
+#ifdef FEATURE_EXTENDED_LIMITS
+PHD_TEXTURE PhdTextureInfo[0x2000];
+BYTE LabTextureUVFlags[0x2000];
+BYTE *TexturePageBuffer8[128];
+HWR_TEXHANDLE HWR_PageHandles[128];
+int HWR_TexturePageIndexes[128];
+#endif // FEATURE_EXTENDED_LIMITS
+
+#if defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_BACKGROUND_IMPROVED)
+TEXPAGE_DESC TexturePages[256];
+LPDIRECTDRAWPALETTE DDrawPalettes[256];
+#endif // defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_BACKGROUND_IMPROVED)
+
 #ifdef FEATURE_VIDEOFX_IMPROVED
 DWORD ReflectionMode = 0;
 DWORD ReflectionBlur = 2;
@@ -45,8 +58,8 @@ static int __cdecl CreateEnvmapBuffer() {
 	if( !ReflectionMode ) return -1;
 	DWORD side = 1;
 	DWORD sideLimit = MIN(GameVidBufWidth, GameVidBufHeight);
-	CLAMPG(sideLimit, MAX_SURFACE_SIZE);
 	while( side<<ReflectionBlur <= sideLimit ) side <<= 1;
+	CLAMPG(side, GetMaxTextureSize());
 
 	memset(&dsp, 0, sizeof(dsp));
 	dsp.dwSize = sizeof(dsp);
@@ -119,6 +132,13 @@ HWR_TEXHANDLE GetEnvmapTextureHandle() {
 	return EnvmapTextureHandle;
 }
 #endif // FEATURE_VIDEOFX_IMPROVED
+
+DWORD __cdecl GetMaxTextureSize() {
+	DWORD side = 2048; // NOTE: It is better to limit old DirectX texture size;
+	CLAMPG(side, CurrentDisplayAdapter.D3DHWDeviceDesc.dwMaxTextureWidth);
+	CLAMPG(side, CurrentDisplayAdapter.D3DHWDeviceDesc.dwMaxTextureHeight);
+	return side;
+}
 
 void __cdecl CopyBitmapPalette(RGB888 *srcPal, BYTE *srcBitmap, int bitmapSize, RGB888 *destPal) {
 	int i, j;
@@ -235,7 +255,7 @@ int __cdecl CreateTexturePalette(RGB888 *pal) {
 }
 
 int __cdecl GetFreePaletteIndex() {
-	for( int i=0; i<16; ++i ) {
+	for( DWORD i=0; i<ARRAY_SIZE(DDrawPalettes); ++i ) {
 		if( DDrawPalettes[i] == NULL )
 			return i;
 	}
@@ -290,7 +310,7 @@ bool __cdecl CreateTexturePageSurface(TEXPAGE_DESC *desc) {
 }
 
 int __cdecl GetFreeTexturePageIndex() {
-	for( int i=0; i<32; ++i ) {
+	for( DWORD i=0; i<ARRAY_SIZE(TexturePages); ++i ) {
 		if( (TexturePages[i].status & 1) == 0 )
 			return i;
 	}
@@ -404,7 +424,7 @@ void __cdecl TexturePageReleaseVidMemSurface(TEXPAGE_DESC *page) {
 bool __cdecl ReloadTextures(bool reset) {
 	bool result = true;
 
-	for( int i=0; i<32; ++i ) {
+	for( DWORD i=0; i<ARRAY_SIZE(TexturePages); ++i ) {
 		if( (TexturePages[i].status & 1) != 0 )
 			result &= LoadTexturePage(i, reset);
 	}
@@ -412,7 +432,7 @@ bool __cdecl ReloadTextures(bool reset) {
 }
 
 void __cdecl FreeTexturePages() {
-	for( int i=0; i<32; ++i ) {
+	for( DWORD i=0; i<ARRAY_SIZE(TexturePages); ++i ) {
 		if( (TexturePages[i].status & 1) != 0 )
 			FreeTexturePage(i);
 	}
@@ -560,12 +580,12 @@ HRESULT CALLBACK EnumTextureFormatsCallback(LPDDSDESC lpDdsd, LPVOID lpContext) 
 			TextureFormat.pixelFmt = *lpDDPixFmt;
 			TextureFormat.bpp = 8;
 			TexturesAlphaChannel = false;
+			if( SavedAppSettings.Disable16BitTextures ) {
+				TexturesHaveCompatibleMasks = false;
+				return D3DENUMRET_CANCEL; // NOTE: not presented in the original code
+			}
 		}
-		TexturesHaveCompatibleMasks = false;
-		return D3DENUMRET_OK;
-	}
-
-	if( CHK_ANY(lpDDPixFmt->dwFlags, DDPF_RGB) ) {
+	} else if( CHK_ANY(lpDDPixFmt->dwFlags, DDPF_RGB) ) {
 		TextureFormat.pixelFmt = *lpDDPixFmt;
 		TextureFormat.bpp = 16;
 		TexturesAlphaChannel = CHK_ANY(lpDDPixFmt->dwFlags, DDPF_ALPHAPIXELS);
@@ -591,12 +611,18 @@ HRESULT CALLBACK EnumTextureFormatsCallback(LPDDSDESC lpDdsd, LPVOID lpContext) 
 
 HRESULT __cdecl EnumerateTextureFormats() {
 	memset(&TextureFormat, 0, sizeof(TEXTURE_FORMAT));
-	return D3DDev->EnumTextureFormats(EnumTextureFormatsCallback, NULL);
+	HRESULT ret = D3DDev->EnumTextureFormats(EnumTextureFormatsCallback, NULL);
+	// NOTE: there is no such check in the original code
+	if( SavedAppSettings.Disable16BitTextures && TextureFormat.bpp < 8 ) {
+		SavedAppSettings.Disable16BitTextures = false;
+		ret = D3DDev->EnumTextureFormats(EnumTextureFormatsCallback, NULL);
+	}
+	return ret;
 }
 
 void __cdecl CleanupTextures() {
 	FreeTexturePages();
-	for( int i=0; i<16; ++i ) {
+	for( DWORD i=0; i<ARRAY_SIZE(DDrawPalettes); ++i ) {
 		if( DDrawPalettes[i] != NULL )
 			FreePalette(i);
 	}

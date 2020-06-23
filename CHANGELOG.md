@@ -34,6 +34,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added support for loading screens from TR2Main.json configuration file.
 - Added support for custom water color from TR2Main.json configuration file.
 - Added support for barefoot steps SFX from TR2Main.json configuration file (BAREFOOT.SFX in the DATA folder required).
+- Added support for Legal/Title pictures with both US/EU logo (just a simple option to toggle between logo versions).
+- Remastered pictures (PNG/JPG/BMP) support can be disabled now. In this case the game will use only PCX pictures.
+- Custom HUD scale can be set to any value in 0.5 - 2.0 (previously it was limited by 1.0 - 2.0).
+- Added support for display resolutions higher than 2048x2048.
+- Background picture code is redesigned to support resolutions higher than 2048x2048.
+- The limitations of the game engine (textures, polygons) are expanded by 4 times for future TR2 mods.
+- Added music mute settings for inventory/underwater.
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.
@@ -45,12 +52,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a bug that hid the ammo indicator in demo levels if *"New Game+"* is activated.
 - Fixed a bug that produced black triangles originating from the top left of the screen on some laptop graphic adapters.
 - Fixed a bug that produced traces of previous textures in untextured areas.
+- If "Disable 16 bit textures" option is unsupported, it's disabled automatically instead of breaking the textures.
 
 ### TR2Main bugfixes
 - Background capture is optimized even more, now it is 3-4 times faster than v0.8.2. No lags anymore (broken since v0.8.0).
 - Fixed game crash in Software Rendered mode with PlayStation styled inventory text box enabled (broken since v0.8.0).
 - Fixed a rare game crash occurring when launching the game (broken since v0.1.0).
 - Fixed sunset effect in Bartoli's Hideout level (broken since v0.1.0).
+- Fixed texel adjustment if the filtering is changed by *F8* hotkey while "Adjust when bilinear filtering" option is enabled (broken since v0.1.0).
 
 ## [0.8.2] - 2019-05-26
 ### TR2Main bugfixes

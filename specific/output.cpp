@@ -58,7 +58,6 @@ void FreeEnvmapTexture();
 
 extern DWORD BGND_PictureWidth;
 extern DWORD BGND_PictureHeight;
-extern DWORD BGND_TextureSide;
 extern bool BGND_IsCaptured;
 
 extern DWORD InvBackgroundMode;
@@ -1000,11 +999,8 @@ void __cdecl S_CopyBufferToScreen() {
 			BGND2_LoadPicture(NULL, FALSE, TRUE); // reload picture if required
 		}
 		BGND_DrawInGameBlack(); // draw black background for picture margins
-		BGND_GetPageHandles();
 		BGND2_CalculatePictureRect(&rect);
-		BGND2_DrawTexture(&rect, BGND_PageHandles[0],
-						  0, 0, BGND_PictureWidth, BGND_PictureHeight,
-						  BGND_TextureSide, color, color, color, color);
+		BGND2_DrawTextures(&rect, color);
 		if( BGND_IsCaptured ) {
 			BGND2_FadeTo(128, -12); // the captured background image fades out to 50%
 		}

@@ -352,7 +352,7 @@ void __cdecl HWR_LoadTexturePages(int pagesCount, LPVOID pagesBuffer, RGB888 *pa
 
 void __cdecl HWR_FreeTexturePages() {
 
-	for( int i=0; i<32; ++i ) {
+	for( DWORD i=0; i<ARRAY_SIZE(HWR_TexturePageIndexes); ++i ) {
 		if( HWR_TexturePageIndexes[i] >= 0 ) {
 			SafeFreeTexturePage(HWR_TexturePageIndexes[i]);
 			HWR_TexturePageIndexes[i] = -1;
@@ -365,7 +365,7 @@ void __cdecl HWR_FreeTexturePages() {
 }
 
 void __cdecl HWR_GetPageHandles() {
-	for( int i=0; i<32; ++i ) {
+	for( DWORD i=0; i<ARRAY_SIZE(HWR_TexturePageIndexes); ++i ) {
 		if( HWR_TexturePageIndexes[i] < 0 )
 			HWR_PageHandles[i] = 0;
 		else
@@ -375,7 +375,7 @@ void __cdecl HWR_GetPageHandles() {
 
 bool __cdecl HWR_VertexBufferFull() {
 	DWORD index = ((DWORD)HWR_VertexPtr - (DWORD)HWR_VertexBuffer) / sizeof(D3DTLVERTEX);
-	return (index >= 0x2000 - 0x200);
+	return (index >= ARRAY_SIZE(HWR_VertexBuffer) - 0x200);
 }
 
 bool __cdecl HWR_Init() {

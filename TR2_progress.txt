@@ -163,30 +163,30 @@ x function is unused / included in another function
 
 	game/camera.cpp
 0x00410580:	 *	InitialiseCamera
-0x00410630:		MoveCamera
-0x004109B0:		ClipCamera
-0x00410A90:		ShiftCamera
-0x00410BF0:		BadPosition
-0x00410C40:		SmartShift
-0x004113D0:		ChaseCamera
-0x004114C0:		ShiftClamp
-0x00411660:		CombatCamera
-0x004117F0:		LookCamera
-0x004119E0:		FixedCamera
-0x00411A80:		CalculateCamera
+0x00410630:	 *	MoveCamera
+0x004109B0:	 *	ClipCamera
+0x00410A90:	 *	ShiftCamera
+0x00410BF0:	 *	GoodPosition
+0x00410C40:	 *	SmartShift
+0x004113D0:	 *	ChaseCamera
+0x004114C0:	 *	ShiftClamp
+0x00411660:	 *	CombatCamera
+0x004117F0:	 *	LookCamera
+0x004119E0:	 *	FixedCamera
+0x00411A80:	+	CalculateCamera
 
 	game/cinema.cpp
 0x00411F30:	+	SetCutsceneTrack
 0x00411F40:	+	StartCinematic
 0x00412060:	 *	InitCinematicRooms
 0x00412100:	 *	DoCinematic
-0x00412270:		CalculateCinematicCamera
-0x004123B0:		GetCinematicRoom
-0x00412430:		ControlCinematicPlayer
-0x00412510:		LaraControlCinematic
+0x00412270:	 *	CalculateCinematicCamera
+0x004123B0:	 *	GetCinematicRoom
+0x00412430:	 *	ControlCinematicPlayer
+0x00412510:	 *	LaraControlCinematic
 0x004125B0:	 *	InitialisePlayer1
-0x00412640:		InitialiseGenPlayer
-0x00412680:		InGameCinematicCamera
+0x00412640:	 *	InitialiseGenPlayer
+0x00412680:	 *	InGameCinematicCamera
 
 	game/collide.cpp
 0x004128D0:		GetCollisionInfo

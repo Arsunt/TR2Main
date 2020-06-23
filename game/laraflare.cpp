@@ -52,7 +52,7 @@ void __cdecl DrawFlareInAir(ITEM_INFO *item) {
 #ifdef FEATURE_VIDEOFX_IMPROVED
 			if( AlphaBlendMode ) {
 				int shade = (GetRandomDraw() & 0xFFF) + 0x1000;
-				DWORD flags = RGB_MAKE(0xFF,0x80,0x80);
+				DWORD flags = GLOW_FLARE_COLOR;
 				flags |= SPR_BLEND_ADD|SPR_TINT|SPR_SHADE|SPR_SEMITRANS;
 				S_DrawSprite(flags, 0, 0, 0, Objects[ID_GLOW].meshIndex, shade, 0);
 			}

@@ -146,6 +146,7 @@
 #define IsWaterEffect				VAR_U_(0x004D6C04, BOOL)
 #define IsShadeEffect				VAR_U_(0x004D6F68, bool)
 #define CineCurrentFrame			VAR_U_(0x004D7770, int)
+#define IsChunkyCamera				VAR_U_(0x004D777C, BOOL)
 #define NoInputCounter				VAR_U_(0x004D7784, int)
 #define IsResetFlag					VAR_U_(0x004D7788, BOOL)
 #define FlipTimer					VAR_U_(0x004D778C, int)
@@ -471,34 +472,62 @@ extern DISPLAY_ADAPTER CurrentDisplayAdapter;
 // Uninitialized arrays
 #define GouraudTable				ARRAY_(0x0046C300, GOURAUD_ENTRY, [256])
 #define PhdSpriteInfo				ARRAY_(0x0046E308, PHD_SPRITE, [512])
+#ifdef FEATURE_EXTENDED_LIMITS
+extern SORT_ITEM SortBuffer[16000];
+extern __int16 Info3dBuffer[480000];
+#else // FEATURE_EXTENDED_LIMITS
 #define SortBuffer					ARRAY_(0x00470338, SORT_ITEM, [4000])
 #define Info3dBuffer				ARRAY_(0x00478060, __int16, [120000])
+#endif // FEATURE_EXTENDED_LIMITS
 #define RandomTable					ARRAY_(0x004B2A28, int, [32])
+#ifdef FEATURE_EXTENDED_LIMITS
+extern PHD_TEXTURE PhdTextureInfo[0x2000];
+#else // FEATURE_EXTENDED_LIMITS
 #define PhdTextureInfo				ARRAY_(0x004B2AF0, PHD_TEXTURE, [0x800])
+#endif // FEATURE_EXTENDED_LIMITS
 #define ShadesTable					ARRAY_(0x004BCB00, __int16, [32])
 #define MatrixStack					ARRAY_(0x004BCB48, PHD_MATRIX, [40])
 #define DepthQTable					ARRAY_(0x004BD2C8, DEPTHQ_ENTRY, [32])
 #define DepthQIndex					ARRAY_(0x004BF2C8, BYTE, [256])
 #define PhdVBuf						ARRAY_(0x004BF3D0, PHD_VBUF, [1500])
 #define XBuffer						ARRAY_(0x004CAF50, int, [12000]) // NOTE: this means that SW renderer maximum safe resolution is 1200 pixels
+#ifdef FEATURE_EXTENDED_LIMITS
+extern BYTE *TexturePageBuffer8[128];
+#else // FEATURE_EXTENDED_LIMITS
 #define TexturePageBuffer8			ARRAY_(0x004D6AD0, BYTE*, [32])
+#endif // FEATURE_EXTENDED_LIMITS
 #define WibbleTable					ARRAY_(0x004D6B68, float, [32])
 #define GamePalette16				ARRAY_(0x004D7370, PALETTEENTRY, [256])
 #define InvItemText					ARRAY_(0x004D7938, TEXT_STR_INFO*, [2])
 #define InventoryExtraData			ARRAY_(0x004D7970, int, [8])
 #define SfxInfos					ARRAY_(0x004D7C68, SFX_INFO, [32])
+#ifdef FEATURE_BACKGROUND_IMPROVED
+extern int BGND_TexturePageIndexes[128];
+extern HWR_TEXHANDLE BGND_PageHandles[128];
+#else // FEATURE_BACKGROUND_IMPROVED
 #define BGND_TexturePageIndexes		ARRAY_(0x004D7E80, int, [5])
 #define BGND_PageHandles			ARRAY_(0x004D7E98, HWR_TEXHANDLE, [5])
+#endif // FEATURE_BACKGROUND_IMPROVED
 #define SampleFreqs					ARRAY_(0x004D8560, DWORD, [256])
 #define SampleBuffers				ARRAY_(0x004D8970, LPDIRECTSOUNDBUFFER, [256])
 #define ChannelSamples				ARRAY_(0x004D8D78, DWORD, [32])
 #define ChannelBuffers				ARRAY_(0x004D8DF8, LPDIRECTSOUNDBUFFER, [32])
 #define WinVidPalette				ARRAY_(0x004D8EA8, PALETTEENTRY, [256])
+#ifdef FEATURE_EXTENDED_LIMITS
+extern BYTE LabTextureUVFlags[0x2000];
+#else // FEATURE_EXTENDED_LIMITS
 #define LabTextureUVFlags			ARRAY_(0x004D93E0, BYTE, [0x800])
+#endif // FEATURE_EXTENDED_LIMITS
 #define LevelFileName				ARRAY_(0x004D9D88, char, [256])
+#ifdef FEATURE_EXTENDED_LIMITS
+extern D3DTLVERTEX HWR_VertexBuffer[0x8000];
+extern HWR_TEXHANDLE HWR_PageHandles[128];
+extern int HWR_TexturePageIndexes[128];
+#else // FEATURE_EXTENDED_LIMITS
 #define HWR_VertexBuffer			ARRAY_(0x004D9EC8, D3DTLVERTEX, [0x2000])
 #define HWR_PageHandles				ARRAY_(0x00519ED0, HWR_TEXHANDLE, [32])
 #define HWR_TexturePageIndexes		ARRAY_(0x00519F68, int, [32])
+#endif // FEATURE_EXTENDED_LIMITS
 #define ConflictLayout				ARRAY_(0x0051A0C0, BOOL, [14])
 #define DIKeys						ARRAY_(0x0051A0F8, BYTE, [256])
 #define DetailTextInfo				ARRAY_(0x0051A2C8, TEXT_STR_INFO*, [5])
@@ -510,8 +539,13 @@ extern DISPLAY_ADAPTER CurrentDisplayAdapter;
 #define RoomLightShades				ARRAY_(0x0051B8F8, int, [4])
 #define GamePalette8				ARRAY_(0x0051B920, RGB888, [256])
 #define StringToShow				ARRAY_(0x0051BD10, char, [128])
+#if defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_BACKGROUND_IMPROVED)
+extern TEXPAGE_DESC TexturePages[256];
+extern LPDIRECTDRAWPALETTE DDrawPalettes[256];
+#else // defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_BACKGROUND_IMPROVED)
 #define TexturePages				ARRAY_(0x0051BDA8, TEXPAGE_DESC, [32])
 #define DDrawPalettes				ARRAY_(0x0051C200, LPDIRECTDRAWPALETTE, [16])
+#endif // defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_BACKGROUND_IMPROVED)
 #define TextInfoTable				ARRAY_(0x0051C820, TEXT_STR_INFO, [64])
 #define TheStrings					ARRAY_(0x0051D6C0, STRING_FIXED64, [64])
 #define SampleLut					ARRAY_(0x0051E6E0, __int16, [370])

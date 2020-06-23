@@ -437,7 +437,7 @@ void __cdecl DrawLaraInt(ITEM_INFO *item, __int16 *frame1, __int16 *frame2, int 
 #ifdef FEATURE_VIDEOFX_IMPROVED
 					if( AlphaBlendMode ) {
 						int shade = (GetRandomDraw() & 0xFFF) + 0x1000;
-						DWORD flags = RGB_MAKE(0xFF,0x80,0x80);
+						DWORD flags = GLOW_FLARE_COLOR;
 						flags |= SPR_BLEND_ADD|SPR_TINT|SPR_SHADE|SPR_SEMITRANS;
 						S_DrawSprite(flags, 0, 0, 0, Objects[ID_GLOW].meshIndex, shade, 0);
 					}
@@ -583,7 +583,7 @@ void __cdecl DrawGunFlash(int weapon, int clip) {
 #ifdef FEATURE_VIDEOFX_IMPROVED
 			if( AlphaBlendMode ) {
 				int shade = (GetRandomDraw() & 0xFFF) + 0x1000;
-				DWORD flags = RGB_MAKE(0xFF,0x80,0x80);
+				DWORD flags = GLOW_FLARE_COLOR;
 				flags |= SPR_BLEND_ADD|SPR_TINT|SPR_SHADE|SPR_SEMITRANS;
 				S_DrawSprite(flags, 0, 0, 0, Objects[ID_GLOW].meshIndex, shade, 0);
 			}
@@ -596,7 +596,7 @@ void __cdecl DrawGunFlash(int weapon, int clip) {
 			phd_PutPolygons(MeshPtr[Objects[ID_M16_FLASH].meshIndex], clip);
 #ifdef FEATURE_VIDEOFX_IMPROVED
 			if( AlphaBlendMode ) {
-				DWORD flags = RGB_MAKE(0x7F,0x70,0x1F);
+				DWORD flags = GLOW_M16_COLOR;
 				flags |= SPR_BLEND_ADD|SPR_TINT|SPR_SCALE|SPR_SEMITRANS;
 				S_DrawSprite(flags, 0, 0, -65, Objects[ID_GLOW].meshIndex, 0, 0x200);
 			}
@@ -624,7 +624,7 @@ void __cdecl DrawGunFlash(int weapon, int clip) {
 	phd_PutPolygons(MeshPtr[Objects[ID_GUN_FLASH].meshIndex], clip);
 #ifdef FEATURE_VIDEOFX_IMPROVED
 	if( AlphaBlendMode ) {
-		DWORD flags = RGB_MAKE(0x3F,0x38,0x0F);
+		DWORD flags = GLOW_PISTOL_COLOR;
 		flags |= SPR_BLEND_ADD|SPR_TINT|SPR_SCALE|SPR_SEMITRANS;
 		S_DrawSprite(flags, 0, 0, 0, Objects[ID_GLOW].meshIndex, 0, 0x200);
 	}

@@ -43,13 +43,17 @@ extern LPDDS CaptureBufferSurface;
 extern bool IsGold();
 #endif
 
+int BGND_TexturePageIndexes[128];
+HWR_TEXHANDLE BGND_PageHandles[128];
+
 DWORD BGND_PictureWidth  = 640;
 DWORD BGND_PictureHeight = 480;
-DWORD BGND_TextureSide  = 1024;
 bool BGND_IsCaptured = false;
 
 DWORD PictureStretchLimit = 10;
+bool RemasteredPixEnabled = true;
 
+static DWORD BGND_TextureSide  = 1024;
 static DWORD BGND_TextureAlpha = 255;
 
 /// Short wave horizontal pattern step
@@ -305,65 +309,33 @@ static int FillEdgePadding(DWORD width, DWORD height, DWORD side, BYTE *bitmap, 
 }
 
 
-static DWORD CalculateTextureSide(DWORD width, DWORD height) {
-	DWORD side = 1;
-	while( side < width || side < height ) {
-		side <<= 1;
-		if( side > MAX_SURFACE_SIZE ) {
-			return 0;
-		}
-	}
-	return side;
-}
-
-
-static int CreateCaptureTexture(DWORD width, DWORD height) {
-	DWORD side = CalculateTextureSide(width, height);
-	if( !side ) return -1;
-
-	int pageIndex = BGND_TexturePageIndexes[0];
-	if( pageIndex >= 0 && TexturePages[pageIndex].status && (int)side > TexturePages[pageIndex].width ) {
-		FreeTexturePage(pageIndex);
-	}
+static int CreateCaptureTexture(DWORD index, DWORD side) {
+	int pageIndex = BGND_TexturePageIndexes[index];
 	if( pageIndex < 0 || !TexturePages[pageIndex].status ) {
 		pageIndex = CreateTexturePage(side, side, NULL);
 		if( pageIndex < 0 ) {
 			return -1;
 		}
-		BGND_TexturePageIndexes[0] = pageIndex;
+		BGND_TexturePageIndexes[index] = pageIndex;
 	}
-
 	return pageIndex;
 }
 
-
-static int MakeBgndTexture(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmpPal) {
-	DWORD side = CalculateTextureSide(width, height);
-	if( !side ) return -1;
-
-	int pageIndex;
-
-	S_DontDisplayPicture(); // clean up previous textures
-
-	if( bmpPal != NULL && (SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16) ) {
-		BGND_PaletteIndex = CreateTexturePalette(bmpPal);
-	} else {
-		BGND_PaletteIndex = -1;
-	}
-
+static int MakeBgndTexture(DWORD x, DWORD y, DWORD width, DWORD height, DWORD pitch, DWORD side, BYTE *bitmap, RGB888 *bmpPal) {
+	int pageIndex = -1;
 	if( bmpPal == NULL ) { // source bitmap is not indexed
 		if( SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16 ) { // texture cannot be indexed in this case
 			return -1;
 		}
 		UINT16 *tmpBmp = (UINT16 *)calloc(2, SQR(side));
 		UINT16 *bmpDst = tmpBmp;
-		UINT16 *bmpSrc = (UINT16 *)bitmap;
+		UINT16 *bmpSrc = (UINT16 *)bitmap + x + y * pitch;
 
 		for( DWORD j = 0; j < height; ++j ) {
 			for( DWORD i = 0; i < width; ++i ) {
 				bmpDst[i] = bmpSrc[i];
 			}
-			bmpSrc += width;
+			bmpSrc += pitch;
 			bmpDst += side;
 		}
 		FillEdgePadding(width, height, side, (BYTE *)tmpBmp, 16);
@@ -372,7 +344,7 @@ static int MakeBgndTexture(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmpP
 	} else if( BGND_PaletteIndex < 0 ) {
 		UINT16 *tmpBmp = (UINT16 *)calloc(2, SQR(side));
 		UINT16 *bmpDst = tmpBmp;
-		BYTE *bmpSrc = bitmap;
+		BYTE *bmpSrc = bitmap + x + y * pitch;
 
 		// Translating bitmap data from 8 bit bitmap to 16 bit bitmap
 		for( DWORD j = 0; j < height; ++j ) {
@@ -383,7 +355,7 @@ static int MakeBgndTexture(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmpP
 						| (((UINT16)color->green >> 3) << 5)
 						| (((UINT16)color->blue  >> 3));
 			}
-			bmpSrc += width;
+			bmpSrc += pitch;
 			bmpDst += side;
 		}
 		FillEdgePadding(width, height, side, (BYTE *)tmpBmp, 16);
@@ -391,21 +363,48 @@ static int MakeBgndTexture(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmpP
 		free(tmpBmp);
 	} else {
 		BYTE *tmpBmp = (BYTE *)calloc(1, SQR(side));
-		UT_MemBlt(tmpBmp, 0, 0, width, height, side, bitmap, 0, 0, width);
+		UT_MemBlt(tmpBmp, 0, 0, width, height, side, bitmap, x, y, pitch);
 		FillEdgePadding(width, height, side, tmpBmp, 8);
 		pageIndex = AddTexturePage8(side, side, tmpBmp, BGND_PaletteIndex);
 		free(tmpBmp);
 	}
+	return pageIndex;
+}
 
-	if( pageIndex < 0) {
-		return -1;
+static int MakeBgndTextures(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmpPal) {
+	DWORD side = GetMaxTextureSize();
+	S_DontDisplayPicture(); // clean up previous textures
+
+	if( bmpPal != NULL && (SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16) ) {
+		BGND_PaletteIndex = CreateTexturePalette(bmpPal);
+	} else {
+		BGND_PaletteIndex = -1;
+	}
+
+	DWORD nx = (width + side - 1) / side;
+	DWORD ny = (height + side - 1) / side;
+
+	if( nx*ny >= ARRAY_SIZE(BGND_TexturePageIndexes) ) {
+		return -1; // It seems image is too big
+	}
+
+	for( DWORD j = 0; j < ny; ++j ) {
+		for( DWORD i = 0; i < nx; ++i ) {
+			DWORD w = side;
+			DWORD h = side;
+			if( i == nx - 1 && width % side ) w = width % side;
+			if( j == ny - 1 && height % side ) h = height % side;
+			int pageIndex = MakeBgndTexture(i*side, j*side, w, h, width, side, bitmap, bmpPal);
+			if( pageIndex < 0) {
+				return -1;
+			}
+			BGND_TexturePageIndexes[i + j*nx] = pageIndex;
+		}
 	}
 
 	BGND_PictureWidth = width;
 	BGND_PictureHeight = height;
 	BGND_TextureSide = side;
-
-	BGND_TexturePageIndexes[0] = pageIndex;
 	BGND_GetPageHandles();
 	BGND_PictureIsReady = true;
 	return 0;
@@ -439,16 +438,17 @@ static int PickBestPictureFile(LPTSTR fileName, LPCTSTR modDir) {
 		}
 	}
 
+	bool isRemasterEnabled = RemasteredPixEnabled && SavedAppSettings.RenderMode == RM_Hardware && TextureFormat.bpp >= 16;
 	char altPath[256];
 	for( i = 0; i < numAspects; ++i ) {
 		snprintf(altPath, sizeof(altPath), ".\\%s\\%dx%d", modDir, aspects[idx[i]][0], aspects[idx[i]][1]);
-		if( 0 < AutoSelectPathAndExtension(fileName, altPath, exts, (SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16) ? 0 : ARRAY_SIZE(exts)) ) {
+		if( 0 < AutoSelectPathAndExtension(fileName, altPath, exts, isRemasterEnabled ? ARRAY_SIZE(exts) : 0) ) {
 			return 2;
 		}
 	}
 
 	snprintf(altPath, sizeof(altPath), ".\\%s", modDir);
-	return AutoSelectPathAndExtension(fileName, altPath, exts, (SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16) ? 0 : ARRAY_SIZE(exts));
+	return AutoSelectPathAndExtension(fileName, altPath, exts, isRemasterEnabled ? ARRAY_SIZE(exts) : 0);
 }
 
 
@@ -470,11 +470,76 @@ int __cdecl BGND2_FadeTo(int target, int delta) {
 	return current;
 }
 
+static void BGND2_CustomBlt(LPDDSDESC dst, DWORD dstX, DWORD dstY, LPDDSDESC src, LPRECT srcRect) {
+	DWORD srcBpp = src->ddpfPixelFormat.dwRGBBitCount/8;
+	DWORD dstBpp = dst->ddpfPixelFormat.dwRGBBitCount/8;
+	COLOR_BIT_MASKS srcMask, dstMask;
+
+	WinVidGetColorBitMasks(&srcMask, &src->ddpfPixelFormat);
+	WinVidGetColorBitMasks(&dstMask, &dst->ddpfPixelFormat);
+
+	DWORD srcX = srcRect->left;
+	DWORD srcY = srcRect->top;
+	DWORD width = srcRect->right - srcRect->left;
+	DWORD height = srcRect->bottom - srcRect->top;
+
+	BYTE *srcLine = (BYTE *)src->lpSurface + srcY * src->lPitch  + srcX * srcBpp;
+	BYTE *dstLine = (BYTE *)dst->lpSurface + dstY * dst->lPitch  + dstX * dstBpp;
+	for( DWORD j = 0; j < height; ++j ) {
+		BYTE *srcPtr = srcLine;
+		BYTE *dstPtr = dstLine;
+		for( DWORD i = 0; i < width; ++i ) {
+			DWORD color = 0;
+			memcpy(&color, srcPtr, srcBpp);
+			DWORD red   = ((color & srcMask.dwRBitMask) >> srcMask.dwRBitOffset);
+			DWORD green = ((color & srcMask.dwGBitMask) >> srcMask.dwGBitOffset);
+			DWORD blue  = ((color & srcMask.dwBBitMask) >> srcMask.dwBBitOffset);
+			if( srcMask.dwRBitDepth < dstMask.dwRBitDepth ) {
+				DWORD high = dstMask.dwRBitDepth - srcMask.dwRBitDepth;
+				DWORD low = (srcMask.dwRBitDepth > high) ? srcMask.dwRBitDepth - high : 0;
+				red = (red << high) | (red >> low);
+			} else if( srcMask.dwRBitDepth > dstMask.dwRBitDepth ) {
+				red >>= srcMask.dwRBitDepth - dstMask.dwRBitDepth;
+			}
+			if( srcMask.dwGBitDepth < dstMask.dwGBitDepth ) {
+				DWORD high = dstMask.dwGBitDepth - srcMask.dwGBitDepth;
+				DWORD low = (srcMask.dwGBitDepth > high) ? srcMask.dwGBitDepth - high : 0;
+				green = (green << high) | (green >> low);
+			} else if( srcMask.dwGBitDepth > dstMask.dwGBitDepth ) {
+				green >>= srcMask.dwGBitDepth - dstMask.dwGBitDepth;
+			}
+			if( srcMask.dwBBitDepth < dstMask.dwBBitDepth ) {
+				DWORD high = dstMask.dwBBitDepth - srcMask.dwBBitDepth;
+				DWORD low = (srcMask.dwBBitDepth > high) ? srcMask.dwBBitDepth - high : 0;
+				blue = (blue << high) | (blue >> low);
+			} else if( srcMask.dwBBitDepth > dstMask.dwBBitDepth ) {
+				blue >>= srcMask.dwBBitDepth - dstMask.dwBBitDepth;
+			}
+			color = dst->ddpfPixelFormat.dwRGBAlphaBitMask; // destination is opaque
+			color |= red   << dstMask.dwRBitOffset;
+			color |= green << dstMask.dwGBitOffset;
+			color |= blue  << dstMask.dwBBitOffset;
+			memcpy(dstPtr, &color, dstBpp);
+			srcPtr += srcBpp;
+			dstPtr += dstBpp;
+		}
+		srcLine += src->lPitch;
+		dstLine += dst->lPitch;
+	}
+}
 
 int __cdecl BGND2_CapturePicture() {
+	static bool isCustomBlt = false;
+	bool isSrcLock = false;
+	int ret = 0;
+	DDSDESC srcDesc, dstDesc;
 	DWORD width = 0;
 	DWORD height = 0;
 	RECT rect = {0, 0, 0, 0};
+
+	if( SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16 ) {
+		return -1;
+	}
 
 	LPDDS surface = CaptureBufferSurface ? CaptureBufferSurface : PrimaryBufferSurface;
 
@@ -492,21 +557,85 @@ int __cdecl BGND2_CapturePicture() {
 	width = ABS(rect.right - rect.left);
 	height = ABS(rect.bottom - rect.top);
 
-	int pageIndex = CreateCaptureTexture(width, height);
-	if( pageIndex < 0 ||
-		FAILED(TexturePages[pageIndex].sysMemSurface->Blt(&rect, surface, &rect, DDBLT_WAIT, NULL)) ||
-		!LoadTexturePage(pageIndex, false) )
-	{
-		return -1;
+	DWORD side = GetMaxTextureSize();
+
+	DWORD nx = (width + side - 1) / side;
+	DWORD ny = (height + side - 1) / side;
+
+	if( nx*ny >= ARRAY_SIZE(BGND_TexturePageIndexes) ) {
+		return -1; // It seems image is too big
 	}
 
-	BGND_TextureSide = TexturePages[pageIndex].width;
+	int x[ARRAY_SIZE(BGND_TexturePageIndexes) + 1];
+	for( DWORD i = 0; i < nx; ++i ) {
+		x[i] = i * side * (rect.right - rect.left) / width + rect.left;
+	}
+	x[nx] = rect.right;
+
+	int y[ARRAY_SIZE(BGND_TexturePageIndexes) + 1];
+	for( DWORD i = 0; i < ny; ++i ) {
+		y[i] = i * side * (rect.bottom - rect.top) / height + rect.top;
+	}
+	y[ny] = rect.bottom;
+
+	for( DWORD j = 0; j < ny; ++j ) {
+		for( DWORD i = 0; i < nx; ++i ) {
+			RECT r = {x[i], y[j], x[i+1], y[j+1]};
+			int pageIndex = CreateCaptureTexture(i + j*nx, side);
+			if( pageIndex < 0 ) {
+				ret = -1;
+				goto CLEANUP;
+			}
+			if( !isCustomBlt && FAILED(TexturePages[pageIndex].sysMemSurface->BltFast(0, 0, surface, &r, DDBLTFAST_WAIT)) ) {
+				isCustomBlt = true; // NOTE: it seems default blitting is unsupported, fallback to custom blitting
+			}
+			if( isCustomBlt ) {
+				if( !isSrcLock ) {
+					HRESULT rc;
+					memset(&srcDesc, 0, sizeof(srcDesc));
+					srcDesc.dwSize = sizeof(srcDesc);
+					do {
+						rc = surface->Lock(&rect, &srcDesc, DDLOCK_READONLY|DDLOCK_WAIT, NULL);
+					} while( rc == DDERR_WASSTILLDRAWING );
+					if( rc == DDERR_SURFACELOST ) {
+						rc = surface->Restore();
+					}
+					if FAILED(rc) {
+						ret = -1;
+						goto CLEANUP;
+					}
+					isSrcLock = true;
+				}
+				if FAILED(WinVidBufferLock(TexturePages[pageIndex].sysMemSurface, &dstDesc, DDLOCK_WRITEONLY|DDLOCK_WAIT)) {
+					ret = -1;
+					goto CLEANUP;
+				}
+				BGND2_CustomBlt(&dstDesc, 0, 0, &srcDesc, &r);
+				WinVidBufferUnlock(TexturePages[pageIndex].sysMemSurface, &dstDesc);
+			}
+			if( !LoadTexturePage(pageIndex, false) ) {
+				ret = -1;
+				goto CLEANUP;
+			}
+		}
+	}
+
+	BGND_TextureSide = side;
 	BGND_TextureAlpha = 255;
 	BGND_PictureWidth = width;
 	BGND_PictureHeight = height;
 	BGND_PictureIsReady = true;
 	BGND_IsCaptured = true;
-	return 0;
+
+CLEANUP :
+	if( isSrcLock ) {
+#if (DIRECT3D_VERSION >= 0x700)
+		surface->Unlock(&rect);
+#else // (DIRECT3D_VERSION >= 0x700)
+		surface->Unlock(srcDesc.lpSurface);
+#endif // (DIRECT3D_VERSION >= 0x700)
+	}
+	return ret;
 }
 
 
@@ -587,9 +716,7 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 		ReadFile(hFile, fileData, fileSize, &bytesRead, NULL);
 		CloseHandle(hFile);
 
-		if( GetPcxResolution(fileData, fileSize, &width, &height) ||
-			width > MAX_SURFACE_SIZE || height > MAX_SURFACE_SIZE )
-		{
+		if( GetPcxResolution(fileData, fileSize, &width, &height) ) {
 			goto FAIL;
 		}
 		bitmapSize = width * height;
@@ -597,9 +724,7 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 		DecompPCX(fileData, fileSize, bitmapData, PicPalette);
 		isPCX = true;
 	} else if( SavedAppSettings.RenderMode == RM_Hardware && TextureFormat.bpp >= 16 ) {
-		if( GDI_LoadImageFile(fullPath, &bitmapData, &width, &height, 16) ||
-			width > MAX_SURFACE_SIZE || height > MAX_SURFACE_SIZE )
-		{
+		if( GDI_LoadImageFile(fullPath, &bitmapData, &width, &height, 16) ) {
 			goto FAIL;
 		}
 		bitmapSize = width * height * 2;
@@ -627,7 +752,7 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 	if( SavedAppSettings.RenderMode == RM_Software )
 		WinVidCopyBitmapToBuffer(PictureBufferSurface, bitmapData);
 	else
-		MakeBgndTexture(width, height, bitmapData, isPCX ? PicPalette : NULL);
+		MakeBgndTextures(width, height, bitmapData, isPCX ? PicPalette : NULL);
 
 	if( !isTitle && isPCX ) {
 		CopyBitmapPalette(PicPalette, bitmapData, bitmapSize, GamePalette8);
@@ -762,9 +887,9 @@ int __cdecl BGND2_ShowPicture(DWORD fadeIn, DWORD waitIn, DWORD fadeOut, DWORD w
 	return 0;
 }
 
-void __cdecl BGND2_DrawTexture(RECT *rect, HWR_TEXHANDLE texSource,
-							   int tu, int tv, int t_width, int t_height, int t_side,
-							   D3DCOLOR color0, D3DCOLOR color1, D3DCOLOR color2, D3DCOLOR color3)
+static void __cdecl BGND2_DrawTexture(RECT *rect, HWR_TEXHANDLE texSource,
+									  int tu, int tv, int t_width, int t_height, int t_side,
+									  D3DCOLOR color0, D3DCOLOR color1, D3DCOLOR color2, D3DCOLOR color3)
 {
 	float sx0, sy0, sx1, sy1;
 	float tu0, tv0, tu1, tv1;
@@ -821,6 +946,47 @@ void __cdecl BGND2_DrawTexture(RECT *rect, HWR_TEXHANDLE texSource,
 	D3DDev->SetRenderState(AlphaBlendEnabler, TRUE);
 	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3D_TLVERTEX, &vertex, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
 	D3DDev->SetRenderState(AlphaBlendEnabler, alphaState);
+}
+
+void __cdecl BGND2_DrawTextures(RECT *rect, D3DCOLOR color) {
+	if( !BGND_PictureIsReady || !BGND_TextureSide ) {
+		return;
+	}
+
+	DWORD width = BGND_PictureWidth;
+	DWORD height = BGND_PictureHeight;
+	DWORD side = BGND_TextureSide;
+	DWORD nx = (width + side - 1) / side;
+	DWORD ny = (height + side - 1) / side;
+
+	if( nx*ny >= ARRAY_SIZE(BGND_TexturePageIndexes) ) {
+		return; // It seems image is too big
+	}
+
+	BGND_GetPageHandles();
+
+	int x[ARRAY_SIZE(BGND_TexturePageIndexes) + 1];
+	for( DWORD i = 0; i < nx; ++i ) {
+		x[i] = i * side * (rect->right - rect->left) / width + rect->left;
+	}
+	x[nx] = rect->right;
+
+	int y[ARRAY_SIZE(BGND_TexturePageIndexes) + 1];
+	for( DWORD i = 0; i < ny; ++i ) {
+		y[i] = i * side * (rect->bottom - rect->top) / height + rect->top;
+	}
+	y[ny] = rect->bottom;
+
+	for( DWORD j = 0; j < ny; ++j ) {
+		for( DWORD i = 0; i < nx; ++i ) {
+			DWORD w = side;
+			DWORD h = side;
+			if( i == nx - 1 && width % side ) w = width % side;
+			if( j == ny - 1 && height % side ) h = height % side;
+			RECT r = {x[i], y[j], x[i+1], y[j+1]};
+			BGND2_DrawTexture(&r, BGND_PageHandles[i + j*nx], 0, 0, w, h, side, color, color, color, color);
+		}
+	}
 }
 
 int __cdecl BGND2_CalculatePictureRect(RECT *rect) {
