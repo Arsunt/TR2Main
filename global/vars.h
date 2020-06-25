@@ -62,6 +62,7 @@
 #define RhwFactor 					VAR_I_(0x0046408C, float,			0x14000000.p0)
 #define CineTrackID					VAR_I_(0x004640B0, int,				1)
 #define CD_TrackID					VAR_I_(0x004640BC, __int16,			-1)
+#define AssaultBestTime				VAR_I_(0x004641F0, int,				-1)
 #define GF_NumSecrets				VAR_I_(0x004642E8, __int16,			3)
 #define CineTargetAngle				VAR_I_(0x00464310, __int16,			PHD_90)
 #define OverlayStatus				VAR_I_(0x004644E0, int,				1)

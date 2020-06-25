@@ -542,7 +542,10 @@ void __cdecl S_LoadSettings() {
 #endif // FEATURE_SCREENSHOT_IMPROVED
 
 #ifdef FEATURE_ASSAULT_SAVE
-	GetRegistryBinaryValue(REG_GAME_ASSAULT, (LPBYTE)&Assault, sizeof(ASSAULT_STATS), NULL);
+	GetRegistryBinaryValue(REG_GAME_ASSAULT, (LPBYTE)&Assault, sizeof(Assault), NULL);
+	if( Assault.bestTime[0] > 0 ) {
+		AssaultBestTime = Assault.bestTime[0];
+	}
 #endif // FEATURE_ASSAULT_SAVE
 
 #ifdef FEATURE_AUDIO_IMPROVED
