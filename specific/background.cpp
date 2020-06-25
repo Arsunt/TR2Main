@@ -31,7 +31,7 @@
 #ifdef FEATURE_BACKGROUND_IMPROVED
 #include "modding/background_new.h"
 
-DWORD InvBackgroundMode;
+DWORD InvBackgroundMode = 1;
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 void __cdecl BGND_Make640x480(BYTE *bitmap, RGB888 *palette) {
@@ -148,14 +148,16 @@ void __cdecl BGND_DrawInGameBackground() {
 	D3DCOLOR color[4];
 
 	if( !Objects[ID_INV_BACKGROUND].loaded ) {
-BLACK : // NOTE: some additional checks are absent in the original code, so I've added few
+		// NOTE: some additional checks are absent in the original code, so I've added few
 		BGND_DrawInGameBlack();
 		return;
 	}
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
-	if( InvBackgroundMode == 0 || InvBackgroundMode > 2 )
-		goto BLACK;
+	if( InvBackgroundMode != 1 && InvBackgroundMode != 2 ) {
+		BGND_DrawInGameBlack();
+		return;
+	}
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 	meshPtr = MeshPtr[Objects[ID_INV_BACKGROUND].meshIndex];
@@ -171,7 +173,11 @@ BLACK : // NOTE: some additional checks are absent in the original code, so I've
 		meshPtr -= numNormals; // skip lights (each one is INT16)
 
 	numQuads = *(meshPtr++);
-	if( numQuads < 1 ) goto BLACK; // NOTE: additional check. Absent in the original code
+	if( numQuads < 1 ) {
+		// NOTE: additional check. Absent in the original code
+		BGND_DrawInGameBlack();
+		return;
+	}
 	meshPtr += 4; // skip 4 vertice indices of 1st textured quad (each one is INT16)
 	textureIndex = *(meshPtr++); // get texture index of 1st textured quad.
 
