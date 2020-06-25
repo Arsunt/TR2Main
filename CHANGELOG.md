@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The limitations of the game engine (textures, polygons) are expanded by 4 times for future TR2 mods.
 - Added music mute settings for inventory/underwater.
 - The music and cut scenes are paused when the game window is not active.
+- Added options for level statistics background mode (hardware renderer required).
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.

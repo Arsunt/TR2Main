@@ -32,6 +32,7 @@
 #include "modding/background_new.h"
 
 DWORD InvBackgroundMode = 1;
+DWORD StatsBackgroundMode = 0;
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 void __cdecl BGND_Make640x480(BYTE *bitmap, RGB888 *palette) {
@@ -154,7 +155,8 @@ void __cdecl BGND_DrawInGameBackground() {
 	}
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
-	if( InvBackgroundMode != 1 && InvBackgroundMode != 2 ) {
+	DWORD bgndMode = IsInventoryActive ? InvBackgroundMode : StatsBackgroundMode;
+	if( bgndMode != 1 && bgndMode != 2 ) {
 		BGND_DrawInGameBlack();
 		return;
 	}
@@ -192,7 +194,7 @@ void __cdecl BGND_DrawInGameBackground() {
 	HWR_EnableZBuffer(false, false);
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
-	if( InvBackgroundMode == 2 ) {
+	if( bgndMode == 2 ) {
 		static const int shortWaveStep = -0x0267; // minus 3.92 degrees
 		static const int longWaveStep  = -0x0200; // minus 2.81 degrees
 
