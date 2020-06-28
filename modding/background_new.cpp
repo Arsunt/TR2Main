@@ -529,7 +529,6 @@ static void BGND2_CustomBlt(LPDDSDESC dst, DWORD dstX, DWORD dstY, LPDDSDESC src
 }
 
 int __cdecl BGND2_CapturePicture() {
-	static bool isCustomBlt = false;
 	bool isSrcLock = false;
 	int ret = 0;
 	DDSDESC srcDesc, dstDesc;
@@ -586,33 +585,31 @@ int __cdecl BGND2_CapturePicture() {
 				ret = -1;
 				goto CLEANUP;
 			}
-			if( !isCustomBlt && FAILED(TexturePages[pageIndex].sysMemSurface->BltFast(0, 0, surface, &r, DDBLTFAST_WAIT)) ) {
-				isCustomBlt = true; // NOTE: it seems default blitting is unsupported, fallback to custom blitting
-			}
-			if( isCustomBlt ) {
-				if( !isSrcLock ) {
-					HRESULT rc;
-					memset(&srcDesc, 0, sizeof(srcDesc));
-					srcDesc.dwSize = sizeof(srcDesc);
-					do {
-						rc = surface->Lock(&rect, &srcDesc, DDLOCK_READONLY|DDLOCK_WAIT, NULL);
-					} while( rc == DDERR_WASSTILLDRAWING );
-					if( rc == DDERR_SURFACELOST ) {
-						rc = surface->Restore();
-					}
-					if FAILED(rc) {
-						ret = -1;
-						goto CLEANUP;
-					}
-					isSrcLock = true;
+
+			// NOTE: On some system default Blt/BltFast is unsupported here but returns no error, so failsafe custom blitter is used instead
+			if( !isSrcLock ) {
+				HRESULT rc;
+				memset(&srcDesc, 0, sizeof(srcDesc));
+				srcDesc.dwSize = sizeof(srcDesc);
+				do {
+					rc = surface->Lock(&rect, &srcDesc, DDLOCK_READONLY|DDLOCK_WAIT, NULL);
+				} while( rc == DDERR_WASSTILLDRAWING );
+				if( rc == DDERR_SURFACELOST ) {
+					rc = surface->Restore();
 				}
-				if FAILED(WinVidBufferLock(TexturePages[pageIndex].sysMemSurface, &dstDesc, DDLOCK_WRITEONLY|DDLOCK_WAIT)) {
+				if FAILED(rc) {
 					ret = -1;
 					goto CLEANUP;
 				}
-				BGND2_CustomBlt(&dstDesc, 0, 0, &srcDesc, &r);
-				WinVidBufferUnlock(TexturePages[pageIndex].sysMemSurface, &dstDesc);
+				isSrcLock = true;
 			}
+			if FAILED(WinVidBufferLock(TexturePages[pageIndex].sysMemSurface, &dstDesc, DDLOCK_WRITEONLY|DDLOCK_WAIT)) {
+				ret = -1;
+				goto CLEANUP;
+			}
+			BGND2_CustomBlt(&dstDesc, 0, 0, &srcDesc, &r);
+			WinVidBufferUnlock(TexturePages[pageIndex].sysMemSurface, &dstDesc);
+
 			if( !LoadTexturePage(pageIndex, false) ) {
 				ret = -1;
 				goto CLEANUP;
