@@ -672,7 +672,21 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 	}
 
 	if( MusicVolume && InventoryMode != INV_TitleMode ) {
+#ifdef FEATURE_AUDIO_IMPROVED
+		if( Camera.underwater ) {
+			extern double UnderwaterMusicMute;
+			double volume = (1.0 - UnderwaterMusicMute) * (double)(MusicVolume * 25 + 5);
+			if( volume >= 1.0 ) {
+				S_CDVolume((DWORD)volume);
+			} else {
+				S_CDVolume(0);
+			}
+		} else {
+			S_CDVolume(MusicVolume * 25 + 5);
+		}
+#else // FEATURE_AUDIO_IMPROVED
 		S_CDVolume(MusicVolume * 25 + 5);
+#endif // FEATURE_AUDIO_IMPROVED
 	}
 	return 0;
 }

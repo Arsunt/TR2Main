@@ -42,7 +42,7 @@ void __cdecl CalculateCamera() {
 #ifdef FEATURE_AUDIO_IMPROVED
 			extern double UnderwaterMusicMute;
 			double volume = (1.0 - UnderwaterMusicMute) * (double)(MusicVolume * 25 + 5);
-			if( volume >= 1.0 ) {
+			if( MusicVolume > 0 && volume >= 1.0 ) {
 				S_CDVolume((DWORD)volume);
 			} else {
 				S_CDVolume(0);
