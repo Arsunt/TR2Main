@@ -45,5 +45,6 @@ void __cdecl S_CDStop(); // 0x00455760
 BOOL __cdecl StartSyncedAudio(int trackID); // 0x004557A0
 DWORD __cdecl S_CDGetLoc(); // 0x00455830
 void __cdecl S_CDVolume(DWORD volume); // 0x004558A0
+DWORD __cdecl S_GetCDVolume(); // NOTE: this function is not presented in the original game
 
 #endif // SNDPC_H_INCLUDED

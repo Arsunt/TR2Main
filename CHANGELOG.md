@@ -41,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Background picture code is redesigned to support resolutions higher than 2048x2048.
 - The limitations of the game engine (textures, polygons) are expanded by 4 times for future TR2 mods.
 - Added music mute settings for inventory/underwater.
+- The music and cut scenes are paused when the game window is not active.
+- Added options for level statistics background mode (hardware renderer required).
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.
@@ -60,6 +62,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a rare game crash occurring when launching the game (broken since v0.1.0).
 - Fixed sunset effect in Bartoli's Hideout level (broken since v0.1.0).
 - Fixed texel adjustment if the filtering is changed by *F8* hotkey while "Adjust when bilinear filtering" option is enabled (broken since v0.1.0).
+- Now the PaulD's CD Audio is paused when the music volume is set to 0. This is how real CD Audio works (broken since v0.2.0).
+- Fixed "Gosh! That was my best time yet!" phrase in the case if it's a first try after game launch, but the time is not the best at all (broken since v0.5.0).
 
 ## [0.8.2] - 2019-05-26
 ### TR2Main bugfixes

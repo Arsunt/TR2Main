@@ -773,6 +773,10 @@ void __cdecl FmvBackToGame() {
 			S_ExitSystem("Can't reinitialise renderer");
 			return; // the app is terminated here
 		}
+		// NOTE: this HWR init was absent in the original code, but must be done here
+		if( SavedAppSettings.RenderMode == RM_Hardware ) {
+			HWR_InitState();
+		}
 	}
 }
 

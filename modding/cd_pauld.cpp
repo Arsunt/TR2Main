@@ -202,5 +202,18 @@ void __cdecl PaulD_CDVolume(DWORD volume) {
 
 	wsprintf(cmdString, "setaudio " CD_ALIAS " volume to %lu", volume);
 	mciSendString(cmdString, NULL, 0, 0);
+
+	char statusString[32];
+	if( 0 == mciSendString("status " CD_ALIAS " mode", statusString, sizeof(statusString), 0) ) {
+		if( volume > 0 ) {
+			if( !strncmp(statusString, "paused", sizeof(statusString)) ) {
+				mciSendString("resume " CD_ALIAS, NULL, 0, 0);
+			}
+		} else {
+			if( !strncmp(statusString, "playing", sizeof(statusString)) ) {
+				mciSendString("pause " CD_ALIAS, NULL, 0, 0);
+			}
+		}
+	}
 }
 

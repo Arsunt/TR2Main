@@ -23,6 +23,7 @@
 #include "specific/output.h"
 #include "3dsystem/3d_gen.h"
 #include "3dsystem/phd_math.h"
+#include "game/gameflow.h"
 #include "specific/background.h"
 #include "specific/display.h"
 #include "specific/file.h"
@@ -61,6 +62,7 @@ extern DWORD BGND_PictureHeight;
 extern bool BGND_IsCaptured;
 
 extern DWORD InvBackgroundMode;
+extern DWORD StatsBackgroundMode;
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 typedef struct ShadowInfo_t {
@@ -929,6 +931,12 @@ void __cdecl ScreenClear(bool isPhdWinSize) {
 void __cdecl S_CopyScreenToBuffer() {
 	DDSDESC desc;
 #ifdef FEATURE_BACKGROUND_IMPROVED
+	DWORD bgndMode = 0;
+	if( IsInventoryActive ) {
+		bgndMode = InvBackgroundMode;
+	} else if( GF_CurrentEvent() == GFE_LEVCOMPLETE ) {
+		bgndMode = StatsBackgroundMode;
+	}
 	DWORD width = PhdWinWidth;
 	DWORD height = PhdWinHeight;
 #else // !FEATURE_BACKGROUND_IMPROVED
@@ -971,7 +979,7 @@ void __cdecl S_CopyScreenToBuffer() {
 		memcpy(PicPalette, GamePalette8, sizeof(PicPalette));
 	}
 #ifdef FEATURE_BACKGROUND_IMPROVED
-	else if( !IsInventoryActive || InvBackgroundMode == 0 ) {
+	else if( bgndMode == 0 ) {
 		BGND2_CapturePicture();
 	}
 #endif // FEATURE_BACKGROUND_IMPROVED
@@ -979,6 +987,14 @@ void __cdecl S_CopyScreenToBuffer() {
 
 void __cdecl S_CopyBufferToScreen() {
 	DWORD color = 0xFFFFFFFF; // vertex color (ARGB white)
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	DWORD bgndMode = 0;
+	if( IsInventoryActive ) {
+		bgndMode = InvBackgroundMode;
+	} else if( GF_CurrentEvent() == GFE_LEVCOMPLETE ) {
+		bgndMode = StatsBackgroundMode;
+	}
+#endif // FEATURE_BACKGROUND_IMPROVED
 
 	if( SavedAppSettings.RenderMode == RM_Software ) {
 		if( PictureBufferSurface == NULL ) { // NOTE: additional check just in case
@@ -992,7 +1008,7 @@ void __cdecl S_CopyBufferToScreen() {
 		BGND2_CalculatePictureRect(&rect);
 		RenderBufferSurface->Blt(&rect, PictureBufferSurface, NULL, DDBLT_WAIT, NULL);
 	}
-	else if( BGND_PictureIsReady && (!BGND_IsCaptured || !IsInventoryActive || InvBackgroundMode == 0 ) ) {
+	else if( BGND_PictureIsReady && (!BGND_IsCaptured || bgndMode == 0) ) {
 		HWR_EnableZBuffer(false, false);
 		RECT rect = PhdWinRect;
 		if( !BGND_IsCaptured ) {

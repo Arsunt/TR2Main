@@ -50,6 +50,7 @@
 #define REG_SOUND_VOLUME		"SoundFXVolume"
 #define REG_DETAIL_LEVEL		"DetailLevel"
 #define REG_INVBGND_MODE		"InvBackgroundMode"
+#define REG_STATSBGND_MODE		"StatsBackgroundMode"
 #define REG_PICTURE_STRETCH		"PictureStretchLimit"
 #define REG_LOADING_SCREENS		"LoadingScreens"
 #define REG_CUSTOM_WATER_COLOR	"CustomWaterColor"

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -37,6 +37,8 @@
 
 bool LoadingScreensEnabled = false;
 #endif // FEATURE_BACKGROUND_IMPROVED
+
+static int CurrentEvent = GFE_END_SEQ; // NOTE: not presented in the original game
 
 // NOTE: there is no such function in the original code
 static bool __cdecl GF_GetSequenceValue(DWORD levelID, GF_EVENTS event, __int16 *pValue, __int16 defValue) {
@@ -204,6 +206,7 @@ int __cdecl GF_InterpretSequence(__int16 *seq, GF_LEVEL_TYPE levelType, int seqT
 	GF_NumSecrets = 3;
 
 	while( *seq != GFE_END_SEQ ) {
+		CurrentEvent = *seq;
 		switch( *seq ) {
 			case GFE_STARTLEVEL :
 				if( seq[1] > GF_GameFlow.num_Levels ) {
@@ -399,6 +402,7 @@ int __cdecl GF_InterpretSequence(__int16 *seq, GF_LEVEL_TYPE levelType, int seqT
 				return GF_EXIT_GAME;
 		}
 	}
+	CurrentEvent = GFE_END_SEQ;
 
 	if( levelType == GFL_STORY || levelType == GFL_MIDSTORY ) {
 		result = GF_START_GAME;
@@ -797,6 +801,11 @@ void __cdecl GF_ModifyInventory(int levelID, BOOL isSecret) {
 		// Clear the array (level start)
 		memset(GF_Add2InvItems, 0, sizeof(GF_Add2InvItems));
 	}
+}
+
+// NOTE: not presented in the original game
+int __cdecl GF_CurrentEvent() {
+	return CurrentEvent;
 }
 
 /*

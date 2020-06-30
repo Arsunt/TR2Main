@@ -57,6 +57,7 @@ extern double InvGUI_Scale;
 #ifdef FEATURE_BACKGROUND_IMPROVED
 static char PictureSuffix[32];
 extern DWORD InvBackgroundMode;
+extern DWORD StatsBackgroundMode;
 extern DWORD PictureStretchLimit;
 extern bool LoadingScreensEnabled;
 extern bool RemasteredPixEnabled;
@@ -519,6 +520,7 @@ void __cdecl S_LoadSettings() {
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	GetRegistryDwordValue(REG_INVBGND_MODE, &InvBackgroundMode, 1);
+	GetRegistryDwordValue(REG_STATSBGND_MODE, &StatsBackgroundMode, 0);
 	GetRegistryDwordValue(REG_PICTURE_STRETCH, &PictureStretchLimit, 10);
 	GetRegistryBoolValue(REG_REMASTER_PIX_ENABLE, &RemasteredPixEnabled, true);
 	GetRegistryBoolValue(REG_LOADING_SCREENS, &LoadingScreensEnabled, false);
@@ -542,7 +544,10 @@ void __cdecl S_LoadSettings() {
 #endif // FEATURE_SCREENSHOT_IMPROVED
 
 #ifdef FEATURE_ASSAULT_SAVE
-	GetRegistryBinaryValue(REG_GAME_ASSAULT, (LPBYTE)&Assault, sizeof(ASSAULT_STATS), NULL);
+	GetRegistryBinaryValue(REG_GAME_ASSAULT, (LPBYTE)&Assault, sizeof(Assault), NULL);
+	if( Assault.bestTime[0] > 0 ) {
+		AssaultBestTime = Assault.bestTime[0];
+	}
 #endif // FEATURE_ASSAULT_SAVE
 
 #ifdef FEATURE_AUDIO_IMPROVED
