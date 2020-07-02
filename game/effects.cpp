@@ -23,7 +23,9 @@
 #include "game/effects.h"
 #include "global/vars.h"
 
-
+void WadeSplash(ITEM_INFO *item, int height) {
+	return; // NULL function
+}
 
 /*
  * Inject function

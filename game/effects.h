@@ -40,7 +40,11 @@
 //	0x0041C880:		CreateBubble
 //	0x0041C8F0:		LaraBubbles
 //	0x0041C970:		ControlBubble1
-//	0x0041CA70:		Splash
+
+#define Splash ((void(__cdecl*)(ITEM_INFO*)) 0x0041CA70)
+
+void WadeSplash(ITEM_INFO *item, int height);
+
 //	----------:		WadeSplash
 //	0x0041CB40:		ControlSplash1
 //	0x0041CBC0:		ControlWaterSprite

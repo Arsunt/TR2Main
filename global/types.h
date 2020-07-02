@@ -72,6 +72,7 @@ typedef struct {
 
 // Geometry values
 #define WALL_SHIFT			(10)
+#define NO_HEIGHT			(-0x7F00)
 
 // Angle values
 #define PHD_360				(PHD_ONE)
@@ -580,6 +581,22 @@ typedef enum {
 	AS_FASTDIVE,
 	AS_GYMNAST,
 	AS_WATEROUT,
+	AS_CLIMBSTNC,
+	AS_CLIMBING,
+	AS_CLIMBLEFT,
+	AS_CLIMBEND,
+	AS_CLIMBRIGHT,
+	AS_CLIMBDOWN,
+	AS_LARATEST1,
+	AS_LARATEST2,
+	AS_LARATEST3,
+	AS_WADE,
+	AS_WATERROLL,
+	AS_FLAREPICKUP,
+	AS_TWIST,
+	AS_KICK,
+	AS_DEATHSLIDE,
+	AS_LAST,
 } LARA_ANIM_STATES;
 
 typedef enum {
@@ -963,6 +980,7 @@ typedef enum {
 	LWS_Underwater,
 	LWS_Surface,
 	LWS_Cheat,
+	LWS_Wade,
 } LARA_WATER_STATES;
 
 typedef enum {

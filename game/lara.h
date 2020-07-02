@@ -27,7 +27,8 @@
 /*
  * Function list
  */
-// 0x00427560:		LaraAboveWater
+#define LaraAboveWater ((void(__cdecl*)(ITEM_INFO*, COLL_INFO*)) 0x00427560)
+
 // 0x00427700:		LookUpDown
 // 0x00427770:		LookLeftRight
 // 0x004277F0:		ResetLook

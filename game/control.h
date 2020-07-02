@@ -28,8 +28,8 @@
  * Function list
  */
 #define ControlPhase ((int(__cdecl*)(int,BOOL)) 0x00414370)
+#define AnimateItem ((void(__cdecl*)(ITEM_INFO*)) 0x004146C0)
 
-// 0x004146C0:		AnimateItem
 // 0x00414A30:		GetChange
 // 0x00414AE0:		TranslateItem
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -27,16 +27,16 @@
 /*
  * Function list
  */
-// 0x00430380:		LaraControl
-// 0x00430A10:		AnimateLara
+void __cdecl LaraControl(__int16 itemID);
+
+#define AnimateLara ((void(__cdecl*)(ITEM_INFO*)) 0x00430A10)
 
 void __cdecl UseItem(__int16 itemID); // 0x00430D10
 void __cdecl LaraCheatGetStuff(); // 0x00430ED0
 
 #define ControlLaraExtra ((void(__cdecl*)(__int16)) 0x00430F90)
 #define InitialiseLaraLoad ((void(__cdecl*)(__int16)) 0x00430FB0)
-
-// 0x00430FE0:		InitialiseLara
+#define InitialiseLara ((void(__cdecl*)(int)) 0x00430FE0)
 
 void __cdecl InitialiseLaraInventory(int levelID); // 0x004312A0
 
