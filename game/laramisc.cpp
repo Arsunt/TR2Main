@@ -316,26 +316,61 @@ void __cdecl UseItem(__int16 itemID) {
 }
 
 void __cdecl LaraCheatGetStuff() {
-	Inv_AddItem(ID_HARPOON_ITEM);
-	Inv_AddItem(ID_M16_ITEM);
-	Inv_AddItem(ID_GRENADE_ITEM);
-	Inv_AddItem(ID_SHOTGUN_ITEM);
-	Inv_AddItem(ID_UZI_ITEM);
-	Inv_AddItem(ID_MAGNUM_ITEM);
-	Inv_AddItem(ID_PISTOL_ITEM);
-
-	for( int i = 0; i < 10; ++i ) {
-		Inv_AddItem(ID_FLARES_ITEM);
-		Inv_AddItem(ID_SMALL_MEDIPACK_ITEM);
-		Inv_AddItem(ID_LARGE_MEDIPACK_ITEM);
+	// NOTE: there is no availability checks in the original code
+	if( Objects[ID_PISTOL_OPTION].loaded ) {
+		if( !Inv_RequestItem(ID_PISTOL_ITEM) ) {
+			Inv_AddItem(ID_PISTOL_ITEM);
+		}
+	}
+	if( Objects[ID_MAGNUM_OPTION].loaded ) {
+		if( !Inv_RequestItem(ID_MAGNUM_ITEM) ) {
+			Inv_AddItem(ID_MAGNUM_ITEM);
+		}
+		Lara.magnum_ammo = 1000;
+	}
+	if( Objects[ID_UZI_OPTION].loaded ) {
+		if( !Inv_RequestItem(ID_UZI_ITEM) ) {
+			Inv_AddItem(ID_UZI_ITEM);
+		}
+		Lara.uzi_ammo = 2000;
+	}
+	if( Objects[ID_SHOTGUN_OPTION].loaded ) {
+		if( !Inv_RequestItem(ID_SHOTGUN_ITEM) ) {
+			Inv_AddItem(ID_SHOTGUN_ITEM);
+		}
+		Lara.shotgun_ammo = 300;
+	}
+	if( Objects[ID_HARPOON_OPTION].loaded ) {
+		if( !Inv_RequestItem(ID_HARPOON_ITEM) ) {
+			Inv_AddItem(ID_HARPOON_ITEM);
+		}
+		Lara.harpoon_ammo = 300;
+	}
+	if( Objects[ID_M16_OPTION].loaded ) {
+		if( !Inv_RequestItem(ID_M16_ITEM) ) {
+			Inv_AddItem(ID_M16_ITEM);
+		}
+		Lara.m16_ammo = 300;
+	}
+	if( Objects[ID_GRENADE_OPTION].loaded ) {
+		if( !Inv_RequestItem(ID_GRENADE_ITEM) ) {
+			Inv_AddItem(ID_GRENADE_ITEM);
+		}
+		Lara.grenade_ammo = 300;
 	}
 
-	Lara.magnum_ammo = 1000;
-	Lara.uzi_ammo = 2000;
-	Lara.shotgun_ammo = 300;
-	Lara.harpoon_ammo = 300;
-	Lara.m16_ammo = 300;
-	Lara.grenade_ammo = 300;
+	for( int i = 0; i < 10; ++i ) {
+		// NOTE: there are no limits in the original code, but it works wrong without limits
+		if( Inv_RequestItem(ID_FLARE_ITEM) < 240 ) {
+			Inv_AddItem(ID_FLARES_ITEM);
+		}
+		if( Inv_RequestItem(ID_SMALL_MEDIPACK_ITEM) < 240 ) {
+			Inv_AddItem(ID_SMALL_MEDIPACK_ITEM);
+		}
+		if( Inv_RequestItem(ID_LARGE_MEDIPACK_ITEM) < 240 ) {
+			Inv_AddItem(ID_LARGE_MEDIPACK_ITEM);
+		}
+	}
 }
 
 void __cdecl InitialiseLaraInventory(int levelID) {

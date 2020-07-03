@@ -433,35 +433,54 @@ void __cdecl CheckCheatMode() {
 					// Give weapon and ammo
 					// NOTE: additional weapon availability checks not presented in the original game
 					if( Objects[ID_SHOTGUN_OPTION].loaded ) {
-						Inv_AddItem(ID_SHOTGUN_ITEM);
+						if( !Inv_RequestItem(ID_SHOTGUN_ITEM) ) {
+							Inv_AddItem(ID_SHOTGUN_ITEM);
+						}
 						Lara.shotgun_ammo = 500;
 					}
 					if( Objects[ID_MAGNUM_OPTION].loaded ) {
-						Inv_AddItem(ID_MAGNUM_ITEM);
+						if( !Inv_RequestItem(ID_MAGNUM_ITEM) ) {
+							Inv_AddItem(ID_MAGNUM_ITEM);
+						}
 						Lara.magnum_ammo = 500;
 					}
 					if( Objects[ID_UZI_OPTION].loaded ) {
-						Inv_AddItem(ID_UZI_ITEM);
+						if( !Inv_RequestItem(ID_UZI_ITEM) ) {
+							Inv_AddItem(ID_UZI_ITEM);
+						}
 						Lara.uzi_ammo = 5000;
 					}
 					if( Objects[ID_HARPOON_OPTION].loaded ) {
-						Inv_AddItem(ID_HARPOON_ITEM);
+						if( !Inv_RequestItem(ID_HARPOON_ITEM) ) {
+							Inv_AddItem(ID_HARPOON_ITEM);
+						}
 						Lara.harpoon_ammo = 5000;
 					}
 					if( Objects[ID_M16_OPTION].loaded ) {
-						Inv_AddItem(ID_M16_ITEM);
+						if( !Inv_RequestItem(ID_M16_ITEM) ) {
+							Inv_AddItem(ID_M16_ITEM);
+						}
 						Lara.m16_ammo = 5000;
 					}
 					if( Objects[ID_GRENADE_OPTION].loaded ) {
-						Inv_AddItem(ID_GRENADE_ITEM);
+						if( !Inv_RequestItem(ID_GRENADE_ITEM) ) {
+							Inv_AddItem(ID_GRENADE_ITEM);
+						}
 						Lara.grenade_ammo = 5000;
 					}
 
 					// Give medipacks and flares
 					for( int i=0; i<50; ++i ) {
-						Inv_AddItem(ID_SMALL_MEDIPACK_ITEM);
-						Inv_AddItem(ID_LARGE_MEDIPACK_ITEM);
-						Inv_AddItem(ID_FLARE_ITEM);
+						// NOTE: there are no limits in the original code, but it works wrong without limits
+						if( Inv_RequestItem(ID_SMALL_MEDIPACK_ITEM) < 240 ) {
+							Inv_AddItem(ID_SMALL_MEDIPACK_ITEM);
+						}
+						if( Inv_RequestItem(ID_LARGE_MEDIPACK_ITEM) < 240 ) {
+							Inv_AddItem(ID_LARGE_MEDIPACK_ITEM);
+						}
+						if( Inv_RequestItem(ID_FLARE_ITEM) < 240 ) {
+							Inv_AddItem(ID_FLARE_ITEM);
+						}
 					}
 
 					// Play SFX
