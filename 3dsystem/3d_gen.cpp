@@ -91,11 +91,12 @@ int CalculateFogShade(int depth) {
 
 extern DWORD ReflectionMode;
 static POLYFILTER ReflectFilter;
-static D3DCOLOR ReflectTint = RGBA_MAKE(0xFF,0xFF,0xFF,0x80);
+static D3DCOLOR ReflectTint = 0;
 static bool IsReflect = false;
 
 void ClearMeshReflectState() {
 	memset(&ReflectFilter, 0 , sizeof(ReflectFilter));
+	ReflectTint = RGBA_MAKE(0xFF,0xFF,0xFF,0x80);
 	IsReflect = false;
 }
 
@@ -184,6 +185,11 @@ void SetMeshReflectState(int objID, int meshIdx) {
 		if( meshIdx == 7 ) {
 			IsReflect = true;
 		}
+		break;
+	case ID_NONE :
+		// Reflect all meshes with custom tint instead of mesh index
+		ReflectTint = meshIdx;
+		IsReflect = true;
 		break;
 	}
 }
