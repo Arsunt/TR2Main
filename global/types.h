@@ -2060,7 +2060,7 @@ typedef struct LaraInfo_t {
 	int water_surface_dist;
 	PHD_VECTOR last_pos;
 	FX_INFO *spaz_effect;
-	int mesh_effects;
+	DWORD mesh_effects;
 	__int16 *mesh_ptrs[15];
 	ITEM_INFO *target;
 	__int16 target_angles[2];

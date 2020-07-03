@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -84,7 +84,7 @@ bool __cdecl S_UpdateInput() {
 	static bool isF8KeyPressed = false;
 	static bool isF11KeyPressed = false;
 	static bool isF12KeyPressed = false; // +
-	static BYTE mediPackCooldown;
+	static BYTE mediPackCooldown = 0;
 	bool isShiftKeyPressed;
 	DISPLAY_MODE_NODE *mode;
 	DISPLAY_MODE_LIST *modeList;
