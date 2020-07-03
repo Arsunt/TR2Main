@@ -44,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The music and cut scenes are paused when the game window is not active.
 - Added options for level statistics background mode (hardware renderer required).
 - Added full inventory cheat on *I* key (cheat flag in *"TOMBPC.DAT"* file required). It gives full health, all weapons, ammo, medipacks, flares and all keys.
+- Added Dozy cheat on *O* key (cheat flag in *"TOMBPC.DAT"* file required). It gives fly mode and full health, use *Shift* key to disable it.
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.

@@ -47,6 +47,26 @@ void __cdecl LaraControl(__int16 itemID) {
 			LaraCheatGetStuff();
 			item->hitPoints = 1000;
 		}
+		// Enable dozy cheat (flying with full health)
+		if( CHK_ANY(InputStatus, IN_DOZYCHEAT) ) {
+			item->pos.y -= 0x80;
+			if( Lara.water_status != LWS_Cheat ) {
+				Lara.water_status = LWS_Cheat;
+				item->animNumber = 87;
+				item->frameNumber = Anims[item->animNumber].frameBase;
+				item->currentAnimState = AS_SWIM;
+				item->goalAnimState = AS_SWIM;
+				item->gravity = 0;
+				item->pos.rotX = 30*PHD_DEGREE;
+				item->fallSpeed = 30;
+				Lara.air = 1800;
+				Lara.death_count = 0;
+				Lara.torso_x_rot = Lara.torso_y_rot = 0;
+				Lara.head_x_rot = Lara.head_y_rot = 0;
+				Lara.mesh_effects = 0x7FFF; // Lara has golden skin
+				noCheatHitPoints = item->hitPoints; // Backup current health points
+			}
+		}
 	}
 #endif // FEATURE_CHEAT
 
@@ -244,6 +264,28 @@ void __cdecl LaraControl(__int16 itemID) {
 			}
 			LaraSurface(item, &coll);
 			break;
+#ifdef FEATURE_CHEAT
+		case LWS_Cheat:
+			if( CHK_ANY(GF_GameFlow.flags, GFF_EnableCheatCode|GFF_DozyCheatEnabled) ) {
+				// Update Dozy state just in case
+				item->hitPoints = 1000;
+				LaraUnderWater(item, &coll);
+				// Return Lara to normal state if Walk is pressed without Look
+				if( CHK_ANY(InputStatus, IN_SLOW) && !CHK_ANY(InputStatus, IN_LOOK) ) {
+					Lara.water_status = LWS_AboveWater;
+					item->animNumber = 11;
+					item->frameNumber = Anims[item->animNumber].frameBase;
+					item->pos.rotX = item->pos.rotZ = 0;
+					Lara.torso_x_rot = Lara.torso_y_rot = 0;
+					Lara.head_x_rot = Lara.head_y_rot = 0;
+					Lara.gun_status = LGS_Armless;
+					LaraInitialiseMeshes(CurrentLevel);
+					Lara.mesh_effects = 0;
+					item->hitPoints = noCheatHitPoints;
+				}
+			}
+			break;
+#endif // FEATURE_CHEAT
 		default:
 			break;
 	}

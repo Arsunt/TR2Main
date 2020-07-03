@@ -229,6 +229,10 @@ bool __cdecl S_UpdateInput() {
 		} else {
 			isStuffCheatKeyPressed = false;
 		}
+
+		if( KEY_DOWN(DIK_O) ) {
+			input |= IN_DOZYCHEAT;
+		}
 #endif // FEATURE_CHEAT
 	}
 
