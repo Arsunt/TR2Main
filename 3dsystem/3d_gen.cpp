@@ -211,7 +211,7 @@ static void phd_PutEnvmapPolygons(__int16 *ptrEnv) {
 		// make sure that reflection will be drawn after normal poly
 		PhdVBuf[i].zv -= (double)(W2V_SCALE/2);
 		// set lighting that depends only from fog distance
-		PhdVBuf[i].g = LsAdder;
+		PhdVBuf[i].g = (LsAdder + 0x1000) / 2;
 		CLAMP(PhdVBuf[i].g, 0, 0x1FFF);
 
 		// rotate normal vectors for X/Y, no translation
