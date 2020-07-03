@@ -56,6 +56,7 @@
 			<Add option="-DFEATURE_ASSAULT_SAVE" />
 			<Add option="-DFEATURE_AUDIO_IMPROVED" />
 			<Add option="-DFEATURE_BACKGROUND_IMPROVED" />
+			<Add option="-DFEATURE_CHEAT" />
 			<Add option="-DFEATURE_EXTENDED_LIMITS" />
 			<Add option="-DFEATURE_GOLD" />
 			<Add option="-DFEATURE_HUD_IMPROVED" />

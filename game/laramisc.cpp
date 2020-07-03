@@ -38,6 +38,18 @@
 void __cdecl LaraControl(__int16 itemID) {
 	COLL_INFO coll;
 	ITEM_INFO *item = LaraItem;
+
+#ifdef FEATURE_CHEAT
+	static __int16 noCheatHitPoints = 1000;
+	if( CHK_ANY(GF_GameFlow.flags, GFF_EnableCheatCode|GFF_DozyCheatEnabled) ) {
+		// Recover health + get inventory stuff
+		if( CHK_ANY(InputStatus, IN_STUFFCHEAT) ) {
+			LaraCheatGetStuff();
+			item->hitPoints = 1000;
+		}
+	}
+#endif // FEATURE_CHEAT
+
 	BOOL isRoomUnderwater = CHK_ANY(RoomInfo[item->roomNumber].flags, ROOM_UNDERWATER);
 	int depth = GetWaterDepth(item->pos.x, item->pos.y, item->pos.z, item->roomNumber);
 	int height = GetWaterHeight(item->pos.x, item->pos.y, item->pos.z, item->roomNumber);
@@ -371,6 +383,40 @@ void __cdecl LaraCheatGetStuff() {
 			Inv_AddItem(ID_LARGE_MEDIPACK_ITEM);
 		}
 	}
+
+#ifdef FEATURE_CHEAT
+	// NOTE: there is no cheat for keys/puzzles in the original code
+	if( Objects[ID_KEY_OPTION1].loaded && !Inv_RequestItem(ID_KEY_ITEM1) ) {
+		Inv_AddItem(ID_KEY_ITEM1);
+	}
+	if( Objects[ID_KEY_OPTION2].loaded && !Inv_RequestItem(ID_KEY_ITEM2) ) {
+		Inv_AddItem(ID_KEY_ITEM2);
+	}
+	if( Objects[ID_KEY_OPTION3].loaded && !Inv_RequestItem(ID_KEY_ITEM3) ) {
+		Inv_AddItem(ID_KEY_ITEM3);
+	}
+	if( Objects[ID_KEY_OPTION4].loaded && !Inv_RequestItem(ID_KEY_ITEM4) ) {
+		Inv_AddItem(ID_KEY_ITEM4);
+	}
+	if( Objects[ID_PUZZLE_OPTION1].loaded && !Inv_RequestItem(ID_PUZZLE_ITEM1) ) {
+		Inv_AddItem(ID_PUZZLE_ITEM1);
+	}
+	if( Objects[ID_PUZZLE_OPTION2].loaded && !Inv_RequestItem(ID_PUZZLE_ITEM2) ) {
+		Inv_AddItem(ID_PUZZLE_ITEM2);
+	}
+	if( Objects[ID_PUZZLE_OPTION3].loaded && !Inv_RequestItem(ID_PUZZLE_ITEM3) ) {
+		Inv_AddItem(ID_PUZZLE_ITEM3);
+	}
+	if( Objects[ID_PUZZLE_OPTION4].loaded && !Inv_RequestItem(ID_PUZZLE_ITEM4) ) {
+		Inv_AddItem(ID_PUZZLE_ITEM4);
+	}
+	if( Objects[ID_PICKUP_OPTION1].loaded && !Inv_RequestItem(ID_PICKUP_ITEM1) ) {
+		Inv_AddItem(ID_PICKUP_ITEM1);
+	}
+	if( Objects[ID_PICKUP_OPTION2].loaded && !Inv_RequestItem(ID_PICKUP_ITEM2) ) {
+		Inv_AddItem(ID_PICKUP_ITEM2);
+	}
+#endif // FEATURE_CHEAT
 }
 
 void __cdecl InitialiseLaraInventory(int levelID) {

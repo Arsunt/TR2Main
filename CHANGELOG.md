@@ -43,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added music mute settings for inventory/underwater.
 - The music and cut scenes are paused when the game window is not active.
 - Added options for level statistics background mode (hardware renderer required).
+- Added full inventory cheat on *I* key (cheat flag in *"TOMBPC.DAT"* file required). It gives full health, all weapons, ammo, medipacks, flares and all keys.
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.

@@ -218,6 +218,18 @@ bool __cdecl S_UpdateInput() {
 				mediPackCooldown = 15;
 			}
 		}
+#ifdef FEATURE_CHEAT
+		// Cheats
+		static bool isStuffCheatKeyPressed = false;
+		if( KEY_DOWN(DIK_I) ) {
+			if( !isStuffCheatKeyPressed ) {
+				isStuffCheatKeyPressed = true;
+				input |= IN_STUFFCHEAT;
+			}
+		} else {
+			isStuffCheatKeyPressed = false;
+		}
+#endif // FEATURE_CHEAT
 	}
 
 	// Screenshot
