@@ -40,7 +40,6 @@ void __cdecl LaraControl(__int16 itemID) {
 	ITEM_INFO *item = LaraItem;
 
 #ifdef FEATURE_CHEAT
-	static __int16 noCheatHitPoints = 1000;
 	if( CHK_ANY(GF_GameFlow.flags, GFF_EnableCheatCode|GFF_DozyCheatEnabled) ) {
 		// Recover health + get inventory stuff
 		if( CHK_ANY(InputStatus, IN_STUFFCHEAT) ) {
@@ -64,7 +63,6 @@ void __cdecl LaraControl(__int16 itemID) {
 				Lara.torso_x_rot = Lara.torso_y_rot = 0;
 				Lara.head_x_rot = Lara.head_y_rot = 0;
 				Lara.mesh_effects = 0x7FFF; // Lara has golden skin
-				noCheatHitPoints = item->hitPoints; // Backup current health points
 			}
 		}
 	}
@@ -281,7 +279,6 @@ void __cdecl LaraControl(__int16 itemID) {
 					Lara.gun_status = LGS_Armless;
 					LaraInitialiseMeshes(CurrentLevel);
 					Lara.mesh_effects = 0;
-					item->hitPoints = noCheatHitPoints;
 				}
 			}
 			break;
