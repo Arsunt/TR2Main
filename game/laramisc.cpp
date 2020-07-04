@@ -58,6 +58,7 @@ void __cdecl LaraControl(__int16 itemID) {
 				item->gravity = 0;
 				item->pos.rotX = 30*PHD_DEGREE;
 				item->fallSpeed = 30;
+				Lara.skidoo = -1; // get off from vehicle
 				Lara.air = 1800;
 				Lara.death_count = 0;
 				Lara.torso_x_rot = Lara.torso_y_rot = 0;
@@ -278,8 +279,6 @@ void __cdecl LaraControl(__int16 itemID) {
 					item->pos.rotX = item->pos.rotZ = 0;
 					Lara.torso_x_rot = Lara.torso_y_rot = 0;
 					Lara.head_x_rot = Lara.head_y_rot = 0;
-					Lara.gun_status = LGS_Armless;
-					LaraInitialiseMeshes(CurrentLevel);
 					Lara.mesh_effects = 0;
 				}
 			}
