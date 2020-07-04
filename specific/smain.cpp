@@ -472,13 +472,13 @@ void __cdecl CheckCheatMode() {
 					// Give medipacks and flares
 					for( int i=0; i<50; ++i ) {
 						// NOTE: there are no limits in the original code, but it works wrong without limits
-						if( Inv_RequestItem(ID_SMALL_MEDIPACK_ITEM) < 240 ) {
+						if( Objects[ID_SMALL_MEDIPACK_OPTION].loaded && Inv_RequestItem(ID_SMALL_MEDIPACK_ITEM) < 240 ) {
 							Inv_AddItem(ID_SMALL_MEDIPACK_ITEM);
 						}
-						if( Inv_RequestItem(ID_LARGE_MEDIPACK_ITEM) < 240 ) {
+						if( Objects[ID_LARGE_MEDIPACK_OPTION].loaded && Inv_RequestItem(ID_LARGE_MEDIPACK_ITEM) < 240 ) {
 							Inv_AddItem(ID_LARGE_MEDIPACK_ITEM);
 						}
-						if( Inv_RequestItem(ID_FLARE_ITEM) < 240 ) {
+						if( Objects[ID_FLARES_OPTION].loaded && Inv_RequestItem(ID_FLARE_ITEM) < 240 ) {
 							Inv_AddItem(ID_FLARE_ITEM);
 						}
 					}
