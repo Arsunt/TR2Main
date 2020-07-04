@@ -301,8 +301,8 @@ x function is unused / included in another function
 0x0041C2C0:	 *	EelControl
 
 	game/effects.cpp
-0x0041C4B0:		ItemNearLara
-0x0041C540:		SoundEffects
+0x0041C4B0:	 *	ItemNearLara
+0x0041C540:	 *	SoundEffects
 0x0041C5B0:	 *	DoBloodSplat
 0x0041C610:		DoLotsOfBlood
 0x0041C6C0:		ControlBlood1
@@ -456,19 +456,19 @@ x function is unused / included in another function
 
 	game/items.cpp
 0x00426CD0:	+	InitialiseItemArray
-0x00426D30:		KillItem
-0x00426E50:		CreateItem
+0x00426D30:	 *	KillItem
+0x00426E50:	 *	CreateItem
 0x00426E90:	+	InitialiseItem
-0x00427050:		RemoveActiveItem
-0x004270E0:		RemoveDrawnItem
+0x00427050:	 *	RemoveActiveItem
+0x004270E0:	 *	RemoveDrawnItem
 0x00427150:	+	AddActiveItem
-0x004271B0:		ItemNewRoom
+0x004271B0:	 *	ItemNewRoom
 0x00427250:	+	GlobalItemReplace
-0x004272D0:		InitialiseFXArray
+0x004272D0:	 *	InitialiseFXArray
 0x00427300:	 *	CreateEffect
-0x00427370:		KillEffect
-0x00427460:		EffectNewRoom
-0x00427500:		ClearBodyBag
+0x00427370:	 *	KillEffect
+0x00427460:	 *	EffectNewRoom
+0x00427500:	 *	ClearBodyBag
 
 	game/lara.cpp
 0x00427560:	 *	LaraAboveWater
@@ -615,7 +615,7 @@ x function is unused / included in another function
 0x0042B370:		TestLaraSlide
 0x0042B4A0:		LaraFloorFront
 0x0042B520:	 *	LaraLandedBad
-0x0042B5E0:		GetLaraJointAbsPosition
+0x0042B5E0:	 *	GetLaraJointAbsPosition
 0x0042B970:		GetLJAInt
 
 	game/lara1gun.cpp
@@ -958,9 +958,9 @@ x function is unused / included in another function
 0x00442A30:		DartsControl
 0x00442B90:		DartEffectControl
 0x00442BE0:		FlameEmitterControl
-0x00442C70:		FlameControl
-0x00442DE0:		LaraBurn
-0x00442E30:		LavaBurn
+0x00442C70:	+	FlameControl
+0x00442DE0:	+	LaraBurn
+0x00442E30:	+	LavaBurn
 0x00442F20:		LavaSpray
 0x00442FF0:		ControlLavaBlob
 

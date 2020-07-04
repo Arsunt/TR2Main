@@ -27,9 +27,8 @@
 /*
  * Function list
  */
-//	0x0041C4B0:		ItemNearLara
-//	0x0041C540:		SoundEffects
-
+#define ItemNearLara ((int(__cdecl*)(PHD_3DPOS*, int)) 0x0041C4B0)
+#define SoundEffects ((void(__cdecl*)(void)) 0x0041C540)
 #define DoBloodSplat ((__int16(__cdecl*)(int, int, int, __int16, __int16, __int16)) 0x0041C5B0)
 
 //	0x0041C610:		DoLotsOfBlood

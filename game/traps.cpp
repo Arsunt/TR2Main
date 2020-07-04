@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -21,9 +21,92 @@
 
 #include "global/precompiled.h"
 #include "game/traps.h"
+#include "game/control.h"
+#include "game/effects.h"
+#include "game/items.h"
+#include "game/sound.h"
+#include "game/sphere.h"
+#include "specific/game.h"
 #include "global/vars.h"
 
+void __cdecl FlameControl(__int16 fx_id) {
+	FX_INFO *fx = &Effects[fx_id];
+	if( --fx->frame_number <= Objects[ID_FLAME].nMeshes ) {
+		fx->frame_number = 0;
+	}
+	if( fx->counter < 0 ) {
+		fx->pos.x = 0;
+		fx->pos.y = 0;
+		fx->pos.z = ( fx->counter == -1 ) ? -100 : 0;
+		GetJointAbsPosition(LaraItem, (PHD_VECTOR *)&fx->pos, -1 - fx->counter);
+		if( LaraItem->roomNumber != fx->room_number ) {
+			EffectNewRoom(fx_id, LaraItem->roomNumber);
+		}
+		int height = GetWaterHeight(fx->pos.x, fx->pos.y, fx->pos.z, fx->room_number);
+		if( height != NO_HEIGHT && fx->pos.y > height ) {
+			fx->counter = 0;
+			KillEffect(fx_id);
+			Lara.burn = 0;
+		} else {
+			PlaySoundEffect(150, &fx->pos, 0);
+			LaraItem->hitPoints -= 7;
+			LaraItem->hit_status = 1;
+		}
+	} else {
+		PlaySoundEffect(150, &fx->pos, 0);
+		if( fx->counter ) {
+			--fx->counter;
+		} else if( ItemNearLara(&fx->pos, 600) ) {
+			LaraItem->hitPoints -= 5;
+			LaraItem->hit_status = 1;
+			int dx = LaraItem->pos.x - fx->pos.x;
+			int dz = LaraItem->pos.z - fx->pos.z;
+			if( SQR(dx) + SQR(dz) < SQR(450) ) {
+				fx->counter = 100;
+				LaraBurn();
+			}
+		}
+	}
+}
 
+void __cdecl LaraBurn() {
+	if( Lara.burn ) {
+		return;
+	}
+
+	__int16 fx_id = CreateEffect(LaraItem->roomNumber);
+	if( fx_id < 0 ) {
+		return;
+	}
+	FX_INFO *fx = &Effects[fx_id];
+	fx->object_number = ID_FLAME;
+	fx->frame_number = 0;
+	fx->counter = -1;
+	Lara.burn = 1;
+}
+
+void __cdecl LavaBurn(ITEM_INFO *item) {
+	if( item->hitPoints < 0 ) {
+		return;
+	}
+
+	__int16 room_number = item->roomNumber;
+	FLOOR_INFO *floor = GetFloor(item->pos.x, 32000, item->pos.z, &room_number);
+	if( item->floor != GetHeight(floor, item->pos.x, 32000, item->pos.z) ) {
+		return;
+	}
+
+	item->hit_status = 1;
+	item->hitPoints = -1;
+	for( int i = 0; i < 10; ++i ) {
+		__int16 fx_id = CreateEffect(item->roomNumber);
+		if( fx_id < 0 ) continue;
+		FX_INFO *fx = &Effects[fx_id];
+		fx->object_number = ID_FLAME;
+		fx->frame_number = Objects[ID_FLAME].nMeshes * GetRandomControl() / 0x7FFF;
+		fx->counter = -1 - 24 * GetRandomControl() / 0x7FFF;
+	}
+}
 
 /*
  * Inject function
@@ -59,9 +142,11 @@ void Inject_Traps() {
 //	INJECT(0x00442A30, DartsControl);
 //	INJECT(0x00442B90, DartEffectControl);
 //	INJECT(0x00442BE0, FlameEmitterControl);
-//	INJECT(0x00442C70, FlameControl);
-//	INJECT(0x00442DE0, LaraBurn);
-//	INJECT(0x00442E30, LavaBurn);
+
+	INJECT(0x00442C70, FlameControl);
+	INJECT(0x00442DE0, LaraBurn);
+	INJECT(0x00442E30, LavaBurn);
+
 //	INJECT(0x00442F20, LavaSpray);
 //	INJECT(0x00442FF0, ControlLavaBlob);
 }
