@@ -60,7 +60,9 @@ void __cdecl CreatureDie(__int16 itemID, BOOL explode); // 0x0040F440
 #define CreatureEffect ((__int16(__cdecl*)(ITEM_INFO *, const BITE_INFO *, __int16(__cdecl*)(int, int, int, __int16, __int16, __int16))) 0x00410090)
 
 //	0x004100F0:		CreatureVault
-//	0x00410230:		CreatureKill
+
+void __cdecl CreatureKill(ITEM_INFO *item, int killAnim, int killState, int laraKillState); // 0x00410230
+
 //	0x004103A0:		GetBaddieTarget
 
 #endif // BOX_H_INCLUDED

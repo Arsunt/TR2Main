@@ -158,7 +158,7 @@ x function is unused / included in another function
 0x00410040:		CreatureUnderwater
 0x00410090:	 *	CreatureEffect
 0x004100F0:		CreatureVault
-0x00410230:		CreatureKill
+0x00410230:	+	CreatureKill
 0x004103A0:		GetBaddieTarget
 
 	game/camera.cpp

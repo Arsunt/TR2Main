@@ -21,6 +21,7 @@
 
 #include "global/precompiled.h"
 #include "game/box.h"
+#include "game/control.h"
 #include "game/items.h"
 #include "game/lot.h"
 #include "game/missile.h"
@@ -55,6 +56,37 @@ void __cdecl CreatureDie(__int16 itemID, BOOL explode) {
 	}
 }
 
+void __cdecl CreatureKill(ITEM_INFO *item, int killAnim, int killState, int laraKillState) {
+	item->animNumber = killAnim + Objects[item->objectID].animIndex;
+	item->frameNumber = Anims[item->animNumber].frameBase;
+	item->currentAnimState = killState;
+	LaraItem->animNumber = Objects[ID_LARA_EXTRA].animIndex;
+	LaraItem->frameNumber = Anims[LaraItem->animNumber].frameBase;
+	LaraItem->currentAnimState = 0;
+	LaraItem->goalAnimState = laraKillState;
+	LaraItem->pos.x = item->pos.x;
+	LaraItem->pos.y = item->pos.y;
+	LaraItem->pos.z = item->pos.z;
+	LaraItem->pos.rotY = item->pos.rotY;
+	LaraItem->pos.rotX = item->pos.rotX;
+	LaraItem->pos.rotZ = item->pos.rotZ;
+	LaraItem->fallSpeed = 0;
+	LaraItem->gravity = 0;
+	LaraItem->speed = 0;
+	if( LaraItem->roomNumber != item->roomNumber ) {
+		ItemNewRoom(Lara.item_number, item->roomNumber);
+	}
+	AnimateItem(LaraItem);
+	LaraItem->goalAnimState = laraKillState;
+	LaraItem->currentAnimState = laraKillState;
+	Lara.extra_anim = 1;
+	Lara.hit_direction = -1;
+	Lara.air = -1;
+	Lara.gun_status = LGS_HandBusy;
+	Lara.gun_type = LGT_Unarmed;
+	Camera.pos.roomNumber = LaraItem->roomNumber;
+}
+
 /*
  * Inject function
  */
@@ -84,6 +116,8 @@ void Inject_Box() {
 //	INJECT(0x00410040, CreatureUnderwater);
 //	INJECT(0x00410090, CreatureEffect);
 //	INJECT(0x004100F0, CreatureVault);
-//	INJECT(0x00410230, CreatureKill);
+
+	INJECT(0x00410230, CreatureKill);
+
 //	INJECT(0x004103A0, GetBaddieTarget);
 }
