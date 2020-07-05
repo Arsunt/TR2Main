@@ -57,6 +57,13 @@ void __cdecl CreatureDie(__int16 itemID, BOOL explode) {
 }
 
 void __cdecl CreatureKill(ITEM_INFO *item, int killAnim, int killState, int laraKillState) {
+#ifdef FEATURE_CHEAT
+	// Return Lara to normal state if Dozy cheat enabled
+	if( Lara.water_status == LWS_Cheat ) {
+		Lara.water_status = LWS_AboveWater;
+		Lara.mesh_effects = 0;
+	}
+#endif // FEATURE_CHEAT
 	item->animNumber = killAnim + Objects[item->objectID].animIndex;
 	item->frameNumber = Anims[item->animNumber].frameBase;
 	item->currentAnimState = killState;
