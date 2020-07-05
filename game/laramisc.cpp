@@ -47,7 +47,7 @@ void __cdecl LaraControl(__int16 itemID) {
 			item->hitPoints = 1000;
 		}
 		// Enable dozy cheat (flying with full health)
-		if( CHK_ANY(InputStatus, IN_DOZYCHEAT) ) {
+		if( !Lara.extra_anim && CHK_ANY(InputStatus, IN_DOZYCHEAT) ) {
 			item->pos.y -= 0x80;
 			if( Lara.water_status != LWS_Cheat ) {
 				Lara.water_status = LWS_Cheat;
@@ -272,7 +272,7 @@ void __cdecl LaraControl(__int16 itemID) {
 				OverlayStatus = 1; // NOTE: if died already, forget about death
 				LaraUnderWater(item, &coll);
 				// Return Lara to normal state if Walk is pressed without Look
-				if( CHK_ANY(InputStatus, IN_SLOW) && !CHK_ANY(InputStatus, IN_LOOK) ) {
+				if( !Lara.extra_anim && CHK_ANY(InputStatus, IN_SLOW) && !CHK_ANY(InputStatus, IN_LOOK) ) {
 					Lara.water_status = LWS_AboveWater;
 					item->animNumber = 11;
 					item->frameNumber = Anims[item->animNumber].frameBase;
