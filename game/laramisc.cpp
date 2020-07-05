@@ -62,6 +62,10 @@ void __cdecl LaraControl(__int16 itemID) {
 			}
 			Lara.water_status = LWS_Cheat;
 			Lara.skidoo = -1; // get off from vehicle
+			Lara.spaz_effect_count = 0;
+			Lara.spaz_effect = NULL;
+			Lara.hit_frame = 0;
+			Lara.hit_direction = -1;
 			Lara.air = 1800;
 			Lara.death_count = 0;
 			Lara.mesh_effects = 0x7FFF; // Lara has golden skin
