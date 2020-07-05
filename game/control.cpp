@@ -127,7 +127,8 @@ int __cdecl ControlPhase(int nFrames, BOOL demoMode) {
 
 		for( id = NextItemActive; id >= 0; id = next ) {
 			next = Items[id].nextActive;
-			if( Objects[Items[id].objectID].control ) {
+			// NOTE: there is no IFL_CLEARBODY check in the original code
+			if( Objects[Items[id].objectID].control && !CHK_ANY(Items[id].flags, IFL_CLEARBODY) ) {
 				Objects[Items[id].objectID].control(id);
 			}
 		}

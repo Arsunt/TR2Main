@@ -59,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a bug that produced traces of previous textures in untextured areas.
 - If "Disable 16 bit textures" option is unsupported, it's disabled automatically instead of breaking the textures.
 - Fixed a bug that changed the music volume incorrectly when leaving inventory while the camera is underwater.
+- Fixed a rare game crash occurring when you explode an enemy with a grenade launcher.
 
 ### TR2Main bugfixes
 - Background capture is optimized even more, now it is 3-4 times faster than v0.8.2. No lags anymore (broken since v0.8.0).
