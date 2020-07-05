@@ -27,6 +27,11 @@ extern void __thiscall FlaggedStringCreate(STRING_FLAGGED *item, DWORD dwSize);
 extern void __thiscall FlaggedStringDelete(STRING_FLAGGED *item);
 extern bool FlaggedStringCopy(STRING_FLAGGED *dst, STRING_FLAGGED *src);
 
+#ifdef FEATURE_EXTENDED_LIMITS
+DWORD SampleFreqs[370];
+LPDIRECTSOUNDBUFFER SampleBuffers[370];
+#endif // FEATURE_EXTENDED_LIMITS
+
 SOUND_ADAPTER_NODE *__cdecl GetSoundAdapter(GUID *lpGuid) {
 	SOUND_ADAPTER_NODE *adapter;
 
@@ -43,7 +48,7 @@ void __cdecl WinSndFreeAllSamples() {
 	if( !IsSoundEnabled )
 		return;
 
-	for( int i=0; i<256; ++i ) {
+	for( DWORD i=0; i<ARRAY_SIZE(SampleBuffers); ++i ) {
 		if( SampleBuffers[i] != NULL ) {
 			SampleBuffers[i]->Release();
 			SampleBuffers[i] = NULL;
@@ -56,7 +61,7 @@ bool __cdecl WinSndMakeSample(DWORD sampleIdx, LPWAVEFORMATEX format, const LPVO
 	DWORD dwAudioBytes;
 	DSBUFFERDESC desc;
 
-	if( DSound == NULL || !IsSoundEnabled || sampleIdx >= 256 )
+	if( DSound == NULL || !IsSoundEnabled || sampleIdx >= ARRAY_SIZE(SampleBuffers) )
 		return false;
 
 	// NOTE: this check is absent in the original game

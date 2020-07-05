@@ -504,8 +504,13 @@ extern HWR_TEXHANDLE BGND_PageHandles[128];
 #define BGND_TexturePageIndexes		ARRAY_(0x004D7E80, int, [5])
 #define BGND_PageHandles			ARRAY_(0x004D7E98, HWR_TEXHANDLE, [5])
 #endif // FEATURE_BACKGROUND_IMPROVED
+#ifdef FEATURE_EXTENDED_LIMITS
+extern DWORD SampleFreqs[370];
+extern LPDIRECTSOUNDBUFFER SampleBuffers[370];
+#else // FEATURE_EXTENDED_LIMITS
 #define SampleFreqs					ARRAY_(0x004D8560, DWORD, [256])
 #define SampleBuffers				ARRAY_(0x004D8970, LPDIRECTSOUNDBUFFER, [256])
+#endif // FEATURE_EXTENDED_LIMITS
 #define ChannelSamples				ARRAY_(0x004D8D78, DWORD, [32])
 #define ChannelBuffers				ARRAY_(0x004D8DF8, LPDIRECTSOUNDBUFFER, [32])
 #define WinVidPalette				ARRAY_(0x004D8EA8, PALETTEENTRY, [256])
