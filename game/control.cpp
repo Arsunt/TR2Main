@@ -125,6 +125,8 @@ int __cdecl ControlPhase(int nFrames, BOOL demoMode) {
 			}
 		}
 
+		DynamicLightCount = 0;
+
 		for( id = NextItemActive; id >= 0; id = next ) {
 			next = Items[id].nextActive;
 			// NOTE: there is no IFL_CLEARBODY check in the original code
