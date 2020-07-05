@@ -31,18 +31,18 @@
 
 void __cdecl FlameControl(__int16 fx_id) {
 	FX_INFO *fx = &Effects[fx_id];
-#ifdef FEATURE_CHEAT
-	if( Lara.water_status == LWS_Cheat ) {
-		fx->counter = 0;
-		KillEffect(fx_id);
-		Lara.burn = 0;
-		return;
-	}
-#endif // FEATURE_CHEAT
 	if( --fx->frame_number <= Objects[ID_FLAME].nMeshes ) {
 		fx->frame_number = 0;
 	}
 	if( fx->counter < 0 ) {
+#ifdef FEATURE_CHEAT
+		if( Lara.water_status == LWS_Cheat ) {
+			fx->counter = 0;
+			KillEffect(fx_id);
+			Lara.burn = 0;
+			return;
+		}
+#endif // FEATURE_CHEAT
 		fx->pos.x = 0;
 		fx->pos.y = 0;
 		fx->pos.z = ( fx->counter == -1 ) ? -100 : 0;
