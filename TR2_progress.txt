@@ -211,7 +211,7 @@ x function is unused / included in another function
 0x00414200:		Move3DPosTo3DPos
 
 	game/control.cpp
-0x00414370:	 *	ControlPhase
+0x00414370:	+	ControlPhase
 0x004146C0:	 *	AnimateItem
 0x00414A30:		GetChange
 0x00414AE0:		TranslateItem
@@ -840,7 +840,7 @@ x function is unused / included in another function
 0x00439190:		InitialiseStartInfo
 0x00439200:	+	ModifyStartInfo
 0x004392E0:	 *	CreateStartInfo
-0x004394F0:		CreateSaveGameInfo
+0x004394F0:	 *	CreateSaveGameInfo
 0x00439A20:		ExtractSaveGameInfo
 0x0043A280:		ResetSG
 0x0043A2A0:		WriteSG

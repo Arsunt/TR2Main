@@ -27,7 +27,8 @@
 /*
  * Function list
  */
-#define ControlPhase ((int(__cdecl*)(int,BOOL)) 0x00414370)
+int __cdecl ControlPhase(int nFrames, BOOL demoMode);
+
 #define AnimateItem ((void(__cdecl*)(ITEM_INFO*)) 0x004146C0)
 
 // 0x00414A30:		GetChange
