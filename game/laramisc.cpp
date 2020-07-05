@@ -47,10 +47,9 @@ void __cdecl LaraControl(__int16 itemID) {
 			item->hitPoints = 1000;
 		}
 		// Enable dozy cheat (flying with full health)
-		if( !Lara.extra_anim && CHK_ANY(InputStatus, IN_DOZYCHEAT) ) {
-			item->pos.y -= 0x80;
-			if( Lara.water_status != LWS_Cheat ) {
-				Lara.water_status = LWS_Cheat;
+		if( !Lara.extra_anim && Lara.water_status != LWS_Cheat && CHK_ANY(InputStatus, IN_DOZYCHEAT) ) {
+			if( Lara.water_status != LWS_Underwater || item->hitPoints <= 0 ) {
+				item->pos.y -= 0x80;
 				item->animNumber = 87;
 				item->frameNumber = Anims[item->animNumber].frameBase;
 				item->currentAnimState = AS_SWIM;
@@ -58,13 +57,14 @@ void __cdecl LaraControl(__int16 itemID) {
 				item->gravity = 0;
 				item->pos.rotX = 30*PHD_DEGREE;
 				item->fallSpeed = 30;
-				Lara.skidoo = -1; // get off from vehicle
-				Lara.air = 1800;
-				Lara.death_count = 0;
 				Lara.torso_x_rot = Lara.torso_y_rot = 0;
 				Lara.head_x_rot = Lara.head_y_rot = 0;
-				Lara.mesh_effects = 0x7FFF; // Lara has golden skin
 			}
+			Lara.water_status = LWS_Cheat;
+			Lara.skidoo = -1; // get off from vehicle
+			Lara.air = 1800;
+			Lara.death_count = 0;
+			Lara.mesh_effects = 0x7FFF; // Lara has golden skin
 		}
 	}
 #endif // FEATURE_CHEAT
@@ -273,12 +273,16 @@ void __cdecl LaraControl(__int16 itemID) {
 				LaraUnderWater(item, &coll);
 				// Return Lara to normal state if Walk is pressed without Look
 				if( !Lara.extra_anim && CHK_ANY(InputStatus, IN_SLOW) && !CHK_ANY(InputStatus, IN_LOOK) ) {
-					Lara.water_status = LWS_AboveWater;
-					item->animNumber = 11;
-					item->frameNumber = Anims[item->animNumber].frameBase;
-					item->pos.rotX = item->pos.rotZ = 0;
-					Lara.torso_x_rot = Lara.torso_y_rot = 0;
-					Lara.head_x_rot = Lara.head_y_rot = 0;
+					if( isRoomUnderwater || (water_surface_dist != NO_HEIGHT && water_surface_dist > 0) ) {
+						Lara.water_status = LWS_Underwater;
+					} else {
+						Lara.water_status = LWS_AboveWater;
+						item->animNumber = 11;
+						item->frameNumber = Anims[item->animNumber].frameBase;
+						item->pos.rotX = item->pos.rotZ = 0;
+						Lara.torso_x_rot = Lara.torso_y_rot = 0;
+						Lara.head_x_rot = Lara.head_y_rot = 0;
+					}
 					Lara.mesh_effects = 0;
 				}
 			}
