@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -28,8 +28,8 @@
  * Function list
  */
 //	0x00432B10:		InitialiseLOTarray
-//	0x00432B70:		DisableBaddieAI
 
+#define DisableBaddieAI ((void(__cdecl*)(__int16)) 0x00432B70)
 #define EnableBaddieAI ((int(__cdecl*)(__int16, BOOL)) 0x00432BC0)
 
 //	0x00432D70:		InitialiseSlot

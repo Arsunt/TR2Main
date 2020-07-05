@@ -21,9 +21,39 @@
 
 #include "global/precompiled.h"
 #include "game/box.h"
+#include "game/items.h"
+#include "game/lot.h"
+#include "game/missile.h"
 #include "global/vars.h"
 
+void __cdecl CreatureDie(__int16 itemID, BOOL explode) {
+	ITEM_INFO *item = &Items[itemID];
+	item->collidable = 0;
+	item->hitPoints = HP_DONT_TARGET;
+	puts(__FUNCTION__);
+	if( explode ) {
+		ExplodingDeath(itemID, ~0, 0);
+		KillItem(itemID);
+	} else {
+		RemoveActiveItem(itemID);
+	}
 
+	DisableBaddieAI(itemID);
+	item->flags |= IFL_INVISIBLE;
+	if( item->clear_body ) {
+		item->nextActive = PrevItemActive;
+		PrevItemActive = itemID;
+	}
+
+	ITEM_INFO *pickup = NULL;
+	for( int i = item->carriedItem; i != -1; i = pickup->carriedItem ) {
+		pickup = &Items[i];
+		pickup->pos.x = item->pos.x;
+		pickup->pos.y = item->pos.y;
+		pickup->pos.z = item->pos.z;
+		ItemNewRoom(i, item->roomNumber);
+	}
+}
 
 /*
  * Inject function
@@ -42,7 +72,9 @@ void Inject_Box() {
 //	INJECT(0x0040EE50, CalculateTarget);
 //	INJECT(0x0040F2B0, CreatureCreature);
 //	INJECT(0x0040F3B0, BadFloor);
-//	INJECT(0x0040F440, CreatureDie);
+
+	INJECT(0x0040F440, CreatureDie);
+
 //	INJECT(0x0040F500, CreatureAnimation);
 //	INJECT(0x0040FDD0, CreatureTurn);
 //	INJECT(0x0040FEB0, CreatureTilt);

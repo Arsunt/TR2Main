@@ -74,6 +74,9 @@ typedef struct {
 #define WALL_SHIFT			(10)
 #define NO_HEIGHT			(-0x7F00)
 
+// AI values
+#define HP_DONT_TARGET		(0xC000)
+
 // Angle values
 #define PHD_360				(PHD_ONE)
 #define PHD_180				(PHD_ONE/2)
@@ -1605,7 +1608,7 @@ typedef struct ItemInfo_t {
 	UINT16 flags; // see IFL_* defines
 	__int16 shade1;
 	__int16 shade2;
-	__int16 reserved;
+	__int16 carriedItem;
 	LPVOID data;
 	PHD_3DPOS pos;
 	UINT16 active : 1;

@@ -148,7 +148,7 @@ x function is unused / included in another function
 0x0040EE50:		CalculateTarget
 0x0040F2B0:		CreatureCreature
 0x0040F3B0:		BadFloor
-0x0040F440:		CreatureDie
+0x0040F440:	+	CreatureDie
 0x0040F500:	 *	CreatureAnimation
 0x0040FDD0:	 *	CreatureTurn
 0x0040FEB0:	 *	CreatureTilt
@@ -694,8 +694,8 @@ x function is unused / included in another function
 0x00430A10:	 *	AnimateLara
 0x00430D10:	+	UseItem
 0x00430ED0:	+	LaraCheatGetStuff
-0x00430F90:	 *	ControlLaraExtra
-0x00430FB0:	 *	InitialiseLaraLoad
+0x00430F90:	+	ControlLaraExtra
+0x00430FB0:	+	InitialiseLaraLoad
 0x00430FE0:	 *	InitialiseLara
 0x004312A0:	+	InitialiseLaraInventory
 0x00431610:	 *	LaraInitialiseMeshes
@@ -738,7 +738,7 @@ x function is unused / included in another function
 
 	game/lot.cpp
 0x00432B10:		InitialiseLOTarray
-0x00432B70:		DisableBaddieAI
+0x00432B70:	 *	DisableBaddieAI
 0x00432BC0:	 *	EnableBaddieAI
 0x00432D70:		InitialiseSlot
 0x00432F80:		CreateZone

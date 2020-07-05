@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -68,7 +68,7 @@ void __cdecl InitialiseObjects() {
 		Objects[i].pivotLength = 0;
 		Objects[i].radius = 10;
 		Objects[i].shadowSize = 0;
-		Objects[i].hitPoints = 0xC000; // non targettable
+		Objects[i].hitPoints = HP_DONT_TARGET;
 	}
 	BaddyObjects();
 	TrapObjects();
@@ -691,7 +691,7 @@ void __cdecl BaddyObjects() {
 	if( obj->loaded ) {
 		obj->control = WinstonControl;
 		obj->collision = ObjectCollision;
-		obj->hitPoints = 0xC000;
+		obj->hitPoints = HP_DONT_TARGET;
 		obj->shadowSize = 64;
 		obj->radius = 102;
 		obj->intelligent = 1;

@@ -45,7 +45,8 @@
 //	0x0040EE50:		CalculateTarget
 //	0x0040F2B0:		CreatureCreature
 //	0x0040F3B0:		BadFloor
-//	0x0040F440:		CreatureDie
+
+void __cdecl CreatureDie(__int16 itemID, BOOL explode); // 0x0040F440
 
 #define CreatureAnimation ((int(__cdecl*)(__int16, __int16, __int16)) 0x0040F500)
 #define CreatureTurn ((__int16(__cdecl*)(ITEM_INFO *, __int16)) 0x0040FDD0)

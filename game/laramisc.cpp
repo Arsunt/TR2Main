@@ -459,6 +459,15 @@ void __cdecl LaraCheatGetStuff() {
 #endif // FEATURE_CHEAT
 }
 
+void __cdecl ControlLaraExtra(__int16 itemID) {
+	AnimateItem(&Items[itemID]);
+}
+
+void __cdecl InitialiseLaraLoad(__int16 itemID) {
+	Lara.item_number = itemID;
+	LaraItem = &Items[itemID];
+}
+
 void __cdecl InitialiseLaraInventory(int levelID) {
 	int i;
 	START_INFO *start = &SaveGame.start[levelID];
