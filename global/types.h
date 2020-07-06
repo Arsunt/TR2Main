@@ -229,6 +229,10 @@ typedef struct {
 #define IFL_REVERSE		(0x4000)
 #define IFL_CLEARBODY	(0x8000)
 
+// HWR poly sort flags
+#define POLY_TYPEMASK	(0x7FFF)
+#define POLY_Z_IGNORE	(0x8000)
+
 // Glow tint colors
 #define GLOW_FLARE_COLOR	(0xFF8080) // Flare
 #define GLOW_PISTOL_COLOR	(0x3F380F) // Pistol/Magnums/Uzi gunfire

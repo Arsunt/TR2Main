@@ -2650,7 +2650,7 @@ void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spri
 
 	IsShadeEffect = 0;
 #ifdef FEATURE_VIDEOFX_IMPROVED
-	short polyType = POLY_HWR_WGTmap;
+	short polyType = POLY_Z_IGNORE | POLY_HWR_WGTmap;
 	if( CHK_ANY(flags, SPR_TINT) ) {
 		GlobalTint = RGBA_SETALPHA(flags, 0xFF);
 	}
@@ -2661,7 +2661,7 @@ void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spri
 			POLY_HWR_WGTmapSub,
 			POLY_HWR_WGTmapQrt,
 		};
-		polyType = blend[(flags & SPR_BLEND) >> 29];
+		polyType = POLY_Z_IGNORE | blend[(flags & SPR_BLEND) >> 29];
 	}
 	InsertClippedPoly_Textured(nPoints, (float)z, polyType, PhdSpriteInfo[spriteIdx].texPage);
 	GlobalTint = 0;

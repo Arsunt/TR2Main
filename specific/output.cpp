@@ -195,9 +195,14 @@ void __cdecl S_OutputPolyList() {
 		}
 	} else {
 		// Hardware renderer
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		// NOTE: DontSortPrimitives option is redesigned to affect opaque only polygons
+		phd_SortPolyList();
+#else // !FEATURE_VIDEOFX_IMPROVED
 		if( !SavedAppSettings.ZBuffer || !SavedAppSettings.DontSortPrimitives ) {
 			phd_SortPolyList();
 		}
+#endif // !FEATURE_VIDEOFX_IMPROVED
 		HWR_DrawPolyList();
 		D3DDev->EndScene();
 	}

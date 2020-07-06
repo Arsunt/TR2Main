@@ -233,6 +233,20 @@ void __cdecl HWR_DrawPolyList() {
 		bufPtr = (UINT16 *)SortBuffer[i]._0;
 
 		polyType = *(bufPtr++);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		if( SavedAppSettings.ZBuffer && !SavedAppSettings.DontSortPrimitives ) {
+			bool zCheck = !CHK_ANY(polyType, POLY_Z_IGNORE);
+			bool zWrite = false;
+			switch( polyType & POLY_TYPEMASK ) {
+				case POLY_HWR_GTmap:
+				case POLY_HWR_gouraud:
+					zWrite = true;
+					break;
+			}
+			HWR_EnableZBuffer(zWrite, zCheck);
+		}
+		polyType &= POLY_TYPEMASK;
+#endif // FEATURE_VIDEOFX_IMPROVED
 #ifdef FEATURE_HUD_IMPROVED
 		if( polyType == POLY_HWR_healthbar || polyType == POLY_HWR_airbar ) {
 			UINT16 x0 = *(bufPtr++);

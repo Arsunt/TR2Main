@@ -573,18 +573,35 @@ void __cdecl S_InsertBackground(__int16 *ptrObj) {
 
 	ptrObj += 4; // skip x, y, z, radius
 	ptrObj = calc_object_vertices(ptrObj);
-	if( ptrObj != NULL ) {
-		if( SavedAppSettings.RenderMode == RM_Hardware )
-			HWR_EnableZBuffer(false, false);
+	if( ptrObj == NULL ) {
+		return;
+	}
+	ptrObj = calc_background_light(ptrObj);
 
-		ptrObj = calc_background_light(ptrObj);
+	if( SavedAppSettings.RenderMode == RM_Hardware ) {
+		HWR_EnableZBuffer(false, false);
+	}
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	if( SavedAppSettings.RenderMode == RM_Hardware
+		&& SavedAppSettings.ZBuffer
+		&& !SavedAppSettings.DontSortPrimitives )
+	{
+		// NOTE: just draw background unsorted right now with ZBuffer disabled
+		ptrObj = InsertObjectGT4_ZBuffered(ptrObj+1, *ptrObj, ST_FarZ);
+		ptrObj = InsertObjectGT3_ZBuffered(ptrObj+1, *ptrObj, ST_FarZ);
+		ptrObj = InsertObjectG4_ZBuffered(ptrObj+1, *ptrObj, ST_FarZ);
+		ptrObj = InsertObjectG3_ZBuffered(ptrObj+1, *ptrObj, ST_FarZ);
+	}
+	else
+#endif // FEATURE_VIDEOFX_IMPROVED
+	{
 		ptrObj = ins_objectGT4(ptrObj+1, *ptrObj, ST_FarZ);
 		ptrObj = ins_objectGT3(ptrObj+1, *ptrObj, ST_FarZ);
 		ptrObj = ins_objectG4(ptrObj+1, *ptrObj, ST_FarZ);
 		ptrObj = ins_objectG3(ptrObj+1, *ptrObj, ST_FarZ);
-
-		if( SavedAppSettings.RenderMode == RM_Hardware )
-			HWR_EnableZBuffer(true, true);
+	}
+	if( SavedAppSettings.RenderMode == RM_Hardware ) {
+		HWR_EnableZBuffer(true, true);
 	}
 }
 
@@ -976,7 +993,12 @@ void __cdecl phd_InitWindow(__int16 x, __int16 y, int width, int height, int nea
 		ins_trans_quad	= InsertTransQuad;
 	}
 	else if( SavedAppSettings.RenderMode == RM_Hardware ) {
-		if( SavedAppSettings.ZBuffer ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		if( SavedAppSettings.ZBuffer && SavedAppSettings.DontSortPrimitives )
+#else // !FEATURE_VIDEOFX_IMPROVED
+		if( SavedAppSettings.ZBuffer )
+#endif // !FEATURE_VIDEOFX_IMPROVED
+		{
 			ins_objectGT3	= InsertObjectGT3_ZBuffered;
 			ins_objectGT4	= InsertObjectGT4_ZBuffered;
 			ins_objectG3	= InsertObjectG3_ZBuffered;
