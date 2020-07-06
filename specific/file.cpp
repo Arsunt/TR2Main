@@ -971,6 +971,7 @@ BOOL __cdecl S_LoadLevelFile(LPCTSTR fileName, int levelID, GF_LEVEL_TYPE levelT
 		if( !BGND2_LoadPicture(GetModLoadingPix(), FALSE, FALSE) ) {
 			BGND2_ShowPicture(30, 90, 10, 2, TRUE);
 			S_DontDisplayPicture();
+			InputStatus = 0;
 		}
 		memcpy(GamePalette8, palette, sizeof(GamePalette8));
 	}
