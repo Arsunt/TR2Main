@@ -233,7 +233,7 @@ void __cdecl LaraControl(__int16 itemID) {
 	if( item->hitPoints > 0 ) {
 		if( GF_NoFloor && item->pos.y >= GF_NoFloor ) {
 			item->hitPoints = -1;
-			Lara.death_count = 9*30; // 9 seconds to death
+			Lara.death_count = 9*30; // let's skip 9 seconds to death
 		}
 	} else {
 		item->hitPoints = -1;
@@ -272,8 +272,7 @@ void __cdecl LaraControl(__int16 itemID) {
 			if( CHK_ANY(GF_GameFlow.flags, GFF_EnableCheatCode|GFF_DozyCheatEnabled) ) {
 				// Update Dozy state just in case
 				item->hitPoints = 1000;
-				Lara.death_count = 0;
-				OverlayStatus = 1; // NOTE: if died already, forget about death
+				Lara.death_count = 0; // NOTE: if died already, forget about death
 				LaraUnderWater(item, &coll);
 				// Return Lara to normal state if Walk is pressed without Look
 				if( !Lara.extra_anim && CHK_ANY(InputStatus, IN_SLOW) && !CHK_ANY(InputStatus, IN_LOOK) ) {
