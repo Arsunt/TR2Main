@@ -634,7 +634,7 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 			}
 			return 1;
 		case ID_PHOTO_OPTION :
-			if( CHK_ANY(GF_GameFlow.flags, GFF_Unknown) ) {
+			if( CHK_ANY(GF_GameFlow.flags, GFF_GymEnabled) ) {
 				InventoryExtraData[1] = 0;
 				return 1;
 			}
@@ -725,7 +725,7 @@ void __cdecl Construct_Inventory() {
 	}
 
 	InvMainCurrent = 0;
-	if( GymInvOpenEnabled && InventoryMode == INV_TitleMode && !(GF_GameFlow.flags & GFF_LoadSaveDisabled) && GF_GameFlow.flags & GFF_Unknown ) {
+	if( GymInvOpenEnabled && InventoryMode == INV_TitleMode && !CHK_ANY(GF_GameFlow.flags, GFF_LoadSaveDisabled) && CHK_ANY(GF_GameFlow.flags, GFF_GymEnabled) ) {
 		InvOptionCurrent = 3;
 	} else {
 		InvOptionCurrent = 0;

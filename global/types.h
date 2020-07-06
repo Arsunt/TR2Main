@@ -160,7 +160,7 @@ typedef struct {
 #define GFF_LockoutOptionRing		(0x0040)
 #define GFF_DozyCheatEnabled		(0x0080)
 #define GFF_UseSecurityTag			(0x0100)
-#define GFF_Unknown					(0x0200)
+#define GFF_GymEnabled				(0x0200)
 #define GFF_SelectAnyLevel			(0x0400)
 #define GFF_EnableCheatCode			(0x0800)
 
