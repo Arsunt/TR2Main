@@ -34,6 +34,8 @@ extern HWR_TEXHANDLE GetEnvmapTextureHandle();
 bool CustomWaterColorEnabled = false;
 #endif // FEATURE_VIDEOFX_IMPROVED
 
+#define FAR_Z_DISTANCE (1000000000.0)
+
 static VERTEX_INFO VBuffer[40]; // NOTE: original size was 20
 static D3DTLVERTEX VBufferD3D[32];
 static D3DCOLOR GlobalTint = 0; // NOTE: not presented in the original code
@@ -359,7 +361,7 @@ __int16 *__cdecl InsertObjectGT4(__int16 *ptrObj, int number, SORTTYPE sortType)
 
 					case ST_FarZ :
 					default :
-						zv = 1000000000.0;
+						zv = FAR_Z_DISTANCE;
 						break;
 				}
 
@@ -537,7 +539,7 @@ __int16 *__cdecl InsertObjectGT4(__int16 *ptrObj, int number, SORTTYPE sortType)
 
 			case ST_FarZ :
 			default :
-				zv = 1000000000.0;
+				zv = FAR_Z_DISTANCE;
 				break;
 		}
 
@@ -623,7 +625,7 @@ __int16 *__cdecl InsertObjectGT3(__int16 *ptrObj, int number, SORTTYPE sortType)
 
 					case ST_FarZ :
 					default :
-						zv = 1000000000.0;
+						zv = FAR_Z_DISTANCE;
 						break;
 				}
 
@@ -767,7 +769,7 @@ __int16 *__cdecl InsertObjectGT3(__int16 *ptrObj, int number, SORTTYPE sortType)
 
 			case ST_FarZ :
 			default :
-				zv = 1000000000.0;
+				zv = FAR_Z_DISTANCE;
 				break;
 		}
 
@@ -1023,7 +1025,7 @@ __int16 *__cdecl InsertObjectG4(__int16 *ptrObj, int number, SORTTYPE sortType) 
 
 			case ST_FarZ :
 			default :
-				zv = 1000000000.0;
+				zv = FAR_Z_DISTANCE;
 				break;
 		}
 
@@ -1140,7 +1142,7 @@ __int16 *__cdecl InsertObjectG3(__int16 *ptrObj, int number, SORTTYPE sortType) 
 
 			case ST_FarZ :
 			default :
-				zv = 1000000000.0;
+				zv = FAR_Z_DISTANCE;
 				break;
 		}
 
@@ -1757,7 +1759,7 @@ __int16 *__cdecl InsertObjectG4_ZBuffered(__int16 *ptrObj, int number, SORTTYPE 
 
 					case ST_FarZ :
 					default :
-						zv = 1000000000.0;
+						zv = FAR_Z_DISTANCE;
 						break;
 				}
 				short blend[4] = {POLY_HWR_half, POLY_HWR_add, POLY_HWR_sub, POLY_HWR_qrt};
@@ -1890,7 +1892,7 @@ __int16 *__cdecl InsertObjectG3_ZBuffered(__int16 *ptrObj, int number, SORTTYPE 
 
 					case ST_FarZ :
 					default :
-						zv = 1000000000.0;
+						zv = FAR_Z_DISTANCE;
 						break;
 				}
 				short blend[4] = {POLY_HWR_half, POLY_HWR_add, POLY_HWR_sub, POLY_HWR_qrt};
@@ -2010,7 +2012,7 @@ void __cdecl InsertGT3_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PH
 
 				case ST_FarZ :
 				default :
-					zv = 1000000000.0;
+					zv = FAR_Z_DISTANCE;
 					break;
 			}
 
@@ -2132,7 +2134,7 @@ void __cdecl InsertGT3_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PH
 
 		case ST_FarZ :
 		default :
-			zv = 1000000000.0;
+			zv = FAR_Z_DISTANCE;
 			break;
 	}
 
@@ -2200,7 +2202,7 @@ void __cdecl InsertGT4_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PH
 
 			case ST_FarZ :
 			default :
-				zv = 1000000000.0;
+				zv = FAR_Z_DISTANCE;
 				break;
 		}
 
@@ -2421,7 +2423,7 @@ __int16 *__cdecl InsertObjectG4_Sorted(__int16 *ptrObj, int number, SORTTYPE sor
 
 			case ST_FarZ :
 			default :
-				zv = 1000000000.0;
+				zv = FAR_Z_DISTANCE;
 				break;
 		}
 
@@ -2565,7 +2567,7 @@ __int16 *__cdecl InsertObjectG3_Sorted(__int16 *ptrObj, int number, SORTTYPE sor
 
 			case ST_FarZ :
 			default :
-				zv = 1000000000.0;
+				zv = FAR_Z_DISTANCE;
 				break;
 		}
 
