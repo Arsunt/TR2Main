@@ -1083,9 +1083,12 @@ typedef enum {
  */
 #pragma pack(push, 1)
 
+// NOTE: there were int items in the original code,
+// but it's more important to have wider range
+// since negative numbers are not used anyway
 typedef struct SortItem_t {
-  int _0;
-  int _1;
+	DWORD _0;
+	DWORD _1;
 } SORT_ITEM;
 
 typedef struct RGB888_t {

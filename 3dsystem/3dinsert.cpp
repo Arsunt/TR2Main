@@ -125,8 +125,8 @@ bool InsertObjectEM(__int16 *ptrObj, int vtxCount, D3DCOLOR tint, PHD_UV *em_uv)
 void __cdecl InsertGourQuad(int x0, int y0, int x1, int y1, int z, D3DCOLOR color0, D3DCOLOR color1, D3DCOLOR color2, D3DCOLOR color3) {
 	double rhw, sz;
 
-	Sort3dPtr->_0 = (int)Info3dPtr;
-	Sort3dPtr->_1 = z;
+	Sort3dPtr->_0 = (DWORD)Info3dPtr;
+	Sort3dPtr->_1 = (DWORD)z;
 	++Sort3dPtr;
 
 	*(Info3dPtr++) = POLY_HWR_trans;
@@ -365,8 +365,8 @@ __int16 *__cdecl InsertObjectGT4(__int16 *ptrObj, int number, SORTTYPE sortType)
 						break;
 				}
 
-				Sort3dPtr->_0 = (int)Info3dPtr;
-				Sort3dPtr->_1 = (int)zv;
+				Sort3dPtr->_0 = (DWORD)Info3dPtr;
+				Sort3dPtr->_1 = (DWORD)zv;
 				++Sort3dPtr;
 
 				if( zv >= (double)PerspectiveDistance ) {
@@ -543,8 +543,8 @@ __int16 *__cdecl InsertObjectGT4(__int16 *ptrObj, int number, SORTTYPE sortType)
 				break;
 		}
 
-		Sort3dPtr->_0 = (int)Info3dPtr;
-		Sort3dPtr->_1 = (int)zv;
+		Sort3dPtr->_0 = (DWORD)Info3dPtr;
+		Sort3dPtr->_1 = (DWORD)zv;
 		++Sort3dPtr;
 
 		if( zv >= (double)PerspectiveDistance ) {
@@ -629,8 +629,8 @@ __int16 *__cdecl InsertObjectGT3(__int16 *ptrObj, int number, SORTTYPE sortType)
 						break;
 				}
 
-				Sort3dPtr->_0 = (int)Info3dPtr;
-				Sort3dPtr->_1 = (int)zv;
+				Sort3dPtr->_0 = (DWORD)Info3dPtr;
+				Sort3dPtr->_1 = (DWORD)zv;
 				++Sort3dPtr;
 
 				if( zv >= (double)PerspectiveDistance ) {
@@ -773,8 +773,8 @@ __int16 *__cdecl InsertObjectGT3(__int16 *ptrObj, int number, SORTTYPE sortType)
 				break;
 		}
 
-		Sort3dPtr->_0 = (int)Info3dPtr;
-		Sort3dPtr->_1 = (int)zv;
+		Sort3dPtr->_0 = (DWORD)Info3dPtr;
+		Sort3dPtr->_1 = (DWORD)zv;
 		++Sort3dPtr;
 
 		if( zv >= (double)PerspectiveDistance ) {
@@ -1029,8 +1029,8 @@ __int16 *__cdecl InsertObjectG4(__int16 *ptrObj, int number, SORTTYPE sortType) 
 				break;
 		}
 
-		Sort3dPtr->_0 = (int)Info3dPtr;
-		Sort3dPtr->_1 = (int)zv;
+		Sort3dPtr->_0 = (DWORD)Info3dPtr;
+		Sort3dPtr->_1 = (DWORD)zv;
 		++Sort3dPtr;
 
 		*Info3dPtr++ = POLY_gouraud;
@@ -1146,8 +1146,8 @@ __int16 *__cdecl InsertObjectG3(__int16 *ptrObj, int number, SORTTYPE sortType) 
 				break;
 		}
 
-		Sort3dPtr->_0 = (int)Info3dPtr;
-		Sort3dPtr->_1 = (int)zv;
+		Sort3dPtr->_0 = (DWORD)Info3dPtr;
+		Sort3dPtr->_1 = (DWORD)zv;
 		++Sort3dPtr;
 
 		*Info3dPtr++ = POLY_gouraud;
@@ -1319,8 +1319,8 @@ void __cdecl InsertTrans8(PHD_VBUF *vbuf, __int16 shade) {
 	polyZ /= nVtx;
 #endif // FEATURE_VIDEOFX_IMPROVED
 
-	Sort3dPtr->_0 = (int)Info3dPtr;
-	Sort3dPtr->_1 = polyZ;
+	Sort3dPtr->_0 = (DWORD)Info3dPtr;
+	Sort3dPtr->_1 = (DWORD)polyZ;
 	++Sort3dPtr;
 
 	*(Info3dPtr++) = POLY_trans;
@@ -1336,8 +1336,8 @@ void __cdecl InsertTrans8(PHD_VBUF *vbuf, __int16 shade) {
 }
 
 void __cdecl InsertTransQuad(int x, int y, int width, int height, int z) {
-	Sort3dPtr->_0 = (int)Info3dPtr;
-	Sort3dPtr->_1 = PhdNearZ + 8 * z;
+	Sort3dPtr->_0 = (DWORD)Info3dPtr;
+	Sort3dPtr->_1 = (DWORD)(PhdNearZ + 8*z);
 	++Sort3dPtr;
 
 	*(Info3dPtr++) = POLY_trans;
@@ -1362,8 +1362,8 @@ void __cdecl InsertTransQuad(int x, int y, int width, int height, int z) {
 }
 
 void __cdecl InsertFlatRect(int x0, int y0, int x1, int y1, int z, BYTE colorIdx) {
-	Sort3dPtr->_0 = (int)Info3dPtr;
-	Sort3dPtr->_1 = z;
+	Sort3dPtr->_0 = (DWORD)Info3dPtr;
+	Sort3dPtr->_1 = (DWORD)z;
 	++Sort3dPtr;
 
 	*(Info3dPtr++) = POLY_flat;
@@ -1382,8 +1382,8 @@ void __cdecl InsertFlatRect(int x0, int y0, int x1, int y1, int z, BYTE colorIdx
 }
 
 void __cdecl InsertLine(int x0, int y0, int x1, int y1, int z, BYTE colorIdx) {
-	Sort3dPtr->_0 = (int)Info3dPtr;
-	Sort3dPtr->_1 = z;
+	Sort3dPtr->_0 = (DWORD)Info3dPtr;
+	Sort3dPtr->_1 = (DWORD)z;
 	++Sort3dPtr;
 
 	*(Info3dPtr++) = POLY_line;
@@ -2016,8 +2016,8 @@ void __cdecl InsertGT3_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PH
 					break;
 			}
 
-			Sort3dPtr->_0 = (int)Info3dPtr;
-			Sort3dPtr->_1 = (int)zv;
+			Sort3dPtr->_0 = (DWORD)Info3dPtr;
+			Sort3dPtr->_1 = (DWORD)zv;
 			++Sort3dPtr;
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
@@ -2148,8 +2148,8 @@ void __cdecl InsertGT3_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PH
 void __cdecl InsertClippedPoly_Textured(int vtxCount, float z, __int16 polyType, __int16 texPage) {
 	double tu, tv;
 
-	Sort3dPtr->_0 = (int)Info3dPtr;
-	Sort3dPtr->_1 = z;
+	Sort3dPtr->_0 = (DWORD)Info3dPtr;
+	Sort3dPtr->_1 = (DWORD)z;
 	++Sort3dPtr;
 
 	*(Info3dPtr++) = polyType;
@@ -2206,8 +2206,8 @@ void __cdecl InsertGT4_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PH
 				break;
 		}
 
-		Sort3dPtr->_0 = (int)Info3dPtr;
-		Sort3dPtr->_1 = (int)zv;
+		Sort3dPtr->_0 = (DWORD)Info3dPtr;
+		Sort3dPtr->_1 = (DWORD)zv;
 		++Sort3dPtr;
 #ifdef FEATURE_VIDEOFX_IMPROVED
 		*Info3dPtr++ = GetPolyType(texture->drawtype);
@@ -2445,8 +2445,8 @@ __int16 *__cdecl InsertObjectG4_Sorted(__int16 *ptrObj, int number, SORTTYPE sor
 void __cdecl InsertPoly_Gouraud(int vtxCount, float z, int red, int green, int blue, __int16 polyType) {
 	BYTE alpha = ( polyType == POLY_HWR_trans ) ? 0x80 : 0xFF;
 
-	Sort3dPtr->_0 = (int)Info3dPtr;
-	Sort3dPtr->_1 = z;
+	Sort3dPtr->_0 = (DWORD)Info3dPtr;
+	Sort3dPtr->_1 = (DWORD)z;
 	++Sort3dPtr;
 
 	*(Info3dPtr++) = polyType;
@@ -2688,8 +2688,8 @@ void __cdecl InsertFlatRect_Sorted(int x0, int y0, int x1, int y1, int z, BYTE c
 	if( y1 > PhdWinMinY + PhdWinHeight )
 		x1 = PhdWinMinY + PhdWinHeight;
 
-	Sort3dPtr->_0 = (int)Info3dPtr;
-	Sort3dPtr->_1 = z;
+	Sort3dPtr->_0 = (DWORD)Info3dPtr;
+	Sort3dPtr->_1 = (DWORD)z;
 	++Sort3dPtr;
 
 	*(Info3dPtr++) = POLY_HWR_gouraud;
@@ -2724,8 +2724,8 @@ void __cdecl InsertLine_Sorted(int x0, int y0, int x1, int y1, int z, BYTE color
 	double rhw, sz;
 	D3DCOLOR color;
 
-	Sort3dPtr->_0 = (int)Info3dPtr;
-	Sort3dPtr->_1 = z;
+	Sort3dPtr->_0 = (DWORD)Info3dPtr;
+	Sort3dPtr->_1 = (DWORD)z;
 	++Sort3dPtr;
 
 	*(Info3dPtr++) = POLY_HWR_line;
@@ -2809,8 +2809,8 @@ void __cdecl InsertTransQuad_Sorted(int x, int y, int width, int height, int z) 
 	float x0, y0, x1, y1;
 	double rhw, sz;
 
-	Sort3dPtr->_0 = (int)Info3dPtr;
-	Sort3dPtr->_1 = z;
+	Sort3dPtr->_0 = (DWORD)Info3dPtr;
+	Sort3dPtr->_1 = (DWORD)z;
 	++Sort3dPtr;
 
 	*(Info3dPtr++) = POLY_HWR_trans;
@@ -2851,8 +2851,8 @@ void __cdecl InsertSprite(int z, int x0, int y0, int x1, int y1, int spriteIdx, 
 #else // FEATURE_VIDEOFX_IMPROVED
 void __cdecl InsertSprite(int z, int x0, int y0, int x1, int y1, int spriteIdx, __int16 shade) {
 #endif // FEATURE_VIDEOFX_IMPROVED
-	Sort3dPtr->_0 = (int)Info3dPtr;
-	Sort3dPtr->_1 = z;
+	Sort3dPtr->_0 = (DWORD)Info3dPtr;
+	Sort3dPtr->_1 = (DWORD)z;
 	++Sort3dPtr;
 
 	*(Info3dPtr++) = POLY_sprite;

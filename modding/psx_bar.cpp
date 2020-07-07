@@ -145,8 +145,8 @@ void __cdecl PSX_DrawAirBar(int x0, int y0, int x1, int y1, int bar, int pixel) 
 }
 
 static void PSX_InsertBar(int polytype, int x0, int y0, int x1, int y1, int bar, int pixel) {
-	Sort3dPtr->_0 = (int)Info3dPtr;
-	Sort3dPtr->_1 = PhdNearZ;
+	Sort3dPtr->_0 = (DWORD)Info3dPtr;
+	Sort3dPtr->_1 = (DWORD)PhdNearZ;
 	++Sort3dPtr;
 	++SurfaceCount;
 
