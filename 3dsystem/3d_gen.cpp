@@ -616,7 +616,7 @@ __int16 *__cdecl calc_object_vertices(__int16 *ptrObj) {
 	int vtxCount;
 	BYTE totalClip, clipFlags;
 
-	baseZ = SavedAppSettings.ZBuffer ? 0.0 : (double)(MidSort << 22);
+	baseZ = SavedAppSettings.ZBuffer ? 0.0 : (double)(MidSort << (W2V_SHIFT + 8));
 	totalClip = 0xFF;
 
 	ptrObj++; // skip poly counter
@@ -728,7 +728,7 @@ __int16 *__cdecl calc_roomvert(__int16 *ptrObj, BYTE farClip) {
 	double xv, yv, zv, persp, baseZ, depth;
 	int vtxCount, zv_int;
 
-	baseZ = SavedAppSettings.ZBuffer ? 0.0 : (double)(MidSort << 22);
+	baseZ = SavedAppSettings.ZBuffer ? 0.0 : (double)(MidSort << (W2V_SHIFT + 8));
 	vtxCount = *(ptrObj++);
 
 	for( int i = 0; i < vtxCount; ++i ) {

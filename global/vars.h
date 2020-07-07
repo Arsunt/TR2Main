@@ -88,7 +88,7 @@
 #define DumpWidth					VAR_I_(0x00466BE8, __int16,			50)
 #define DumpHeight					VAR_I_(0x00466BEA, __int16,			0)
 #define DetailLevel					VAR_I_(0x00467724, DWORD,			1)
-#define MidSort						VAR_I_(0x0046C2F0, DWORD,			0)
+#define MidSort						VAR_I_(0x0046C2F0, int,				0)
 #define FltViewAspect				VAR_I_(0x0046C2F4, float,			0.0)
 #define XGen_y0						VAR_I_(0x0046C2F8, int,				0)
 #define XGen_y1						VAR_I_(0x0046C2FC, int,				0)
