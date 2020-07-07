@@ -616,7 +616,12 @@ __int16 *__cdecl calc_object_vertices(__int16 *ptrObj) {
 	int vtxCount;
 	BYTE totalClip, clipFlags;
 
+#ifdef FEATURE_VIEW_IMPROVED
+	baseZ = 0.0; // NOTE: there is more harm than good from the MidSort variable
+#else // !FEATURE_VIEW_IMPROVED
 	baseZ = SavedAppSettings.ZBuffer ? 0.0 : (double)(MidSort << (W2V_SHIFT + 8));
+#endif // FEATURE_VIEW_IMPROVED
+
 	totalClip = 0xFF;
 
 	ptrObj++; // skip poly counter
@@ -728,7 +733,12 @@ __int16 *__cdecl calc_roomvert(__int16 *ptrObj, BYTE farClip) {
 	double xv, yv, zv, persp, baseZ, depth;
 	int vtxCount, zv_int;
 
+#ifdef FEATURE_VIEW_IMPROVED
+	baseZ = 0.0; // NOTE: there is more harm than good from the MidSort variable
+#else // !FEATURE_VIEW_IMPROVED
 	baseZ = SavedAppSettings.ZBuffer ? 0.0 : (double)(MidSort << (W2V_SHIFT + 8));
+#endif // FEATURE_VIEW_IMPROVED
+
 	vtxCount = *(ptrObj++);
 
 	for( int i = 0; i < vtxCount; ++i ) {
