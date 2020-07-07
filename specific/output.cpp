@@ -198,12 +198,18 @@ void __cdecl S_OutputPolyList() {
 #ifdef FEATURE_VIDEOFX_IMPROVED
 		// NOTE: DontSortPrimitives option is redesigned to affect opaque only polygons
 		phd_SortPolyList();
+		if( SavedAppSettings.ZBuffer && !SavedAppSettings.DontSortPrimitives ) {
+			HWR_DrawPolyList(1);
+			HWR_DrawPolyList(2);
+		} else {
+			HWR_DrawPolyList(0);
+		}
 #else // !FEATURE_VIDEOFX_IMPROVED
 		if( !SavedAppSettings.ZBuffer || !SavedAppSettings.DontSortPrimitives ) {
 			phd_SortPolyList();
 		}
-#endif // !FEATURE_VIDEOFX_IMPROVED
 		HWR_DrawPolyList();
+#endif // !FEATURE_VIDEOFX_IMPROVED
 		D3DDev->EndScene();
 	}
 }

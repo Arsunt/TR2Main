@@ -222,7 +222,11 @@ void __cdecl HWR_BeginScene() {
 	D3DDev->BeginScene();
 }
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+void __cdecl HWR_DrawPolyList(int pass) {
+#else // FEATURE_VIDEOFX_IMPROVED
 void __cdecl HWR_DrawPolyList() {
+#endif // FEATURE_VIDEOFX_IMPROVED
 	DWORD alphaState;
 	UINT16 *bufPtr;
 	UINT16 polyType, texPage, vtxCount;
@@ -234,14 +238,38 @@ void __cdecl HWR_DrawPolyList() {
 
 		polyType = *(bufPtr++);
 #ifdef FEATURE_VIDEOFX_IMPROVED
-		if( SavedAppSettings.ZBuffer && !SavedAppSettings.DontSortPrimitives ) {
+		if( pass == 1 || pass == 2 ) {
 			bool zCheck = !CHK_ANY(polyType, POLY_Z_IGNORE);
 			bool zWrite = false;
+			bool noBlend = false;
 			switch( polyType & POLY_TYPEMASK ) {
 				case POLY_HWR_GTmap:
 				case POLY_HWR_gouraud:
+				case POLY_HWR_line:
+#ifdef FEATURE_HUD_IMPROVED
+				case POLY_HWR_healthbar:
+				case POLY_HWR_airbar:
+#endif // FEATURE_HUD_IMPROVED
 					zWrite = true;
+					noBlend = true;
 					break;
+				case POLY_HWR_WGTmap:
+					zWrite = false;
+					noBlend = true;
+					break;
+			}
+			// NOTE: noBlend sprites and zWrite polys are drawn in 1st pass.
+			// Same sprites are rendered one more time in 2nd pass, but with all other polys.
+			if( pass == 1 ) {
+				bool conditon = noBlend && (zWrite || !zCheck);
+				if( !conditon ) {
+					continue; // for other polys we need 2nd pass
+				}
+			} else {
+				if( zWrite ) {
+					continue; // we've drawn all zWrite polys in 1st pass
+				}
+				zCheck = true; // zCheck is always enabled for 2nd pass
 			}
 			HWR_EnableZBuffer(zWrite, zCheck);
 		}
