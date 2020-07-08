@@ -38,6 +38,11 @@ void __cdecl CreateBubble(PHD_3DPOS *pos, __int16 roomNumber) {
 }
 
 void __cdecl LaraBubbles(ITEM_INFO *item) {
+#ifdef FEATURE_CHEAT
+	if( Lara.water_status == LWS_Cheat ) {
+		return;
+	}
+#endif // FEATURE_CHEAT
 	int counter = GetRandomDraw() * 3 / 0x8000;
 	if( !counter ) return;
 	PHD_VECTOR pos;
