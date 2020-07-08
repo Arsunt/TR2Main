@@ -27,7 +27,7 @@
 /*
  * Function list
  */
-void __cdecl SyncTicks(DWORD skip); // NOTE: this function is not presented in the original game
+DWORD __cdecl SyncTicks(DWORD skip); // NOTE: this function is not presented in the original game
 void __cdecl Ticks(); // 0x00456680
 bool __cdecl TIME_Init(); // 0x004566C0
 DWORD __cdecl Sync(); // 0x00456720

@@ -23,12 +23,14 @@
 #include "specific/utils.h"
 #include "global/vars.h"
 
-void __cdecl SyncTicks(DWORD skip) {
-	Ticks();
-	DWORD endTicks = (DWORD)TIME_Ticks + skip;
+DWORD __cdecl SyncTicks(DWORD skip) {
+	DWORD lastTicks = (DWORD)TIME_Ticks;
+	DWORD currentTicks = lastTicks;
 	do {
 		Ticks();
-	} while( (DWORD)TIME_Ticks < endTicks );
+		currentTicks = (DWORD)TIME_Ticks;
+	} while( currentTicks < lastTicks + skip );
+	return currentTicks - lastTicks;
 }
 
 void __cdecl Ticks() {
