@@ -36,8 +36,10 @@
 //	0x0041C750:		ControlExplosion1
 //	0x0041C7D0:		Richochet
 //	0x0041C850:		ControlRichochet1
-//	0x0041C880:		CreateBubble
-//	0x0041C8F0:		LaraBubbles
+
+void __cdecl CreateBubble(PHD_3DPOS *pos, __int16 roomNumber); // 0x0041C880
+void __cdecl LaraBubbles(ITEM_INFO *item); // 0x0041C8F0
+
 //	0x0041C970:		ControlBubble1
 
 #define Splash ((void(__cdecl*)(ITEM_INFO*)) 0x0041CA70)

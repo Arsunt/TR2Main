@@ -21,7 +21,33 @@
 
 #include "global/precompiled.h"
 #include "game/effects.h"
+#include "game/items.h"
+#include "game/sound.h"
+#include "game/sphere.h"
+#include "specific/game.h"
 #include "global/vars.h"
+
+void __cdecl CreateBubble(PHD_3DPOS *pos, __int16 roomNumber) {
+	__int16 fxID = CreateEffect(roomNumber);
+	if( fxID < 0 ) return;
+	FX_INFO *fx = &Effects[fxID];
+	fx->pos = *pos;
+	fx->speed = ((GetRandomDraw() * 6) >> 15) + 10;
+	fx->frame_number = -((GetRandomDraw() * 3) >> 15);
+	fx->object_number = ID_BUBBLES;
+}
+
+void __cdecl LaraBubbles(ITEM_INFO *item) {
+	int counter = GetRandomDraw() * 3 / 0x8000;
+	if( !counter ) return;
+	PHD_VECTOR pos;
+	pos.x = 0;
+	pos.y = 0;
+	pos.z = 50;
+	PlaySoundEffect(37, &item->pos, SFX_UNDERWATER);
+	GetJointAbsPosition(item, &pos, 14);
+	while( counter-- > 0 ) CreateBubble((PHD_3DPOS *)&pos, item->roomNumber);
+}
 
 void WadeSplash(ITEM_INFO *item, int height) {
 	return; // NULL function
@@ -39,8 +65,10 @@ void Inject_Effects() {
 //	INJECT(0x0041C750, ControlExplosion1);
 //	INJECT(0x0041C7D0, Richochet);
 //	INJECT(0x0041C850, ControlRichochet1);
-//	INJECT(0x0041C880, CreateBubble);
-//	INJECT(0x0041C8F0, LaraBubbles);
+
+	INJECT(0x0041C880, CreateBubble);
+	INJECT(0x0041C8F0, LaraBubbles);
+
 //	INJECT(0x0041C970, ControlBubble1);
 //	INJECT(0x0041CA70, Splash);
 //	INJECT(----------, WadeSplash);
