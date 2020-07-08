@@ -88,10 +88,10 @@ static void DrawAlphaBlended(D3DTLVERTEX *vtxPtr, DWORD vtxCount, DWORD mode) {
 	}
 	// do blending
 	SetBlendMode(vtxPtr, vtxCount, mode, 0);
-	D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+	D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3D_DRAWFLAGS);
 	if( AlphaBlendMode == 2 ) {
 		SetBlendMode(vtxPtr, vtxCount, mode, 1);
-		D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+		D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3D_DRAWFLAGS);
 	}
 	// return render states to default values
 	D3DDev->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
@@ -134,6 +134,8 @@ void __cdecl HWR_InitState() {
 	D3DDev->SetTextureStageState(0, D3DTSS_MAGFILTER, filter);
 	D3DDev->SetTextureStageState(0, D3DTSS_MINFILTER, filter);
 	D3DDev->SetTextureStageState(0, D3DTSS_ADDRESS, D3DTADDRESS_CLAMP);
+	D3DDev->SetRenderState(D3DRENDERSTATE_CLIPPING, FALSE);
+	D3DDev->SetRenderState(D3DRENDERSTATE_EXTENTS, FALSE);
 #else // (DIRECT3D_VERSION >= 0x700)
 	DWORD filter = SavedAppSettings.BilinearFiltering ? D3DFILTER_LINEAR : D3DFILTER_NEAREST;
 	DWORD blend = (CurrentDisplayAdapter.D3DHWDeviceDesc.dpcTriCaps.dwTextureBlendCaps & D3DPTBLENDCAPS_MODULATEALPHA) ? D3DTBLEND_MODULATEALPHA : D3DTBLEND_MODULATE;
@@ -322,14 +324,14 @@ void __cdecl HWR_DrawPolyList() {
 				HWR_TexSource(texPage == (UINT16)~0 ? GetEnvmapTextureHandle() : HWR_PageHandles[texPage]);
 				HWR_EnableColorKey(polyType != POLY_HWR_GTmap);
 				if( TextureFormat.bpp < 16 || AlphaBlendMode == 0 || polyType == POLY_HWR_GTmap || polyType == POLY_HWR_WGTmap ) {
-					D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+					D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3D_DRAWFLAGS);
 				} else {
 					DrawAlphaBlended(vtxPtr, vtxCount, polyType-POLY_HWR_WGTmapHalf);
 				}
 #else // !FEATURE_VIDEOFX_IMPROVED
 				HWR_TexSource(HWR_PageHandles[texPage]);
 				HWR_EnableColorKey(polyType == POLY_HWR_WGTmap);
-				D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+				D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3D_DRAWFLAGS);
 #endif // !FEATURE_VIDEOFX_IMPROVED
 				break;
 
@@ -342,28 +344,28 @@ void __cdecl HWR_DrawPolyList() {
 				HWR_TexSource(0);
 				HWR_EnableColorKey(polyType != POLY_HWR_gouraud);
 				if( TextureFormat.bpp < 16 || AlphaBlendMode == 0 || polyType == POLY_HWR_gouraud ) {
-					D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+					D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3D_DRAWFLAGS);
 				} else {
 					DrawAlphaBlended(vtxPtr, vtxCount, polyType-POLY_HWR_half);
 				}
 #else // !FEATURE_VIDEOFX_IMPROVED
 				HWR_TexSource(0);
 				HWR_EnableColorKey(false);
-				D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+				D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3D_DRAWFLAGS);
 #endif // !FEATURE_VIDEOFX_IMPROVED
 				break;
 
 			case POLY_HWR_line: // line strip (color)
 				HWR_TexSource(0);
 				HWR_EnableColorKey(false);
-				D3DDev->DrawPrimitive(D3DPT_LINESTRIP, D3D_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+				D3DDev->DrawPrimitive(D3DPT_LINESTRIP, D3D_TLVERTEX, vtxPtr, vtxCount, D3D_DRAWFLAGS);
 				break;
 
 			case POLY_HWR_trans: // triangle fan (color + semitransparent)
 				HWR_TexSource(0);
 				D3DDev->GetRenderState(AlphaBlendEnabler, &alphaState);
 				D3DDev->SetRenderState(AlphaBlendEnabler, TRUE);
-				D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+				D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3D_DRAWFLAGS);
 				D3DDev->SetRenderState(AlphaBlendEnabler, alphaState);
 				break;
 		}

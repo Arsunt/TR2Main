@@ -142,7 +142,15 @@ void RenderTexturedFarQuad(VERTEX2D *vtx0, VERTEX2D *vtx1, VERTEX2D *vtx2, VERTE
 
 	HWR_TexSource(txr->handle);
 	HWR_EnableColorKey(false);
+#if (DIRECT3D_VERSION >= 0x700)
+	D3DDev->SetRenderState(D3DRENDERSTATE_CLIPPING, TRUE);
+	D3DDev->SetRenderState(D3DRENDERSTATE_EXTENTS, TRUE);
+#endif // (DIRECT3D_VERSION >= 0x700)
 	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3D_TLVERTEX, &vtx, 4, 0);
+#if (DIRECT3D_VERSION >= 0x700)
+	D3DDev->SetRenderState(D3DRENDERSTATE_CLIPPING, FALSE);
+	D3DDev->SetRenderState(D3DRENDERSTATE_EXTENTS, FALSE);
+#endif // (DIRECT3D_VERSION >= 0x700)
 }
 
 /**
@@ -941,7 +949,7 @@ static void __cdecl BGND2_DrawTexture(RECT *rect, HWR_TEXHANDLE texSource,
 	HWR_EnableColorKey(false);
 	D3DDev->GetRenderState(AlphaBlendEnabler, &alphaState);
 	D3DDev->SetRenderState(AlphaBlendEnabler, TRUE);
-	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3D_TLVERTEX, &vertex, 4, D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP);
+	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3D_TLVERTEX, &vertex, 4, D3D_DRAWFLAGS);
 	D3DDev->SetRenderState(AlphaBlendEnabler, alphaState);
 }
 
