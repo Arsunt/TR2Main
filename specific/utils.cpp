@@ -29,7 +29,7 @@ DWORD __cdecl SyncTicks(DWORD skip) {
 	do {
 		Ticks();
 		currentTicks = (DWORD)TIME_Ticks;
-	} while( currentTicks < lastTicks + skip );
+	} while( currentTicks - lastTicks < skip );
 	return currentTicks - lastTicks;
 }
 
@@ -52,15 +52,10 @@ bool __cdecl TIME_Init() {
 }
 
 DWORD __cdecl Sync() {
-	DWORD lastTicks, currentTicks;
-	LARGE_INTEGER counter;
-
-	QueryPerformanceCounter(&counter);
-	lastTicks = (DWORD)TIME_Ticks;
-	TIME_Ticks = (double)counter.QuadPart / TIME_Frequency;
-	currentTicks = (DWORD)TIME_Ticks;
-
-	return ( currentTicks > lastTicks ) ? currentTicks - lastTicks : 0;
+	DWORD lastTicks = (DWORD)TIME_Ticks;
+	Ticks();
+	DWORD currentTicks = (DWORD)TIME_Ticks;
+	return currentTicks - lastTicks;
 }
 
 LPVOID __cdecl UT_LoadResource(LPCTSTR lpName, LPCTSTR lpType) {
