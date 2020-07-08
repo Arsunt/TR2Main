@@ -1402,7 +1402,7 @@ x function is unused / included in another function
 0x00456660:	+	InitTextures
 
 	specific/utils.cpp
-0x00456680:	+	Ticks
+0x00456680:	+	UpdateTicks
 0x004566C0:	+	TIME_Init
 0x00456720:	+	Sync
 0x00456780:	+	LoadResource

@@ -27,13 +27,13 @@ DWORD __cdecl SyncTicks(DWORD skip) {
 	DWORD lastTicks = (DWORD)TIME_Ticks;
 	DWORD currentTicks = lastTicks;
 	do {
-		Ticks();
+		UpdateTicks();
 		currentTicks = (DWORD)TIME_Ticks;
 	} while( currentTicks - lastTicks < skip );
 	return currentTicks - lastTicks;
 }
 
-void __cdecl Ticks() {
+void __cdecl UpdateTicks() {
 	LARGE_INTEGER counter;
 
 	QueryPerformanceCounter(&counter);
@@ -47,13 +47,13 @@ bool __cdecl TIME_Init() {
 		return false;
 
 	TIME_Frequency = (double)frequency.QuadPart / (double)TICKS_PER_SECOND;
-	Ticks();
+	UpdateTicks();
 	return true;
 }
 
 DWORD __cdecl Sync() {
 	DWORD lastTicks = (DWORD)TIME_Ticks;
-	Ticks();
+	UpdateTicks();
 	DWORD currentTicks = (DWORD)TIME_Ticks;
 	return currentTicks - lastTicks;
 }
@@ -165,7 +165,7 @@ void __cdecl UT_MemBlt(BYTE *dstBuf, DWORD dstX, DWORD dstY, DWORD width, DWORD 
  * Inject function
  */
 void Inject_Utils() {
-	INJECT(0x00456680, Ticks);
+	INJECT(0x00456680, UpdateTicks);
 	INJECT(0x004566C0, TIME_Init);
 	INJECT(0x00456720, Sync);
 	INJECT(0x00456780, UT_LoadResource);
