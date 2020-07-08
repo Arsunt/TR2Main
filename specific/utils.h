@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -27,6 +27,7 @@
 /*
  * Function list
  */
+void __cdecl SyncTicks(DWORD skip); // NOTE: this function is not presented in the original game
 void __cdecl Ticks(); // 0x00456680
 bool __cdecl TIME_Init(); // 0x004566C0
 DWORD __cdecl Sync(); // 0x00456720

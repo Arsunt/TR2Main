@@ -152,13 +152,9 @@ void __cdecl S_InitialisePolyList(BOOL clearBackBuffer) {
 }
 
 DWORD __cdecl S_DumpScreen() {
-	DWORD ticks = Sync();
-	while( ticks < TICKS_PER_FRAME ) {
-		while( !Sync() ) /* just wait for new frame */;
-		ticks++;
-	}
+	SyncTicks(TICKS_PER_FRAME); // NOTE: there was another code in the original game
 	ScreenPartialDump();
-	return ticks;
+	return TICKS_PER_FRAME;
 }
 
 void __cdecl S_ClearScreen() {
