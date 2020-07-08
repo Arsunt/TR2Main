@@ -46,8 +46,10 @@ void __cdecl LaraControl(__int16 itemID) {
 			LaraCheatGetStuff();
 			item->hitPoints = 1000;
 		}
-		// Enable dozy cheat (flying with full health)
-		if( !Lara.extra_anim && Lara.water_status != LWS_Cheat && CHK_ANY(InputStatus, IN_DOZYCHEAT) ) {
+		// Enable dozy cheat (flying with full health). It is allowed for boat, but not for skidoo
+		if( !Lara.extra_anim && (Lara.skidoo < 0 || Items[Lara.skidoo].objectID == ID_BOAT)
+			&& Lara.water_status != LWS_Cheat && CHK_ANY(InputStatus, IN_DOZYCHEAT) )
+		{
 			if( Lara.water_status != LWS_Underwater || item->hitPoints <= 0 ) {
 				item->pos.y -= 0x80;
 				item->animNumber = 87;
