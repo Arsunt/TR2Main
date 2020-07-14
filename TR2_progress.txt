@@ -221,7 +221,7 @@ x function is unused / included in another function
 0x004150D0:		RefreshCamera
 0x004151C0:		TestTriggers
 0x004158A0:		TriggerActive
-0x00415900:		GetCeiling
+0x00415900:	 *	GetCeiling
 0x00415B60:		GetDoor
 0x00415BB0:		LOS
 0x00415C50:		zLOS
@@ -627,8 +627,8 @@ x function is unused / included in another function
 0x0042BF70:		FireM16
 0x0042BFF0:		FireHarpoon
 0x0042C180:		ControlHarpoonBolt
-0x0042C4D0:		FireRocket
-0x0042C5C0:		ControlRocket
+0x0042C4D0:	+	FireRocket
+0x0042C5C0:	+	ControlRocket
 0x0042C9D0:		draw_shotgun
 0x0042CB40:		undraw_shotgun
 0x0042CC50:		AnimateShotgun
@@ -672,7 +672,7 @@ x function is unused / included in another function
 0x0042F1F0:		find_target_point
 0x0042F2A0:		AimWeapon
 0x0042F370:		FireWeapon
-0x0042F6E0:		HitTarget
+0x0042F6E0:	 *	HitTarget
 0x0042F780:		SmashItem
 0x0042F7E0:		WeaponObject
 
@@ -775,7 +775,7 @@ x function is unused / included in another function
 0x00434CC0:		BigBowlControl
 0x00434DB0:		BellControl
 0x00434E30:		InitialiseWindow
-0x00434EB0:		SmashWindow
+0x00434EB0:	 *	SmashWindow
 0x00434F80:		WindowControl
 0x00435020:		SmashIceControl
 0x00435100:		ShutThatDoor

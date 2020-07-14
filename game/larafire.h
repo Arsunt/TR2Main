@@ -37,7 +37,9 @@
 //	0x0042F1F0:		find_target_point
 //	0x0042F2A0:		AimWeapon
 //	0x0042F370:		FireWeapon
-//	0x0042F6E0:		HitTarget
+
+#define HitTarget ((void(__cdecl*)(ITEM_INFO*,GAME_VECTOR*,int)) 0x0042F6E0)
+
 //	0x0042F780:		SmashItem
 //	0x0042F7E0:		WeaponObject
 

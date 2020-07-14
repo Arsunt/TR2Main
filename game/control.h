@@ -41,7 +41,9 @@ int __cdecl ControlPhase(int nFrames, BOOL demoMode);
 // 0x004150D0:		RefreshCamera
 // 0x004151C0:		TestTriggers
 // 0x004158A0:		TriggerActive
-// 0x00415900:		GetCeiling
+
+#define GetCeiling ((int(__cdecl*)(FLOOR_INFO*,int,int,int)) 0x00415900)
+
 // 0x00415B60:		GetDoor
 // 0x00415BB0:		LOS
 // 0x00415C50:		zLOS

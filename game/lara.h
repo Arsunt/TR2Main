@@ -179,8 +179,8 @@ void __cdecl lara_col_jumper(ITEM_INFO *item, COLL_INFO *coll); // 0x0042A040
 // 0x0042B4A0:		LaraFloorFront
 
 #define LaraLandedBad ((bool (__cdecl*)(ITEM_INFO *item, COLL_INFO *coll)) 0x0042B520)
+#define GetLaraJointAbsPosition ((void(__cdecl*)(PHD_VECTOR*,int)) 0x0042B5E0)
 
-// 0x0042B5E0:		GetLaraJointAbsPosition
 // 0x0042B970:		GetLJAInt
 
 #endif // LARA_H_INCLUDED
