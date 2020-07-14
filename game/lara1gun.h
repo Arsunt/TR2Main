@@ -35,8 +35,10 @@
 //	0x0042BF70:		FireM16
 //	0x0042BFF0:		FireHarpoon
 //	0x0042C180:		ControlHarpoonBolt
-//	0x0042C4D0:		FireRocket
-//	0x0042C5C0:		ControlRocket
+
+void __cdecl FireRocket(); // 0x0042C4D0
+void __cdecl ControlRocket(__int16 itemID); // 0x0042C5C0
+
 //	0x0042C9D0:		draw_shotgun
 //	0x0042CB40:		undraw_shotgun
 //	0x0042CC50:		AnimateShotgun
