@@ -81,6 +81,29 @@ static D3DCOLOR shadeColor(DWORD red, DWORD green, DWORD blue, DWORD alpha, DWOR
 	return RGBA_MAKE(red, green, blue, alpha);
 }
 
+static double CalculatePolyZ(SORTTYPE sortType, double z0, double z1, double z2, double z3 = -1.0) {
+	double zv = 0.0;
+
+	switch( sortType ) {
+		case ST_AvgZ :
+			zv = ( z3 > 0.0 ) ? (z0+z1+z2+z3)/4.0 : (z0+z1+z2)/3.0;
+			break;
+
+		case ST_MaxZ :
+			zv = z0;
+			CLAMPL(zv, z1);
+			CLAMPL(zv, z2);
+			if( z3 > 0.0 ) CLAMPL(zv, z3);
+			break;
+
+		case ST_FarZ :
+		default :
+			zv = 1000000000.0;
+			break;
+	}
+	return zv;
+}
+
 #ifdef FEATURE_VIDEOFX_IMPROVED
 static POLYTYPE GetPolyType(UINT16 drawtype) {
 	switch( drawtype ) {
@@ -347,24 +370,7 @@ __int16 *__cdecl InsertObjectGT4(__int16 *ptrObj, int number, SORTTYPE sortType)
 				continue;
 
 			if( clipOR == 0 ) {
-				switch( sortType ) {
-					case ST_AvgZ :
-						zv = (vtx0->zv + vtx1->zv + vtx2->zv + vtx3->zv) / 4.0;
-						break;
-
-					case ST_MaxZ :
-						zv = vtx0->zv;
-						CLAMPL(zv, vtx1->zv);
-						CLAMPL(zv, vtx2->zv);
-						CLAMPL(zv, vtx3->zv);
-						break;
-
-					case ST_FarZ :
-					default :
-						zv = FAR_Z_DISTANCE;
-						break;
-				}
-
+				zv = CalculatePolyZ(sortType, vtx0->zv, vtx1->zv, vtx2->zv, vtx3->zv);
 				Sort3dPtr->_0 = (DWORD)Info3dPtr;
 				Sort3dPtr->_1 = (DWORD)zv;
 				++Sort3dPtr;
@@ -525,24 +531,7 @@ __int16 *__cdecl InsertObjectGT4(__int16 *ptrObj, int number, SORTTYPE sortType)
 		nPoints = XYGUVClipper(nPoints, VBuffer);
 		if( nPoints == 0 ) continue;
 
-		switch( sortType ) {
-			case ST_AvgZ :
-				zv = (vtx0->zv + vtx1->zv + vtx2->zv + vtx3->zv) / 4.0;
-				break;
-
-			case ST_MaxZ :
-				zv = vtx0->zv;
-				CLAMPL(zv, vtx1->zv);
-				CLAMPL(zv, vtx2->zv);
-				CLAMPL(zv, vtx3->zv);
-				break;
-
-			case ST_FarZ :
-			default :
-				zv = FAR_Z_DISTANCE;
-				break;
-		}
-
+		zv = CalculatePolyZ(sortType, vtx0->zv, vtx1->zv, vtx2->zv, vtx3->zv);
 		Sort3dPtr->_0 = (DWORD)Info3dPtr;
 		Sort3dPtr->_1 = (DWORD)zv;
 		++Sort3dPtr;
@@ -612,23 +601,7 @@ __int16 *__cdecl InsertObjectGT3(__int16 *ptrObj, int number, SORTTYPE sortType)
 				continue;
 
 			if( clipOR == 0 ) {
-				switch( sortType ) {
-					case ST_AvgZ :
-						zv = (vtx0->zv + vtx1->zv + vtx2->zv) / 3.0;
-						break;
-
-					case ST_MaxZ :
-						zv = vtx0->zv;
-						CLAMPL(zv, vtx1->zv);
-						CLAMPL(zv, vtx2->zv);
-						break;
-
-					case ST_FarZ :
-					default :
-						zv = FAR_Z_DISTANCE;
-						break;
-				}
-
+				zv = CalculatePolyZ(sortType, vtx0->zv, vtx1->zv, vtx2->zv);
 				Sort3dPtr->_0 = (DWORD)Info3dPtr;
 				Sort3dPtr->_1 = (DWORD)zv;
 				++Sort3dPtr;
@@ -756,23 +729,7 @@ __int16 *__cdecl InsertObjectGT3(__int16 *ptrObj, int number, SORTTYPE sortType)
 		nPoints = XYGUVClipper(nPoints, VBuffer);
 		if( nPoints == 0 ) continue;
 
-		switch( sortType ) {
-			case ST_AvgZ :
-				zv = (vtx0->zv + vtx1->zv + vtx2->zv) / 3.0;
-				break;
-
-			case ST_MaxZ :
-				zv = vtx0->zv;
-				CLAMPL(zv, vtx1->zv);
-				CLAMPL(zv, vtx2->zv);
-				break;
-
-			case ST_FarZ :
-			default :
-				zv = FAR_Z_DISTANCE;
-				break;
-		}
-
+		zv = CalculatePolyZ(sortType, vtx0->zv, vtx1->zv, vtx2->zv);
 		Sort3dPtr->_0 = (DWORD)Info3dPtr;
 		Sort3dPtr->_1 = (DWORD)zv;
 		++Sort3dPtr;
@@ -1010,25 +967,7 @@ __int16 *__cdecl InsertObjectG4(__int16 *ptrObj, int number, SORTTYPE sortType) 
 		if( nPoints == 0 )
 			continue;
 
-		// NOTE: in the original code the switch had ST_AvgZ and ST_FarZ cases only. This was bug
-		switch( sortType ) {
-			case ST_AvgZ :
-				zv = (vtx0->zv + vtx1->zv + vtx2->zv + vtx3->zv) / 4.0;
-				break;
-
-			case ST_MaxZ :
-				zv = vtx0->zv;
-				CLAMPL(zv, vtx1->zv);
-				CLAMPL(zv, vtx2->zv);
-				CLAMPL(zv, vtx3->zv);
-				break;
-
-			case ST_FarZ :
-			default :
-				zv = FAR_Z_DISTANCE;
-				break;
-		}
-
+		zv = CalculatePolyZ(sortType, vtx0->zv, vtx1->zv, vtx2->zv, vtx3->zv);
 		Sort3dPtr->_0 = (DWORD)Info3dPtr;
 		Sort3dPtr->_1 = (DWORD)zv;
 		++Sort3dPtr;
@@ -1128,24 +1067,7 @@ __int16 *__cdecl InsertObjectG3(__int16 *ptrObj, int number, SORTTYPE sortType) 
 		if( nPoints == 0 )
 			continue;
 
-		// NOTE: in the original code the switch had ST_AvgZ and ST_FarZ cases only. This was bug
-		switch( sortType ) {
-			case ST_AvgZ :
-				zv = (vtx0->zv + vtx1->zv + vtx2->zv) / 3.0;
-				break;
-
-			case ST_MaxZ :
-				zv = vtx0->zv;
-				CLAMPL(zv, vtx1->zv);
-				CLAMPL(zv, vtx2->zv);
-				break;
-
-			case ST_FarZ :
-			default :
-				zv = FAR_Z_DISTANCE;
-				break;
-		}
-
+		zv = CalculatePolyZ(sortType, vtx0->zv, vtx1->zv, vtx2->zv);
 		Sort3dPtr->_0 = (DWORD)Info3dPtr;
 		Sort3dPtr->_1 = (DWORD)zv;
 		++Sort3dPtr;
@@ -1744,24 +1666,7 @@ __int16 *__cdecl InsertObjectG4_ZBuffered(__int16 *ptrObj, int number, SORTTYPE 
 			PALETTEENTRY *color = &GamePalette16[colorIdx >> 8];
 #ifdef FEATURE_VIDEOFX_IMPROVED
 			if( AlphaBlendMode && color->peFlags > 0 && color->peFlags <= 4 ) {
-				float zv;
-				switch( sortType ) {
-					case ST_AvgZ :
-						zv = (vtx0->zv + vtx1->zv + vtx2->zv + vtx3->zv) / 4.0;
-						break;
-
-					case ST_MaxZ :
-						zv = vtx0->zv;
-						CLAMPL(zv, vtx1->zv);
-						CLAMPL(zv, vtx2->zv);
-						CLAMPL(zv, vtx3->zv);
-						break;
-
-					case ST_FarZ :
-					default :
-						zv = FAR_Z_DISTANCE;
-						break;
-				}
+				float zv = CalculatePolyZ(sortType, vtx0->zv, vtx1->zv, vtx2->zv, vtx3->zv);
 				short blend[4] = {POLY_HWR_half, POLY_HWR_add, POLY_HWR_sub, POLY_HWR_qrt};
 				InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, blend[color->peFlags - 1]);
 			} else {
@@ -1878,23 +1783,7 @@ __int16 *__cdecl InsertObjectG3_ZBuffered(__int16 *ptrObj, int number, SORTTYPE 
 			PALETTEENTRY *color = &GamePalette16[colorIdx >> 8];
 #ifdef FEATURE_VIDEOFX_IMPROVED
 			if( AlphaBlendMode && color->peFlags > 0 && color->peFlags <= 4 ) {
-				float zv;
-				switch( sortType ) {
-					case ST_AvgZ :
-						zv = (vtx0->zv + vtx1->zv + vtx2->zv) / 3.0;
-						break;
-
-					case ST_MaxZ :
-						zv = vtx0->zv;
-						CLAMPL(zv, vtx1->zv);
-						CLAMPL(zv, vtx2->zv);
-						break;
-
-					case ST_FarZ :
-					default :
-						zv = FAR_Z_DISTANCE;
-						break;
-				}
+				float zv = CalculatePolyZ(sortType, vtx0->zv, vtx1->zv, vtx2->zv);
 				short blend[4] = {POLY_HWR_half, POLY_HWR_add, POLY_HWR_sub, POLY_HWR_qrt};
 				InsertPoly_Gouraud(nPoints, zv, color->peRed, color->peGreen, color->peBlue, blend[color->peFlags - 1]);
 			} else {
@@ -1999,23 +1888,7 @@ void __cdecl InsertGT3_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PH
 			return;
 
 		if( clipOR == 0 ) {
-			switch( sortType ) {
-				case ST_AvgZ :
-					zv = (vtx0->zv + vtx1->zv + vtx2->zv) / 3.0;
-					break;
-
-				case ST_MaxZ :
-					zv = vtx0->zv;
-					CLAMPL(zv, vtx1->zv);
-					CLAMPL(zv, vtx2->zv);
-					break;
-
-				case ST_FarZ :
-				default :
-					zv = FAR_Z_DISTANCE;
-					break;
-			}
-
+			zv = CalculatePolyZ(sortType, vtx0->zv, vtx1->zv, vtx2->zv);
 			Sort3dPtr->_0 = (DWORD)Info3dPtr;
 			Sort3dPtr->_1 = (DWORD)zv;
 			++Sort3dPtr;
@@ -2121,23 +1994,7 @@ void __cdecl InsertGT3_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PH
 	nPoints = XYGUVClipper(nPoints, VBuffer);
 	if( nPoints == 0 ) return;
 
-	switch( sortType ) {
-		case ST_AvgZ :
-			zv = (vtx0->zv + vtx1->zv + vtx2->zv) / 3.0;
-			break;
-
-		case ST_MaxZ :
-			zv = vtx0->zv;
-			CLAMPL(zv, vtx1->zv);
-			CLAMPL(zv, vtx2->zv);
-			break;
-
-		case ST_FarZ :
-		default :
-			zv = FAR_Z_DISTANCE;
-			break;
-	}
-
+	zv = CalculatePolyZ(sortType, vtx0->zv, vtx1->zv, vtx2->zv);
 #ifdef FEATURE_VIDEOFX_IMPROVED
 	InsertClippedPoly_Textured(nPoints, zv, GetPolyType(texture->drawtype), texture->tpage);
 #else // FEATURE_VIDEOFX_IMPROVED
@@ -2188,24 +2045,7 @@ void __cdecl InsertGT4_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PH
 		return;
 
 	if( clipOR == 0 && VBUF_VISIBLE(*vtx0, *vtx1, *vtx2) ) {
-		switch( sortType ) {
-			case ST_AvgZ :
-				zv = (vtx0->zv + vtx1->zv + vtx2->zv + vtx3->zv) / 4.0;
-				break;
-
-			case ST_MaxZ :
-				zv = vtx0->zv;
-				CLAMPL(zv, vtx1->zv);
-				CLAMPL(zv, vtx2->zv);
-				CLAMPL(zv, vtx3->zv);
-				break;
-
-			case ST_FarZ :
-			default :
-				zv = FAR_Z_DISTANCE;
-				break;
-		}
-
+		zv = CalculatePolyZ(sortType, vtx0->zv, vtx1->zv, vtx2->zv, vtx3->zv);
 		Sort3dPtr->_0 = (DWORD)Info3dPtr;
 		Sort3dPtr->_1 = (DWORD)zv;
 		++Sort3dPtr;
@@ -2408,25 +2248,7 @@ __int16 *__cdecl InsertObjectG4_Sorted(__int16 *ptrObj, int number, SORTTYPE sor
 			continue;
 
 		color = &GamePalette16[colorIdx >> 8];
-
-		switch( sortType ) {
-			case ST_AvgZ :
-				zv = (vtx0->zv + vtx1->zv + vtx2->zv + vtx3->zv) / 4.0;
-				break;
-
-			case ST_MaxZ :
-				zv = vtx0->zv;
-				CLAMPL(zv, vtx1->zv);
-				CLAMPL(zv, vtx2->zv);
-				CLAMPL(zv, vtx3->zv);
-				break;
-
-			case ST_FarZ :
-			default :
-				zv = FAR_Z_DISTANCE;
-				break;
-		}
-
+		zv = CalculatePolyZ(sortType, vtx0->zv, vtx1->zv, vtx2->zv, vtx3->zv);
 #ifdef FEATURE_VIDEOFX_IMPROVED
 		if( AlphaBlendMode && color->peFlags > 0 && color->peFlags <= 4 ) {
 			short blend[4] = {POLY_HWR_half, POLY_HWR_add, POLY_HWR_sub, POLY_HWR_qrt};
@@ -2553,24 +2375,7 @@ __int16 *__cdecl InsertObjectG3_Sorted(__int16 *ptrObj, int number, SORTTYPE sor
 			continue;
 
 		color = &GamePalette16[colorIdx >> 8];
-
-		switch( sortType ) {
-			case ST_AvgZ :
-				zv = (vtx0->zv + vtx1->zv + vtx2->zv) / 3.0;
-				break;
-
-			case ST_MaxZ :
-				zv = vtx0->zv;
-				CLAMPL(zv, vtx1->zv);
-				CLAMPL(zv, vtx2->zv);
-				break;
-
-			case ST_FarZ :
-			default :
-				zv = FAR_Z_DISTANCE;
-				break;
-		}
-
+		zv = CalculatePolyZ(sortType, vtx0->zv, vtx1->zv, vtx2->zv);
 #ifdef FEATURE_VIDEOFX_IMPROVED
 		if( AlphaBlendMode && color->peFlags > 0 && color->peFlags <= 4 ) {
 			short blend[4] = {POLY_HWR_half, POLY_HWR_add, POLY_HWR_sub, POLY_HWR_qrt};
