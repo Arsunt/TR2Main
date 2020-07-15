@@ -98,7 +98,7 @@ static double CalculatePolyZ(SORTTYPE sortType, double z0, double z1, double z2,
 
 		case ST_FarZ :
 		default :
-			zv = 1000000000.0;
+			zv = 4000000000.0; // the original game value was 1000000000.0
 			break;
 	}
 	return zv;
