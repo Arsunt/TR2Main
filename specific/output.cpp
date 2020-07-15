@@ -629,7 +629,12 @@ void __cdecl S_DrawHealthBar(int percent) {
 	IsShadeEffect = false;
 
 	if( HealthBarMode != 0 && SavedAppSettings.RenderMode == RM_Hardware ) {
-		if( SavedAppSettings.ZBuffer ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		if( SavedAppSettings.ZBuffer && SavedAppSettings.DontSortPrimitives )
+#else // FEATURE_VIDEOFX_IMPROVED
+		if( SavedAppSettings.ZBuffer )
+#endif // FEATURE_VIDEOFX_IMPROVED
+		{
 			PSX_DrawHealthBar(x0, y0, x1, y1, bar, pixel);
 		} else {
 			PSX_InsertHealthBar(x0, y0, x1, y1, bar, pixel);
@@ -702,7 +707,12 @@ void __cdecl S_DrawAirBar(int percent) {
 	IsShadeEffect = false;
 
 	if( HealthBarMode != 0 && SavedAppSettings.RenderMode == RM_Hardware ) {
-		if( SavedAppSettings.ZBuffer ) {
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		if( SavedAppSettings.ZBuffer && SavedAppSettings.DontSortPrimitives )
+#else // FEATURE_VIDEOFX_IMPROVED
+		if( SavedAppSettings.ZBuffer )
+#endif // FEATURE_VIDEOFX_IMPROVED
+		{
 			PSX_DrawAirBar(x0, y0, x1, y1, bar, pixel);
 		} else {
 			PSX_InsertAirBar(x0, y0, x1, y1, bar, pixel);
