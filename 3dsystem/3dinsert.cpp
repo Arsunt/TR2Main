@@ -2463,7 +2463,8 @@ void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spri
 		if( nPoints == 0 ) return;
 	}
 
-	IsShadeEffect = 0;
+	bool isShadeEffectBackup = IsShadeEffect;
+	IsShadeEffect = false;
 #ifdef FEATURE_VIDEOFX_IMPROVED
 	short polyType = POLY_Z_IGNORE | POLY_HWR_WGTmap;
 	if( CHK_ANY(flags, SPR_TINT) ) {
@@ -2483,6 +2484,7 @@ void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spri
 #else // FEATURE_VIDEOFX_IMPROVED
 	InsertClippedPoly_Textured(nPoints, (float)z, POLY_HWR_WGTmap, PhdSpriteInfo[spriteIdx].texPage);
 #endif // FEATURE_VIDEOFX_IMPROVED
+	IsShadeEffect = isShadeEffectBackup;
 }
 
 void __cdecl InsertFlatRect_Sorted(int x0, int y0, int x1, int y1, int z, BYTE colorIdx) {
