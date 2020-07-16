@@ -49,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SFX number limit increased from 256 to 370.
 - Z-Buffered mode is improved. Now every polygon is sorted and Z-Buffered, but sprites ignore Z-Buffer, so they're rendered properly, as if Z-Buffer was disabled.
 - The "Don't sort transparent polys"* setting from the *"Advanced"* tab has been redesigned to disable the new Z-Buffered mode, instead of just messing the transparent polys (it is recommended to keep this setting unchecked anyway).
+- Added automatic cdaudio.dat fix for PaulD's CD Audio solution, if some track has wrong parameters (like in the Steam version).
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.
