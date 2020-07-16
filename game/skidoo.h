@@ -40,7 +40,9 @@
 //	0x0043DD20:		SkidooUserControl
 //	0x0043DEE0:		SkidooCheckGetOffOK
 //	0x0043DFF0:		SkidooAnimation
-//	0x0043E2D0:		SkidooExplode
+
+void __cdecl SkidooExplode(ITEM_INFO *item); // 0x0043E2D0
+
 //	0x0043E350:		SkidooCheckGetOff
 //	0x0043E590:		SkidooGuns
 //	0x0043E6B0:		SkidooControl
