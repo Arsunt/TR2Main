@@ -102,6 +102,29 @@ bool __cdecl PaulD_CD_Init() {
 PARSE_END :
 	free(buf);
 
+	// Fix cdaudio.dat if it's broken (like the one from the Steam version)
+	for( DWORD i=0; i<ARRAY_SIZE(Tracks); ++i ) {
+		if( !Tracks[i].active ) continue;
+		if( Tracks[i].from >= Tracks[i].to && i < ARRAY_SIZE(Tracks)-1 ) {
+			// Trying to fix data using the next track
+			for( DWORD j=i+1; j<ARRAY_SIZE(Tracks); ++j ) {
+				if( Tracks[j].active ) {
+					Tracks[i].to = Tracks[j].from;
+					break;
+				}
+			}
+		}
+		if( Tracks[i].from >= Tracks[i].to && i > 0 ) {
+			// Trying to fix data using the previous track
+			for( int j=i-1; j>=0; --j ) {
+				if( Tracks[j].active ) {
+					Tracks[i].from = Tracks[j].to;
+					break;
+				}
+			}
+		}
+	}
+
 	wsprintf(cmdString, "open %s type %s alias " CD_ALIAS, audioFiles[audioType], audioTypes[audioType]);
 	rc = mciSendString(cmdString, NULL, 0, 0);
 	if( rc == 0 ) {
