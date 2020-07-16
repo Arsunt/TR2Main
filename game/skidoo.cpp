@@ -25,6 +25,8 @@
 #include "3dsystem/phd_math.h"
 #include "game/draw.h"
 #include "game/items.h"
+#include "game/missile.h"
+#include "game/sound.h"
 #include "specific/game.h"
 #include "specific/output.h"
 #include "global/vars.h"
@@ -55,6 +57,26 @@ void __cdecl DoSnowEffect(ITEM_INFO *item) {
 		fx->shade = LsAdder - 512;
 		CLAMPL(fx->shade, 0);
 	}
+}
+
+void __cdecl SkidooExplode(ITEM_INFO *item) {
+	__int16 fxID;
+	FX_INFO *fx;
+
+	fxID = CreateEffect(item->roomNumber);
+	if (fxID != -1) {
+		fx = &Effects[fxID];
+		fx->pos.x = item->pos.x;
+		fx->pos.y = item->pos.y;
+		fx->pos.z = item->pos.z;
+		fx->speed = 0;
+		fx->frame_number = 0;
+		fx->counter = 0;
+		fx->object_number = ID_EXPLOSION;
+	}
+	ExplodingDeath(Lara.skidoo, ~3, 0);
+	PlaySoundEffect(105, NULL, 0);
+	Lara.skidoo = -1;
 }
 
 void __cdecl DrawSkidoo(ITEM_INFO *item) {
@@ -200,7 +222,9 @@ void Inject_Skidoo() {
 //	INJECT(0x0043DD20, SkidooUserControl);
 //	INJECT(0x0043DEE0, SkidooCheckGetOffOK);
 //	INJECT(0x0043DFF0, SkidooAnimation);
-//	INJECT(0x0043E2D0, SkidooExplode);
+
+	INJECT(0x0043E2D0, SkidooExplode);
+
 //	INJECT(0x0043E350, SkidooCheckGetOff);
 //	INJECT(0x0043E590, SkidooGuns);
 //	INJECT(0x0043E6B0, SkidooControl);
