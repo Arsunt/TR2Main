@@ -339,7 +339,7 @@ BOOL __cdecl LoadRooms(HANDLE hFile) {
 		RoomInfo[i].boundLeft = PhdWinMaxX;
 		RoomInfo[i].boundTop = PhdWinMaxY;
 		RoomInfo[i].boundRight = 0;
-		RoomInfo[i].boundBotom = 0;
+		RoomInfo[i].boundBottom = 0;
 		RoomInfo[i].itemNumber = -1;
 		RoomInfo[i].fxNumber = -1;
 	}

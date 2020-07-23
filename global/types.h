@@ -1780,7 +1780,7 @@ typedef struct RoomInfo_t {
 	__int16 boundLeft;
 	__int16 boundRight;
 	__int16 boundTop;
-	__int16 boundBotom;
+	__int16 boundBottom;
 	__int16 boundActive;
 	__int16 left;
 	__int16 right;
