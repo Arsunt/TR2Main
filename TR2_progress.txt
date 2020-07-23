@@ -264,10 +264,10 @@ x function is unused / included in another function
 0x00418920:	 *	DrawPhaseCinematic
 0x00418960:	 *	DrawPhaseGame
 0x004189A0:	+	DrawRooms
-0x00418C50:	 *	GetRoomBounds
-0x00418E20:	 *	SetRoomBounds
-0x004191A0:	 *	ClipRoom
-0x00419580:	 *	PrintRooms
+0x00418C50:	+	GetRoomBounds
+0x00418E20:	+	SetRoomBounds
+0x004191A0:	+	ClipRoom
+0x00419580:	+	PrintRooms
 0x00419640:	 *	PrintObjects
 0x00419870:	+	DrawEffect
 0x004199C0:	+	DrawSpriteItem

@@ -166,6 +166,301 @@ void __cdecl DrawEffect(__int16 fx_id) {
 	}
 }
 
+void __cdecl GetRoomBounds() {
+	while( BoundStart != BoundEnd ) {
+		int roomNumber = BoundRooms[BoundStart++ % ARRAY_SIZE(BoundRooms)];
+		ROOM_INFO *room = &RoomInfo[roomNumber];
+		room->boundActive -= 2;
+		MidSort = (room->boundActive >> 8) + 1;
+
+		CLAMPG(room->boundLeft, room->left)
+		CLAMPG(room->boundTop, room->top)
+		CLAMPL(room->boundRight, room->right)
+		CLAMPL(room->boundBottom, room->bottom)
+
+		if( !CHK_ANY(room->boundActive, 1) ) {
+			DrawRoomsArray[DrawRoomsCount++] = roomNumber;
+			room->boundActive |= 1;
+			if( CHK_ANY(room->flags, ROOM_OUTSIDE) ) {
+				OutsideCamera = ROOM_OUTSIDE;
+			}
+		}
+
+		if( !CHK_ANY(room->flags, ROOM_INSIDE) ) {
+			CLAMPG(OutsideLeft, room->boundLeft)
+			CLAMPG(OutsideTop, room->boundTop)
+			CLAMPL(OutsideRight, room->boundRight)
+			CLAMPL(OutsideBottom, room->boundBottom)
+		}
+
+		phd_PushMatrix();
+		phd_TranslateAbs(room->x, room->y, room->z);
+
+		for( int i = 0; i < room->doors->wCount; ++i ) {
+			DOOR_INFO *door = &room->doors->door[i];
+			if( door->x * (room->x + door->vertex[0].x - MatrixW2V._03)
+				+ door->y * (room->y + door->vertex[0].y - MatrixW2V._13)
+				+ door->z * (room->z + door->vertex[0].z - MatrixW2V._23) < 0 )
+			{
+				SetRoomBounds((__int16 *)&door->x, door->room, room);
+			}
+		}
+		phd_PopMatrix();
+	}
+}
+
+void __cdecl SetRoomBounds(__int16 *ptrObj, int roomNumber, ROOM_INFO *parent) {
+	ROOM_INFO *room = &RoomInfo[roomNumber];
+	if( room->boundLeft <= parent->left
+		&& room->boundRight >= parent->right
+		&& room->boundTop <= parent->top
+		&& room->boundBottom >= parent->bottom )
+	{
+		return;
+	}
+
+	PHD_VECTOR door[4];
+	int left = parent->right;
+	int right = parent->left;
+	int top = parent->bottom;
+	int bottom = parent->top;
+	int tooFar = 0;
+	int tooNear = 0;
+
+	for( int i=0; i<4; ++i ) {
+		ptrObj += 3;
+		PHD_MATRIX *m = PhdMatrixPtr;
+		int x = door[i].x = ptrObj[0] * m->_00 + ptrObj[1] * m->_01 + ptrObj[2] * m->_02 + m->_03;
+		int y = door[i].y = ptrObj[0] * m->_10 + ptrObj[1] * m->_11 + ptrObj[2] * m->_12 + m->_13;
+		int z = door[i].z = ptrObj[0] * m->_20 + ptrObj[1] * m->_21 + ptrObj[2] * m->_22 + m->_23;
+		if( z <= 0 ) {
+			++tooNear;
+			continue;
+		}
+		if( z > PhdFarZ ) {
+			++tooFar;
+		}
+		z /= PhdPersp;
+		if( z ) {
+			x = PhdWinCenterX + x / z;
+			y = PhdWinCenterY + y / z;
+		} else {
+			x = ( x < 0 ) ? PhdWinLeft : PhdWinRight;
+			y = ( y < 0 ) ? PhdWinTop : PhdWinBottom;
+		}
+		CLAMPG(left, x - 1);
+		CLAMPG(top, y - 1);
+		CLAMPL(right, x + 1);
+		CLAMPL(bottom, y + 1);
+	}
+
+	if( tooNear == 4 || tooFar == 4 ) {
+		return;
+	}
+
+	if( tooNear > 0 ) {
+		for( int i=0; i<4; ++i ) {
+			int j=(i+3)%4;
+			if( (door[i].z < 0) == (door[j].z < 0) ) {
+				continue;
+			}
+			if( door[i].x <= 0 || door[j].x <= 0 ) {
+				left = 0;
+			}
+			if( door[i].x >= 0 || door[j].x >= 0 ) {
+				right = PhdWinMaxX;
+			}
+			if( door[i].y <= 0 || door[j].y <= 0 ) {
+				top = 0;
+			}
+			if( door[i].y >= 0 || door[j].y >= 0 ) {
+				bottom = PhdWinMaxY;
+			}
+		}
+	}
+
+	CLAMPL(left, parent->left);
+	CLAMPL(top, parent->top);
+	CLAMPG(right, parent->right);
+	CLAMPG(bottom, parent->bottom);
+
+	if( left >= right || top >= bottom ) {
+		return;
+	}
+
+	if( CHK_ANY(room->boundActive, 2) ) {
+		CLAMPG(room->left, left);
+		CLAMPG(room->top, top);
+		CLAMPL(room->right, right);
+		CLAMPL(room->bottom, bottom);
+	} else {
+		BoundRooms[BoundEnd++ % ARRAY_SIZE(BoundRooms)] = roomNumber;
+		room->boundActive |= 2;
+		room->boundActive += MidSort << 8;
+		room->left = left;
+		room->right = right;
+		room->top = top;
+		room->bottom = bottom;
+	}
+}
+
+void __cdecl ClipRoom(ROOM_INFO *room) {
+	static const int p[12][2] = {
+		{0, 1}, {1, 2}, {2, 3}, {3, 0},
+		{4, 5}, {5, 6}, {6, 7}, {7, 4},
+		{0, 4}, {1, 5}, {2, 6}, {3, 7},
+	};
+	int xv[8], yv[8], zv[8], clip[8];
+	int xMin, yMin, xMax, yMax;
+	int clipRoom = 0;
+
+	xv[0] = xv[3] = xv[4] = xv[7] = 0x400;
+	yv[0] = yv[1] = yv[2] = yv[3] = room->maxCeiling - room->y;
+	zv[0] = zv[1] = zv[4] = zv[5] = 0x400;
+
+	xv[1] = xv[2] = xv[5] = xv[6] = (room->ySize - 1) * 0x400;
+	yv[4] = yv[5] = yv[6] = yv[7] = room->minFloor - room->y;
+	zv[2] = zv[3] = zv[6] = zv[7] = (room->xSize - 1) * 0x400;
+
+	for( int i=0; i<8; ++i ) {
+		PHD_MATRIX *m = PhdMatrixPtr;
+		int x = xv[i];
+		int y = yv[i];
+		int z = zv[i];
+		xv[i] = (x * m->_00) + (y * m->_01) + (z * m->_02) + m->_03;
+		yv[i] = (x * m->_10) + (y * m->_11) + (z * m->_12) + m->_13;
+		zv[i] = (x * m->_20) + (y * m->_21) + (z * m->_22) + m->_23;
+		if( zv[i] > PhdFarZ ) {
+			clip[i] = 1;
+			clipRoom = 1;
+		} else {
+			clip[i] = 0;
+		}
+	}
+	if( !clipRoom ) {
+		return;
+	}
+
+	xMin = yMin = 0x10000000;
+	xMax = yMax = -0x10000000;
+	for( int i=0; i<12; ++i ) {
+		int p1 = p[i][0];
+		int p2 = p[i][1];
+		if( clip[p1] ^ clip[p2] ) {
+			int zDiv = (zv[p2] - zv[p1]) >> W2V_SHIFT;
+			if( zDiv ) {
+				int zNom = (PhdFarZ - zv[p1]) >> W2V_SHIFT;
+				int x = xv[p1] + ((((xv[p2] - xv[p1]) >> W2V_SHIFT) * zNom / zDiv) << W2V_SHIFT);
+				int y = yv[p1] + ((((yv[p2] - yv[p1]) >> W2V_SHIFT) * zNom / zDiv) << W2V_SHIFT);
+				CLAMPG(xMin, x);
+				CLAMPG(yMin, y);
+				CLAMPL(xMax, x);
+				CLAMPL(yMax, y);
+			} else {
+				CLAMPG(xMin, xv[p1]);
+				CLAMPG(xMin, xv[p2]);
+				CLAMPG(yMin, yv[p1]);
+				CLAMPG(yMin, yv[p2]);
+				CLAMPL(xMax, xv[p1]);
+				CLAMPL(xMax, xv[p2]);
+				CLAMPL(yMax, yv[p1]);
+				CLAMPL(yMax, yv[p2]);
+			}
+		}
+	}
+	xMin = PhdWinCenterX + xMin / (PhdFarZ / PhdPersp);
+	yMin = PhdWinCenterY + yMin / (PhdFarZ / PhdPersp);
+	xMax = PhdWinCenterX + xMax / (PhdFarZ / PhdPersp);
+	yMax = PhdWinCenterY + yMax / (PhdFarZ / PhdPersp);
+	if( xMin <= PhdWinRight && yMin <= PhdWinBottom && xMax >= PhdWinLeft && yMax >= PhdWinTop ) {
+		CLAMPL(xMin, PhdWinLeft);
+		CLAMPL(yMin, PhdWinTop);
+		CLAMPG(xMax, PhdWinRight);
+		CLAMPG(yMax, PhdWinBottom);
+		S_InsertBackPolygon(xMin, yMin, xMax, yMax);
+	}
+}
+
+void __cdecl PrintRooms(__int16 roomNumber) {
+	ROOM_INFO *room = &RoomInfo[roomNumber];
+	if( CHK_ANY(room->flags, ROOM_UNDERWATER) ) {
+		S_SetupBelowWater(UnderwaterCamera);
+	} else {
+		S_SetupAboveWater(UnderwaterCamera);
+	}
+	MidSort = room->boundActive >> 8;
+	phd_TranslateAbs(room->x, room->y, room->z);
+	PhdWinLeft = room->boundLeft;
+	PhdWinRight = room->boundRight;
+	PhdWinTop = room->boundTop;
+	PhdWinBottom = room->boundBottom;
+	S_LightRoom(room);
+	if( OutsideCamera > 0 && !CHK_ANY(room->flags, ROOM_INSIDE) ) {
+		S_InsertRoom(room->data, 1);
+	} else {
+		if( OutsideCamera >= 0 ) {
+			ClipRoom(room);
+		}
+		S_InsertRoom(room->data, 0);
+	}
+}
+
+void __cdecl PrintObjects(__int16 roomNumber) {
+	ROOM_INFO *room = &RoomInfo[roomNumber];
+	if( CHK_ANY(room->flags, ROOM_UNDERWATER) ) {
+		S_SetupBelowWater(UnderwaterCamera);
+	} else {
+		S_SetupAboveWater(UnderwaterCamera);
+	}
+
+	MidSort = room->boundActive >> 8;
+	room->boundActive = 0;
+
+	phd_PushMatrix();
+	phd_TranslateAbs(room->x, room->y, room->z);
+	PhdWinLeft = room->boundLeft;
+	PhdWinTop = room->boundTop;
+	PhdWinRight = room->boundRight;
+	PhdWinBottom = room->boundBottom;
+
+	MESH_INFO *mesh = room->mesh;
+	for( int i = 0; i < room->numMeshes; ++i ) {
+		if( !CHK_ANY(StaticObjects[mesh[i].staticNumber].flags, 2) ) {
+			continue;
+		}
+		phd_PushMatrix();
+		phd_TranslateAbs(mesh[i].x, mesh[i].y, mesh[i].z);
+		phd_RotY(mesh[i].yRot);
+		__int16 clip = S_GetObjectBounds((__int16 *)&StaticObjects[mesh[i].staticNumber].drawBounds);
+		if( clip ) {
+			S_CalculateStaticMeshLight(mesh[i].x, mesh[i].y, mesh[i].z, mesh[i].shade1, mesh[i].shade2, room);
+			phd_PutPolygons(MeshPtr[StaticObjects[mesh[i].staticNumber].meshIndex], clip);
+		}
+		phd_PopMatrix();
+	}
+
+	PhdWinLeft = 0;
+	PhdWinTop = 0;
+	PhdWinRight = PhdWinMaxX + 1;
+	PhdWinBottom = PhdWinMaxY + 1;
+
+	for( __int16 id = room->itemNumber; id >= 0; id = Items[id].nextItem ) {
+		if( Items[id].status != ITEM_INVISIBLE ) {
+			Objects[Items[id].objectID].drawRoutine(&Items[id]);
+		}
+	}
+
+	for( __int16 id = room->fxNumber; id >= 0; id = Effects[id].next_fx ) {
+		DrawEffect(id);
+	}
+
+	phd_PopMatrix();
+	room->boundLeft = PhdWinMaxX;
+	room->boundTop = PhdWinMaxY;
+	room->boundRight = 0;
+	room->boundBottom = 0;
+}
+
 void __cdecl DrawSpriteItem(ITEM_INFO *item) {
 	OBJECT_INFO *obj;
 
@@ -658,15 +953,14 @@ void Inject_Draw() {
 //	INJECT(0x00418960, DrawPhaseGame);
 
 	INJECT(0x004189A0, DrawRooms);
-
-//	INJECT(0x00418C50, GetRoomBounds);
-//	INJECT(0x00418E20, SetRoomBounds);
-//	INJECT(0x004191A0, ClipRoom);
-//	INJECT(0x00419580, PrintRooms);
-//	INJECT(0x00419640, PrintObjects);
-
-//	INJECT(0x00419870, DrawEffect);
+	INJECT(0x00418C50, GetRoomBounds);
+	INJECT(0x00418E20, SetRoomBounds);
+	INJECT(0x004191A0, ClipRoom);
+	INJECT(0x00419580, PrintRooms);
+	INJECT(0x00419640, PrintObjects);
+	INJECT(0x00419870, DrawEffect);
 	INJECT(0x004199C0, DrawSpriteItem);
+
 //	INJECT(----------, DrawDummyItem);
 	INJECT(0x00419A50, DrawAnimatingItem);
 

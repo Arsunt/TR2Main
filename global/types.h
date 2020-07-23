@@ -206,6 +206,7 @@ typedef struct {
 // Room flags
 #define ROOM_UNDERWATER		(0x01)
 #define ROOM_OUTSIDE		(0x08)
+#define ROOM_INSIDE			(0x40)
 
 // SFX flags
 #define SFX_UNDERWATER		(1)
