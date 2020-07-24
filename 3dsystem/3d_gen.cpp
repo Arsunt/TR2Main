@@ -41,9 +41,12 @@ static void (__cdecl *PolyDrawRoutines[])(__int16 *) = {
 	draw_scaled_spriteC		// scaled sprite (texture + colorkey)
 };
 
-#ifdef FEATURE_EXTENDED_LIMITS
+#if defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_VIEW_IMPROVED)
 SORT_ITEM SortBuffer[16000];
 __int16 Info3dBuffer[480000];
+#endif // defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_VIEW_IMPROVED)
+
+#ifdef FEATURE_EXTENDED_LIMITS
 D3DTLVERTEX HWR_VertexBuffer[0x8000];
 #endif // FEATURE_EXTENDED_LIMITS
 
@@ -578,6 +581,9 @@ void __cdecl S_InsertBackground(__int16 *ptrObj) {
 	}
 	ptrObj = calc_background_light(ptrObj);
 
+#ifdef FEATURE_VIEW_IMPROVED
+	MidSort = 0xFFFF;
+#endif // FEATURE_VIEW_IMPROVED
 	if( SavedAppSettings.RenderMode == RM_Hardware ) {
 		HWR_EnableZBuffer(false, false);
 	}
@@ -603,6 +609,9 @@ void __cdecl S_InsertBackground(__int16 *ptrObj) {
 	if( SavedAppSettings.RenderMode == RM_Hardware ) {
 		HWR_EnableZBuffer(true, true);
 	}
+#ifdef FEATURE_VIEW_IMPROVED
+	MidSort = 0;
+#endif // FEATURE_VIEW_IMPROVED
 }
 
 void __cdecl S_InsertInvBgnd(__int16 *ptrObj) {
@@ -616,11 +625,12 @@ __int16 *__cdecl calc_object_vertices(__int16 *ptrObj) {
 	int vtxCount;
 	BYTE totalClip, clipFlags;
 
-#ifdef FEATURE_VIEW_IMPROVED
-	baseZ = 0.0; // NOTE: there is more harm than good from the MidSort variable
-#else // !FEATURE_VIEW_IMPROVED
-	baseZ = SavedAppSettings.ZBuffer ? 0.0 : (double)(MidSort << (W2V_SHIFT + 8));
-#endif // FEATURE_VIEW_IMPROVED
+	baseZ = 0.0;
+#ifndef FEATURE_VIEW_IMPROVED
+	if( SavedAppSettings.RenderMode == RM_Software || !SavedAppSettings.ZBuffer ) {
+		baseZ = (double)(MidSort << (W2V_SHIFT + 8));
+	}
+#endif // !FEATURE_VIEW_IMPROVED
 
 	totalClip = 0xFF;
 
@@ -733,11 +743,12 @@ __int16 *__cdecl calc_roomvert(__int16 *ptrObj, BYTE farClip) {
 	double xv, yv, zv, persp, baseZ, depth;
 	int vtxCount, zv_int;
 
-#ifdef FEATURE_VIEW_IMPROVED
-	baseZ = 0.0; // NOTE: there is more harm than good from the MidSort variable
-#else // !FEATURE_VIEW_IMPROVED
-	baseZ = SavedAppSettings.ZBuffer ? 0.0 : (double)(MidSort << (W2V_SHIFT + 8));
-#endif // FEATURE_VIEW_IMPROVED
+	baseZ = 0.0;
+#ifndef FEATURE_VIEW_IMPROVED
+	if( SavedAppSettings.RenderMode == RM_Software || !SavedAppSettings.ZBuffer ) {
+		baseZ = (double)(MidSort << (W2V_SHIFT + 8));
+	}
+#endif // !FEATURE_VIEW_IMPROVED
 
 	vtxCount = *(ptrObj++);
 
@@ -855,6 +866,9 @@ void __cdecl phd_InitPolyList() {
 void __cdecl phd_SortPolyList() {
 	if( SurfaceCount ) {
 		for( DWORD i=0; i<SurfaceCount; ++i ) {
+#ifdef FEATURE_VIEW_IMPROVED
+			SortBuffer[i]._1 <<= 16;
+#endif // FEATURE_VIEW_IMPROVED
 			SortBuffer[i]._1 += i;
 		}
 		do_quickysorty(0, SurfaceCount-1);
@@ -862,10 +876,15 @@ void __cdecl phd_SortPolyList() {
 }
 
 void __cdecl do_quickysorty(int left, int right) {
+#ifdef FEATURE_VIEW_IMPROVED
+	UINT64 swapBuf;
+	UINT64 compare = SortBuffer[(left + right) / 2]._1;
+#else // FEATURE_VIEW_IMPROVED
 	DWORD swapBuf;
+	DWORD compare = SortBuffer[(left + right) / 2]._1;
+#endif // FEATURE_VIEW_IMPROVED
 	int i = left;
 	int j = right;
-	DWORD compare = SortBuffer[(left + right) / 2]._1;
 
 	do {
 		while( (i < right) && (SortBuffer[i]._1 > compare) ) ++i;

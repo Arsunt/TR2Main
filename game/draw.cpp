@@ -131,6 +131,9 @@ void __cdecl DrawRooms(__int16 currentRoom) {
 	for( int i = 0; i < DrawRoomsCount; ++i ) {
 		PrintObjects(DrawRoomsArray[i]);
 	}
+#ifdef FEATURE_VIEW_IMPROVED
+	MidSort = 0;
+#endif // FEATURE_VIEW_IMPROVED
 }
 
 void __cdecl DrawEffect(__int16 fx_id) {
@@ -296,7 +299,13 @@ void __cdecl SetRoomBounds(__int16 *ptrObj, int roomNumber, ROOM_INFO *parent) {
 	} else {
 		BoundRooms[BoundEnd++ % ARRAY_SIZE(BoundRooms)] = roomNumber;
 		room->boundActive |= 2;
+#ifdef FEATURE_VIEW_IMPROVED
+		if( !CHK_ANY(room->boundActive, 1) ) {
+			room->boundActive += MidSort << 8;
+		}
+#else // FEATURE_VIEW_IMPROVED
 		room->boundActive += MidSort << 8;
+#endif // FEATURE_VIEW_IMPROVED
 		room->left = left;
 		room->right = right;
 		room->top = top;
@@ -383,6 +392,11 @@ void __cdecl ClipRoom(ROOM_INFO *room) {
 
 void __cdecl PrintRooms(__int16 roomNumber) {
 	ROOM_INFO *room = &RoomInfo[roomNumber];
+#ifdef FEATURE_VIEW_IMPROVED
+	if( !CHK_ANY(room->boundActive, 3) ) {
+		return;
+	}
+#endif // FEATURE_VIEW_IMPROVED
 	if( CHK_ANY(room->flags, ROOM_UNDERWATER) ) {
 		S_SetupBelowWater(UnderwaterCamera);
 	} else {
@@ -403,6 +417,9 @@ void __cdecl PrintRooms(__int16 roomNumber) {
 		}
 		S_InsertRoom(room->data, 0);
 	}
+#ifdef FEATURE_VIEW_IMPROVED
+	room->boundActive &= ~3;
+#endif // FEATURE_VIEW_IMPROVED
 }
 
 void __cdecl PrintObjects(__int16 roomNumber) {

@@ -1090,8 +1090,13 @@ typedef enum {
 // but it's more important to have wider range
 // since negative numbers are not used anyway
 typedef struct SortItem_t {
+#ifdef FEATURE_VIEW_IMPROVED
+	UINT64 _0;
+	UINT64 _1;
+#else // FEATURE_VIEW_IMPROVED
 	DWORD _0;
 	DWORD _1;
+#endif // FEATURE_VIEW_IMPROVED
 } SORT_ITEM;
 
 typedef struct RGB888_t {

@@ -88,7 +88,7 @@
 #define DumpWidth					VAR_I_(0x00466BE8, __int16,			50)
 #define DumpHeight					VAR_I_(0x00466BEA, __int16,			0)
 #define DetailLevel					VAR_I_(0x00467724, DWORD,			1)
-#define MidSort						VAR_I_(0x0046C2F0, int,				0)
+#define MidSort						VAR_I_(0x0046C2F0, DWORD,			0)
 #define FltViewAspect				VAR_I_(0x0046C2F4, float,			0.0)
 #define XGen_y0						VAR_I_(0x0046C2F8, int,				0)
 #define XGen_y1						VAR_I_(0x0046C2FC, int,				0)
@@ -468,13 +468,13 @@ extern DISPLAY_ADAPTER CurrentDisplayAdapter;
 // Uninitialized arrays
 #define GouraudTable				ARRAY_(0x0046C300, GOURAUD_ENTRY, [256])
 #define PhdSpriteInfo				ARRAY_(0x0046E308, PHD_SPRITE, [512])
-#ifdef FEATURE_EXTENDED_LIMITS
+#if defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_VIEW_IMPROVED)
 extern SORT_ITEM SortBuffer[16000];
 extern __int16 Info3dBuffer[480000];
-#else // FEATURE_EXTENDED_LIMITS
+#else // defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_VIEW_IMPROVED)
 #define SortBuffer					ARRAY_(0x00470338, SORT_ITEM, [4000])
 #define Info3dBuffer				ARRAY_(0x00478060, __int16, [120000])
-#endif // FEATURE_EXTENDED_LIMITS
+#endif // defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_VIEW_IMPROVED)
 #define RandomTable					ARRAY_(0x004B2A28, int, [32])
 #ifdef FEATURE_EXTENDED_LIMITS
 extern PHD_TEXTURE PhdTextureInfo[0x2000];
