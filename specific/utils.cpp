@@ -24,13 +24,14 @@
 #include "global/vars.h"
 
 DWORD __cdecl SyncTicks(DWORD skip) {
-	DWORD lastTicks = (DWORD)TIME_Ticks;
-	DWORD currentTicks = lastTicks;
+	double target = (double)skip;
+	double lastTicks = TIME_Ticks;
+	double elapsed = 0.0;
 	do {
 		UpdateTicks();
-		currentTicks = (DWORD)TIME_Ticks;
-	} while( currentTicks - lastTicks < skip );
-	return currentTicks - lastTicks;
+		elapsed = TIME_Ticks - lastTicks;
+	} while( elapsed < target );
+	return (DWORD)elapsed;
 }
 
 void __cdecl UpdateTicks() {
