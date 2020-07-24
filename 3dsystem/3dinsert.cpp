@@ -34,8 +34,6 @@ extern HWR_TEXHANDLE GetEnvmapTextureHandle();
 bool CustomWaterColorEnabled = false;
 #endif // FEATURE_VIDEOFX_IMPROVED
 
-#define FAR_Z_DISTANCE (1000000000.0)
-
 static VERTEX_INFO VBuffer[40]; // NOTE: original size was 20
 static D3DTLVERTEX VBufferD3D[32];
 static D3DCOLOR GlobalTint = 0; // NOTE: not presented in the original code
