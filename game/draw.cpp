@@ -115,11 +115,11 @@ void __cdecl DrawRooms(__int16 currentRoom) {
 			// but whole Lara must be golden here, including braid and weapons.
 			SetMeshReflectState(ID_NONE, RGBA_MAKE(0xFF,0xC0,0x40,goldAlpha));
 		}
-#endif // FEATURE_VIEW_IMPROVED
+#endif // FEATURE_VIDEOFX_IMPROVED
 		DrawLara(LaraItem);
 #if defined(FEATURE_VIDEOFX_IMPROVED)
 		ClearMeshReflectState();
-#endif // FEATURE_VIEW_IMPROVED
+#endif // FEATURE_VIDEOFX_IMPROVED
 	}
 
 	// Draw rooms
