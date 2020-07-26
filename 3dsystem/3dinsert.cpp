@@ -39,7 +39,8 @@ static D3DTLVERTEX VBufferD3D[32];
 static D3DCOLOR GlobalTint = 0; // NOTE: not presented in the original code
 
 #ifdef FEATURE_VIEW_IMPROVED
-#define MAKE_ZSORT(z) (SavedAppSettings.RenderMode == RM_Software || !SavedAppSettings.ZBuffer ? (((UINT64)MidSort)<<32)+(DWORD)(z) : (DWORD)(z))
+bool RoomSortEnabled = false;
+#define MAKE_ZSORT(z) (RoomSortEnabled && (SavedAppSettings.RenderMode == RM_Software || !SavedAppSettings.ZBuffer) ? (((UINT64)MidSort)<<32)+(DWORD)(z) : (DWORD)(z))
 #else // FEATURE_VIEW_IMPROVED
 #define MAKE_ZSORT(z) ((DWORD)(z))
 #endif // FEATURE_VIEW_IMPROVED
