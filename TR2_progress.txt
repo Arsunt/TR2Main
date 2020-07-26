@@ -718,8 +718,8 @@ x function is unused / included in another function
 
 	game/laraswim.cpp
 0x00432000:	 *	LaraUnderWater
-0x00432230:		SwimTurn
-0x004322C0:		lara_as_swim
+0x00432230:	+	SwimTurn
+0x004322C0:	+	lara_as_swim
 0x00432330:		lara_as_glide
 0x004323B0:		lara_as_tread
 0x00432440:		lara_as_dive

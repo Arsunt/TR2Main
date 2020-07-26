@@ -29,8 +29,9 @@
  */
 #define LaraUnderWater ((void(__cdecl*)(ITEM_INFO*, COLL_INFO*)) 0x00432000)
 
-//	0x00432230:		SwimTurn
-//	0x004322C0:		lara_as_swim
+void __cdecl SwimTurn(ITEM_INFO *item); // 0x00432230
+void __cdecl lara_as_swim(ITEM_INFO *item, COLL_INFO *coll); // 0x004322C0
+
 //	0x00432330:		lara_as_glide
 //	0x004323B0:		lara_as_tread
 //	0x00432440:		lara_as_dive

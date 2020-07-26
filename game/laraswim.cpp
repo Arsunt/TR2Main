@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -23,15 +23,53 @@
 #include "game/laraswim.h"
 #include "global/vars.h"
 
+void __cdecl SwimTurn(ITEM_INFO *item) {
+	if( CHK_ANY(InputStatus, IN_FORWARD) ) {
+		item->pos.rotX -= 2*PHD_DEGREE;
+	} else if( CHK_ANY(InputStatus, IN_BACK) ) {
+		item->pos.rotX += 2*PHD_DEGREE;
+	}
 
+	if( CHK_ANY(InputStatus, IN_LEFT) ) {
+		Lara.turn_rate -= PHD_DEGREE*9/4;
+		CLAMPL(Lara.turn_rate, -6*PHD_DEGREE);
+		item->pos.rotZ -= 3*PHD_DEGREE;
+	} else if( CHK_ANY(InputStatus, IN_RIGHT) ) {
+		Lara.turn_rate += PHD_DEGREE*9/4;
+		CLAMPG(Lara.turn_rate, 6*PHD_DEGREE);
+		item->pos.rotZ += 3*PHD_DEGREE;
+	}
+}
+
+void __cdecl lara_as_swim(ITEM_INFO *item, COLL_INFO *coll) {
+	if( item->hitPoints <= 0 ) {
+		item->goalAnimState = AS_UWDEATH;
+		return;
+	}
+
+	if( CHK_ANY(InputStatus, IN_ROLL) ) {
+		item->currentAnimState = AS_WATERROLL;
+		item->animNumber = 203;
+		item->frameNumber = Anims[item->animNumber].frameBase;
+	} else {
+		SwimTurn(item);
+		item->fallSpeed += 8;
+		CLAMPG(item->fallSpeed, 200);
+		if( !CHK_ANY(InputStatus, IN_JUMP) ) {
+			item->goalAnimState = AS_GLIDE;
+		}
+	}
+}
 
 /*
  * Inject function
  */
 void Inject_LaraSwim() {
 //	INJECT(0x00432000, LaraUnderWater);
-//	INJECT(0x00432230, SwimTurn);
-//	INJECT(0x004322C0, lara_as_swim);
+
+	INJECT(0x00432230, SwimTurn);
+	INJECT(0x004322C0, lara_as_swim);
+
 //	INJECT(0x00432330, lara_as_glide);
 //	INJECT(0x004323B0, lara_as_tread);
 //	INJECT(0x00432440, lara_as_dive);
