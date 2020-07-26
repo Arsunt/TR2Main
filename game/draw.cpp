@@ -136,39 +136,6 @@ void __cdecl DrawRooms(__int16 currentRoom) {
 #endif // FEATURE_VIEW_IMPROVED
 }
 
-void __cdecl DrawEffect(__int16 fx_id) {
-	FX_INFO *fx = &Effects[fx_id];
-	OBJECT_INFO *obj = &Objects[fx->object_number];
-	if( !obj->loaded ) return;
-	if( fx->object_number == ID_GLOW ) {
-		// NOTE: Core's hacky way to store the sprite flags in the rotation fields
-		S_DrawSprite((fx->pos.rotY << 16)|(fx->pos.rotX), // flags
-					fx->pos.x, fx->pos.y, fx->pos.z, // coordinates
-					Objects[ID_GLOW].meshIndex, // sprite id
-					fx->shade, fx->frame_number); // shade, scale
-	} else if( obj->nMeshes < 0 ) {
-		S_DrawSprite(SPR_ABS | SPR_SHADE | (obj->semi_transparent ? SPR_SEMITRANS : 0), // flags
-					fx->pos.x, fx->pos.y, fx->pos.z, // coordinates
-					obj->meshIndex - fx->frame_number, // sprite id
-					fx->shade, 0);  // shade, scale
-	} else {
-		phd_PushMatrix();
-		phd_TranslateAbs(fx->pos.x, fx->pos.y, fx->pos.z);
-		if( PhdMatrixPtr->_23 > PhdNearZ && PhdMatrixPtr->_23 < PhdFarZ ) {
-			__int16 *meshPtr = NULL;
-			phd_RotYXZ(fx->pos.rotY, fx->pos.rotX, fx->pos.rotZ);
-			S_CalculateStaticLight(fx->shade);
-			if( obj->nMeshes ) {
-				meshPtr = MeshPtr[obj->meshIndex];
-			} else {
-				meshPtr = MeshPtr[fx->frame_number];
-			}
-			phd_PutPolygons(meshPtr, -1);
-		}
-		phd_PopMatrix();
-	}
-}
-
 void __cdecl GetRoomBounds() {
 	while( BoundStart != BoundEnd ) {
 		int roomNumber = BoundRooms[BoundStart++ % ARRAY_SIZE(BoundRooms)];
@@ -476,6 +443,39 @@ void __cdecl PrintObjects(__int16 roomNumber) {
 	room->boundTop = PhdWinMaxY;
 	room->boundRight = 0;
 	room->boundBottom = 0;
+}
+
+void __cdecl DrawEffect(__int16 fx_id) {
+	FX_INFO *fx = &Effects[fx_id];
+	OBJECT_INFO *obj = &Objects[fx->object_number];
+	if( !obj->loaded ) return;
+	if( fx->object_number == ID_GLOW ) {
+		// NOTE: Core's hacky way to store the sprite flags in the rotation fields
+		S_DrawSprite((fx->pos.rotY << 16)|(fx->pos.rotX), // flags
+					fx->pos.x, fx->pos.y, fx->pos.z, // coordinates
+					Objects[ID_GLOW].meshIndex, // sprite id
+					fx->shade, fx->frame_number); // shade, scale
+	} else if( obj->nMeshes < 0 ) {
+		S_DrawSprite(SPR_ABS | SPR_SHADE | (obj->semi_transparent ? SPR_SEMITRANS : 0), // flags
+					fx->pos.x, fx->pos.y, fx->pos.z, // coordinates
+					obj->meshIndex - fx->frame_number, // sprite id
+					fx->shade, 0);  // shade, scale
+	} else {
+		phd_PushMatrix();
+		phd_TranslateAbs(fx->pos.x, fx->pos.y, fx->pos.z);
+		if( PhdMatrixPtr->_23 > PhdNearZ && PhdMatrixPtr->_23 < PhdFarZ ) {
+			__int16 *meshPtr = NULL;
+			phd_RotYXZ(fx->pos.rotY, fx->pos.rotX, fx->pos.rotZ);
+			S_CalculateStaticLight(fx->shade);
+			if( obj->nMeshes ) {
+				meshPtr = MeshPtr[obj->meshIndex];
+			} else {
+				meshPtr = MeshPtr[fx->frame_number];
+			}
+			phd_PutPolygons(meshPtr, -1);
+		}
+		phd_PopMatrix();
+	}
 }
 
 void __cdecl DrawSpriteItem(ITEM_INFO *item) {
