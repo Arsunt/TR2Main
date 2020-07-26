@@ -140,7 +140,7 @@ void __cdecl GetRoomBounds() {
 	while( BoundStart != BoundEnd ) {
 		int roomNumber = BoundRooms[BoundStart++ % ARRAY_SIZE(BoundRooms)];
 		ROOM_INFO *room = &RoomInfo[roomNumber];
-		room->boundActive -= 2;
+		room->boundActive &= ~2;
 		MidSort = (room->boundActive >> 8) + 1;
 
 		CLAMPG(room->boundLeft, room->left)
