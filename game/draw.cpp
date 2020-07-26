@@ -189,7 +189,7 @@ void __cdecl SetRoomBounds(__int16 *ptrObj, int roomNumber, ROOM_INFO *parent) {
 		return;
 	}
 
-	PHD_VECTOR door[4];
+	PHD_VECTOR view[4];
 	int left = parent->right;
 	int right = parent->left;
 	int top = parent->bottom;
@@ -200,9 +200,9 @@ void __cdecl SetRoomBounds(__int16 *ptrObj, int roomNumber, ROOM_INFO *parent) {
 	for( int i=0; i<4; ++i ) {
 		ptrObj += 3;
 		PHD_MATRIX *m = PhdMatrixPtr;
-		int x = door[i].x = ptrObj[0] * m->_00 + ptrObj[1] * m->_01 + ptrObj[2] * m->_02 + m->_03;
-		int y = door[i].y = ptrObj[0] * m->_10 + ptrObj[1] * m->_11 + ptrObj[2] * m->_12 + m->_13;
-		int z = door[i].z = ptrObj[0] * m->_20 + ptrObj[1] * m->_21 + ptrObj[2] * m->_22 + m->_23;
+		int x = view[i].x = ptrObj[0] * m->_00 + ptrObj[1] * m->_01 + ptrObj[2] * m->_02 + m->_03;
+		int y = view[i].y = ptrObj[0] * m->_10 + ptrObj[1] * m->_11 + ptrObj[2] * m->_12 + m->_13;
+		int z = view[i].z = ptrObj[0] * m->_20 + ptrObj[1] * m->_21 + ptrObj[2] * m->_22 + m->_23;
 		if( z <= 0 ) {
 			++tooNear;
 			continue;
@@ -231,19 +231,19 @@ void __cdecl SetRoomBounds(__int16 *ptrObj, int roomNumber, ROOM_INFO *parent) {
 	if( tooNear > 0 ) {
 		for( int i=0; i<4; ++i ) {
 			int j=(i+3)%4;
-			if( (door[i].z < 0) == (door[j].z < 0) ) {
+			if( (view[i].z < 0) == (view[j].z < 0) ) {
 				continue;
 			}
-			if( door[i].x <= 0 || door[j].x <= 0 ) {
+			if( view[i].x <= 0 || view[j].x <= 0 ) {
 				left = 0;
 			}
-			if( door[i].x >= 0 || door[j].x >= 0 ) {
+			if( view[i].x >= 0 || view[j].x >= 0 ) {
 				right = PhdWinMaxX;
 			}
-			if( door[i].y <= 0 || door[j].y <= 0 ) {
+			if( view[i].y <= 0 || view[j].y <= 0 ) {
 				top = 0;
 			}
-			if( door[i].y >= 0 || door[j].y >= 0 ) {
+			if( view[i].y >= 0 || view[j].y >= 0 ) {
 				bottom = PhdWinMaxY;
 			}
 		}
