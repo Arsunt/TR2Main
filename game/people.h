@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -31,10 +31,10 @@
 //	0x00435F40:		ControlGlow
 //	0x00435F80:		ControlGunShot
 
-__int16 __cdecl GunShot(int x, int y, int z, __int16 speed, __int16 rotY, __int16 room_number);
+__int16 __cdecl GunShot(int x, int y, int z, __int16 speed, __int16 rotY, __int16 roomNumber); // 0x00435FD0
+__int16 __cdecl GunHit(int x, int y, int z, __int16 speed, __int16 rotY, __int16 roomNumber); // 0x00436040
+__int16 __cdecl GunMiss(int x, int y, int z, __int16 speed, __int16 rotY, __int16 roomNumber); // 0x00436100
 
-//	0x00436040:		GunHit
-//	0x00436100:		GunMiss
 //	0x004361B0:		ShotLara
 
 #define InitialiseCult1 ((void(__cdecl*)(__int16)) 0x00436380)

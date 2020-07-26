@@ -34,7 +34,9 @@
 //	0x0041C610:		DoLotsOfBlood
 //	0x0041C6C0:		ControlBlood1
 //	0x0041C750:		ControlExplosion1
-//	0x0041C7D0:		Richochet
+
+void __cdecl Richochet(GAME_VECTOR *pos); // 0x0041C7D0
+
 //	0x0041C850:		ControlRichochet1
 
 void __cdecl CreateBubble(PHD_3DPOS *pos, __int16 roomNumber); // 0x0041C880

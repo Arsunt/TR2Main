@@ -21,23 +21,27 @@
 
 #include "global/precompiled.h"
 #include "game/people.h"
+#include "game/effects.h"
 #include "game/items.h"
+#include "game/sound.h"
+#include "game/sphere.h"
+#include "specific/game.h"
 #include "global/vars.h"
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
 extern DWORD AlphaBlendMode;
 #endif // FEATURE_VIDEOFX_IMPROVED
 
-__int16 __cdecl GunShot(int x, int y, int z, __int16 speed, __int16 rotY, __int16 room_number) {
+__int16 __cdecl GunShot(int x, int y, int z, __int16 speed, __int16 rotY, __int16 roomNumber) {
 #ifdef FEATURE_VIDEOFX_IMPROVED
 	if( AlphaBlendMode ) {
-		__int16 fx_id = CreateEffect(room_number);
+		__int16 fx_id = CreateEffect(roomNumber);
 		if( fx_id >= 0) {
 			FX_INFO *fx = &Effects[fx_id];
 			fx->pos.x = x;
 			fx->pos.y = y;
 			fx->pos.z = z;
-			fx->room_number = room_number;
+			fx->room_number = roomNumber;
 			fx->counter = 4;
 			fx->speed = 0x400;
 			fx->frame_number = 0x200; // this is sprite scale
@@ -52,13 +56,13 @@ __int16 __cdecl GunShot(int x, int y, int z, __int16 speed, __int16 rotY, __int1
 		}
 	}
 #endif // FEATURE_VIDEOFX_IMPROVED
-	__int16 fx_id = CreateEffect(room_number);
+	__int16 fx_id = CreateEffect(roomNumber);
 	if( fx_id >= 0 ) {
 		FX_INFO *fx = &Effects[fx_id];
 		fx->pos.x = x;
 		fx->pos.y = y;
 		fx->pos.z = z;
-		fx->room_number = room_number;
+		fx->room_number = roomNumber;
 		fx->pos.rotZ = 0;
 		fx->pos.rotX = 0;
 		fx->pos.rotY = rotY;
@@ -70,6 +74,24 @@ __int16 __cdecl GunShot(int x, int y, int z, __int16 speed, __int16 rotY, __int1
 	return fx_id;
 }
 
+__int16 __cdecl GunHit(int x, int y, int z, __int16 speed, __int16 rotY, __int16 roomNumber) {
+	PHD_VECTOR pos = {0, 0, 0};
+	GetJointAbsPosition(LaraItem, &pos, GetRandomControl() * 25 / 0x7FFF);
+	DoBloodSplat(pos.x, pos.y, pos.z, LaraItem->speed, LaraItem->pos.rotY, LaraItem->roomNumber);
+	PlaySoundEffect(50, &LaraItem->pos, 0);
+	return GunShot(x, y, z, speed, rotY, roomNumber);
+}
+
+__int16 __cdecl GunMiss(int x, int y, int z, __int16 speed, __int16 rotY, __int16 roomNumber) {
+	GAME_VECTOR pos;
+	pos.x = LaraItem->pos.x + (GetRandomDraw() - 0x4000) * 0x200 / 0x7FFF;
+	pos.y = LaraItem->floor;
+	pos.z = LaraItem->pos.z + (GetRandomDraw() - 0x4000) * 0x200 / 0x7FFF;
+	pos.roomNumber = LaraItem->roomNumber;
+	Richochet(&pos);
+	return GunShot(x, y, z, speed, rotY, roomNumber);
+}
+
 /*
  * Inject function
  */
@@ -79,9 +101,9 @@ void Inject_People() {
 //	INJECT(0x00435F80, ControlGunShot);
 
 	INJECT(0x00435FD0, GunShot);
+	INJECT(0x00436040, GunHit);
+	INJECT(0x00436100, GunMiss);
 
-//	INJECT(0x00436040, GunHit);
-//	INJECT(0x00436100, GunMiss);
 //	INJECT(0x004361B0, ShotLara);
 //	INJECT(0x00436380, InitialiseCult1);
 //	INJECT(0x004363D0, Cult1Control);

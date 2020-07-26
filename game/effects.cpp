@@ -27,6 +27,21 @@
 #include "specific/game.h"
 #include "global/vars.h"
 
+void __cdecl Richochet(GAME_VECTOR *pos) {
+	__int16 fxID = CreateEffect(pos->roomNumber);
+	if( fxID < 0 ) {
+		return;
+	}
+	FX_INFO *fx = &Effects[fxID];
+	fx->pos.x = pos->x;
+	fx->pos.y = pos->y;
+	fx->pos.z = pos->z;
+	fx->counter = 4;
+	fx->object_number = ID_RICOCHET;
+	fx->frame_number = -3 * GetRandomDraw() / 0x8000;
+	PlaySoundEffect(10, &fx->pos, 0);
+}
+
 void __cdecl CreateBubble(PHD_3DPOS *pos, __int16 roomNumber) {
 	__int16 fxID = CreateEffect(roomNumber);
 	if( fxID < 0 ) return;
@@ -68,7 +83,9 @@ void Inject_Effects() {
 //	INJECT(0x0041C610, DoLotsOfBlood);
 //	INJECT(0x0041C6C0, ControlBlood1);
 //	INJECT(0x0041C750, ControlExplosion1);
-//	INJECT(0x0041C7D0, Richochet);
+
+	INJECT(0x0041C7D0, Richochet);
+
 //	INJECT(0x0041C850, ControlRichochet1);
 
 	INJECT(0x0041C880, CreateBubble);
