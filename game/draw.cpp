@@ -132,6 +132,9 @@ void __cdecl DrawRooms(__int16 currentRoom) {
 		PrintObjects(DrawRoomsArray[i]);
 	}
 #ifdef FEATURE_VIEW_IMPROVED
+	for( int i = 0; i < DrawRoomsCount; ++i ) {
+		RoomInfo[DrawRoomsArray[i]].boundActive = 0;
+	}
 	MidSort = 0;
 #endif // FEATURE_VIEW_IMPROVED
 }
@@ -360,7 +363,7 @@ void __cdecl ClipRoom(ROOM_INFO *room) {
 void __cdecl PrintRooms(__int16 roomNumber) {
 	ROOM_INFO *room = &RoomInfo[roomNumber];
 #ifdef FEATURE_VIEW_IMPROVED
-	if( !CHK_ANY(room->boundActive, 3) ) {
+	if( CHK_ANY(room->boundActive, 4) ) {
 		return;
 	}
 #endif // FEATURE_VIEW_IMPROVED
@@ -385,7 +388,7 @@ void __cdecl PrintRooms(__int16 roomNumber) {
 		S_InsertRoom(room->data, 0);
 	}
 #ifdef FEATURE_VIEW_IMPROVED
-	room->boundActive &= ~3;
+	room->boundActive |= 4;
 #endif // FEATURE_VIEW_IMPROVED
 }
 
@@ -398,7 +401,9 @@ void __cdecl PrintObjects(__int16 roomNumber) {
 	}
 
 	MidSort = room->boundActive >> 8;
+#ifndef FEATURE_VIEW_IMPROVED
 	room->boundActive = 0;
+#endif // FEATURE_VIEW_IMPROVED
 
 	phd_PushMatrix();
 	phd_TranslateAbs(room->x, room->y, room->z);
