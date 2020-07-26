@@ -54,7 +54,15 @@ void __cdecl lara_as_swim(ITEM_INFO *item, COLL_INFO *coll) {
 	} else {
 		SwimTurn(item);
 		item->fallSpeed += 8;
+#ifdef FEATURE_CHEAT
+		if( Lara.water_status == LWS_Cheat ) {
+			CLAMPG(item->fallSpeed, 400);
+		} else {
+			CLAMPG(item->fallSpeed, 200);
+		}
+#else // FEATURE_CHEAT
 		CLAMPG(item->fallSpeed, 200);
+#endif // FEATURE_CHEAT
 		if( !CHK_ANY(InputStatus, IN_JUMP) ) {
 			item->goalAnimState = AS_GLIDE;
 		}
