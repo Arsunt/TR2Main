@@ -78,7 +78,7 @@ void __cdecl DrawRooms(__int16 currentRoom) {
 			phd_RotYXZsuperpack(&ptr, 0);
 			S_InitialisePolyList(0);
 			S_InsertBackground(MeshPtr[Objects[ID_SKYBOX].meshIndex]);
-			--PhdMatrixPtr;
+			phd_PopMatrix();
 		} else {
 			S_InitialisePolyList(1); // Fill backbuffer with black
 			OutsideCamera = -1;
