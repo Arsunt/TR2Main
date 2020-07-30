@@ -159,7 +159,8 @@ void __cdecl GetRoomBounds() {
 			}
 		}
 
-		if( !CHK_ANY(room->flags, ROOM_INSIDE) ) {
+		// NOTE: The original game checks just ROOM_INSIDE flag here
+		if( CHK_ANY(room->flags, ROOM_OUTSIDE) || !CHK_ANY(room->flags, ROOM_INSIDE) ) {
 			CLAMPG(OutsideLeft, room->boundLeft)
 			CLAMPG(OutsideTop, room->boundTop)
 			CLAMPL(OutsideRight, room->boundRight)
