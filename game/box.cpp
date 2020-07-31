@@ -31,7 +31,7 @@ void __cdecl CreatureDie(__int16 itemID, BOOL explode) {
 	ITEM_INFO *item = &Items[itemID];
 	item->collidable = 0;
 	item->hitPoints = HP_DONT_TARGET;
-	puts(__FUNCTION__);
+
 	if( explode ) {
 		ExplodingDeath(itemID, ~0, 0);
 		KillItem(itemID);
