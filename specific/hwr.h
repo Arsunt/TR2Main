@@ -35,11 +35,7 @@ void __cdecl HWR_TexSource(HWR_TEXHANDLE texSource); // 0x0044D2A0
 void __cdecl HWR_EnableColorKey(bool state); // 0x0044D2D0
 void __cdecl HWR_EnableZBuffer(bool ZWriteEnable, bool ZEnable); // 0x0044D320
 void __cdecl HWR_BeginScene(); // 0x0044D3B0
-#ifdef FEATURE_VIDEOFX_IMPROVED
-void __cdecl HWR_DrawPolyList(int pass); // 0x0044D3E0
-#else // FEATURE_VIDEOFX_IMPROVED
 void __cdecl HWR_DrawPolyList(); // 0x0044D3E0
-#endif // FEATURE_VIDEOFX_IMPROVED
 void __cdecl HWR_LoadTexturePages(int pagesCount, LPVOID pagesBuffer, RGB888 *palette); // 0x0044D560
 void __cdecl HWR_FreeTexturePages(); // 0x0044D5F0
 void __cdecl HWR_GetPageHandles(); // 0x0044D640

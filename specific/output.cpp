@@ -191,21 +191,10 @@ void __cdecl S_OutputPolyList() {
 		}
 	} else {
 		// Hardware renderer
-#ifdef FEATURE_VIDEOFX_IMPROVED
-		// NOTE: DontSortPrimitives option is redesigned to affect opaque only polygons
-		phd_SortPolyList();
-		if( SavedAppSettings.ZBuffer && !SavedAppSettings.DontSortPrimitives ) {
-			HWR_DrawPolyList(1);
-			HWR_DrawPolyList(2);
-		} else {
-			HWR_DrawPolyList(0);
-		}
-#else // !FEATURE_VIDEOFX_IMPROVED
 		if( !SavedAppSettings.ZBuffer || !SavedAppSettings.DontSortPrimitives ) {
 			phd_SortPolyList();
 		}
 		HWR_DrawPolyList();
-#endif // !FEATURE_VIDEOFX_IMPROVED
 		D3DDev->EndScene();
 	}
 }
@@ -629,12 +618,7 @@ void __cdecl S_DrawHealthBar(int percent) {
 	IsShadeEffect = false;
 
 	if( HealthBarMode != 0 && SavedAppSettings.RenderMode == RM_Hardware ) {
-#ifdef FEATURE_VIDEOFX_IMPROVED
-		if( SavedAppSettings.ZBuffer && SavedAppSettings.DontSortPrimitives )
-#else // FEATURE_VIDEOFX_IMPROVED
-		if( SavedAppSettings.ZBuffer )
-#endif // FEATURE_VIDEOFX_IMPROVED
-		{
+		if( SavedAppSettings.ZBuffer ) {
 			PSX_DrawHealthBar(x0, y0, x1, y1, bar, pixel);
 		} else {
 			PSX_InsertHealthBar(x0, y0, x1, y1, bar, pixel);
@@ -707,12 +691,7 @@ void __cdecl S_DrawAirBar(int percent) {
 	IsShadeEffect = false;
 
 	if( HealthBarMode != 0 && SavedAppSettings.RenderMode == RM_Hardware ) {
-#ifdef FEATURE_VIDEOFX_IMPROVED
-		if( SavedAppSettings.ZBuffer && SavedAppSettings.DontSortPrimitives )
-#else // FEATURE_VIDEOFX_IMPROVED
-		if( SavedAppSettings.ZBuffer )
-#endif // FEATURE_VIDEOFX_IMPROVED
-		{
+		if( SavedAppSettings.ZBuffer ) {
 			PSX_DrawAirBar(x0, y0, x1, y1, bar, pixel);
 		} else {
 			PSX_InsertAirBar(x0, y0, x1, y1, bar, pixel);

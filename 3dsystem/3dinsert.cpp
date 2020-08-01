@@ -99,14 +99,6 @@ static double CalculatePolyZ(SORTTYPE sortType, double z0, double z1, double z2,
 			CLAMPL(zv, z1);
 			CLAMPL(zv, z2);
 			if( z3 > 0.0 ) CLAMPL(zv, z3);
-#ifdef FEATURE_VIDEOFX_IMPROVED
-			if( SavedAppSettings.RenderMode == RM_Hardware
-				&& SavedAppSettings.ZBuffer
-				&& !SavedAppSettings.DontSortPrimitives )
-			{
-				zv = ( z3 > 0.0 ) ? (zv*4.0 + z0+z1+z2+z3)/8.0 : (zv*3.0 + z0+z1+z2)/6.0;
-			}
-#endif // FEATURE_VIDEOFX_IMPROVED
 			break;
 
 		case ST_FarZ :
@@ -2471,7 +2463,7 @@ void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spri
 	bool isShadeEffectBackup = IsShadeEffect;
 	IsShadeEffect = false;
 #ifdef FEATURE_VIDEOFX_IMPROVED
-	short polyType = POLY_Z_IGNORE | POLY_HWR_WGTmap;
+	short polyType = POLY_HWR_WGTmap;
 	if( CHK_ANY(flags, SPR_TINT) ) {
 		GlobalTint = RGBA_SETALPHA(flags, 0xFF);
 	}
@@ -2482,7 +2474,7 @@ void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spri
 			POLY_HWR_WGTmapSub,
 			POLY_HWR_WGTmapQrt,
 		};
-		polyType = POLY_Z_IGNORE | blend[(flags & SPR_BLEND) >> 29];
+		polyType = blend[(flags & SPR_BLEND) >> 29];
 	}
 	InsertClippedPoly_Textured(nPoints, (float)z, polyType, PhdSpriteInfo[spriteIdx].texPage);
 	GlobalTint = 0;
