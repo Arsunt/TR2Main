@@ -171,6 +171,7 @@ void __cdecl GetRoomBounds() {
 			CLAMPL(OutsideBottom, room->boundBottom)
 		}
 
+		if( !room->doors ) continue;
 		phd_PushMatrix();
 		phd_TranslateAbs(room->x, room->y, room->z);
 
