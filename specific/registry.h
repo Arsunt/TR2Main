@@ -60,6 +60,7 @@
 #define REG_ALPHABLEND_MODE		"AlphaBlendMode"
 #define REG_INVTEXTBOX_MODE		"InvTextBoxMode"
 #define REG_HEALTHBAR_MODE		"HealthBarMode"
+#define REG_PICKUPITEM_MODE		"PickupItemMode"
 #define REG_SCREENSHOT_FORMAT	"ScreenshotFormat"
 
 // BOOL value names

@@ -68,6 +68,7 @@ extern DWORD ShadowMode;
 extern DWORD AlphaBlendMode;
 extern DWORD ReflectionMode;
 extern DWORD ReflectionBlur;
+extern DWORD PickupItemMode;
 extern bool CustomWaterColorEnabled;
 #endif // FEATURE_VIDEOFX_IMPROVED
 
@@ -551,6 +552,7 @@ void __cdecl S_LoadSettings() {
 	GetRegistryDwordValue(REG_ALPHABLEND_MODE, &AlphaBlendMode, 0);
 	GetRegistryDwordValue(REG_REFLECTION_MODE, &ReflectionMode, 0);
 	GetRegistryDwordValue(REG_REFLECTION_BLUR, &ReflectionBlur, 2);
+	GetRegistryDwordValue(REG_PICKUPITEM_MODE, &PickupItemMode, 1);
 	GetRegistryBoolValue(REG_CUSTOM_WATER_COLOR, &CustomWaterColorEnabled, false);
 	CLAMPG(AlphaBlendMode, 2);
 	CLAMPG(ReflectionMode, 2);

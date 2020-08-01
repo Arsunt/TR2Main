@@ -498,7 +498,8 @@ void __cdecl DrawSpriteItem(ITEM_INFO *item) {
 
 	obj = &Objects[item->objectID];
 
-	S_DrawSprite(SPR_ABS | SPR_SHADE | (obj->semi_transparent ? SPR_SEMITRANS : 0),
+	// NOTE: SPR_ITEM is not presented in the original game
+	S_DrawSprite(SPR_ITEM | SPR_ABS | SPR_SHADE | (obj->semi_transparent ? SPR_SEMITRANS : 0),
 				 item->pos.x, item->pos.y, item->pos.z,
 				 obj->meshIndex - item->frameNumber,
 				 LsAdder + 0x1000, 0);

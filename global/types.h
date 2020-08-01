@@ -223,6 +223,7 @@ typedef struct {
 #define SPR_BLEND_SUB	(0x40000000)
 #define SPR_BLEND_QRT	(SPR_BLEND_ADD|SPR_BLEND_SUB)
 #define SPR_BLEND		(SPR_BLEND_QRT)
+#define SPR_ITEM		(0x80000000)
 
 // Item flags
 #define IFL_INVISIBLE	(0x0100)

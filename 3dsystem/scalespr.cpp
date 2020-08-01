@@ -28,6 +28,10 @@
 extern int CalculateFogShade(int depth);
 #endif // FEATURE_VIEW_IMPROVED
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+DWORD PickupItemMode = 1;
+#endif // FEATURE_VIDEOFX_IMPROVED
+
 void __cdecl S_DrawSprite(DWORD flags, int x, int y, int z, __int16 spriteIdx, __int16 shade, __int16 scale) {
 	int xv, yv, zv, zp, depth;
 	int x1, y1, x2, y2;
@@ -69,6 +73,18 @@ void __cdecl S_DrawSprite(DWORD flags, int x, int y, int z, __int16 spriteIdx, _
 	y1 = PhdSpriteInfo[spriteIdx].y1;
 	x2 = PhdSpriteInfo[spriteIdx].x2;
 	y2 = PhdSpriteInfo[spriteIdx].y2;
+
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	if( PickupItemMode == 1 && CHK_ALL(flags, SPR_ITEM|SPR_ABS) ) {
+		if( y1 < y2 ) {
+			y1 -= y2;
+			y2 = 0;
+		} else {
+			y2 -= y1;
+			y1 = 0;
+		}
+	}
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 	if( CHK_ANY(flags, SPR_SCALE) ) { // scaling required
 		x1 = (x1 * scale) << (W2V_SHIFT - 8);
