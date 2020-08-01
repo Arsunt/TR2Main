@@ -76,7 +76,11 @@ void __cdecl DrawRooms(__int16 currentRoom) {
 
 			UINT16 *ptr = (UINT16 *)&Anims[Objects[ID_SKYBOX].animIndex].framePtr[9];
 			phd_RotYXZsuperpack(&ptr, 0);
-			S_InitialisePolyList(0);
+#ifdef FEATURE_VIEW_IMPROVED
+			S_InitialisePolyList(1); // Fill backbuffer with black
+#else // !FEATURE_VIEW_IMPROVED
+			S_InitialisePolyList(0); // Leave backbuffer uncleaned
+#endif // FEATURE_VIEW_IMPROVED
 			S_InsertBackground(MeshPtr[Objects[ID_SKYBOX].meshIndex]);
 			phd_PopMatrix();
 		} else {
