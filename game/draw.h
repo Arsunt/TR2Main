@@ -68,6 +68,7 @@ void __cdecl DrawGunFlash(int weapon, int clip);
 #define GetFrames ((int(__cdecl*)(ITEM_INFO*, __int16**, int*)) 0x0041BF70)
 #define GetBoundsAccurate ((__int16*(__cdecl*)(ITEM_INFO*)) 0x0041C010)
 #define GetBestFrame ((__int16*(__cdecl*)(ITEM_INFO*)) 0x0041C090)
-#define AddDynamicLight ((void(__cdecl*)(int, int, int, int, int)) 0x0041C0D0)
+
+void __cdecl AddDynamicLight(int x, int y, int z, int intensity, int falloff); // 0x0041C0D0
 
 #endif // DRAW_H_INCLUDED

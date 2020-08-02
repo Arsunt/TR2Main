@@ -294,7 +294,7 @@ x function is unused / included in another function
 0x0041BF70:	 *	GetFrames
 0x0041C010:	 *	GetBoundsAccurate
 0x0041C090:	 *	GetBestFrame
-0x0041C0D0:	 *	AddDynamicLight
+0x0041C0D0:	+	AddDynamicLight
 
 	game/eel.cpp
 0x0041C120:	 *	BigEelControl

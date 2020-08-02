@@ -974,6 +974,15 @@ void __cdecl DrawGunFlash(int weapon, int clip) {
 #endif // FEATURE_VIDEOFX_IMPROVED
 }
 
+void __cdecl AddDynamicLight(int x, int y, int z, int intensity, int falloff) {
+	int idx = ( DynamicLightCount < ARRAY_SIZE(DynamicLights) ) ? DynamicLightCount++ : 0;
+	DynamicLights[idx].x = x;
+	DynamicLights[idx].y = y;
+	DynamicLights[idx].z = z;
+	DynamicLights[idx].intensity1 = intensity;
+	DynamicLights[idx].fallOff1 = falloff;
+}
+
 /*
  * Inject function
  */
@@ -1020,5 +1029,6 @@ void Inject_Draw() {
 //	INJECT(0x0041BF70, GetFrames);
 //	INJECT(0x0041C010, GetBoundsAccurate);
 //	INJECT(0x0041C090, GetBestFrame);
-//	INJECT(0x0041C0D0, AddDynamicLight);
+
+	INJECT(0x0041C0D0, AddDynamicLight);
 }
