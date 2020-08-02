@@ -360,7 +360,6 @@ void __cdecl S_PrintShadow(__int16 radius, __int16 *bPtr, ITEM_INFO *item) {
 
 void __cdecl S_CalculateLight(int x, int y, int z, __int16 roomNumber) {
 	ROOM_INFO *room;
-	int i;
 	int xDist, yDist, zDist, distance, radius, depth;
 	int xBrightest=0, yBrightest=0, zBrightest=0;
 	int brightest, adder;
@@ -376,7 +375,7 @@ void __cdecl S_CalculateLight(int x, int y, int z, __int16 roomNumber) {
 	// Static light calculation
 	if( room->lightMode != 0 ) {
 		lightShade = RoomLightShades[room->lightMode];
-		for( i = 0; i < room->numLights; ++i ) {
+		for( int i = 0; i < room->numLights; ++i ) {
 			xDist = x - room->light[i].x;
 			yDist = y - room->light[i].y;
 			zDist = z - room->light[i].z;
@@ -400,7 +399,7 @@ void __cdecl S_CalculateLight(int x, int y, int z, __int16 roomNumber) {
 			}
 		}
 	} else {
-		for( i = 0; i < room->numLights; ++i ) {
+		for( int i = 0; i < room->numLights; ++i ) {
 			xDist = x - room->light[i].x;
 			yDist = y - room->light[i].y;
 			zDist = z - room->light[i].z;
@@ -422,7 +421,7 @@ void __cdecl S_CalculateLight(int x, int y, int z, __int16 roomNumber) {
 	adder = brightest;
 
 	// Dynamic light calculation
-	for( i = 0; i < DynamicLightCount; ++i ) {
+	for( DWORD i = 0; i < DynamicLightCount; ++i ) {
 		xDist = x - DynamicLights[i].x;
 		yDist = y - DynamicLights[i].y;
 		zDist = z - DynamicLights[i].z;
@@ -497,7 +496,7 @@ void __cdecl S_CalculateStaticMeshLight(int x, int y, int z, int shade1, int sha
 		adder += (shade2 - shade1) * RoomLightShades[room->lightMode] / (WIBBLE_SIZE-1);
 	}
 
-	for( int i = 0; i < DynamicLightCount; ++i ) {
+	for( DWORD i = 0; i < DynamicLightCount; ++i ) {
 		xDist = x - DynamicLights[i].x;
 		yDist = y - DynamicLights[i].y;
 		zDist = z - DynamicLights[i].z;
@@ -525,7 +524,6 @@ void __cdecl S_CalculateStaticMeshLight(int x, int y, int z, int shade1, int sha
 }
 
 void __cdecl S_LightRoom(ROOM_INFO *room) {
-	int i, j;
 	int shade, falloff, intensity;
 	int xPos, yPos, zPos;
 	int xDist, yDist, zDist, distance, radius;
@@ -537,7 +535,7 @@ void __cdecl S_LightRoom(ROOM_INFO *room) {
 		int *roomLightTable = RoomLightTables[RoomLightShades[room->lightMode]].table;
 		roomVtxCount = *room->data;
 		roomVtx = (ROOM_VERTEX_INFO *)(room->data + 1);
-		for( i = 0; i < roomVtxCount; ++i ) {
+		for( int i = 0; i < roomVtxCount; ++i ) {
 			__int16 wibble = roomLightTable[roomVtx[i].lightTableValue % WIBBLE_SIZE];
 			roomVtx[i].lightAdder = roomVtx[i].lightBase + wibble;
 		}
@@ -545,7 +543,7 @@ void __cdecl S_LightRoom(ROOM_INFO *room) {
 	else if( (room->flags & 0x10) != 0 ) {
 		roomVtxCount = *room->data;
 		roomVtx = (ROOM_VERTEX_INFO *)(room->data + 1);
-		for( i = 0; i < roomVtxCount; ++i ) {
+		for( int i = 0; i < roomVtxCount; ++i ) {
 			roomVtx[i].lightAdder = roomVtx[i].lightBase;
 		}
 		room->flags &= ~0x10;
@@ -556,7 +554,7 @@ void __cdecl S_LightRoom(ROOM_INFO *room) {
 	int xMax = 0x400 * (room->ySize - 1);
 	int zMax = 0x400 * (room->xSize - 1);
 
-	for( i = 0; i < DynamicLightCount; ++i ) {
+	for( DWORD i = 0; i < DynamicLightCount; ++i ) {
 		xPos = DynamicLights[i].x - room->x;
 		yPos = DynamicLights[i].y;
 		zPos = DynamicLights[i].z - room->z;
@@ -569,7 +567,7 @@ void __cdecl S_LightRoom(ROOM_INFO *room) {
 			room->flags |= 0x10;
 			roomVtxCount = *room->data;
 			roomVtx = (ROOM_VERTEX_INFO *)(room->data + 1);
-			for( j = 0; j < roomVtxCount; ++j ) {
+			for( int j = 0; j < roomVtxCount; ++j ) {
 				if( roomVtx[j].lightAdder != 0 ) {
 					xDist = roomVtx[j].x - xPos;
 					yDist = roomVtx[j].y - yPos;

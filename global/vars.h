@@ -361,7 +361,7 @@ extern DISPLAY_ADAPTER CurrentDisplayAdapter;
 #define AnimRanges					VAR_U_(0x00525B04, RANGE_STRUCT*)
 #define AnimCommands				VAR_U_(0x00525B08, __int16*)
 #define AnimBones					VAR_U_(0x00525BE8, int*)
-#define DynamicLightCount			VAR_U_(0x00525BEC, int)
+#define DynamicLightCount			VAR_U_(0x00525BEC, DWORD)
 #define OutsideLeft					VAR_U_(0x00526178, int)
 #define AnimChanges					VAR_U_(0x0052617C, CHANGE_STRUCT*)
 #define RoomCount					VAR_U_(0x00526180, __int16)
