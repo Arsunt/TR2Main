@@ -75,18 +75,28 @@ __int16 __cdecl GunShot(int x, int y, int z, __int16 speed, __int16 rotY, __int1
 }
 
 __int16 __cdecl GunHit(int x, int y, int z, __int16 speed, __int16 rotY, __int16 roomNumber) {
+	PHD_VECTOR pos = {0, 0, 0};
+	GetJointAbsPosition(LaraItem, &pos, GetRandomControl() * 25 / 0x7FFF);
 #ifdef FEATURE_CHEAT
-	GAME_VECTOR pos = {0, 0, 0, roomNumber, 0};
-	GetJointAbsPosition(LaraItem, (PHD_VECTOR *)&pos, GetRandomControl() * 25 / 0x7FFF);
 	if( Lara.water_status == LWS_Cheat ) {
-		Richochet(&pos);
+		__int16 fxID = CreateEffect(roomNumber);
+		if( fxID >= 0 ) {
+			FX_INFO *fx = &Effects[fxID];
+			fx->pos.x = pos.x;
+			fx->pos.y = pos.y;
+			fx->pos.z = pos.z;
+			fx->counter = 4;
+			fx->object_number = ID_RICOCHET;
+			fx->pos.rotY = LaraItem->pos.rotY;
+			fx->speed = LaraItem->speed;
+			fx->frame_number = -3 * GetRandomDraw() / 0x8000;
+		}
+		PlaySoundEffect(10, &LaraItem->pos, 0);
 	} else {
 		DoBloodSplat(pos.x, pos.y, pos.z, LaraItem->speed, LaraItem->pos.rotY, LaraItem->roomNumber);
 		PlaySoundEffect(50, &LaraItem->pos, 0);
 	}
 #else // FEATURE_CHEAT
-	PHD_VECTOR pos = {0, 0, 0};
-	GetJointAbsPosition(LaraItem, &pos, GetRandomControl() * 25 / 0x7FFF);
 	DoBloodSplat(pos.x, pos.y, pos.z, LaraItem->speed, LaraItem->pos.rotY, LaraItem->roomNumber);
 	PlaySoundEffect(50, &LaraItem->pos, 0);
 #endif // FEATURE_CHEAT
