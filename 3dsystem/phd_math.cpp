@@ -452,7 +452,7 @@ int __fastcall phd_atan(int x, int y) {
 		SWAP(x, y, swapBuf);
 	}
 
-	result = AtanBaseTable[flags] + AtanAngleTable[MulDiv(0x800, y, x)];
+	result = AtanBaseTable[flags] + AtanAngleTable[0x800*y/x];
 	if ( result < 0 )
 		result = -result;
 
