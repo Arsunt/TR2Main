@@ -74,16 +74,28 @@ void __cdecl ControlMissile(__int16 fxID) {
 			return;
 		}
 	} else if( ItemNearLara(&fx->pos, 200) ) {
-		if( fx->object_number == ID_MISSILE_KNIFE || fx->object_number == ID_MISSILE_HARPOON ) {
-			LaraItem->hitPoints -= 50;
-			fx->object_number = ID_BLOOD;
-			PlaySoundEffect(317, &fx->pos, 0);
-		}
 		LaraItem->hit_status = 1;
 		fx->pos.rotY = LaraItem->pos.rotY;
 		fx->counter = 0;
 		fx->speed = LaraItem->speed;
 		fx->frame_number = 0;
+		if( fx->object_number == ID_MISSILE_KNIFE || fx->object_number == ID_MISSILE_HARPOON ) {
+			LaraItem->hitPoints -= 50;
+#ifdef FEATURE_CHEAT
+			if( Lara.water_status == LWS_Cheat ) {
+				fx->frame_number = -GetRandomControl()/11000;
+				fx->counter = 6;
+				fx->object_number = ID_RICOCHET;
+				PlaySoundEffect(258, &fx->pos, 0);
+			} else {
+				fx->object_number = ID_BLOOD;
+				PlaySoundEffect(317, &fx->pos, 0);
+			}
+#else // FEATURE_CHEAT
+			fx->object_number = ID_BLOOD;
+			PlaySoundEffect(317, &fx->pos, 0);
+#endif // FEATURE_CHEAT
+		}
 	}
 
 	if( fx->object_number == ID_MISSILE_HARPOON && CHK_ANY(RoomInfo[fx->room_number].flags, ROOM_UNDERWATER) ) {
