@@ -221,7 +221,7 @@ x function is unused / included in another function
 0x004150D0:		RefreshCamera
 0x004151C0:		TestTriggers
 0x004158A0:		TriggerActive
-0x00415900:		GetCeiling
+0x00415900:	 *	GetCeiling
 0x00415B60:		GetDoor
 0x00415BB0:		LOS
 0x00415C50:		zLOS
@@ -745,7 +745,7 @@ x function is unused / included in another function
 0x00433040:		ClearLOT
 
 	game/missile.cpp
-0x00433090:		ControlMissile
+0x00433090:	+	ControlMissile
 0x00433360:		ShootAtLara
 0x00433410:	 *	ExplodingDeath
 0x004337A0:		ControlBodyPart

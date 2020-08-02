@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -27,7 +27,9 @@
 /*
  * Function list
  */
-// 0x00433090:		ControlMissile
+
+void __cdecl ControlMissile(__int16 fxID); // 0x00433090
+
 // 0x00433360:		ShootAtLara
 
 #define ExplodingDeath ((BOOL(__cdecl*)(__int16, DWORD, __int16)) 0x00433410)
