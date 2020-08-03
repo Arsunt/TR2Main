@@ -158,7 +158,7 @@ static json_value *GetJsonObjectByStringField(json_value *root, const char *name
 	DWORD i = pIndex ? *pIndex : 0;
 	for( ; i < root->u.array.length; ++i ) {
 		json_value *key = GetJsonField(root->u.array.values[i], json_string, name, NULL);
-		if( len == key->u.string.length &&
+		if( key && len == key->u.string.length &&
 			(caseSensitive ? strncmp(key->u.string.ptr, str, len) : !strncasecmp(key->u.string.ptr, str, len)) )
 		{
 			result = root->u.array.values[i];
