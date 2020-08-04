@@ -69,13 +69,16 @@ static bool MarkSemitransPoly(__int16 *ptrObj, int vtxCount, bool colored, LPVOI
 }
 
 static bool MarkSemitransMesh(int objID, int meshIdx, POLYFILTER *filter) {
+	if( objID < 0 ) return false;
 	__int16 *ptrObj = NULL;
 	// if mesh index is negative, then it's a static mesh
 	if( meshIdx < 0 ) {
+		if( (DWORD)objID >= ARRAY_SIZE(StaticObjects) ) return false;
 		STATIC_INFO *obj = &StaticObjects[objID];
 		if( !CHK_ANY(obj->flags, 2) ) return false; // no such drawable static for patching
 		ptrObj = MeshPtr[obj->meshIndex];
 	} else {
+		if( (DWORD)objID >= ARRAY_SIZE(Objects) ) return false;
 		OBJECT_INFO *obj = &Objects[objID];
 		if( !obj->loaded || meshIdx >= obj->nMeshes ) return false; // no such object/mesh for patching
 		ptrObj = MeshPtr[obj->meshIndex + meshIdx];
