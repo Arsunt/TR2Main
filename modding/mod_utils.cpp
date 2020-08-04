@@ -30,12 +30,43 @@
 
 typedef struct {
 	bool isLoaded;
+	POLYINDEX *animtex;
+	POLYFILTER_NODE *rooms;
+	POLYFILTER_NODE *statics;
+	POLYFILTER_NODE *objects[ID_NUMBER_OBJECTS];
+} SEMITRANS_CONFIG;
+
+typedef struct {
+	bool isLoaded;
 	bool isBarefoot;
 	char loadingPix[256];
 	DWORD waterColor;
+	SEMITRANS_CONFIG semitrans;
 } MOD_CONFIG;
 
 static MOD_CONFIG ModConfig;
+
+static POLYFILTER *CreatePolyfilterNode(POLYFILTER_NODE **root, int id) {
+	if( root == NULL ) return NULL;
+	POLYFILTER_NODE *node = (POLYFILTER_NODE *)malloc(sizeof(POLYFILTER_NODE));
+	if( node == NULL ) return NULL;
+	node->id = id;
+	node->next = *root;
+	memset(&node->filter, 0, sizeof(node->filter));
+	*root = node;
+	return &node->filter;
+}
+
+static void FreePolyfilterNodes(POLYFILTER_NODE **root) {
+	if( root == NULL ) return;
+	POLYFILTER_NODE *node = *root;
+	while( node ) {
+		POLYFILTER_NODE *next = node->next;
+		free(node);
+		node = next;
+	}
+	*root = NULL;
+}
 #endif // FEATURE_MOD_CONFIG
 
 static bool IsCompatibleFilter(__int16 *ptrObj, bool isRoomMesh, POLYFILTER *filter) {
@@ -139,6 +170,26 @@ DWORD GetModWaterColor() {
 	return ModConfig.waterColor;
 }
 
+bool IsModSemitransConfigLoaded() {
+	return ModConfig.semitrans.isLoaded;
+}
+
+POLYINDEX *GetModSemitransAnimtexFilter() {
+	return ModConfig.semitrans.animtex;
+}
+
+POLYFILTER_NODE *GetModSemitransRoomsFilter() {
+	return ModConfig.semitrans.rooms;
+}
+
+POLYFILTER_NODE *GetModSemitransStaticsFilter() {
+	return ModConfig.semitrans.statics;
+}
+
+POLYFILTER_NODE **GetModSemitransObjectsFilter() {
+	return ModConfig.semitrans.objects;
+}
+
 static json_value *GetJsonField(json_value *root, json_type fieldType, const char *name, DWORD *pIndex) {
 	if( root == NULL || root->type != json_object ) {
 		return NULL;
@@ -180,6 +231,179 @@ static json_value *GetJsonObjectByStringField(json_value *root, const char *name
 	return result;
 }
 
+static int GetJsonIntegerFieldValue(json_value *root, const char *name) {
+	json_value *field = GetJsonField(root, json_integer, name, NULL);
+	return field ? field->u.integer : 0;
+}
+
+static int ParsePolyString(const char *str, POLYINDEX *lst, DWORD lstLen){
+	if( !lst || !lstLen ) {
+		return -1;
+	}
+
+	lst[0].idx = ~0;
+	lst[0].num = ~0;
+
+	POLYINDEX *lstBuf = (POLYINDEX *)malloc(lstLen * sizeof(POLYINDEX));
+	if( lstBuf == NULL ) {
+		return -2;
+	}
+
+	char *strBuf = strdup(str);
+	if( strBuf == NULL ) {
+		free(lstBuf);
+		return -2;
+	}
+
+	DWORD bufLen = 0;
+	char *token = strtok(strBuf, ",");
+	while( token != NULL ) {
+		char *range = strchr(token, '-');
+		if( range ) {
+			int from = atoi(token);
+			int to = atoi(range + 1);
+			lstBuf[bufLen].idx = MIN(to, from);
+			lstBuf[bufLen].num = ABS(to - from) + 1;
+		} else {
+			lstBuf[bufLen].idx = atoi(token);
+			lstBuf[bufLen].num = 1;
+		}
+		if( ++bufLen >= lstLen ) {
+			break;
+		}
+		token = strtok(NULL, ",");
+	}
+
+	free(strBuf);
+	if( !bufLen ) {
+		free(lstBuf);
+		return 0;
+	}
+
+	for( DWORD i = 0; i < bufLen-1; ++i ) {
+		for( DWORD j = i+1; j < bufLen; ++j ) {
+			if( lstBuf[i].idx > lstBuf[j].idx ) {
+				POLYINDEX t;
+				SWAP(lstBuf[i], lstBuf[j], t);
+			}
+		}
+	}
+
+	lst[0] = lstBuf[0];
+	DWORD resLen = 1;
+
+	for( DWORD i = 1; i < bufLen; ++i ) {
+		int bound = lst[resLen-1].idx + lst[resLen-1].num;
+		if( lstBuf[i].idx > bound ) {
+			lst[resLen] = lstBuf[i];
+			++resLen;
+		} else {
+			int ext = lstBuf[i].idx + lstBuf[i].num;
+			if( ext > bound ) {
+				lst[resLen-1].num += ext - bound;
+			}
+		}
+	}
+	if( resLen < lstLen ) {
+		lst[resLen].idx = 0;
+		lst[resLen].num = 0;
+	}
+
+	free(lstBuf);
+	return resLen;
+}
+
+static int ParsePolyValue(json_value *value, POLYINDEX *lst, DWORD lstLen) {
+	if( !lst || !lstLen ) {
+		return -1;
+	}
+
+	lst[0].idx = ~0;
+	lst[0].num = ~0;
+	if( value == NULL ) {
+		return 0;
+	}
+
+	const char *str = value->u.string.ptr;
+	if( !str || !*str || !strcasecmp(str, "none") ) {
+		return 0;
+	}
+	if( !strcasecmp(str, "all") ) {
+		lst[0].idx = 0;
+		lst[0].num = 0;
+		return 1;
+	}
+	return ParsePolyString(str, lst, lstLen);
+}
+
+static bool ParsePolyfilterConfiguration(json_value *root, const char *name, POLYFILTER_NODE **pNodes) {
+	FreePolyfilterNodes(pNodes);
+	if( root == NULL || root->type != json_array || !name || !*name ) {
+		return false;
+	}
+	for( DWORD i = 0; i < root->u.array.length; ++i ) {
+		json_value *item = root->u.array.values[i];
+		json_value *field = GetJsonField(item, json_integer, name, NULL);
+		if( !field || field->u.integer < 0 ) continue;
+		POLYFILTER *filter = CreatePolyfilterNode(pNodes, field->u.integer);
+		if( !filter ) continue;
+		field = GetJsonField(item, json_object, "filter", NULL);
+		if( field ) {
+			filter->n_vtx = GetJsonIntegerFieldValue(field, "v");
+			filter->n_gt4 = GetJsonIntegerFieldValue(field, "t4");
+			filter->n_gt3 = GetJsonIntegerFieldValue(field, "t3");
+			filter->n_g4  = GetJsonIntegerFieldValue(field, "c4");
+			filter->n_g3  = GetJsonIntegerFieldValue(field, "c3");
+		}
+		json_value *t4list = GetJsonField(item, json_string, "t4list", NULL);
+		json_value *t3list = GetJsonField(item, json_string, "t3list", NULL);
+		json_value *c4list = GetJsonField(item, json_string, "c4list", NULL);
+		json_value *c3list = GetJsonField(item, json_string, "c3list", NULL);
+		// If no lists presented, consider that lists set to "all"
+		if( t4list || t3list || c4list || c3list ) {
+			ParsePolyValue(t4list, filter->gt4, ARRAY_SIZE(filter->gt4));
+			ParsePolyValue(t3list, filter->gt3, ARRAY_SIZE(filter->gt3));
+			ParsePolyValue(c4list, filter->g4,  ARRAY_SIZE(filter->g4));
+			ParsePolyValue(c3list, filter->g3,  ARRAY_SIZE(filter->g3));
+		}
+	}
+	return true;
+}
+
+static bool ParseSemitransConfiguration(json_value *root) {
+	if( root == NULL || root->type != json_object ) {
+		return false;
+	}
+	json_value* field = NULL;
+
+	field = GetJsonField(root, json_string, "animtex", NULL);
+	if( field ) {
+		if( ModConfig.semitrans.animtex ) {
+			free(ModConfig.semitrans.animtex);
+			ModConfig.semitrans.animtex = NULL;
+		}
+		if( strcasecmp(field->u.string.ptr, "auto") ) {
+			ModConfig.semitrans.animtex = (POLYINDEX *)malloc(sizeof(POLYINDEX) * POLYFILTER_SIZE);
+			if( ModConfig.semitrans.animtex ) {
+				ParsePolyValue(field, ModConfig.semitrans.animtex, POLYFILTER_SIZE);
+			}
+		}
+	}
+	json_value* objects = GetJsonField(root, json_array, "objects", NULL);
+	if( objects ) {
+		for( DWORD i = 0; i < objects->u.array.length; ++i ) {
+			json_value *object = objects->u.array.values[i];
+			field = GetJsonField(object, json_integer, "object", NULL);
+			if( !field || field->u.integer < 0 || field->u.integer >= ARRAY_SIZE(ModConfig.semitrans.objects) ) continue;
+			ParsePolyfilterConfiguration(GetJsonField(object, json_array, "meshes", NULL), "mesh", &ModConfig.semitrans.objects[field->u.integer]);
+		}
+	}
+	ParsePolyfilterConfiguration(GetJsonField(root, json_array, "statics", NULL), "static", &ModConfig.semitrans.statics);
+	ParsePolyfilterConfiguration(GetJsonField(root, json_array, "rooms", NULL), "room", &ModConfig.semitrans.rooms);
+	ModConfig.semitrans.isLoaded = true;
+	return true;
+}
+
 static bool ParseLevelConfiguration(json_value *root) {
 	if( root == NULL || root->type != json_object ) {
 		return false;
@@ -198,6 +422,7 @@ static bool ParseLevelConfiguration(json_value *root) {
 	if( field ) {
 		ModConfig.isBarefoot = field->u.boolean;
 	}
+	ParseSemitransConfiguration(GetJsonField(root, json_object, "semitransparent", NULL));
 	return true;
 }
 
@@ -214,6 +439,15 @@ static bool ParseModConfiguration(char *levelName, json_value *root) {
 }
 
 void UnloadModConfiguration() {
+	if( ModConfig.semitrans.animtex ) {
+		free(ModConfig.semitrans.animtex);
+		ModConfig.semitrans.animtex = NULL;
+	}
+	FreePolyfilterNodes(&ModConfig.semitrans.rooms);
+	FreePolyfilterNodes(&ModConfig.semitrans.statics);
+	for( DWORD i=0; i<ARRAY_SIZE(ModConfig.semitrans.objects); ++i ) {
+		FreePolyfilterNodes(&ModConfig.semitrans.objects[i]);
+	}
 	memset(&ModConfig, 0, sizeof(ModConfig));
 }
 

@@ -29,12 +29,104 @@
         "                                                                     ",
         " - 'barefoot' is used to indicate levels where Lara does not wear    ",
         "   boots. It is used for alternative sound effects of Lara's steps.  ",
-        "   The parameter can be true or false.                               ",
+        "   The parameter can be true or false. Default value is false.       ",
+        "                                                                     ",
+        " - 'semitransparent' is used for semitransparency parameters.        ",
+        "   It can contain: 'animtex', 'objects', 'statics', 'rooms'          ",
+        "                                                                     ",
+        " - 'animtex' is used to mark animated textures as semitransparent.   ",
+        "   The field must be inside 'semitransparent' section.               ",
+        "   It can be one of the values: 'auto', 'none', 'all'. Or you can    ",
+        "   mark specific animated texture ranges, if you set it as list.     ",
+        "   For example, if you want to mark as semitransparent animated      ",
+        "   texture ranges [0,1,2,5], just set 'animtex' to '0-2, 5'.         ",
+        "   Default value is 'auto'. This means if some room texture is       ",
+        "   animated and it has some transparent pixels, it's automatically   ",
+        "   marked as semitransparent. If texture is opaque, it stays opaque. ",
+        "   Almost all animated textures of the original game affected by     ",
+        "   'auto' are water surfaces, so it's recommended to use this mode.  ",
+        "                                                                     ",
+        " - 'objects' is used to mark object textures as semitransparent.     ",
+        "   The field must be inside 'semitransparent' section.               ",
+        "   It must contain 'object' and 'meshes' subfields.                  ",
+        "   'object' contains the object ID (from 0 to 264),                  ",
+        "   'meshes' contains the list of meshes, each contains 'mesh' field  ",
+        "   (counts inside the object, starting from zero). Optionally, mesh  ",
+        "   contains fields 'filter', 't4list', 't3list', 'c4list', 'c3list'. ",
+        "   'filter' is used to check that this mesh is really the one that   ",
+        "   supposed to be patched. Fields 'v', 't4', 't3', 'c4', 'c3' set    ",
+        "   vertices count, textured quads/triangles, colored quads/triangles ",
+        "   numbers accordingly. If some of these fields is not set, it is    ",
+        "   considered as zero. If there is no 'filter' or 'v' is zero, the   ",
+        "   mesh check is disabled. 't4list', 't3list', 'c4list', 'c3list'    ",
+        "   stores lists of polygons for textured quads/triangles, colored    ",
+        "   quads/triangles accordingly. Format is the same as for 'animtex', ",
+        "   but there is no 'auto' option. If there are no lists in the mesh, ",
+        "   then every list considered as 'all'. If there are some lists, but ",
+        "   some absent, every missing list considered as 'none'. The listed  ",
+        "   polygons become semitransparent.                                  ",
+        "                                                                     ",
+        " - 'statics' is used to mark static mesh textures as semitransparent ",
+        "   The field must be inside 'semitransparent' section.               ",
+        "   It must contain 'static' subfield for static ID (counts from 0).  ",
+        "   All other subfields are identical to 'meshes' described in the    ",
+        "   'objects', but 'mesh' subfield is not used, because every static  ",
+        "   is a single mesh itself.                                          ",
+        "                                                                     ",
+        " - 'rooms' is used to mark room mesh textures as semitransparent.    ",
+        "   The field must be inside 'semitransparent' section.               ",
+        "   It must contain 'room' subfield for room ID (counts from 0).      ",
+        "   All other subfields are identical to 'meshes' described in the    ",
+        "   'objects', but 'mesh' subfield is not used, because every room    ",
+        "   is a single mesh itself. Note that it is not necessary to list    ",
+        "   all semitransparent polygons for all rooms if they refer to the   ",
+        "   same texture. Just specify a few polygons in several rooms.       ",
         "                                                                     "
     ],
     "default": {
         "comment": "Default settings for all levels",
-        "watercolor": "80FFFF"
+        "watercolor": "80FFFF",
+        "semitransparent": {
+            "animtex": "auto",
+            "objects": [{
+                "comment": "Windshield of a red fast snowmobile",
+                "object": 13,
+                "meshes": [{
+                    "mesh": 0,
+                    "filter": {"v":59, "t4":14, "t3":104},
+                    "t3list": "48-51, 54-71, 73-78"
+                }]
+            }, {
+                "comment": "Sunglasses lenses in the menu (Details option)",
+                "object": 153,
+                "meshes": [{
+                    "mesh": 0,
+                    "filter": {"v":80, "t4":66, "t3":4, "c4":2},
+                    "t4list": "23-30, 44-51",
+                    "t3list": "all"
+                }]
+            }, {
+                "comment": "Sphere of Doom 1 (Dragon transformation)",
+                "object": 209,
+                "meshes": [{"mesh": 0}]
+            }, {
+                "comment": "Sphere of Doom 2 (Dragon transformation)",
+                "object": 210,
+                "meshes": [{"mesh": 0}]
+            }, {
+                "comment": "Flare fire",
+                "object": 235,
+                "meshes": [{"mesh": 0}]
+            }, {
+                "comment": "Pistols/uzi/magnums gunfire flash",
+                "object": 240,
+                "meshes": [{"mesh": 0}]
+            }, {
+                "comment": "M16 gunfire flash",
+                "object": 241,
+                "meshes": [{"mesh": 0}]
+            }]
+        }
     },
     "levels": [{
         "comment": "Title",
@@ -42,7 +134,15 @@
     }, {
         "comment": "Lara's Home",
         "filename": "ASSAULT",
-        "picture": "MANSION"
+        "picture": "MANSION",
+        "semitransparent": {
+            "statics": [{
+                "comment": "Glass on the sink in the bathroom",
+                "static": 21,
+                "filter": {"v":46, "t4":41},
+                "t4list": "17-25"
+            }]
+        }
     }, {
         "comment": "The Great Wall",
         "filename": "WALL",
@@ -52,17 +152,41 @@
         "comment": "Venice",
         "filename": "BOAT",
         "picture": "VENICE",
-        "watercolor": "CCFF80"
+        "watercolor": "CCFF80",
+        "semitransparent": {
+            "rooms": [{
+                "comment": "Chain-link fence",
+                "room": 0,
+                "filter": {"v":112, "t4":91},
+                "t4list": "3"
+            }]
+        }
     }, {
         "comment": "Bartoli's Hideout",
         "filename": "VENICE",
         "picture": "VENICE",
-        "watercolor": "CCFF80"
+        "watercolor": "CCFF80",
+        "semitransparent": {
+            "rooms": [{
+                "comment": "Chain-link fence",
+                "room": 15,
+                "filter": {"v":30, "t4":22},
+                "t4list": "19, 21"
+            }]
+        }
     }, {
         "comment": "Opera House",
         "filename": "OPERA",
         "picture": "VENICE",
-        "watercolor": "CCFF80"
+        "watercolor": "CCFF80",
+        "semitransparent": {
+            "rooms": [{
+                "comment": "Chain-link fence",
+                "room": 104,
+                "filter": {"v":43, "t4":29},
+                "t4list": "2, 4, 6, 8"
+            }]
+        }
     }, {
         "comment": "Offshore Rig",
         "filename": "RIG",
@@ -80,7 +204,15 @@
         "comment": "Wreck of the Maria Doria",
         "filename": "KEEL",
         "picture": "TITAN",
-        "barefoot": true
+        "barefoot": true,
+        "semitransparent": {
+            "rooms": [{
+                "comment": "Stained glass",
+                "room": 83,
+                "filter": {"v":331, "t4":303, "t3":12},
+                "t4list": "212-216"
+            }]
+        }
     }, {
         "comment": "Living Quarters",
         "filename": "LIVING",
@@ -127,7 +259,15 @@
         "comment": "Home Sweet Home",
         "filename": "HOUSE",
         "picture": "MANSION",
-        "barefoot": true
+        "barefoot": true,
+        "semitransparent": {
+            "statics": [{
+                "comment": "Glass on the sink in the bathroom",
+                "static": 21,
+                "filter": {"v":46, "t4":41},
+                "t4list": "17-25"
+            }]
+        }
     }, {
         "comment": "Cutscene after The Great Wall",
         "filename": "CUT1",
@@ -155,6 +295,14 @@
         "filename": "LEVEL4"
     }, {
         "comment": "Nightmare in Vegas",
-        "filename": "LEVEL5"
+        "filename": "LEVEL5",
+        "semitransparent": {
+            "statics": [{
+                "comment": "Glass on the sink in the bathroom",
+                "static": 0,
+                "filter": {"v":46, "t4":60},
+                "t4list": "23-32"
+            }]
+        }
     }]
 }

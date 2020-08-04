@@ -40,6 +40,12 @@ typedef struct {
 	POLYINDEX g3[POLYFILTER_SIZE];
 } POLYFILTER;
 
+typedef struct PolyfilterNode_t {
+	int id;
+	POLYFILTER filter;
+	struct PolyfilterNode_t *next;
+} POLYFILTER_NODE;
+
 typedef bool (*ENUM_POLYS_CB) (__int16 *ptrObj, int vtxCount, bool colored, LPVOID param);
 
 /*
@@ -52,6 +58,11 @@ bool IsModConfigLoaded();
 bool IsModBarefoot();
 const char *GetModLoadingPix();
 DWORD GetModWaterColor();
+bool IsModSemitransConfigLoaded();
+POLYINDEX *GetModSemitransAnimtexFilter();
+POLYFILTER_NODE *GetModSemitransRoomsFilter();
+POLYFILTER_NODE *GetModSemitransStaticsFilter();
+POLYFILTER_NODE **GetModSemitransObjectsFilter();
 
 void UnloadModConfiguration();
 bool LoadModConfiguration(LPCTSTR levelFilePath);

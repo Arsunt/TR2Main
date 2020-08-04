@@ -87,6 +87,29 @@ static bool MarkSemitransMesh(int objID, int meshIdx, POLYFILTER *filter) {
 }
 
 static void MarkSemitransObjects() {
+#ifdef FEATURE_MOD_CONFIG
+	// Check if config is presented
+	if( IsModSemitransConfigLoaded() ) {
+		POLYFILTER_NODE *node = NULL;
+		POLYFILTER_NODE **obj = GetModSemitransObjectsFilter();
+		for( int i=0; i<ID_NUMBER_OBJECTS; ++i ) {
+			for( node = obj[i]; node != NULL; node = node->next ) {
+				MarkSemitransMesh(i, node->id, &node->filter);
+			}
+		}
+		for( node = GetModSemitransStaticsFilter(); node != NULL; node = node->next ) {
+			MarkSemitransMesh(node->id, -1, &node->filter);
+		}
+		for( node = GetModSemitransRoomsFilter(); node != NULL; node = node->next ) {
+			if( node->id >= 0 && node->id < RoomCount ) {
+				EnumeratePolys(RoomInfo[node->id].data, true, MarkSemitransPoly, &node->filter, NULL);
+			}
+		}
+		return;
+	}
+#endif // FEATURE_MOD_CONFIG
+
+	// If config is absent or disabled, use hardcoded params
 	static POLYFILTER SkidooFastFilter = {
 		.n_vtx = 59, .n_gt4 = 14, .n_gt3 = 104, .n_g4 = 0, .n_g3 = 0,
 		.gt4 = {{~0,~0}}, // no semitrans textured quads
@@ -127,10 +150,44 @@ static void MarkSemitransObjects() {
 }
 
 static void MarkSemitransTextureRanges() {
+	POLYINDEX *filter = NULL;
 	__int16 *ptr = AnimatedTextureRanges;
+
+#ifdef FEATURE_MOD_CONFIG
+	filter = GetModSemitransAnimtexFilter();
+	// Check if filter is presented
+	if( filter != NULL && (filter[0].idx || filter[0].num) ) {
+		int polyIndex = 0;
+		int polyNumber = *(ptr++);
+		for( int i=0; i<POLYFILTER_SIZE; ++i ) {
+			if( filter[i].idx < polyIndex || filter[i].idx >= polyNumber ) {
+				return;
+			}
+			int skip = filter[i].idx - polyIndex;
+			polyIndex += skip;
+			if( polyIndex >= polyNumber ) {
+				return;
+			}
+			while( skip-- > 0 ) {
+				int len = 1 + *(ptr++);
+				ptr += len;
+			}
+			int number = MIN(filter[i].num, polyNumber - polyIndex);
+			polyIndex += number;
+			while( number-- > 0 ) {
+				for( int j = *(ptr++); j>=0; --j, ++ptr ) {
+					PhdTextureInfo[*ptr].drawtype = DRAW_Semitrans;
+				}
+			}
+		}
+		return;
+	}
+#endif // FEATURE_MOD_CONFIG
+
+	// If filter is absent or disabled, do it in automatic mode
 	for( int i = *(ptr++); i>0; --i ) {
-		for ( int j = *(ptr++); j>=0; --j, ++ptr ) {
-			if( PhdTextureInfo[*ptr].drawtype == DRAW_ColorKey ) {
+		for( int j = *(ptr++); j>=0; --j, ++ptr ) {
+			if( filter != NULL || PhdTextureInfo[*ptr].drawtype == DRAW_ColorKey ) {
 				// all animated room textures with colorkey are supposed to be semitransparent
 				PhdTextureInfo[*ptr].drawtype = DRAW_Semitrans;
 			}
