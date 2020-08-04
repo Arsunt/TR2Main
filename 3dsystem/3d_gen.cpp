@@ -243,7 +243,7 @@ static void phd_PutEnvmapPolygons(__int16 *ptrEnv) {
 		ptrObj += 3;
 	}
 
-	EnumeratePolys(ptrEnv, InsertEnvmap, &ReflectFilter, (LPVOID)uv);
+	EnumeratePolys(ptrEnv, false, InsertEnvmap, &ReflectFilter, (LPVOID)uv);
 	delete[] uv;
 }
 #endif // FEATURE_VIDEOFX_IMPROVED

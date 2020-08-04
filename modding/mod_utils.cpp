@@ -38,25 +38,31 @@ typedef struct {
 static MOD_CONFIG ModConfig;
 #endif // FEATURE_MOD_CONFIG
 
-static bool IsCompatibleFilter(__int16 *ptrObj, POLYFILTER *filter) {
+static bool IsCompatibleFilter(__int16 *ptrObj, bool isRoomMesh, POLYFILTER *filter) {
 	if( !ptrObj || !filter || !filter->n_vtx ) return true;
-	ptrObj += 5; // skip x, y, z, radius, flags
+	if( !isRoomMesh ) {
+		ptrObj += 5; // skip x, y, z, radius, flags
+	}
 	__int16 num = *(ptrObj++); // get vertex counter
 	if( num != filter->n_vtx ) return false;
-	ptrObj += num * 3; // skip vertices
-	num = *(ptrObj++); // get normal counter
-	ptrObj += (num > 0) ? num * 3 : ABS(num); // skip normals/shades
+	ptrObj += num * (isRoomMesh ? 6 : 3); // skip vertices
+	if( !isRoomMesh ) {
+		num = *(ptrObj++); // get normal counter
+		ptrObj += (num > 0) ? num * 3 : ABS(num); // skip normals/shades
+	}
 	num = *(ptrObj++); // get gt4 number
 	if( num != filter->n_gt4 ) return false;
 	ptrObj += num * 5; // skip gt4 polys
 	num = *(ptrObj++); // get gt3 number
 	if( num != filter->n_gt3 ) return false;
-	ptrObj += num * 4; // skip gt3 polys
-	num = *(ptrObj++); // get g4 number
-	if( num != filter->n_g4 ) return false;
-	ptrObj += num * 5; // skip g4 polys
-	num = *(ptrObj++); // get g3 number
-	if( num != filter->n_g3 ) return false;
+	if( !isRoomMesh ) {
+		ptrObj += num * 4; // skip gt3 polys
+		num = *(ptrObj++); // get g4 number
+		if( num != filter->n_g4 ) return false;
+		ptrObj += num * 5; // skip g4 polys
+		num = *(ptrObj++); // get g3 number
+		if( num != filter->n_g3 ) return false;
+	}
 	return true;
 }
 
@@ -90,24 +96,29 @@ static __int16 *EnumeratePolysSpecific(__int16 *ptrObj, int vtxCount, bool color
 	return ptrObj;
 }
 
-bool EnumeratePolys(__int16 *ptrObj, ENUM_POLYS_CB callback, POLYFILTER *filter, LPVOID param) {
+bool EnumeratePolys(__int16 *ptrObj, bool isRoomMesh, ENUM_POLYS_CB callback, POLYFILTER *filter, LPVOID param) {
 	if( ptrObj == NULL || callback == NULL ) return false; // wrong parameters
-	if( !IsCompatibleFilter(ptrObj, filter) ) return false; // filter is not compatible
+	if( !IsCompatibleFilter(ptrObj, isRoomMesh, filter) ) return false; // filter is not compatible
 
 	__int16 num;
-	ptrObj += 5; // skip x, y, z, radius, flags
+	if( !isRoomMesh ) {
+		ptrObj += 5; // skip x, y, z, radius, flags
+	}
 	num = *(ptrObj++); // get vertex counter
-	ptrObj += num * 3; // skip vertices
-	num = *(ptrObj++); // get normal counter
-	ptrObj += (num > 0) ? num * 3 : ABS(num); // skip normals/shades
-
+	ptrObj += num * (isRoomMesh ? 6 : 3); // skip vertices
+	if( !isRoomMesh ) {
+		num = *(ptrObj++); // get normal counter
+		ptrObj += (num > 0) ? num * 3 : ABS(num); // skip normals/shades
+	}
 	ptrObj = EnumeratePolysSpecific(ptrObj, 4, false, callback, filter ? filter->gt4 : NULL, param); // enumerate textured quads
 	if( ptrObj == NULL ) return true;
 	ptrObj = EnumeratePolysSpecific(ptrObj, 3, false, callback, filter ? filter->gt3 : NULL, param); // enumerate textured triangles
-	if( ptrObj == NULL ) return true;
-	ptrObj = EnumeratePolysSpecific(ptrObj, 4, true, callback, filter ? filter->g4 : NULL, param); // enumerate colored quads
-	if( ptrObj == NULL ) return true;
-	ptrObj = EnumeratePolysSpecific(ptrObj, 3, true, callback, filter ? filter->g3 : NULL, param); // enumerate colored triangles
+	if( !isRoomMesh ) {
+		if( ptrObj == NULL ) return true;
+		ptrObj = EnumeratePolysSpecific(ptrObj, 4, true, callback, filter ? filter->g4 : NULL, param); // enumerate colored quads
+		if( ptrObj == NULL ) return true;
+		ptrObj = EnumeratePolysSpecific(ptrObj, 3, true, callback, filter ? filter->g3 : NULL, param); // enumerate colored triangles
+	}
 	return true;
 }
 

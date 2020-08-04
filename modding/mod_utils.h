@@ -45,7 +45,7 @@ typedef bool (*ENUM_POLYS_CB) (__int16 *ptrObj, int vtxCount, bool colored, LPVO
 /*
  * Function list
  */
-bool EnumeratePolys(__int16 *ptrObj, ENUM_POLYS_CB callback, POLYFILTER *filter, LPVOID param);
+bool EnumeratePolys(__int16 *ptrObj, bool isRoomMesh, ENUM_POLYS_CB callback, POLYFILTER *filter, LPVOID param);
 
 #ifdef FEATURE_MOD_CONFIG
 bool IsModConfigLoaded();

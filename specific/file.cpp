@@ -80,7 +80,7 @@ static bool MarkSemitransMesh(int objID, int meshIdx, POLYFILTER *filter) {
 		if( !obj->loaded || meshIdx >= obj->nMeshes ) return false; // no such object/mesh for patching
 		ptrObj = MeshPtr[obj->meshIndex + meshIdx];
 	}
-	return EnumeratePolys(ptrObj, MarkSemitransPoly, filter, NULL);
+	return EnumeratePolys(ptrObj, false, MarkSemitransPoly, filter, NULL);
 }
 
 static void MarkSemitransObjects() {
