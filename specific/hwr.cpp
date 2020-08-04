@@ -76,8 +76,8 @@ static void DrawAlphaBlended(D3DTLVERTEX *vtxPtr, DWORD vtxCount, DWORD mode) {
 	D3DDev->SetRenderState(D3DRENDERSTATE_ALPHAREF, 0x70);
 	D3DDev->SetRenderState(D3DRENDERSTATE_ALPHAFUNC, D3DCMP_GREATER);
 	D3DDev->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
-	// This is workaround for removing artifacts on borders of an additive blending (TR2 uses this for glow effect only)
-	if( SavedAppSettings.BilinearFiltering && mode == 1 ) {
+	// This is a workaround to eliminate alpha blending artifacts
+	if( SavedAppSettings.BilinearFiltering ) {
 #if (DIRECT3D_VERSION >= 0x700)
 		D3DDev->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_POINT); // D3DTFG_LINEAR
 		D3DDev->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFG_POINT); // D3DFILTER_LINEAR
@@ -100,7 +100,7 @@ static void DrawAlphaBlended(D3DTLVERTEX *vtxPtr, DWORD vtxCount, DWORD mode) {
 	D3DDev->SetRenderState(D3DRENDERSTATE_ALPHAFUNC, D3DCMP_ALWAYS);
 	D3DDev->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
 	// return bilinear filtering if it was enabled
-	if( SavedAppSettings.BilinearFiltering && mode == 1 ) {
+	if( SavedAppSettings.BilinearFiltering ) {
 #if (DIRECT3D_VERSION >= 0x700)
 		D3DDev->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
 		D3DDev->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFG_LINEAR);
