@@ -429,7 +429,13 @@ void __cdecl PrintObjects(__int16 roomNumber) {
 		__int16 clip = S_GetObjectBounds((__int16 *)&StaticObjects[mesh[i].staticNumber].drawBounds);
 		if( clip ) {
 			S_CalculateStaticMeshLight(mesh[i].x, mesh[i].y, mesh[i].z, mesh[i].shade1, mesh[i].shade2, room);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+			SetMeshReflectState(mesh[i].staticNumber, -1);
+#endif // FEATURE_VIDEOFX_IMPROVED
 			phd_PutPolygons(MeshPtr[StaticObjects[mesh[i].staticNumber].meshIndex], clip);
+#ifdef FEATURE_VIDEOFX_IMPROVED
+			ClearMeshReflectState();
+#endif // FEATURE_VIDEOFX_IMPROVED
 		}
 		phd_PopMatrix();
 	}

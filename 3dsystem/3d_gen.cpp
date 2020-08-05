@@ -108,6 +108,12 @@ void SetMeshReflectState(int objID, int meshIdx) {
 	ClearMeshReflectState();
 	if( TextureFormat.bpp < 16 || !ReflectionMode ) return;
 
+	if( objID >= 0 && meshIdx < 0 ) {
+		// This is static object mesh
+		return;
+	}
+
+	// This is animated object mesh
 	switch( objID ) {
 	case ID_SKIDOO_FAST :
 		// This one is a fast showmobile from the Golden Mask
