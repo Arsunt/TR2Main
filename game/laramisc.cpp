@@ -61,6 +61,21 @@ void __cdecl LaraControl(__int16 itemID) {
 				item->fallSpeed = 30;
 				Lara.torso_x_rot = Lara.torso_y_rot = 0;
 				Lara.head_x_rot = Lara.head_y_rot = 0;
+				if( item->hitPoints <= 0 && Lara.gun_type != LGT_Flare ) {
+					BYTE backupGunType = SaveGame.start[CurrentLevel].gunType;
+					SaveGame.start[CurrentLevel].gunType = Lara.request_gun_type;
+					LaraInitialiseMeshes(CurrentLevel);
+					SaveGame.start[CurrentLevel].gunType = backupGunType;
+					Lara.gun_status = LGS_Armless;
+					Lara.target = NULL;
+					memset(&Lara.left_arm, 0, sizeof(Lara.left_arm));
+					memset(&Lara.right_arm, 0, sizeof(Lara.right_arm));
+					if( Lara.weapon_item >= 0 ) {
+						KillItem(Lara.weapon_item);
+						Lara.weapon_item = -1;
+					}
+				}
+
 			}
 			Lara.water_status = LWS_Cheat;
 			Lara.skidoo = -1; // get off from vehicle
