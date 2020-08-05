@@ -30,6 +30,11 @@
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
 extern DWORD AlphaBlendMode;
+static int GoldenLaraAlpha = 0;
+
+void ResetGoldenLaraAlpha() {
+	GoldenLaraAlpha = ( Lara.water_status == LWS_Cheat ) ? 0xFF : 0;
+}
 #endif // FEATURE_VIDEOFX_IMPROVED
 
 void __cdecl DrawRooms(__int16 currentRoom) {
@@ -105,19 +110,18 @@ void __cdecl DrawRooms(__int16 currentRoom) {
 		MidSort = RoomInfo[LaraItem->roomNumber].boundActive >> 8;
 		if( MidSort ) --MidSort;
 #if defined(FEATURE_VIDEOFX_IMPROVED)
-		static int goldAlpha = 0;
 		if( Lara.mesh_effects ) {
-			if( goldAlpha < 0xFF ) goldAlpha += 8;
-			CLAMPG(goldAlpha, 0xFF);
+			if( GoldenLaraAlpha < 0xFF ) GoldenLaraAlpha += 8;
+			CLAMPG(GoldenLaraAlpha, 0xFF);
 		} else {
-			if( goldAlpha > 0 ) goldAlpha -= 8;
-			CLAMPL(goldAlpha, 0);
+			if( GoldenLaraAlpha > 0 ) GoldenLaraAlpha -= 8;
+			CLAMPL(GoldenLaraAlpha, 0);
 		}
-		if( goldAlpha ) {
+		if( GoldenLaraAlpha ) {
 			// NOTE: this is dirty trick for Golden Lara while Dozy cheat mode.
 			// In TR1 there is bit mask in mesh_effects for distinct meshes,
 			// but whole Lara must be golden here, including braid and weapons.
-			SetMeshReflectState(ID_NONE, RGBA_MAKE(0xFF,0xC0,0x40,goldAlpha));
+			SetMeshReflectState(ID_NONE, RGBA_MAKE(0xFF,0xC0,0x40,GoldenLaraAlpha));
 		}
 #endif // FEATURE_VIDEOFX_IMPROVED
 		DrawLara(LaraItem);

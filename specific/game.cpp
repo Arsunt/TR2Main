@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -49,6 +49,10 @@
 extern bool IsGold();
 #endif // FEATURE_GOLD
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+extern void ResetGoldenLaraAlpha();
+#endif // FEATURE_VIDEOFX_IMPROVED
+
 #ifdef FEATURE_SUBFOLDERS
 #include "modding/file_utils.h"
 
@@ -83,6 +87,10 @@ __int16 __cdecl StartGame(int levelID, GF_LEVEL_TYPE levelType) {
 		CurrentLevel = 0;
 		return GF_EXIT_GAME;
 	}
+
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	ResetGoldenLaraAlpha();
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 	int res = GameLoop(FALSE);
 	switch( res ) {
