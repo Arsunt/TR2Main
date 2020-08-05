@@ -38,10 +38,17 @@ typedef struct {
 
 typedef struct {
 	bool isLoaded;
+	POLYFILTER_NODE *statics;
+	POLYFILTER_NODE *objects[ID_NUMBER_OBJECTS];
+} REFLECT_CONFIG;
+
+typedef struct {
+	bool isLoaded;
 	bool isBarefoot;
 	char loadingPix[256];
 	DWORD waterColor;
 	SEMITRANS_CONFIG semitrans;
+	REFLECT_CONFIG reflect;
 } MOD_CONFIG;
 
 static MOD_CONFIG ModConfig;
@@ -188,6 +195,18 @@ POLYFILTER_NODE *GetModSemitransStaticsFilter() {
 
 POLYFILTER_NODE **GetModSemitransObjectsFilter() {
 	return ModConfig.semitrans.objects;
+}
+
+bool IsModReflectConfigLoaded() {
+	return ModConfig.reflect.isLoaded;
+}
+
+POLYFILTER_NODE *GetModReflectStaticsFilter() {
+	return ModConfig.reflect.statics;
+}
+
+POLYFILTER_NODE **GetModReflectObjectsFilter() {
+	return ModConfig.reflect.objects;
 }
 
 static json_value *GetJsonField(json_value *root, json_type fieldType, const char *name, DWORD *pIndex) {
@@ -404,6 +423,26 @@ static bool ParseSemitransConfiguration(json_value *root) {
 	return true;
 }
 
+static bool ParseReflectConfiguration(json_value *root) {
+	if( root == NULL || root->type != json_object ) {
+		return false;
+	}
+	json_value* field = NULL;
+
+	json_value* objects = GetJsonField(root, json_array, "objects", NULL);
+	if( objects ) {
+		for( DWORD i = 0; i < objects->u.array.length; ++i ) {
+			json_value *object = objects->u.array.values[i];
+			field = GetJsonField(object, json_integer, "object", NULL);
+			if( !field || field->u.integer < 0 || field->u.integer >= ARRAY_SIZE(ModConfig.reflect.objects) ) continue;
+			ParsePolyfilterConfiguration(GetJsonField(object, json_array, "meshes", NULL), "mesh", &ModConfig.reflect.objects[field->u.integer]);
+		}
+	}
+	ParsePolyfilterConfiguration(GetJsonField(root, json_array, "statics", NULL), "static", &ModConfig.reflect.statics);
+	ModConfig.reflect.isLoaded = true;
+	return true;
+}
+
 static bool ParseLevelConfiguration(json_value *root) {
 	if( root == NULL || root->type != json_object ) {
 		return false;
@@ -423,6 +462,7 @@ static bool ParseLevelConfiguration(json_value *root) {
 		ModConfig.isBarefoot = field->u.boolean;
 	}
 	ParseSemitransConfiguration(GetJsonField(root, json_object, "semitransparent", NULL));
+	ParseReflectConfiguration(GetJsonField(root, json_object, "reflective", NULL));
 	return true;
 }
 
@@ -445,8 +485,10 @@ void UnloadModConfiguration() {
 	}
 	FreePolyfilterNodes(&ModConfig.semitrans.rooms);
 	FreePolyfilterNodes(&ModConfig.semitrans.statics);
+	FreePolyfilterNodes(&ModConfig.reflect.statics);
 	for( DWORD i=0; i<ARRAY_SIZE(ModConfig.semitrans.objects); ++i ) {
 		FreePolyfilterNodes(&ModConfig.semitrans.objects[i]);
+		FreePolyfilterNodes(&ModConfig.reflect.objects[i]);
 	}
 	memset(&ModConfig, 0, sizeof(ModConfig));
 }

@@ -63,6 +63,9 @@ POLYINDEX *GetModSemitransAnimtexFilter();
 POLYFILTER_NODE *GetModSemitransRoomsFilter();
 POLYFILTER_NODE *GetModSemitransStaticsFilter();
 POLYFILTER_NODE **GetModSemitransObjectsFilter();
+bool IsModReflectConfigLoaded();
+POLYFILTER_NODE *GetModReflectStaticsFilter();
+POLYFILTER_NODE **GetModReflectObjectsFilter();
 
 void UnloadModConfiguration();
 bool LoadModConfiguration(LPCTSTR levelFilePath);

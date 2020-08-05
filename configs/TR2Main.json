@@ -46,8 +46,9 @@
         "   Almost all animated textures of the original game affected by     ",
         "   'auto' are water surfaces, so it's recommended to use this mode.  ",
         "                                                                     ",
-        " - 'objects' is used to mark object textures as semitransparent.     ",
-        "   The field must be inside 'semitransparent' section.               ",
+        " - 'objects' is used to mark object textures as semitransparent      ",
+        "   or to mark object polygons as reflective. The field must be       ",
+        "   inside 'semitransparent' or 'reflective' section accordingly.     ",
         "   It must contain 'object' and 'meshes' subfields.                  ",
         "   'object' contains the object ID (from 0 to 264),                  ",
         "   'meshes' contains the list of meshes, each contains 'mesh' field  ",
@@ -64,14 +65,17 @@
         "   but there is no 'auto' option. If there are no lists in the mesh, ",
         "   then every list considered as 'all'. If there are some lists, but ",
         "   some absent, every missing list considered as 'none'. The listed  ",
-        "   polygons become semitransparent.                                  ",
+        "   polygons become semitransparent or reflective.                    ",
         "                                                                     ",
         " - 'statics' is used to mark static mesh textures as semitransparent ",
-        "   The field must be inside 'semitransparent' section.               ",
+        "   or to mark static polygons as reflective. The field must be       ",
+        "   inside 'semitransparent' or 'reflective' section accordingly.     ",
         "   It must contain 'static' subfield for static ID (counts from 0).  ",
         "   All other subfields are identical to 'meshes' described in the    ",
         "   'objects', but 'mesh' subfield is not used, because every static  ",
-        "   is a single mesh itself.                                          ",
+        "   is a single mesh itself. Note that most static objects meshes     ",
+        "   don't have normal vectors, required for reflections, so even if   ",
+        "   you set them reflective, they won't become reflective.            ",
         "                                                                     ",
         " - 'rooms' is used to mark room mesh textures as semitransparent.    ",
         "   The field must be inside 'semitransparent' section.               ",
@@ -81,6 +85,7 @@
         "   is a single mesh itself. Note that it is not necessary to list    ",
         "   all semitransparent polygons for all rooms if they refer to the   ",
         "   same texture. Just specify a few polygons in several rooms.       ",
+        "   Room meshes have no normal vectors, so they cannot be reflective. ",
         "                                                                     "
     ],
     "default": {
@@ -126,6 +131,51 @@
                 "object": 241,
                 "meshes": [{"mesh": 0}]
             }]
+        },
+        "reflective": {
+            "objects": [{
+                "comment": "Windshield of a gray fast snowmobile (The Golden Mask)",
+                "object": 13,
+                "meshes": [{
+                    "mesh": 0,
+                    "filter": {"v":59, "t4":14, "t3":73, "c3":17},
+                    "t3list": "48",
+                    "c3list": "all"
+                }]
+            }, {
+                "comment": "Flamethrower mask",
+                "object": 34,
+                "meshes": [{
+                    "mesh": 15,
+                    "filter": {"v":38, "t4":30, "t3":12},
+                    "t4list": "22-26"
+                }]
+            }, {
+                "comment": "Windshield of an armed snowmobile",
+                "object": 51,
+                "meshes": [{
+                    "mesh": 0,
+                    "filter": {"v":88, "t4":45, "t3":60},
+                    "t4list": "21-22",
+                    "t3list": "34-47"
+                }]
+            }, {
+                "comment": "Rolling wheel blade",
+                "object": 80,
+                "meshes": [{
+                    "mesh": 0,
+                    "t4list": "all",
+                    "c4list": "all"
+                }]
+            }, {
+                "comment": "Wall mounted blade",
+                "object": 81,
+                "meshes": [{"mesh": 1}]
+            }, {
+                "comment": "Sword of killing statue",
+                "object": 82,
+                "meshes": [{"mesh": 7}]
+            }]
         }
     },
     "levels": [{
@@ -160,6 +210,17 @@
                 "filter": {"v":112, "t4":91},
                 "t4list": "3"
             }]
+        },
+        "reflective": {
+            "objects": [{
+                "comment": "Boathouse key",
+                "object": 197,
+                "meshes": [{
+                    "mesh": 0,
+                    "filter": {"v":66, "t4":53},
+                    "t4list": "0-9, 11-21, 24-38, 44-51"
+                }]
+            }]
         }
     }, {
         "comment": "Bartoli's Hideout",
@@ -172,6 +233,17 @@
                 "room": 15,
                 "filter": {"v":30, "t4":22},
                 "t4list": "19, 21"
+            }]
+        },
+        "reflective": {
+            "objects": [{
+                "comment": "Library key",
+                "object": 197,
+                "meshes": [{
+                    "mesh": 0,
+                    "filter": {"v":66, "t4":53},
+                    "t4list": "0-9, 11-21, 24-38, 44-51"
+                }]
             }]
         }
     }, {

@@ -27,8 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The armed snowmobile windshield is made reflective. This is not presented in the PlayStation version, but probably it was supposed to be. Anyway it looks cool!
 - The original game fast snowmobile windshield is made semitransparent (alpha blending required). This is how it looks in the PlayStation version.
 - The Golden Mask fast snowmobile windshield is made reflective. In the Golden Mask it has the same windshield model as the armed snowmobile.
+- Boathouse Key and Library Key from Venice levels are made reflective. This is how they look in the PlayStation version.
 - The water surfaces and the glass on the sink in Lara's bathroom are made semitransparent (alpha blending required). This is how they look in the PlayStation version.
-- Chain-link fence texture from Venice levels and stained glass texture from "Wreck of the Maria Doria" level are made reflective (alpha blending required). This is how they look in the PlayStation version.
+- Chain-link fence texture from Venice levels and stained glass texture from "Wreck of the Maria Doria" level are made semitransparent (alpha blending required). This is how they look in the PlayStation version.
 - The glass on the sink in the "Nightmare in Vegas" level is made semitransparent (alpha blending required).
 - Added support for loading screens from the script.
 - Added TR2Main.json configuration file for easy game modding in the future.
@@ -49,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Lara has golden skin while in Dozy mode (hardware renderer and reflection feature required).
 - SFX number limit increased from 256 to 370.
 - Added automatic cdaudio.dat fix for PaulD's CD Audio solution, if some track has wrong parameters (like in the Steam version).
-- Added possibility to customize semitransparent polygons via TR2Main.json configuration file.
+- Added possibility to customize semitransparent/reflective polygons via TR2Main.json configuration file.
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.

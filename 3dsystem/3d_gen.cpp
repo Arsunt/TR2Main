@@ -108,6 +108,40 @@ void SetMeshReflectState(int objID, int meshIdx) {
 	ClearMeshReflectState();
 	if( TextureFormat.bpp < 16 || !ReflectionMode ) return;
 
+	if( objID == ID_NONE ) {
+		// Reflect all meshes with custom tint instead of mesh index
+		ReflectTint = meshIdx;
+		IsReflect = true;
+		return;
+	}
+
+#ifdef FEATURE_MOD_CONFIG
+	// Check if config is presented
+	if( IsModReflectConfigLoaded() ) {
+		POLYFILTER_NODE *node = NULL;
+		if( meshIdx < 0 ) {
+			for( node = GetModReflectStaticsFilter(); node != NULL; node = node->next ) {
+				if( node->id == objID ) {
+					ReflectFilter = node->filter;
+					IsReflect = true;
+					break;
+				}
+			}
+		} else if( objID >= 0 && objID < ID_NUMBER_OBJECTS ) {
+			POLYFILTER_NODE **obj = GetModReflectObjectsFilter();
+			for( node = obj[objID]; node != NULL; node = node->next ) {
+				if( node->id == meshIdx ) {
+					ReflectFilter = node->filter;
+					IsReflect = true;
+					break;
+				}
+			}
+		}
+		return;
+	}
+#endif // FEATURE_MOD_CONFIG
+
+	// If config is absent or disabled, use hardcoded params
 	if( objID >= 0 && meshIdx < 0 ) {
 		// This is static object mesh
 		return;
@@ -194,11 +228,6 @@ void SetMeshReflectState(int objID, int meshIdx) {
 		if( meshIdx == 7 ) {
 			IsReflect = true;
 		}
-		break;
-	case ID_NONE :
-		// Reflect all meshes with custom tint instead of mesh index
-		ReflectTint = meshIdx;
-		IsReflect = true;
 		break;
 	}
 }
