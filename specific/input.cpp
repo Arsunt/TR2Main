@@ -30,6 +30,10 @@
 #include "specific/winvid.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_INPUT_IMPROVED
+bool WalkToSidestep = true;
+#endif // FEATURE_INPUT_IMPROVED
+
 // Macros
 #define KEY_DOWN(a)		((DIKeys[(a)]&0x80)!=0)
 #define TOGGLE(a)		{(a)=!(a);}
@@ -159,6 +163,17 @@ bool __cdecl S_UpdateInput() {
 	}
 
 	// Key combinations and alternatives
+#ifdef FEATURE_INPUT_IMPROVED
+	if( WalkToSidestep && CHK_ANY(input, IN_SLOW) && !CHK_ANY(input, IN_FORWARD|IN_BACK|IN_STEPL|IN_STEPR) ) {
+		if( CHK_ANY(input, IN_LEFT) ) {
+			input &= ~IN_LEFT;
+			input |= IN_STEPL;
+		} else if( CHK_ANY(input, IN_RIGHT) ) {
+			input &= ~IN_RIGHT;
+			input |= IN_STEPR;
+		}
+	}
+#endif // FEATURE_INPUT_IMPROVED
 	if( CHK_ALL(input, IN_FORWARD|IN_BACK) ) {
 		input |= IN_ROLL;
 	}

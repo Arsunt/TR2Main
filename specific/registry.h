@@ -81,6 +81,7 @@
 #define REG_PSXFOV_ENABLE		"EnablePsxFov"
 #define REG_BAREFOOT_SFX_ENABLE	"BarefootSFX"
 #define REG_REMASTER_PIX_ENABLE	"RemasteredPictures"
+#define REG_WALK_TO_SIDESTEP	"WalkToSidestep"
 
 // FLOAT value names
 #define REG_GAME_SIZER		"Sizer"

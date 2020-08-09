@@ -51,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SFX number limit increased from 256 to 370.
 - Added automatic cdaudio.dat fix for PaulD's CD Audio solution, if some track has wrong parameters (like in the Steam version).
 - Added possibility to customize semitransparent/reflective polygons via TR2Main.json configuration file.
+- Added the ability to side step hitting the *Left*/*Right* key while holding *Walk* key (optional feature).
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.

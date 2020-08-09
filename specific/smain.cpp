@@ -77,6 +77,10 @@ extern DWORD ScreenshotFormat;
 extern char ScreenshotPath[MAX_PATH];
 #endif // FEATURE_SCREENSHOT_IMPROVED
 
+#ifdef FEATURE_INPUT_IMPROVED
+extern bool WalkToSidestep;
+#endif // FEATURE_INPUT_IMPROVED
+
 #ifdef FEATURE_MOD_CONFIG
 extern bool BarefootSfxEnabled;
 #endif // FEATURE_MOD_CONFIG
@@ -527,6 +531,9 @@ void __cdecl S_LoadSettings() {
 	GetRegistryDwordValue(REG_DETAIL_LEVEL, &DetailLevel, 1);
 	GetRegistryFloatValue(REG_GAME_SIZER, &GameSizer, 1.0);
 	GetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)Layout[CTRL_Custom].key, sizeof(CONTROL_LAYOUT), NULL);
+#ifdef FEATURE_INPUT_IMPROVED
+	GetRegistryBoolValue(REG_WALK_TO_SIDESTEP, &WalkToSidestep, true);
+#endif // FEATURE_INPUT_IMPROVED
 
 #ifdef FEATURE_HUD_IMPROVED
 	GetRegistryDwordValue(REG_INVTEXTBOX_MODE, &InvTextBoxMode, 0);
