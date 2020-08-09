@@ -295,7 +295,8 @@ void __cdecl GetValidLevelsList(REQUEST_INFO *req) {
 }
 
 void __cdecl GetSavedGamesList(REQUEST_INFO *req) {
-	SetPCRequesterSize(req, 10, -32);
+	extern void SetPassportRequesterSize(REQUEST_INFO *req);
+	SetPassportRequesterSize(req);
 
 	if( req->selected >= req->visibleCount ) {
 		req->lineOffset = req->selected - req->visibleCount + 1;

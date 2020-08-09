@@ -149,6 +149,11 @@ static LPCSTR ControlKeysText[0x110] = {
 	"JOY9", "JOY10", "JOY11", "JOY12", "JOY13", "JOY14", "JOY15", "JOY16",
 };
 
+// NOTE: not presented in the original game. SetPCRequesterSize() used directly instead
+void SetPassportRequesterSize(REQUEST_INFO *req) {
+	SetPCRequesterSize(req, PASSPORT_LINE_COUNT, PASSPORT_Y_BOX);
+}
+
 void __cdecl do_inventory_options(INVENTORY_ITEM *item) {
 	switch( item->objectID ) {
 	// passport
@@ -244,7 +249,7 @@ void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 				InputDB = IN_RIGHT;
 			}
 			else if( passportMode == 1 ) {
-				SetPCRequesterSize(&LoadGameRequester, PASSPORT_LINE_COUNT, PASSPORT_Y_BOX);
+				SetPassportRequesterSize(&LoadGameRequester);
 				select = Display_Requester(&LoadGameRequester, TRUE, TRUE);
 				if( select == 0 ) {
 					if( CHK_ANY(InputDB, IN_RIGHT) ) {
@@ -290,7 +295,7 @@ void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 			else if( passportMode == 1 || passportMode == 2 ) {
 				requester = ( passportMode == 1 ) ? &LoadGameRequester : &SaveGameRequester;
 
-				SetPCRequesterSize(requester, PASSPORT_LINE_COUNT, PASSPORT_Y_BOX);
+				SetPassportRequesterSize(requester);
 				select = Display_Requester(requester, TRUE, TRUE);
 				if( select == 0 ) {
 					if( CHK_ANY(InputDB, IN_LEFT|IN_RIGHT) ) {
