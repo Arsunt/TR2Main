@@ -69,6 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed incorrect sorting of 3D polygons if Z-Buffer is turned off or the software renderer is used.
 - Fixed a bug due to which the skybox was not drawn in some rooms.
 - Fixed a bug where pickup sprites were cropped by the floor if Z-Buffer is enabled. Some pickup items are slightly raised (optional fix).
+- Fixed a bug due to which the last pressed key was accidentally assigned when redefining keys.
 
 ### TR2Main bugfixes
 - Background capture is optimized even more, now it is 3-4 times faster than v0.8.2. No lags anymore (broken since v0.8.0).
