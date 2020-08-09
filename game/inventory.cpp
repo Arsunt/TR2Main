@@ -909,7 +909,24 @@ void __cdecl DrawInventoryItem(INVENTORY_ITEM* invItem) {
 DWORD __cdecl GetDebouncedInput(DWORD input) {
 	static DWORD oldInput = 0;
 	DWORD result = input & ~oldInput;
+#ifdef FEATURE_INPUT_IMPROVED
+	static int holdBack = -12;
+	static int holdForward = -12;
 
+	if( !CHK_ANY(input, IN_BACK) || CHK_ANY(input, IN_FORWARD) ) {
+		holdBack = -12;
+	} else if( CHK_ANY(input, IN_BACK) && ++holdBack >= 3 ) {
+		result |= IN_BACK;
+		holdBack = 0;
+	}
+
+	if( !CHK_ANY(input, IN_FORWARD) || CHK_ANY(input, IN_BACK) ) {
+		holdForward = -12;
+	} else if( CHK_ANY(input, IN_FORWARD) && ++holdForward >= 3 ) {
+		result |= IN_FORWARD;
+		holdForward = 0;
+	}
+#endif // FEATURE_INPUT_IMPROVED
 	oldInput = input;
 	return result;
 }
