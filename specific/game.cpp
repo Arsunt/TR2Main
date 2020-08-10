@@ -67,9 +67,9 @@ static int GetSaveFileName(LPSTR destName, DWORD destSize, int slotNumber) {
 #endif // !FEATURE_GOLD
 	return 0;
 }
-
 #endif // FEATURE_SUBFOLDERS
 
+DWORD SavegameSlots = 16;
 
 __int16 __cdecl StartGame(int levelID, GF_LEVEL_TYPE levelType) {
 	if( levelType == GFL_NORMAL || levelType == GFL_SAVED || levelType == GFL_DEMO )
@@ -441,7 +441,7 @@ BOOL __cdecl S_FrontEndCheck() {
 	Init_Requester(&LoadGameRequester);
 	SavedGamesCount = 0;
 
-	for( int i=0; i<16; ++i ) {
+	for( DWORD i=0; i<SavegameSlots; ++i ) {
 #ifdef FEATURE_SUBFOLDERS
 		GetSaveFileName(fileName, sizeof(fileName), i);
 #else // !FEATURE_SUBFOLDERS
