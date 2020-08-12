@@ -21,7 +21,63 @@
 
 #include "global/precompiled.h"
 #include "specific/init_input.h"
+#include "3dsystem/phd_math.h"
 #include "global/vars.h"
+
+#ifdef FEATURE_INPUT_IMPROVED
+#define HAS_AXIS(x) (JoyRanges[x].lMax != JoyRanges[x].lMin)
+
+typedef enum {
+	JoyX,
+	JoyY,
+	JoyZ,
+	JoyRX,
+	JoyRY,
+	JoyRZ,
+	JoyS0,
+	JoyS1,
+	JoyAxisNumber,
+} JOY_AXIS_ENUM;
+
+typedef struct {
+	long lMin;
+	long lMax;
+} JOY_AXIS_RANGE;
+
+static DIDEVCAPS JoyCaps;
+static JOY_AXIS_RANGE JoyRanges[JoyAxisNumber];
+
+BOOL CALLBACK DInputEnumJoystickAxisCallback(LPCDIDEVICEOBJECTINSTANCE pdidoi, LPVOID pContext) {
+	if( !pdidoi || !pContext ) {
+		return DIENUM_CONTINUE;
+	}
+
+	DIPROPRANGE prop;
+	prop.diph.dwSize = sizeof(prop);
+	prop.diph.dwHeaderSize = sizeof(prop.diph);
+	prop.diph.dwHow = DIPH_BYOFFSET;
+	prop.diph.dwObj = pdidoi->dwOfs;
+	if( FAILED( IDID_SysJoystick->GetProperty(DIPROP_RANGE, &prop.diph) ) ) {
+		return DIENUM_CONTINUE;
+	}
+
+	DWORD axisOfs[JoyAxisNumber] = {
+		DIJOFS_X, DIJOFS_Y, DIJOFS_Z,
+		DIJOFS_RX, DIJOFS_RY, DIJOFS_RZ,
+		DIJOFS_SLIDER(0), DIJOFS_SLIDER(1),
+	};
+
+	JOY_AXIS_RANGE *axisRanges = (JOY_AXIS_RANGE *)pContext;
+	for( int i=0; i<JoyAxisNumber; ++i ) {
+		if( pdidoi->dwOfs == axisOfs[i] ) {
+			axisRanges[i].lMin = prop.lMin;
+			axisRanges[i].lMax = prop.lMax;
+			break;
+		}
+	}
+	return DIENUM_CONTINUE;
+}
+#endif // FEATURE_INPUT_IMPROVED
 
 extern void __thiscall FlaggedStringDelete(STRING_FLAGGED *item);
 extern bool FlaggedStringCopy(STRING_FLAGGED *dst, STRING_FLAGGED *src);
@@ -52,6 +108,36 @@ void __cdecl WinInReadKeyboard(LPVOID lpInputData) {
 }
 
 DWORD __cdecl WinInReadJoystick(int *xPos, int *yPos) {
+#ifdef FEATURE_INPUT_IMPROVED
+	*yPos = 0;
+	*xPos = 0;
+	if( !SavedAppSettings.JoystickEnabled || !IDID_SysJoystick ) return 0;
+	DIJOYSTATE joyState;
+#if (DIRECTINPUT_VERSION >= 0x700)
+	while( FAILED(IDID_SysJoystick->Poll()) || FAILED(IDID_SysJoystick->GetDeviceState(sizeof(joyState), &joyState)) )
+#else // (DIRECTINPUT_VERSION >= 0x700)
+	while( FAILED(IDID_SysJoystick->GetDeviceState(sizeof(joyState), &joyState)) )
+#endif // (DIRECTINPUT_VERSION >= 0x700)
+	{
+		if FAILED(IDID_SysJoystick->Acquire()) return 0;
+	}
+	if( JoyCaps.dwAxes && HAS_AXIS(JoyX) && HAS_AXIS(JoyY) ) {
+		*xPos = 32 * joyState.lX / (JoyRanges[JoyX].lMax - JoyRanges[JoyX].lMin) - 16;
+		*yPos = 32 * joyState.lY / (JoyRanges[JoyY].lMax - JoyRanges[JoyY].lMin) - 16;
+	} else if( JoyCaps.dwPOVs ) {
+		DWORD pov = joyState.rgdwPOV[0];
+		// Check if D-PAD is not centered
+		if( LOWORD(pov) != 0xFFFF ) {
+			*xPos = +16 * phd_sin(pov * PHD_360 / 36000) / PHD_IONE;
+			*yPos = -16 * phd_cos(pov * PHD_360 / 36000) / PHD_IONE;
+		}
+	}
+	DWORD buttonStatus = 0;
+	for( DWORD i=0; i<MIN(JoyCaps.dwButtons, 32); ++i ) {
+		buttonStatus |= CHK_ANY(joyState.rgbButtons[i], 0x80) ? 1<<i : 0;
+	}
+	return buttonStatus;
+#else // FEATURE_INPUT_IMPROVED
 	static bool joyNeedCaps = true;
 	static JOYCAPS joyCaps;
 
@@ -77,6 +163,7 @@ DWORD __cdecl WinInReadJoystick(int *xPos, int *yPos) {
 	}
 	*yPos = 0;
 	*xPos = 0;
+#endif // FEATURE_INPUT_IMPROVED
 	return 0;
 }
 
@@ -191,17 +278,47 @@ void __cdecl DInputKeyboardRelease() {
 	}
 }
 
-bool __cdecl DInputJoystickSelect() {
+bool __cdecl DInputJoystickCreate() {
 	if( SavedAppSettings.PreferredJoystick == NULL )
-		return false;
+		return true;
 
 	JOYSTICK *preferred = &SavedAppSettings.PreferredJoystick->body;
 	CurrentJoystick = *preferred;
 
 	FlaggedStringCopy(&CurrentJoystick.productName, &preferred->productName);
 	FlaggedStringCopy(&CurrentJoystick.instanceName, &preferred->instanceName);
+#ifdef FEATURE_INPUT_IMPROVED
+	memset(JoyRanges, 0, sizeof(JoyRanges));
+	memset(&JoyCaps, 0, sizeof(JoyCaps));
+	JoyCaps.dwSize = sizeof(JoyCaps);
+#if (DIRECTINPUT_VERSION >= 0x700)
+	if FAILED(DInput->CreateDeviceEx(CurrentJoystick.joystickGuid, IID_IDirectInputDevice7, (LPVOID *)&IDID_SysJoystick, NULL))
+		return false;
+#else // (DIRECTINPUT_VERSION >= 0x700)
+	if FAILED(DInput->CreateDevice(CurrentJoystick.joystickGuid, &IDID_SysJoystick, NULL))
+		return false;
+#endif // (DIRECTINPUT_VERSION >= 0x700)
+	if FAILED(IDID_SysJoystick->SetCooperativeLevel(HGameWindow, DISCL_FOREGROUND|DISCL_NONEXCLUSIVE))
+		return false;
+	if FAILED(IDID_SysJoystick->SetDataFormat(&c_dfDIJoystick))
+		return false;
+	if FAILED(IDID_SysJoystick->GetCapabilities(&JoyCaps))
+		return false;
+	if FAILED(IDID_SysJoystick->EnumObjects(DInputEnumJoystickAxisCallback, (LPVOID)JoyRanges, DIDFT_AXIS))
+		return false;
+	if FAILED(IDID_SysJoystick->Acquire())
+		return false;
+#endif // FEATURE_INPUT_IMPROVED
 
 	return true;
+}
+
+void __cdecl DInputJoystickRelease() {
+	if( IDID_SysJoystick != NULL ) {
+		IDID_SysJoystick->Unacquire();
+		IDID_SysJoystick->Release();
+		IDID_SysJoystick = NULL;
+	}
 }
 
 void __cdecl WinInStart() {
@@ -209,10 +326,11 @@ void __cdecl WinInStart() {
 		throw ERR_CantCreateDirectInput;
 
 	DInputKeyboardCreate();
-	DInputJoystickSelect();
+	DInputJoystickCreate();
 }
 
 void __cdecl WinInFinish() {
+	DInputJoystickRelease();
 	DInputKeyboardRelease();
 	DInputRelease();
 }
@@ -237,7 +355,8 @@ void Inject_InitInput() {
 	INJECT(0x00447620, GetJoystick);
 	INJECT(0x00447670, DInputKeyboardCreate);
 	INJECT(0x00447740, DInputKeyboardRelease);
-	INJECT(0x00447770, DInputJoystickSelect);
+	INJECT(0x00447770, DInputJoystickCreate);
+//	INJECT(----------, DInputJoystickRelease);
 	INJECT(0x00447860, WinInStart);
 	INJECT(0x00447890, WinInFinish);
 	INJECT(0x004478A0, WinInRunControlPanel);

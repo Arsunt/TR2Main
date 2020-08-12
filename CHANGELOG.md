@@ -54,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added the ability to side step hitting the *Left*/*Right* key while holding *Walk* key (optional feature).
 - Added possibility to hold up/down keys to quickly scroll through game menus.
 - Added a configurable number of saved game slots (16-24).
+- Joystick support completely migrated from WinAPI to DirectInput.
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.

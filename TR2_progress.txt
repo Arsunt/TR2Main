@@ -1083,7 +1083,8 @@ x function is unused / included in another function
 0x00447620:	+	GetJoystick
 0x00447670:	+	DInputKeyboardCreate
 0x00447740:	+	DInputKeyboardRelease
-0x00447770:	+	DInputJoystickSelect
+0x00447770:	+	DInputJoystickCreate
+----------:		DInputJoystickRelease
 0x00447860:	+	WinInStart
 0x00447890:	+	WinInFinish
 0x004478A0:	+	WinInRunControlPanel

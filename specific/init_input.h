@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -38,7 +38,8 @@ void __thiscall FlaggedStringCreate(STRING_FLAGGED *item, DWORD dwSize); // 0x00
 JOYSTICK_NODE *__cdecl GetJoystick(GUID *lpGuid); // 0x00447620
 void __cdecl DInputKeyboardCreate(); // 0x00447670
 void __cdecl DInputKeyboardRelease(); // 0x00447740
-bool __cdecl DInputJoystickSelect(); // 0x00447770
+bool __cdecl DInputJoystickCreate(); // 0x00447770
+void __cdecl DInputJoystickRelease(); // NULL function in the original game
 void __cdecl WinInStart(); // 0x00447860
 void __cdecl WinInFinish(); // 0x00447890
 void __cdecl WinInRunControlPanel(HWND hWnd); // 0x004478A0
