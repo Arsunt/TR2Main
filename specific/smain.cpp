@@ -80,6 +80,7 @@ extern char ScreenshotPath[MAX_PATH];
 
 #ifdef FEATURE_INPUT_IMPROVED
 extern bool WalkToSidestep;
+extern DWORD JoystickMovement;
 #endif // FEATURE_INPUT_IMPROVED
 
 #ifdef FEATURE_MOD_CONFIG
@@ -535,6 +536,7 @@ void __cdecl S_LoadSettings() {
 	GetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)Layout[CTRL_Custom].key, sizeof(CONTROL_LAYOUT), NULL);
 #ifdef FEATURE_INPUT_IMPROVED
 	GetRegistryBoolValue(REG_WALK_TO_SIDESTEP, &WalkToSidestep, true);
+	GetRegistryDwordValue(REG_JOYSTICK_MOVEMENT, &JoystickMovement, 0);
 #endif // FEATURE_INPUT_IMPROVED
 
 #ifdef FEATURE_HUD_IMPROVED

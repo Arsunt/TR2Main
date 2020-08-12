@@ -47,6 +47,8 @@ typedef struct {
 static DIDEVCAPS JoyCaps;
 static JOY_AXIS_RANGE JoyRanges[JoyAxisNumber];
 
+DWORD JoystickMovement = 0;
+
 BOOL CALLBACK DInputEnumJoystickAxisCallback(LPCDIDEVICEOBJECTINSTANCE pdidoi, LPVOID pContext) {
 	if( !pdidoi || !pContext ) {
 		return DIENUM_CONTINUE;
@@ -121,7 +123,7 @@ DWORD __cdecl WinInReadJoystick(int *xPos, int *yPos) {
 	{
 		if FAILED(IDID_SysJoystick->Acquire()) return 0;
 	}
-	if( JoyCaps.dwAxes && HAS_AXIS(JoyX) && HAS_AXIS(JoyY) ) {
+	if( (JoystickMovement || !JoyCaps.dwPOVs) && JoyCaps.dwAxes && HAS_AXIS(JoyX) && HAS_AXIS(JoyY) ) {
 		*xPos = 32 * joyState.lX / (JoyRanges[JoyX].lMax - JoyRanges[JoyX].lMin) - 16;
 		*yPos = 32 * joyState.lY / (JoyRanges[JoyY].lMax - JoyRanges[JoyY].lMin) - 16;
 	} else if( JoyCaps.dwPOVs ) {
