@@ -1067,7 +1067,9 @@ void __cdecl SE_ControlsDlgUpdate(HWND hwndDlg) {
 	bool isCheck = ( isAvailable && ChangedAppSettings.JoystickEnabled );
 	// 'Enable Joystick' CheckBox
 	HWND checkBox = GetDlgItem(hwndDlg, ID_CTRLS_BUTTON_JOYSTICK_ENABLE);
-
+#ifdef FEATURE_INPUT_IMPROVED
+	EnableWindow(GetDlgItem(hwndDlg, ID_CTRLS_BUTTON_CTL_PANEL), isAvailable);
+#endif // FEATURE_INPUT_IMPROVED
 	EnableWindow(checkBox, isAvailable);
 	SendMessage(checkBox, BM_SETCHECK, isCheck, 0);
 }

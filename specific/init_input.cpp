@@ -336,8 +336,23 @@ void __cdecl WinInFinish() {
 }
 
 void __cdecl WinInRunControlPanel(HWND hWnd) {
-	if( DInput != NULL )
+	if( DInput != NULL ) {
+#ifdef FEATURE_INPUT_IMPROVED
+		JOYSTICK *preferred = &ChangedAppSettings.PreferredJoystick->body;
+#if (DIRECTINPUT_VERSION >= 0x700)
+		if SUCCEEDED(DInput->CreateDeviceEx(preferred->joystickGuid, IID_IDirectInputDevice7, (LPVOID *)&IDID_SysJoystick, NULL))
+#else // (DIRECTINPUT_VERSION >= 0x700)
+		if SUCCEEDED(DInput->CreateDevice(preferred->joystickGuid, &IDID_SysJoystick, NULL))
+#endif // (DIRECTINPUT_VERSION >= 0x700)
+		{
+			IDID_SysJoystick->RunControlPanel(hWnd, 0);
+			IDID_SysJoystick->Release();
+			IDID_SysJoystick = NULL;
+			return;
+		}
+#endif // FEATURE_INPUT_IMPROVED
 		DInput->RunControlPanel(hWnd, 0);
+	}
 }
 
 /*
