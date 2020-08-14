@@ -444,37 +444,37 @@ void __cdecl CheckCheatMode() {
 						if( !Inv_RequestItem(ID_SHOTGUN_ITEM) ) {
 							Inv_AddItem(ID_SHOTGUN_ITEM);
 						}
-						Lara.shotgun_ammo = 500;
+						Lara.shotgun_ammo = SaveGame.bonusFlag ? 10001 : 500;
 					}
 					if( Objects[ID_MAGNUM_OPTION].loaded ) {
 						if( !Inv_RequestItem(ID_MAGNUM_ITEM) ) {
 							Inv_AddItem(ID_MAGNUM_ITEM);
 						}
-						Lara.magnum_ammo = 500;
+						Lara.magnum_ammo = SaveGame.bonusFlag ? 10001 : 500;
 					}
 					if( Objects[ID_UZI_OPTION].loaded ) {
 						if( !Inv_RequestItem(ID_UZI_ITEM) ) {
 							Inv_AddItem(ID_UZI_ITEM);
 						}
-						Lara.uzi_ammo = 5000;
+						Lara.uzi_ammo = SaveGame.bonusFlag ? 10001 : 5000;
 					}
 					if( Objects[ID_HARPOON_OPTION].loaded ) {
 						if( !Inv_RequestItem(ID_HARPOON_ITEM) ) {
 							Inv_AddItem(ID_HARPOON_ITEM);
 						}
-						Lara.harpoon_ammo = 5000;
+						Lara.harpoon_ammo = SaveGame.bonusFlag ? 10001 : 5000;
 					}
 					if( Objects[ID_M16_OPTION].loaded ) {
 						if( !Inv_RequestItem(ID_M16_ITEM) ) {
 							Inv_AddItem(ID_M16_ITEM);
 						}
-						Lara.m16_ammo = 5000;
+						Lara.m16_ammo = SaveGame.bonusFlag ? 10001 : 5000;
 					}
 					if( Objects[ID_GRENADE_OPTION].loaded ) {
 						if( !Inv_RequestItem(ID_GRENADE_ITEM) ) {
 							Inv_AddItem(ID_GRENADE_ITEM);
 						}
-						Lara.grenade_ammo = 5000;
+						Lara.grenade_ammo = SaveGame.bonusFlag ? 10001 : 5000;
 					}
 
 					// Give medipacks and flares

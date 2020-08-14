@@ -74,7 +74,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a bug due to which the skybox was not drawn in some rooms.
 - Fixed a bug where pickup sprites were cropped by the floor if Z-Buffer is enabled. Some pickup items are slightly raised (optional fix).
 - Fixed a bug due to which the last pressed key was accidentally assigned when redefining keys.
-- "Run Control Panel" button in the setup dialog now opens the current joystick configuration from Control Panel.
+- "Run Control Panel" button in the setup dialog now opens the current joystick configuration from Control Panel instead of Control Panel itself.
+- Fixed a bug that caused the harpoon gun to reload every single shot in *"New Game+"* after a weapon cheat was used.
 
 ### TR2Main bugfixes
 - Background capture is optimized even more, now it is 3-4 times faster than v0.8.2. No lags anymore (broken since v0.8.0).
