@@ -25,6 +25,8 @@
 #include "global/vars.h"
 
 #ifdef FEATURE_INPUT_IMPROVED
+#include <XInput.h>
+#define XINPUT_DPAD(x) (CHK_ALL((x), XINPUT_GAMEPAD_DPAD_UP|XINPUT_GAMEPAD_DPAD_DOWN|XINPUT_GAMEPAD_DPAD_LEFT|XINPUT_GAMEPAD_DPAD_RIGHT))
 #define HAS_AXIS(x) (JoyRanges[x].lMax != JoyRanges[x].lMin)
 
 typedef enum {
@@ -44,6 +46,8 @@ typedef struct {
 	long lMax;
 } JOY_AXIS_RANGE;
 
+static int XInputIndex = -1;
+static XINPUT_CAPABILITIES XInputCaps;
 static DIDEVCAPS JoyCaps;
 static JOY_AXIS_RANGE JoyRanges[JoyAxisNumber];
 
@@ -79,6 +83,109 @@ BOOL CALLBACK DInputEnumJoystickAxisCallback(LPCDIDEVICEOBJECTINSTANCE pdidoi, L
 	}
 	return DIENUM_CONTINUE;
 }
+
+//-----------------------------------------------------------------------------
+// Enum each PNP device using WMI and check each device ID to see if it contains
+// "IG_" (ex. "VID_045E&PID_028E&IG_00").  If it does, then it's an XInput device
+// Unfortunately this information can not be found by just using DirectInput
+//-----------------------------------------------------------------------------
+#include <wbemidl.h>
+#include <oleauto.h>
+
+BOOL IsXInputDevice( const GUID* pGuidProductFromDirectInput ) {
+	IWbemLocator* pIWbemLocator = NULL;
+	IEnumWbemClassObject* pEnumDevices = NULL;
+	IWbemClassObject* pDevices[20] = {0};
+	IWbemServices* pIWbemServices = NULL;
+	BSTR bstrNamespace = NULL;
+	BSTR bstrDeviceID = NULL;
+	BSTR bstrClassName = NULL;
+	DWORD uReturned = 0;
+	bool bIsXinputDevice = false;
+	UINT iDevice = 0;
+	VARIANT var;
+	HRESULT hr;
+
+	// CoInit if needed
+	hr = CoInitialize(NULL);
+	bool bCleanupCOM = SUCCEEDED(hr);
+
+	// Create WMI
+	hr = CoCreateInstance(__uuidof(WbemLocator), NULL, CLSCTX_INPROC_SERVER,
+							__uuidof(IWbemLocator), (LPVOID*) &pIWbemLocator);
+	if( FAILED(hr) || pIWbemLocator == NULL ) goto LCleanup;
+
+	bstrNamespace = SysAllocString(L"\\\\.\\root\\cimv2");
+	if( bstrNamespace == NULL ) goto LCleanup;
+
+	bstrClassName = SysAllocString(L"Win32_PNPEntity");
+	if( bstrClassName == NULL ) goto LCleanup;
+
+	bstrDeviceID = SysAllocString(L"DeviceID");
+	if( bstrDeviceID == NULL ) goto LCleanup;
+
+	// Connect to WMI
+	hr = pIWbemLocator->ConnectServer(bstrNamespace, NULL, NULL, 0L, 0L, NULL, NULL, &pIWbemServices);
+	if( FAILED(hr) || pIWbemServices == NULL ) goto LCleanup;
+
+	// Switch security level to IMPERSONATE.
+	CoSetProxyBlanket(pIWbemServices, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL,
+						RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE);
+
+	hr = pIWbemServices->CreateInstanceEnum(bstrClassName, 0, NULL, &pEnumDevices);
+	if( FAILED(hr) || pEnumDevices == NULL ) goto LCleanup;
+
+	// Loop over all devices
+	for( ;; ) {
+		// Get 20 at a time
+		hr = pEnumDevices->Next(10000, 20, pDevices, &uReturned);
+		if( FAILED(hr) ) goto LCleanup;
+		if( uReturned == 0 ) break;
+
+		for( iDevice=0; iDevice<uReturned; iDevice++ ) {
+			// For each device, get its device ID
+			hr = pDevices[iDevice]->Get(bstrDeviceID, 0L, &var, NULL, NULL);
+			if( SUCCEEDED(hr) && var.vt == VT_BSTR && var.bstrVal != NULL ) {
+				// Check if the device ID contains "IG_".  If it does, then it's an XInput device
+				if( wcsstr(var.bstrVal, L"IG_") ) {
+					// If it does, then get the VID/PID from var.bstrVal
+					DWORD dwPid = 0, dwVid = 0;
+					WCHAR* strVid = wcsstr( var.bstrVal, L"VID_" );
+					if( strVid && swscanf( strVid, L"VID_%4X", &dwVid ) != 1 )
+						dwVid = 0;
+					WCHAR* strPid = wcsstr( var.bstrVal, L"PID_" );
+					if( strPid && swscanf( strPid, L"PID_%4X", &dwPid ) != 1 )
+						dwPid = 0;
+
+					// Compare the VID/PID to the DInput device
+					DWORD dwVidPid = MAKELONG( dwVid, dwPid );
+					if( dwVidPid == pGuidProductFromDirectInput->Data1 )
+					{
+						bIsXinputDevice = true;
+						goto LCleanup;
+					}
+				}
+			}
+			if( pDevices[iDevice] ) {
+				pDevices[iDevice]->Release();
+				pDevices[iDevice] = NULL;
+			}
+		}
+	}
+
+LCleanup:
+	if( bstrNamespace ) SysFreeString(bstrNamespace);
+	if( bstrDeviceID ) SysFreeString(bstrDeviceID);
+	if( bstrClassName ) SysFreeString(bstrClassName);
+	for( iDevice=0; iDevice<20; iDevice++ ) {
+		if( pDevices[iDevice] ) pDevices[iDevice]->Release();
+	}
+	if( pEnumDevices ) pEnumDevices->Release();
+	if( pIWbemLocator ) pIWbemLocator->Release();
+	if( pIWbemServices ) pIWbemServices->Release();
+	if( bCleanupCOM ) CoUninitialize();
+	return bIsXinputDevice;
+}
 #endif // FEATURE_INPUT_IMPROVED
 
 extern void __thiscall FlaggedStringDelete(STRING_FLAGGED *item);
@@ -113,7 +220,40 @@ DWORD __cdecl WinInReadJoystick(int *xPos, int *yPos) {
 #ifdef FEATURE_INPUT_IMPROVED
 	*yPos = 0;
 	*xPos = 0;
-	if( !SavedAppSettings.JoystickEnabled || !IDID_SysJoystick ) return 0;
+	DWORD buttonStatus = 0;
+	if( !SavedAppSettings.JoystickEnabled ) return 0;
+
+	if( XInputIndex >= 0 ) {
+		XInputEnable(TRUE);
+		XINPUT_STATE state;
+		if( ERROR_SUCCESS != XInputGetState(XInputIndex, &state) ) {
+			return 0;
+		}
+		if( (JoystickMovement || !XINPUT_DPAD(XInputCaps.Gamepad.wButtons)) && XInputCaps.Gamepad.sThumbLX && XInputCaps.Gamepad.sThumbLY ) {
+			*xPos += 32 * state.Gamepad.sThumbLX / PHD_ONE;
+			*yPos -= 32 * state.Gamepad.sThumbLY / PHD_ONE;
+		} else if( XINPUT_DPAD(XInputCaps.Gamepad.wButtons) ) {
+			*xPos += CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_DPAD_RIGHT) ? 16 : 0;
+			*xPos -= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_DPAD_LEFT) ? 16 : 0;
+			*yPos += CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_DPAD_DOWN) ? 16 : 0;
+			*yPos -= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_DPAD_UP) ? 16 : 0;
+		}
+		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_A) ? 0x001 : 0;
+		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_B) ? 0x002 : 0;
+		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_X) ? 0x004 : 0;
+		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_Y) ? 0x008 : 0;
+		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_LEFT_SHOULDER) ? 0x010 : 0;
+		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_RIGHT_SHOULDER) ? 0x020 : 0;
+		buttonStatus |= (state.Gamepad.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ? 0x040 : 0;
+		buttonStatus |= (state.Gamepad.bRightTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ? 0x080 : 0;
+		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_BACK) ? 0x100 : 0;
+		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_START) ? 0x200 : 0;
+		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_LEFT_THUMB) ? 0x400 : 0;
+		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_RIGHT_THUMB) ? 0x800 : 0;
+		return buttonStatus;
+	}
+
+	if( !IDID_SysJoystick ) return 0;
 	DIJOYSTATE joyState;
 #if (DIRECTINPUT_VERSION >= 0x700)
 	while( FAILED(IDID_SysJoystick->Poll()) || FAILED(IDID_SysJoystick->GetDeviceState(sizeof(joyState), &joyState)) )
@@ -134,7 +274,6 @@ DWORD __cdecl WinInReadJoystick(int *xPos, int *yPos) {
 			*yPos = -16 * phd_cos(pov * PHD_360 / 36000) / PHD_IONE;
 		}
 	}
-	DWORD buttonStatus = 0;
 	for( DWORD i=0; i<MIN(JoyCaps.dwButtons, 32); ++i ) {
 		buttonStatus |= CHK_ANY(joyState.rgbButtons[i], 0x80) ? 1<<i : 0;
 	}
@@ -194,6 +333,35 @@ bool __cdecl WinInputInit() {
 }
 
 bool __cdecl DInputEnumDevices(JOYSTICK_LIST *joystickList) {
+#ifdef FEATURE_INPUT_IMPROVED
+	for( DWORD i = 0; i < XUSER_MAX_COUNT; ++i ) {
+		XINPUT_STATE state;
+		memset(&state, 0, sizeof(state));
+		if( ERROR_SUCCESS != XInputGetState(i, &state) ) {
+			continue;
+		}
+		JOYSTICK_NODE *joyNode = new JOYSTICK_NODE;
+		if( joyNode == NULL ) {
+			continue;
+		}
+		joyNode->next = NULL;
+		joyNode->previous = joystickList->tail;
+		if( !joystickList->head ) {
+			joystickList->head = joyNode;
+		}
+		if( joystickList->tail ) {
+			joystickList->tail->next = joyNode;
+		}
+		joystickList->tail = joyNode;
+		joystickList->dwCount++;
+		memset(&joyNode->body.joystickGuid, 0, sizeof(GUID));
+		joyNode->body.joystickGuid.Data4[7] = i;
+		joyNode->body.lpJoystickGuid = &joyNode->body.joystickGuid;
+		FlaggedStringCreate(&joyNode->body.productName, 256);
+		FlaggedStringCreate(&joyNode->body.instanceName, 256);
+		snprintf(joyNode->body.productName.lpString, 256, "XInput Controller %lu", i+1);
+	}
+#endif // FEATURE_INPUT_IMPROVED
 	return SUCCEEDED(DInput->EnumDevices(DIDEVTYPE_JOYSTICK, DInputEnumDevicesCallback, (LPVOID)joystickList, DIEDFL_ATTACHEDONLY));
 }
 
@@ -201,8 +369,14 @@ BOOL CALLBACK DInputEnumDevicesCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
 	JOYSTICK_LIST *joyList = (JOYSTICK_LIST *)pvRef;
 	JOYSTICK_NODE *joyNode = new JOYSTICK_NODE;
 
-	if( joyNode == NULL )
+	if( joyNode == NULL || lpddi == NULL )
 		return DIENUM_CONTINUE;
+
+#ifdef FEATURE_INPUT_IMPROVED
+	if( IsXInputDevice(&lpddi->guidProduct) ) {
+		return DIENUM_CONTINUE;
+	}
+#endif // FEATURE_INPUT_IMPROVED
 
 	joyNode->next = NULL;
 	joyNode->previous = joyList->tail;
@@ -216,14 +390,8 @@ BOOL CALLBACK DInputEnumDevicesCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
 	joyList->tail = joyNode;
 	joyList->dwCount++;
 
-	if( lpddi == NULL ) {
-		memset(&joyNode->body.joystickGuid, 0, sizeof(GUID));
-		joyNode->body.lpJoystickGuid = NULL;
-	} else {
-		joyNode->body.joystickGuid = lpddi->guidInstance;
-		joyNode->body.lpJoystickGuid = &joyNode->body.joystickGuid;
-	}
-
+	joyNode->body.joystickGuid = lpddi->guidInstance;
+	joyNode->body.lpJoystickGuid = &joyNode->body.joystickGuid;
 	FlaggedStringCreate(&joyNode->body.productName, 256);
 	FlaggedStringCreate(&joyNode->body.instanceName, 256);
 	lstrcpy(joyNode->body.productName.lpString, lpddi->tszProductName);
@@ -290,6 +458,17 @@ bool __cdecl DInputJoystickCreate() {
 	FlaggedStringCopy(&CurrentJoystick.productName, &preferred->productName);
 	FlaggedStringCopy(&CurrentJoystick.instanceName, &preferred->instanceName);
 #ifdef FEATURE_INPUT_IMPROVED
+	XInputIndex = -1;
+	memset(&XInputCaps, 0, sizeof(XInputCaps));
+	GUID *guid = &CurrentJoystick.joystickGuid;
+	if( !guid->Data1 && !guid->Data2 && !guid->Data3 ) {
+		if( ERROR_SUCCESS != XInputGetCapabilities(guid->Data4[7], 0, &XInputCaps) ) {
+			return false;
+		}
+		XInputIndex = guid->Data4[7];
+		return true;
+	}
+
 	memset(JoyRanges, 0, sizeof(JoyRanges));
 	memset(&JoyCaps, 0, sizeof(JoyCaps));
 	JoyCaps.dwSize = sizeof(JoyCaps);
@@ -316,6 +495,9 @@ bool __cdecl DInputJoystickCreate() {
 }
 
 void __cdecl DInputJoystickRelease() {
+#ifdef FEATURE_INPUT_IMPROVED
+	XInputIndex = -1;
+#endif // FEATURE_INPUT_IMPROVED
 	if( IDID_SysJoystick != NULL ) {
 		IDID_SysJoystick->Unacquire();
 		IDID_SysJoystick->Release();

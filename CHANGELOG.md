@@ -54,7 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added the ability to side step hitting the *Left*/*Right* key while holding *Walk* key (optional feature).
 - Added possibility to hold up/down keys to quickly scroll through game menus.
 - Added a configurable number of saved game slots (16-24).
-- Joystick support completely migrated from WinAPI to DirectInput.
+- Joystick support completely migrated from WinAPI to DirectInput. Added XInput controllers support.
 - Added a setting to select the movement method for GamePads: D-Pad or Left Stick.
 
 ### The original game bugfixes
@@ -74,7 +74,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a bug due to which the skybox was not drawn in some rooms.
 - Fixed a bug where pickup sprites were cropped by the floor if Z-Buffer is enabled. Some pickup items are slightly raised (optional fix).
 - Fixed a bug due to which the last pressed key was accidentally assigned when redefining keys.
-- "Run Control Panel" button in the setup dialog now opens the current joystick configuration from Control Panel instead of Control Panel itself.
+- "Run Control Panel" button in the setup dialog now opens the current DirectInput joystick configuration from Control Panel instead of Control Panel itself.
 - Fixed a bug that caused the harpoon gun to reload every single shot in *"New Game+"* after a weapon cheat was used.
 
 ### TR2Main bugfixes

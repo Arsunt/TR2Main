@@ -88,6 +88,9 @@
 			<Add library="comctl32" />
 			<Add library="shlwapi" />
 			<Add library="winmm" />
+			<Add library="ole32" />
+			<Add library="oleaut32" />
+			<Add library="xinput" />
 			<Add library="../DX7_SDK/lib/dxguid.lib" />
 			<Add library="../DX7_SDK/lib/ddraw.lib" />
 			<Add library="../DX7_SDK/lib/d3dx.lib" />
