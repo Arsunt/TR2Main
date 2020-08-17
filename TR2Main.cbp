@@ -78,6 +78,7 @@
 		<Linker>
 			<Add option="-static-libstdc++" />
 			<Add option="-static-libgcc" />
+			<Add option="-static" />
 			<Add option="-m32" />
 			<Add option="-Wl,--kill-at" />
 			<Add library="user32" />
