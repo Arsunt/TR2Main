@@ -573,14 +573,14 @@ void __cdecl InitialiseLaraInventory(int levelID) {
 
 	// NOTE: additional start gun type availability checks not presented in the original game
 	switch( start->gunType ) {
-		// if the current weapon is absent then fallthrough
-		case LGT_Pistols	: if( start->has_pistols ) break;
-		case LGT_Magnums	: if( start->has_magnums ) break;
-		case LGT_Uzis		: if( start->has_uzis ) break;
-		case LGT_Shotgun	: if( start->has_shotgun ) break;
-		case LGT_M16		: if( start->has_m16 ) break;
-		case LGT_Grenade	: if( start->has_grenade ) break;
-		case LGT_Harpoon	: if( start->has_harpoon ) break;
+		// if the current weapon is absent then fall through
+		case LGT_Pistols	: if( start->has_pistols ) break; // fall through
+		case LGT_Magnums	: if( start->has_magnums ) break; // fall through
+		case LGT_Uzis		: if( start->has_uzis	 ) break; // fall through
+		case LGT_Shotgun	: if( start->has_shotgun ) break; // fall through
+		case LGT_M16		: if( start->has_m16	 ) break; // fall through
+		case LGT_Grenade	: if( start->has_grenade ) break; // fall through
+		case LGT_Harpoon	: if( start->has_harpoon ) break; // fall through
 			start->gunType = start->has_pistols ? LGT_Pistols : LGT_Unarmed;
 			break;
 		default :

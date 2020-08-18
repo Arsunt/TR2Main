@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -50,7 +50,7 @@ int AutoSelectExtension(LPSTR fileName, const STRING_FIXED4 *exts, DWORD num_ext
 		char extFileName[256] = {0};
 		char *extension;
 
-		strncpy(extFileName, fileName, sizeof(extFileName));
+		strncpy(extFileName, fileName, sizeof(extFileName)-1);
 		extension = PathFindExtension(extFileName);
 
 		if( extension == NULL ) {
@@ -61,7 +61,7 @@ int AutoSelectExtension(LPSTR fileName, const STRING_FIXED4 *exts, DWORD num_ext
 		for( DWORD i = 0; i < num_exts; ++i ) {
 			memcpy(extension + 1, &exts[i], sizeof(STRING_FIXED4));
 			if( PathFileExists(extFileName) ) {
-				strncpy(fileName, extFileName, sizeof(extFileName));
+				strcpy(fileName, extFileName);
 				return (i + 1);
 			}
 		}
@@ -85,7 +85,7 @@ int AutoSelectPathAndExtension(LPSTR fileName, LPCSTR path, const STRING_FIXED4 
 		ext = AutoSelectExtension(checkFileName, exts, num_exts);
 
 		if( ext >= 0 ) {
-			strncpy(fileName, checkFileName, sizeof(checkFileName));
+			strcpy(fileName, checkFileName);
 			return 1;
 		}
 	}
@@ -98,7 +98,7 @@ int CreateDirectories(LPCSTR path, bool isFileName) {
 	char shortPath[MAX_PATH];
 	char fullPath[MAX_PATH];
 
-	strncpy(shortPath, path, sizeof(shortPath));
+	strncpy(shortPath, path, sizeof(shortPath)-1);
 	if( isFileName ) {
 		PathRemoveFileSpec(shortPath);
 	}

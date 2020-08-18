@@ -499,7 +499,7 @@ bool LoadModConfiguration(LPCTSTR levelFilePath) {
 		return false;
 	}
 	char levelName[256] = {0};
-	strncpy(levelName, PathFindFileName(levelFilePath), sizeof(levelName));
+	strncpy(levelName, PathFindFileName(levelFilePath), sizeof(levelName)-1);
 	char *ext = PathFindExtension(levelName);
 	if( ext != NULL ) *ext = 0;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -54,7 +54,7 @@ void __cdecl DrawAssaultTimer() {
 	int xPos, yPos, d0, d1, d2;
 	int minutes, seconds, deciseconds;
 	DWORD scaleH, scaleV;
-	char timeString[8];
+	char timeString[16]; // NOTE: the original buffer was 8
 
 	// Exit if current level is not Assault or the timer is hidden
 	if( CurrentLevel != 0 || !IsAssaultTimerDisplay )

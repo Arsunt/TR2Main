@@ -675,7 +675,7 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 		if( fileName == NULL || *fileName == 0 ) {
 			goto FAIL;
 		}
-		strncpy(lastFileName, fileName, sizeof(lastFileName)); // backup filename string
+		strncpy(lastFileName, fileName, sizeof(lastFileName)-1); // backup filename string
 		lastTitleState = isTitle; // backup isTitle state
 	}
 
@@ -688,7 +688,7 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 		pickResult = PickBestPictureFile(fullPath, "pix");
 	}
 	if( !IsGold() || pickResult < 0 ) {
-		strncpy(fullPath, GetFullPath(fileName), sizeof(fullPath));
+		strncpy(fullPath, GetFullPath(fileName), sizeof(fullPath)-1);
 		pickResult = PickBestPictureFile(fullPath, "pix");
 	}
 #else // !FEATURE_GOLD

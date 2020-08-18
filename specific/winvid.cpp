@@ -987,7 +987,7 @@ LRESULT CALLBACK WinVidGameWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
 				case SIZE_MINIMIZED :
 					IsGameWindowMinimized = true;
 					IsGameWindowMaximized = false;
-					// here is no break operator in purpose
+					// fall through
 				default :
 					return DefWindowProc(hWnd, Msg, wParam, lParam);
 			}

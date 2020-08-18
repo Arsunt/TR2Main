@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -252,7 +252,7 @@ void __cdecl RingNotActive(INVENTORY_ITEM *item) {
 		case ID_LARGE_MEDIPACK_OPTION:
 			HealthBarTimer = 40; // 1.33 seconds
 			DrawHealthBar(FlashIt());
-			// fallthrough here
+			// fall through
 		case ID_PUZZLE_OPTION1:
 		case ID_PUZZLE_OPTION2:
 		case ID_PUZZLE_OPTION3:
