@@ -896,7 +896,7 @@ x function is unused / included in another function
 	game/sphere.cpp
 0x0043FA60:		TestCollision
 0x0043FB90:		GetSpheres
-0x0043FE70:		GetJointAbsPosition
+0x0043FE70:	 *	GetJointAbsPosition
 0x00440010:		BaddieBiteEffect
 
 	game/spider.cpp
