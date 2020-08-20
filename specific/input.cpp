@@ -38,6 +38,12 @@ bool WalkToSidestep = true;
 #define KEY_DOWN(a)		((DIKeys[(a)]&0x80)!=0)
 #define TOGGLE(a)		{(a)=!(a);}
 
+// NOTE: not presented in the original game
+static BOOL JoyKey(KEYMAP keyMap) {
+	UINT16 key = Layout[CTRL_Custom].key[keyMap];
+	return ( key >= 0x100 && CHK_ANY(JoyKeys, (1 << key)) );
+}
+
 BOOL __cdecl Key(KEYMAP keyMap) {
 	UINT16 key;
 
@@ -180,7 +186,8 @@ bool __cdecl S_UpdateInput() {
 	if( KEY_DOWN(DIK_RETURN) || CHK_ANY(input, IN_ACTION) ) {
 		input |= IN_SELECT;
 	}
-	if( KEY_DOWN(DIK_ESCAPE) ) {
+	// NOTE: there is no KM_WeaponDraw for Deselect in the original game
+	if( KEY_DOWN(DIK_ESCAPE) || JoyKey(KM_WeaponDraw) ) {
 		input |= IN_DESELECT;
 	}
 	if( CHK_ALL(input, IN_STEPL|IN_STEPR) ) {
