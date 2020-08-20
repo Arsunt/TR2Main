@@ -90,13 +90,13 @@ void __cdecl FireM16(BOOL isRunning) {
 	angles[0] = Lara.left_arm.y_rot + LaraItem->pos.rotY;
 	angles[1] = Lara.left_arm.x_rot;
 
-	// TODO: Here is a bug. It supposed to be LGT_M16 instead of ID_LARA_M16
+	// NOTE: Ther was a bug in the original game - ID_LARA_M16 instead of LGT_M16
 	if( isRunning ) {
-		Weapons[ID_LARA_M16].shotAccuracy = 12*PHD_DEGREE;
-		Weapons[ID_LARA_M16].damage = 1;
+		Weapons[LGT_M16].shotAccuracy = 12*PHD_DEGREE;
+		Weapons[LGT_M16].damage = 1;
 	} else {
-		Weapons[ID_LARA_M16].shotAccuracy = 4*PHD_DEGREE;
-		Weapons[ID_LARA_M16].damage = 3;
+		Weapons[LGT_M16].shotAccuracy = 4*PHD_DEGREE;
+		Weapons[LGT_M16].damage = 3;
 	}
 	if( FireWeapon(LGT_M16, Lara.target, LaraItem, angles) ) {
 		Lara.right_arm.flash_gun = Weapons[LGT_M16].flashTime;
