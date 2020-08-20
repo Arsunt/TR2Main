@@ -31,7 +31,113 @@
 #include "game/larafire.h"
 #include "game/objects.h"
 #include "game/sound.h"
+#include "specific/game.h"
 #include "global/vars.h"
+
+void __cdecl RifleHandler(int weaponType) {
+	WEAPON_INFO *weapon = &Weapons[weaponType];
+
+	if( CHK_ANY(InputStatus, IN_ACTION) )
+		LaraTargetInfo(&Weapons[weaponType]);
+	else {
+		Lara.target = 0;
+	}
+
+	if( !Lara.target ) {
+		LaraGetNewTarget(weapon);
+	}
+
+	AimWeapon(weapon, &Lara.left_arm);
+
+	if( Lara.left_arm.lock ) {
+		Lara.torso_x_rot = Lara.torso_y_rot = Lara.left_arm.y_rot;
+		Lara.head_x_rot = Lara.head_y_rot = 0;
+	}
+
+	AnimateShotgun(weaponType);
+
+	if( Lara.right_arm.flash_gun && (weaponType == LGT_Shotgun || weaponType == LGT_M16) ) {
+		int x = LaraItem->pos.x + (phd_sin(LaraItem->pos.rotY) >> (W2V_SHIFT-10));
+		int y = LaraItem->pos.y - 0x200;
+		int z = LaraItem->pos.z + (phd_cos(LaraItem->pos.rotY) >> (W2V_SHIFT-10));
+		AddDynamicLight(x, y, z, 12, 11);
+	}
+}
+
+void __cdecl FireShotgun() {
+	__int16 base[2], angles[2];
+	BOOL isFired = FALSE;
+	base[0] = Lara.left_arm.y_rot + LaraItem->pos.rotY;
+	base[1] = Lara.left_arm.x_rot;
+
+	for( int i=0; i<6; ++i ) {
+		angles[0] = base[0] + 20*PHD_DEGREE * (GetRandomControl() - PHD_ONE/4) / PHD_ONE;
+		angles[1] = base[1] + 20*PHD_DEGREE * (GetRandomControl() - PHD_ONE/4) / PHD_ONE;
+		if( FireWeapon(LGT_Shotgun, Lara.target, LaraItem, angles) ) {
+			isFired = TRUE;
+		}
+	}
+
+	if( isFired ) {
+		Lara.right_arm.flash_gun = Weapons[LGT_Shotgun].flashTime;
+		PlaySoundEffect(Weapons[LGT_Shotgun].sampleNum, &LaraItem->pos, 0);
+	}
+}
+
+void __cdecl FireM16(BOOL isRunning) {
+	__int16 angles[2];
+
+	angles[0] = Lara.left_arm.y_rot + LaraItem->pos.rotY;
+	angles[1] = Lara.left_arm.x_rot;
+
+	// TODO: Here is a bug. It supposed to be LGT_M16 instead of ID_LARA_M16
+	if( isRunning ) {
+		Weapons[ID_LARA_M16].shotAccuracy = 12*PHD_DEGREE;
+		Weapons[ID_LARA_M16].damage = 1;
+	} else {
+		Weapons[ID_LARA_M16].shotAccuracy = 4*PHD_DEGREE;
+		Weapons[ID_LARA_M16].damage = 3;
+	}
+	if( FireWeapon(LGT_M16, Lara.target, LaraItem, angles) ) {
+		Lara.right_arm.flash_gun = Weapons[LGT_M16].flashTime;
+	}
+}
+
+void __cdecl FireHarpoon() {
+	GAME_VECTOR pos;
+	if( Lara.harpoon_ammo <= 0 ) return;
+	__int16 itemID = CreateItem();
+	if( itemID < 0 ) return;
+
+	ITEM_INFO *item = &Items[itemID];
+	item->objectID = ID_HARPOON_BOLT;
+	item->roomNumber = LaraItem->roomNumber;
+	pos.x = -2;
+	pos.y = 373;
+	pos.z = 77;
+	GetLaraJointAbsPosition((PHD_VECTOR *)&pos, 10);
+	item->pos.x = pos.x;
+	item->pos.y = pos.y;
+	item->pos.z = pos.z;
+	InitialiseItem(itemID);
+	if( Lara.target ) {
+		find_target_point(Lara.target, &pos);
+		item->pos.rotY = phd_atan(pos.z - item->pos.z, pos.x - item->pos.x);
+		int distance = phd_sqrt(SQR(pos.x - item->pos.x) + SQR(pos.z - item->pos.z));
+		item->pos.rotX = -phd_atan(distance, pos.y - item->pos.y);
+	} else {
+		item->pos.rotX = Lara.left_arm.x_rot + LaraItem->pos.rotX;
+		item->pos.rotY = Lara.left_arm.y_rot + LaraItem->pos.rotY;
+	}
+	item->pos.rotZ = 0;
+	item->fallSpeed = -150 * phd_sin(item->pos.rotX) >> W2V_SHIFT;
+	item->speed = 150 * phd_cos(item->pos.rotX) >> W2V_SHIFT;
+	AddActiveItem(itemID);
+	if( !SaveGame.bonusFlag ) {
+		--Lara.harpoon_ammo;
+	}
+	++SaveGame.statistics.shots;
+}
 
 void __cdecl FireRocket() {
 	__int16 itemID;
@@ -165,10 +271,12 @@ void Inject_Lara1Gun() {
 //	INJECT(0x0042BC90, draw_shotgun_meshes);
 //	INJECT(0x0042BCD0, undraw_shotgun_meshes);
 //	INJECT(0x0042BD00, ready_shotgun);
-//	INJECT(0x0042BD70, RifleHandler);
-//	INJECT(0x0042BE70, FireShotgun);
-//	INJECT(0x0042BF70, FireM16);
-//	INJECT(0x0042BFF0, FireHarpoon);
+
+	INJECT(0x0042BD70, RifleHandler);
+	INJECT(0x0042BE70, FireShotgun);
+	INJECT(0x0042BF70, FireM16);
+	INJECT(0x0042BFF0, FireHarpoon);
+
 //	INJECT(0x0042C180, ControlHarpoonBolt);
 
 	INJECT(0x0042C4D0, FireRocket);

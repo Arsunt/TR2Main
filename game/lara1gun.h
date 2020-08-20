@@ -30,10 +30,12 @@
 //	0x0042BC90:		draw_shotgun_meshes
 //	0x0042BCD0:		undraw_shotgun_meshes
 //	0x0042BD00:		ready_shotgun
-//	0x0042BD70:		RifleHandler
-//	0x0042BE70:		FireShotgun
-//	0x0042BF70:		FireM16
-//	0x0042BFF0:		FireHarpoon
+
+void __cdecl RifleHandler(int weaponType); // 0x0042BD70
+void __cdecl FireShotgun(); // 0x0042BE70
+void __cdecl FireM16(BOOL isRunning); // 0x0042BF70
+void __cdecl FireHarpoon(); // 0x0042BFF0
+
 //	0x0042C180:		ControlHarpoonBolt
 
 void __cdecl FireRocket(); // 0x0042C4D0
@@ -41,6 +43,7 @@ void __cdecl ControlRocket(__int16 itemID); // 0x0042C5C0
 
 //	0x0042C9D0:		draw_shotgun
 //	0x0042CB40:		undraw_shotgun
-//	0x0042CC50:		AnimateShotgun
+
+#define AnimateShotgun ((void(__cdecl*)(int)) 0x0042CC50)
 
 #endif // LARA1GUN_H_INCLUDED

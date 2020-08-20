@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -21,9 +21,47 @@
 
 #include "global/precompiled.h"
 #include "game/lara2gun.h"
+#include "3dsystem/phd_math.h"
+#include "game/draw.h"
+#include "game/larafire.h"
 #include "global/vars.h"
 
+void __cdecl PistolHandler(int weaponType) {
+	WEAPON_INFO *weapon = &Weapons[weaponType];
 
+	if( CHK_ANY(InputStatus, IN_ACTION) ) {
+		LaraTargetInfo(weapon);
+	} else {
+		Lara.target = 0;
+	}
+
+	if( !Lara.target ) {
+		LaraGetNewTarget(weapon);
+	}
+
+	AimWeapon(weapon, &Lara.left_arm);
+	AimWeapon(weapon, &Lara.right_arm);
+
+	if( Lara.left_arm.lock && !Lara.right_arm.lock ) {
+		Lara.head_y_rot = Lara.torso_y_rot = Lara.left_arm.y_rot / 2;
+		Lara.head_x_rot = Lara.torso_x_rot = Lara.left_arm.x_rot / 2;
+	} else if( !Lara.left_arm.lock && Lara.right_arm.lock ) {
+		Lara.head_y_rot = Lara.torso_y_rot = Lara.right_arm.y_rot / 2;
+		Lara.head_x_rot = Lara.torso_x_rot = Lara.right_arm.x_rot / 2;
+	} else if ( Lara.left_arm.lock && Lara.right_arm.lock ) {
+		Lara.head_y_rot = Lara.torso_y_rot = (Lara.right_arm.y_rot + Lara.left_arm.y_rot) / 4;
+		Lara.head_x_rot = Lara.torso_x_rot = (Lara.right_arm.x_rot + Lara.left_arm.x_rot) / 4;
+	}
+
+	AnimatePistols(weaponType);
+
+	if( Lara.left_arm.flash_gun || Lara.right_arm.flash_gun ) {
+		int x = LaraItem->pos.x + (phd_sin(LaraItem->pos.rotY) >> (W2V_SHIFT-10));
+		int y = LaraItem->pos.y - 0x200;
+		int z = LaraItem->pos.z + (phd_cos(LaraItem->pos.rotY) >> (W2V_SHIFT-10));
+		AddDynamicLight(x, y, z, 12, 11);
+	}
+}
 
 /*
  * Inject function
@@ -36,6 +74,8 @@ void Inject_Lara2Gun() {
 //	INJECT(0x0042D360, draw_pistol_meshes);
 //	INJECT(0x0042D3B0, undraw_pistol_mesh_left);
 //	INJECT(0x0042D3F0, undraw_pistol_mesh_right);
-//	INJECT(0x0042D430, PistolHandler);
+
+	INJECT(0x0042D430, PistolHandler);
+
 //	INJECT(0x0042D5C0, AnimatePistols);
 }

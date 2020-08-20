@@ -622,16 +622,16 @@ x function is unused / included in another function
 0x0042BC90:		draw_shotgun_meshes
 0x0042BCD0:		undraw_shotgun_meshes
 0x0042BD00:		ready_shotgun
-0x0042BD70:		RifleHandler
-0x0042BE70:		FireShotgun
-0x0042BF70:		FireM16
-0x0042BFF0:		FireHarpoon
+0x0042BD70:	+	RifleHandler
+0x0042BE70:	+	FireShotgun
+0x0042BF70:	+	FireM16
+0x0042BFF0:	+	FireHarpoon
 0x0042C180:		ControlHarpoonBolt
 0x0042C4D0:	+	FireRocket
 0x0042C5C0:	+	ControlRocket
 0x0042C9D0:		draw_shotgun
 0x0042CB40:		undraw_shotgun
-0x0042CC50:		AnimateShotgun
+0x0042CC50:	 *	AnimateShotgun
 
 	game/lara2gun.cpp
 0x0042D000:		set_pistol_arm
@@ -641,8 +641,8 @@ x function is unused / included in another function
 0x0042D360:		draw_pistol_meshes
 0x0042D3B0:		undraw_pistol_mesh_left
 0x0042D3F0:		undraw_pistol_mesh_right
-0x0042D430:		PistolHandler
-0x0042D5C0:		AnimatePistols
+0x0042D430:	+	PistolHandler
+0x0042D5C0:	 *	AnimatePistols
 
 	game/laraclimb.cpp
 0x0042D8F0:		lara_as_climbleft
