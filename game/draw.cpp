@@ -668,7 +668,7 @@ void __cdecl DrawLaraInt(ITEM_INFO *item, __int16 *frame1, __int16 *frame2, int 
 
 	phd_PushMatrix();
 	CalculateObjectLighting(item, frame1);
-	bones = &AnimBones[obj->meshIndex]; // NOTE: seems like a bug. Should be &AnimBones[obj->boneIndex]
+	bones = &AnimBones[obj->boneIndex];
 
 	rot1 = (UINT16 *)frame1 + 9;
 	rot2 = (UINT16 *)frame2 + 9;
