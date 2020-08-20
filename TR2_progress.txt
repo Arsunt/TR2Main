@@ -664,17 +664,17 @@ x function is unused / included in another function
 0x0042E4F0:		LaraTestClimbUpPos
 
 	game/larafire.cpp
-0x0042E740:		LaraGun
-0x0042ECB0:		CheckForHoldingState
+0x0042E740:	 *	LaraGun
+0x0042ECB0:	 *	CheckForHoldingState
 0x0042ECF0:	 *	InitialiseNewWeapon
-0x0042EE30:		LaraTargetInfo
-0x0042EFD0:		LaraGetNewTarget
-0x0042F1F0:		find_target_point
-0x0042F2A0:		AimWeapon
-0x0042F370:		FireWeapon
+0x0042EE30:	 *	LaraTargetInfo
+0x0042EFD0:	 *	LaraGetNewTarget
+0x0042F1F0:	 *	find_target_point
+0x0042F2A0:	 *	AimWeapon
+0x0042F370:	 *	FireWeapon
 0x0042F6E0:	 *	HitTarget
-0x0042F780:		SmashItem
-0x0042F7E0:		WeaponObject
+0x0042F780:	 *	SmashItem
+0x0042F7E0:	 *	WeaponObject
 
 	game/laraflare.cpp
 0x0042F840:		DoFlareLight

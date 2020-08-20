@@ -678,6 +678,7 @@ typedef enum {
 	LGT_Grenade,
 	LGT_Harpoon,
 	LGT_Flare,
+	LGT_Skidoo,
 } LARA_GUN_TYPE;
 
 typedef enum {
@@ -2116,6 +2117,20 @@ typedef struct AIInfo_t {
 	__int16 angle;
 	__int16 enemy_facing;
 } AI_INFO;
+
+typedef struct WeaponInfo_t {
+	__int16 lockAngles[4];
+	__int16 leftAngles[4];
+	__int16 rightAngles[4];
+	__int16 aimSpeed;
+	__int16 shotAccuracy;
+	int gunHeight;
+	int damage;
+	int targetDist;
+	__int16 recoilFrame;
+	__int16 flashTime;
+	__int16 sampleNum;
+} WEAPON_INFO;
 
 #pragma pack(pop)
 
