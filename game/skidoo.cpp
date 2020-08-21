@@ -23,13 +23,19 @@
 #include "game/skidoo.h"
 #include "3dsystem/3d_gen.h"
 #include "3dsystem/phd_math.h"
+#include "game/box.h"
 #include "game/draw.h"
 #include "game/items.h"
+#include "game/larafire.h"
 #include "game/missile.h"
+#include "game/people.h"
 #include "game/sound.h"
 #include "specific/game.h"
 #include "specific/output.h"
 #include "global/vars.h"
+
+static BITE_INFO SkidooLeftGun = {219, -71, 550, 0};
+static BITE_INFO SkidooRightGun = {-235, -71, 550, 0};
 
 void __cdecl DoSnowEffect(ITEM_INFO *item) {
 	__int16 fxID;
@@ -77,6 +83,28 @@ void __cdecl SkidooExplode(ITEM_INFO *item) {
 	ExplodingDeath(Lara.skidoo, ~3, 0);
 	PlaySoundEffect(105, NULL, 0);
 	Lara.skidoo = -1;
+}
+
+void __cdecl SkidooGuns() {
+	WEAPON_INFO *weapon = &Weapons[LGT_Skidoo];
+	LaraGetNewTarget(weapon);
+	AimWeapon(weapon, &Lara.right_arm);
+
+	if( CHK_ANY(InputStatus, IN_ACTION) ) {
+		__int16 angles[2];
+		angles[0] = Lara.right_arm.y_rot + LaraItem->pos.rotY;
+		angles[1] = Lara.right_arm.x_rot;
+		if( FireWeapon(LGT_Skidoo, Lara.target, LaraItem, angles) ) {
+			Lara.right_arm.flash_gun = weapon->flashTime;
+			PlaySoundEffect(weapon->sampleNum, &LaraItem->pos, 0);
+			int x = LaraItem->pos.x + (phd_sin(LaraItem->pos.rotY) >> (W2V_SHIFT-10));
+			int y = LaraItem->pos.y - 0x200;
+			int z = LaraItem->pos.z + (phd_cos(LaraItem->pos.rotY) >> (W2V_SHIFT-10));
+			AddDynamicLight(x, y, z, 12, 11);
+			CreatureEffect(&Items[Lara.skidoo], &SkidooLeftGun, GunShot);
+			CreatureEffect(&Items[Lara.skidoo], &SkidooRightGun, GunShot);
+		}
+	}
 }
 
 void __cdecl DrawSkidoo(ITEM_INFO *item) {
@@ -226,7 +254,9 @@ void Inject_Skidoo() {
 	INJECT(0x0043E2D0, SkidooExplode);
 
 //	INJECT(0x0043E350, SkidooCheckGetOff);
-//	INJECT(0x0043E590, SkidooGuns);
+
+	INJECT(0x0043E590, SkidooGuns);
+
 //	INJECT(0x0043E6B0, SkidooControl);
 
 	INJECT(0x0043EB10, DrawSkidoo);

@@ -46,7 +46,9 @@ void __cdecl DoSnowEffect(ITEM_INFO *item); // 0x0043D740
 void __cdecl SkidooExplode(ITEM_INFO *item); // 0x0043E2D0
 
 //	0x0043E350:		SkidooCheckGetOff
-//	0x0043E590:		SkidooGuns
+
+void __cdecl SkidooGuns(); // 0x0043E590
+
 //	0x0043E6B0:		SkidooControl
 
 void __cdecl DrawSkidoo(ITEM_INFO *item);
