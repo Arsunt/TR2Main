@@ -45,7 +45,9 @@ int __cdecl ControlPhase(int nFrames, BOOL demoMode);
 #define GetCeiling ((int(__cdecl*)(FLOOR_INFO*, int, int, int)) 0x00415900)
 
 // 0x00415B60:		GetDoor
-// 0x00415BB0:		LOS
+
+#define LOS ((int(__cdecl*)(GAME_VECTOR*, GAME_VECTOR*)) 0x00415BB0)
+
 // 0x00415C50:		zLOS
 // 0x00415F40:		xLOS
 // 0x00416230:		ClipTarget

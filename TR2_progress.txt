@@ -163,7 +163,7 @@ x function is unused / included in another function
 
 	game/camera.cpp
 0x00410580:	 *	InitialiseCamera
-0x00410630:	 *	MoveCamera
+0x00410630:	+	MoveCamera
 0x004109B0:	 *	ClipCamera
 0x00410A90:	 *	ShiftCamera
 0x00410BF0:	 *	GoodPosition
@@ -223,7 +223,7 @@ x function is unused / included in another function
 0x004158A0:	 *	TriggerActive
 0x00415900:	 *	GetCeiling
 0x00415B60:		GetDoor
-0x00415BB0:		LOS
+0x00415BB0:	 *	LOS
 0x00415C50:		zLOS
 0x00415F40:		xLOS
 0x00416230:		ClipTarget

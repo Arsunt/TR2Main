@@ -21,13 +21,82 @@
 
 #include "global/precompiled.h"
 #include "game/camera.h"
+#include "3dsystem/3d_gen.h"
 #include "3dsystem/phd_math.h"
 #include "game/cinema.h"
 #include "game/control.h"
 #include "game/draw.h"
 #include "game/sound.h"
+#include "specific/game.h"
 #include "specific/sndpc.h"
 #include "global/vars.h"
+
+void __cdecl MoveCamera(GAME_VECTOR *destination, int speed) {
+	Camera.pos.x += (destination->x - Camera.pos.x) / speed;
+	Camera.pos.z += (destination->z - Camera.pos.z) / speed;
+	Camera.pos.y += (destination->y - Camera.pos.y) / speed;
+	Camera.pos.roomNumber = destination->roomNumber;
+
+	IsChunkyCamera = FALSE;
+	FLOOR_INFO *floor = GetFloor(Camera.pos.x, Camera.pos.y, Camera.pos.z, &Camera.pos.roomNumber);
+
+	int height = GetHeight(floor, Camera.pos.x, Camera.pos.y, Camera.pos.z) - 0x100;
+	if( Camera.pos.y >= height && destination->y >= height ) {
+		LOS(&Camera.target, &Camera.pos);
+		floor = GetFloor(Camera.pos.x, Camera.pos.y, Camera.pos.z, &Camera.pos.roomNumber);
+		height = GetHeight(floor, Camera.pos.x, Camera.pos.y, Camera.pos.z) - 0x100;
+	}
+
+	int ceiling = GetCeiling(floor, Camera.pos.x, Camera.pos.y, Camera.pos.z) + 0x100;
+	if( height < ceiling ) {
+		height = ceiling = (height + ceiling) / 2;
+	}
+
+	if( Camera.bounce ) {
+		if( Camera.bounce > 0 ) {
+			Camera.pos.y += Camera.bounce;
+			Camera.target.y += Camera.bounce;
+			Camera.bounce = 0;
+		} else {
+			int shake = Camera.bounce * (GetRandomControl() - 0x4000) / 0x7FFF;
+			Camera.pos.x += shake;
+			Camera.target.y += shake;
+			shake = Camera.bounce * (GetRandomControl() - 0x4000) / 0x7FFF;
+			Camera.pos.y += shake;
+			Camera.target.y += shake;
+			shake = Camera.bounce * (GetRandomControl() - 0x4000);
+			Camera.pos.z += shake / 0x7FFF;
+			Camera.target.z += shake / 0x7FFF;
+			Camera.bounce += 5;
+		}
+	}
+
+	if( Camera.pos.y <= height ) {
+		if ( Camera.pos.y >= ceiling ) {
+			Camera.shift = 0;
+		} else {
+			Camera.shift = ceiling - Camera.pos.y;
+		}
+	} else {
+		Camera.shift = height - Camera.pos.y;
+	}
+
+	GetFloor(Camera.pos.x, Camera.shift + Camera.pos.y, Camera.pos.z, &Camera.pos.roomNumber);
+	phd_LookAt(Camera.pos.x, Camera.pos.y + Camera.shift, Camera.pos.z,
+				Camera.target.x, Camera.target.y, Camera.target.z, 0);
+
+	if( Camera.isLaraMic ) {
+		Camera.actualAngle = Lara.torso_y_rot + Lara.head_y_rot + LaraItem->pos.rotY;
+		Camera.micPos.x = LaraItem->pos.x;
+		Camera.micPos.y = LaraItem->pos.y;
+		Camera.micPos.z = LaraItem->pos.z;
+	} else {
+		Camera.actualAngle = phd_atan(Camera.target.z - Camera.pos.z, Camera.target.x - Camera.pos.x);
+		Camera.micPos.x = Camera.pos.x + ((phd_sin(Camera.actualAngle) * PhdPersp) >> W2V_SHIFT);
+		Camera.micPos.z = Camera.pos.z + ((phd_cos(Camera.actualAngle) * PhdPersp) >> W2V_SHIFT);
+		Camera.micPos.y = Camera.pos.y;
+	}
+}
 
 void __cdecl CalculateCamera() {
 	ITEM_INFO *item;
@@ -163,7 +232,9 @@ void __cdecl CalculateCamera() {
  */
 void Inject_Camera() {
 //	INJECT(0x00410580, InitialiseCamera);
-//	INJECT(0x00410630, MoveCamera);
+
+	INJECT(0x00410630, MoveCamera);
+
 //	INJECT(0x004109B0, ClipCamera);
 //	INJECT(0x00410A90, ShiftCamera);
 //	INJECT(0x00410BF0, BadPosition);
@@ -173,5 +244,6 @@ void Inject_Camera() {
 //	INJECT(0x00411660, CombatCamera);
 //	INJECT(0x004117F0, LookCamera);
 //	INJECT(0x004119E0, FixedCamera);
+
 	INJECT(0x00411A80, CalculateCamera);
 }

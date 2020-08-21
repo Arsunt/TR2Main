@@ -28,7 +28,9 @@
  * Function list
  */
 #define InitialiseCamera ((void(__cdecl*)(void)) 0x00410580)
-#define MoveCamera ((void(__cdecl*)(GAME_VECTOR*, int)) 0x00410630)
+
+void __cdecl MoveCamera(GAME_VECTOR *destination, int speed); // 0x00410630
+
 #define ClipCamera ((void(__cdecl*)(int*, int*, int*, int, int, int, int, int, int, int)) 0x004109B0)
 #define ShiftCamera ((void(__cdecl*)(int*, int*, int*, int, int, int, int, int, int, int)) 0x00410A90)
 #define GoodPosition ((FLOOR_INFO*(__cdecl*)(int, int, int, __int16)) 0x00410BF0)
