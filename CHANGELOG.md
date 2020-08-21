@@ -89,6 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed "Gosh! That was my best time yet!" phrase in the case if it's a first try after game launch, but the time is not the best at all (broken since v0.5.0).
 - Fixed a bug when some underwater objects were untinted (broken since v0.1.0).
 - Fixed camera stabilization in some cut scenes (broken since v0.1.0).
+- Fixed the "Microphone Position at Lara" setting (broken since v0.1.0).
 
 ## [0.8.2] - 2019-05-26
 ### TR2Main bugfixes

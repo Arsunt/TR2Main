@@ -235,7 +235,7 @@ void __cdecl WinSndStart(HWND hWnd) {
 	memset(SampleBuffers, 0, sizeof(SampleBuffers));
 	memset(ChannelBuffers, 0, sizeof(ChannelBuffers));
 
-	IsLaraMicEnabled = SavedAppSettings.LaraMic;
+	Camera.isLaraMic = SavedAppSettings.LaraMic;
 	IsSoundEnabled = false;
 
 	if( !SavedAppSettings.SoundEnabled || SavedAppSettings.PreferredSoundAdapter == NULL )

@@ -251,7 +251,6 @@ extern DISPLAY_ADAPTER CurrentDisplayAdapter;
 #endif // (DIRECTINPUT_VERSION >= 0x700)
 #define IsVidSizeLock				VAR_U_(0x004D855C, BOOL)
 #define SoundAdapterList			VAR_U_(0x004D8960, SOUND_ADAPTER_LIST)
-#define IsLaraMicEnabled			VAR_U_(0x004D8D70, BOOL)
 #define IsSoundEnabled				VAR_U_(0x004D8D70, bool)
 #define DSound						VAR_U_(0x004D8D74, LPDIRECTSOUND)
 #define CurrentSoundAdapter			VAR_U_(0x004D8E78, SOUND_ADAPTER)

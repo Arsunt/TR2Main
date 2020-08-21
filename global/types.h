@@ -1658,6 +1658,8 @@ typedef struct CameraInfo_t {
 	ITEM_INFO *item;
 	ITEM_INFO *last_item;
 	OBJECT_VECTOR *fixed;
+	BOOL isLaraMic;
+	PHD_VECTOR micPos;
 } CAMERA_INFO;
 
 typedef struct CollSide_t {
