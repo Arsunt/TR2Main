@@ -73,18 +73,21 @@ static void SetBlendMode(D3DTLVERTEX *vtxPtr, DWORD vtxCount, DWORD mode, DWORD 
 
 static void DrawAlphaBlended(D3DTLVERTEX *vtxPtr, DWORD vtxCount, DWORD mode) {
 	// set render states
-	D3DDev->SetRenderState(D3DRENDERSTATE_ALPHAREF, 0x70);
-	D3DDev->SetRenderState(D3DRENDERSTATE_ALPHAFUNC, D3DCMP_GREATER);
-	D3DDev->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
-	// This is a workaround to eliminate alpha blending artifacts
-	if( SavedAppSettings.BilinearFiltering ) {
+	if( AlphaBlendMode == 2 ) {
+		// for advanced mode we need alpha test
+		D3DDev->SetRenderState(D3DRENDERSTATE_ALPHAREF, 0x70);
+		D3DDev->SetRenderState(D3DRENDERSTATE_ALPHAFUNC, D3DCMP_GREATER);
+		D3DDev->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
+		// This is a workaround to eliminate alpha blending artifacts
+		if( SavedAppSettings.BilinearFiltering ) {
 #if (DIRECT3D_VERSION >= 0x700)
-		D3DDev->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_POINT); // D3DTFG_LINEAR
-		D3DDev->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFG_POINT); // D3DFILTER_LINEAR
+			D3DDev->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_POINT); // D3DTFG_LINEAR
+			D3DDev->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFG_POINT); // D3DFILTER_LINEAR
 #else // (DIRECT3D_VERSION >= 0x700)
-		D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREMAG, D3DFILTER_NEAREST);
-		D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREMIN, D3DFILTER_NEAREST);
+			D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREMAG, D3DFILTER_NEAREST);
+			D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREMIN, D3DFILTER_NEAREST);
 #endif // (DIRECT3D_VERSION >= 0x700)
+		}
 	}
 	// do blending
 	SetBlendMode(vtxPtr, vtxCount, mode, 0);
@@ -96,18 +99,22 @@ static void DrawAlphaBlended(D3DTLVERTEX *vtxPtr, DWORD vtxCount, DWORD mode) {
 	// return render states to default values
 	D3DDev->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
 	D3DDev->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
-	D3DDev->SetRenderState(D3DRENDERSTATE_ALPHAREF, 0);
-	D3DDev->SetRenderState(D3DRENDERSTATE_ALPHAFUNC, D3DCMP_ALWAYS);
-	D3DDev->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
-	// return bilinear filtering if it was enabled
-	if( SavedAppSettings.BilinearFiltering ) {
+
+	if( AlphaBlendMode == 2 ) {
+		// return other states from advanced to default values
+		D3DDev->SetRenderState(D3DRENDERSTATE_ALPHAREF, 0);
+		D3DDev->SetRenderState(D3DRENDERSTATE_ALPHAFUNC, D3DCMP_ALWAYS);
+		D3DDev->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+		// return bilinear filtering if it was enabled
+		if( SavedAppSettings.BilinearFiltering ) {
 #if (DIRECT3D_VERSION >= 0x700)
-		D3DDev->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
-		D3DDev->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFG_LINEAR);
+			D3DDev->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
+			D3DDev->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFG_LINEAR);
 #else // (DIRECT3D_VERSION >= 0x700)
-		D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREMAG, D3DFILTER_LINEAR);
-		D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREMIN, D3DFILTER_LINEAR);
+			D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREMAG, D3DFILTER_LINEAR);
+			D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREMIN, D3DFILTER_LINEAR);
 #endif // (DIRECT3D_VERSION >= 0x700)
+		}
 	}
 }
 #endif // FEATURE_VIDEOFX_IMPROVED
