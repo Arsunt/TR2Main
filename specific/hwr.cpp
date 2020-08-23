@@ -40,82 +40,34 @@ typedef struct {
 	BYTE alpha;
 } BLEND_PARAM;
 
-static BLEND_PARAM BasicBlend[4] = {
+static BLEND_PARAM Blend[4] = {
 	{D3DBLEND_SRCALPHA, D3DBLEND_INVSRCALPHA, 128},
 	{D3DBLEND_ONE, D3DBLEND_ONE, 255},
 	{D3DBLEND_ZERO, D3DBLEND_INVSRCCOLOR, 255},
 	{D3DBLEND_INVSRCALPHA, D3DBLEND_ONE, 192},
 };
 
-static BLEND_PARAM AdvancedBlend[4][2] = {
-	{{D3DBLEND_ONE, D3DBLEND_SRCALPHA,		128}, {D3DBLEND_SRCALPHA, D3DBLEND_ONE,		128}},
-	{{D3DBLEND_ONE, D3DBLEND_SRCALPHA,		255}, {D3DBLEND_SRCALPHA, D3DBLEND_ONE,		255}},
-	{{D3DBLEND_ZERO, D3DBLEND_INVSRCCOLOR,	255}, {D3DBLEND_ZERO, D3DBLEND_INVSRCCOLOR,	255}},
-	{{D3DBLEND_SRCALPHA, D3DBLEND_ONE,		128}, {D3DBLEND_INVSRCALPHA, D3DBLEND_ONE,	255}},
-};
-
-static void SetBlendMode(D3DTLVERTEX *vtxPtr, DWORD vtxCount, DWORD mode, DWORD pass) {
-	if( mode >= 4 || pass >= 2 ) return;
-	BLEND_PARAM *blend = (AlphaBlendMode == 2) ? &AdvancedBlend[mode][pass] : &BasicBlend[mode];
-	if( vtxPtr ) {
-		for( DWORD i = 0; i < vtxCount; ++i ) {
-			// divide RGB by 2 if it's a first pass of an advanced blending
-			if( AlphaBlendMode == 2 && pass == 0 ) {
-				vtxPtr[i].color = (vtxPtr[i].color & 0xFEFEFE) >> 1;
-			}
-			// set alpha
-			vtxPtr[i].color = RGBA_SETALPHA(vtxPtr[i].color, blend->alpha);
-		}
+static void SetBlendMode(D3DTLVERTEX *vtxPtr, DWORD vtxCount, DWORD mode) {
+	if( !vtxPtr || !vtxCount || mode >= 4 ) return;
+	for( DWORD i = 0; i < vtxCount; ++i ) {
+		vtxPtr[i].color = RGBA_SETALPHA(vtxPtr[i].color, Blend[mode].alpha);
 	}
-	D3DDev->SetRenderState(D3DRENDERSTATE_SRCBLEND, blend->src);
-	D3DDev->SetRenderState(D3DRENDERSTATE_DESTBLEND, blend->dst);
+	D3DDev->SetRenderState(D3DRENDERSTATE_SRCBLEND, Blend[mode].src);
+	D3DDev->SetRenderState(D3DRENDERSTATE_DESTBLEND, Blend[mode].dst);
 }
 
 static void DrawAlphaBlended(D3DTLVERTEX *vtxPtr, DWORD vtxCount, DWORD mode) {
-	// set render states
-	if( AlphaBlendMode == 2 ) {
-		// for advanced mode we need alpha test
-		D3DDev->SetRenderState(D3DRENDERSTATE_ALPHAREF, 0x70);
-		D3DDev->SetRenderState(D3DRENDERSTATE_ALPHAFUNC, D3DCMP_GREATER);
-		D3DDev->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, TRUE);
-		// This is a workaround to eliminate alpha blending artifacts
-		if( SavedAppSettings.BilinearFiltering ) {
-#if (DIRECT3D_VERSION >= 0x700)
-			D3DDev->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_POINT); // D3DTFG_LINEAR
-			D3DDev->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFG_POINT); // D3DFILTER_LINEAR
-#else // (DIRECT3D_VERSION >= 0x700)
-			D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREMAG, D3DFILTER_NEAREST);
-			D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREMIN, D3DFILTER_NEAREST);
-#endif // (DIRECT3D_VERSION >= 0x700)
-		}
-	}
-	// do blending
-	SetBlendMode(vtxPtr, vtxCount, mode, 0);
+	// do basic blending
+	SetBlendMode(vtxPtr, vtxCount, mode);
 	D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3D_DRAWFLAGS);
-	if( AlphaBlendMode == 2 ) {
-		SetBlendMode(vtxPtr, vtxCount, mode, 1);
+	// do advanced blending
+	if( AlphaBlendMode == 2 && mode == 0 ) {
+		SetBlendMode(vtxPtr, vtxCount, 3); // additional quarter-additive blending pass
 		D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3D_DRAWFLAGS);
 	}
 	// return render states to default values
 	D3DDev->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
 	D3DDev->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
-
-	if( AlphaBlendMode == 2 ) {
-		// return other states from advanced to default values
-		D3DDev->SetRenderState(D3DRENDERSTATE_ALPHAREF, 0);
-		D3DDev->SetRenderState(D3DRENDERSTATE_ALPHAFUNC, D3DCMP_ALWAYS);
-		D3DDev->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
-		// return bilinear filtering if it was enabled
-		if( SavedAppSettings.BilinearFiltering ) {
-#if (DIRECT3D_VERSION >= 0x700)
-			D3DDev->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
-			D3DDev->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFG_LINEAR);
-#else // (DIRECT3D_VERSION >= 0x700)
-			D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREMAG, D3DFILTER_LINEAR);
-			D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREMIN, D3DFILTER_LINEAR);
-#endif // (DIRECT3D_VERSION >= 0x700)
-		}
-	}
 }
 #endif // FEATURE_VIDEOFX_IMPROVED
 
