@@ -606,7 +606,7 @@ void __cdecl swap_meshes_with_meshswap1(ITEM_INFO *item) {
 	__int16 *tmp;
 
 	for (i = 0; i < Objects[item->objectID].nMeshes; ++i)
-		SWAP(MeshPtr[Objects[item->objectID].meshIndex + i], MeshPtr[Objects[ID_WORKER_RESERVED1].meshIndex + i], tmp);
+		SWAP(MeshPtr[Objects[item->objectID].meshIndex + i], MeshPtr[Objects[ID_MESH_SWAP1].meshIndex + i], tmp);
 }
 
 void __cdecl swap_meshes_with_meshswap2(ITEM_INFO *item) {
@@ -614,7 +614,7 @@ void __cdecl swap_meshes_with_meshswap2(ITEM_INFO *item) {
 	__int16 *tmp;
 
 	for (i = 0; i < Objects[item->objectID].nMeshes; ++i)
-		SWAP(MeshPtr[Objects[item->objectID].meshIndex + i], MeshPtr[Objects[ID_WORKER_RESERVED2].meshIndex + i], tmp);
+		SWAP(MeshPtr[Objects[item->objectID].meshIndex + i], MeshPtr[Objects[ID_MESH_SWAP2].meshIndex + i], tmp);
 }
 
 void __cdecl swap_meshes_with_meshswap3(ITEM_INFO *item) {
