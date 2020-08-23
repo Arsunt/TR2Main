@@ -27,7 +27,9 @@
 /*
  * Function list
  */
-//	0x00440FC0:		MineControl
+
+void __cdecl MineControl(__int16 mineID); // 0x00440FC0
+
 //	0x004411C0:		ControlSpikeWall
 //	0x00441300:		ControlCeilingSpikes
 //	0x00441420:		HookControl

@@ -39,8 +39,8 @@ int __cdecl ControlPhase(int nFrames, BOOL demoMode);
 #define GetHeight ((int(__cdecl*)(FLOOR_INFO*, int, int, int)) 0x00414E50)
 
 // 0x004150D0:		RefreshCamera
-// 0x004151C0:		TestTriggers
 
+#define TestTriggers ((void(__cdecl*)(__int16*, BOOL)) 0x004151C0)
 #define TriggerActive ((int(__cdecl*)(ITEM_INFO*)) 0x004158A0)
 #define GetCeiling ((int(__cdecl*)(FLOOR_INFO*, int, int, int)) 0x00415900)
 

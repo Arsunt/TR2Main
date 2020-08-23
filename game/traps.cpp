@@ -24,10 +24,76 @@
 #include "game/control.h"
 #include "game/effects.h"
 #include "game/items.h"
+#include "game/missile.h"
 #include "game/sound.h"
 #include "game/sphere.h"
 #include "specific/game.h"
 #include "global/vars.h"
+
+void __cdecl MineControl(__int16 mineID) {
+	ITEM_INFO *mine = &Items[mineID];
+	if( CHK_ANY(mine->flags, IFL_INVISIBLE) ) {
+		return;
+	}
+
+	if( !MinesDetonated ) {
+		__int16 roomNumber = mine->roomNumber;
+		GetFloor(mine->pos.x, mine->pos.y - 0x800, mine->pos.z, &roomNumber);
+
+		ITEM_INFO *item = NULL;
+		__int16 itemID = RoomInfo[roomNumber].itemNumber;
+		for( ; itemID >= 0; itemID = item->nextItem ) {
+			item = &Items[itemID];
+			if( item->objectID == ID_BOAT ) {
+				int x = item->pos.x - mine->pos.x;
+				int y = item->pos.z - mine->pos.z;
+				if( SQR(x) + SQR(y) < SQR(0x200) ) {
+					break;
+				}
+			}
+		}
+
+		if( itemID < 0 ) {
+			return;
+		}
+
+		if( Lara.skidoo == itemID ) {
+			ExplodingDeath(Lara.item_number, ~0, 0);
+			LaraItem->hitPoints = 0;
+			LaraItem->flags |= IFL_INVISIBLE;
+		}
+		item->objectID = ID_BOAT_BITS;
+		ExplodingDeath(itemID, ~0, 0);
+		KillItem(itemID);
+		item->objectID = ID_BOAT;
+
+		FLOOR_INFO *floor = GetFloor(mine->pos.x, mine->pos.y, mine->pos.z, &roomNumber);
+		GetHeight(floor, mine->pos.x, mine->pos.y, mine->pos.z);
+		TestTriggers(TriggerPtr, 1);
+		MinesDetonated = 1;
+	} else if ( GetRandomControl() < 0x7800 ) {
+		return;
+	}
+
+	__int16 fxID = CreateEffect(mine->roomNumber);
+	if ( fxID != -1 )
+	{
+		FX_INFO *fx = &Effects[fxID];
+		fx->pos.x = mine->pos.x;
+		fx->pos.y = mine->pos.y - 0x400;
+		fx->pos.z = mine->pos.z;
+		fx->speed = 0;
+		fx->frame_number = 0;
+		fx->counter = 0;
+		fx->object_number = ID_EXPLOSION;
+	}
+
+	Splash(mine);
+	PlaySoundEffect(105, &mine->pos, 0);
+	mine->flags |= IFL_INVISIBLE;
+	mine->collidable = 0;
+	mine->meshBits = 1;
+}
 
 void __cdecl FlameEmitterControl(__int16 item_id) {
 	ITEM_INFO *item;
@@ -158,7 +224,8 @@ void __cdecl LavaBurn(ITEM_INFO *item) {
  * Inject function
  */
 void Inject_Traps() {
-//	INJECT(0x00440FC0, MineControl);
+	INJECT(0x00440FC0, MineControl);
+
 //	INJECT(0x004411C0, ControlSpikeWall);
 //	INJECT(0x00441300, ControlCeilingSpikes);
 //	INJECT(0x00441420, HookControl);
