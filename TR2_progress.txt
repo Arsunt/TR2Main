@@ -219,7 +219,7 @@ x function is unused / included in another function
 0x00414CE0:	 *	GetWaterHeight
 0x00414E50:	 *	GetHeight
 0x004150D0:		RefreshCamera
-0x004151C0:		TestTriggers
+0x004151C0:	 *	TestTriggers
 0x004158A0:	 *	TriggerActive
 0x00415900:	 *	GetCeiling
 0x00415B60:		GetDoor
@@ -928,7 +928,7 @@ x function is unused / included in another function
 0x00440F80:	+	GetTextScaleV
 
 	game/traps.cpp
-0x00440FC0:		MineControl
+0x00440FC0:	+	MineControl
 0x004411C0:		ControlSpikeWall
 0x00441300:		ControlCeilingSpikes
 0x00441420:		HookControl
