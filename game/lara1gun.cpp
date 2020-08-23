@@ -50,7 +50,8 @@ void __cdecl RifleHandler(int weaponType) {
 	AimWeapon(weapon, &Lara.left_arm);
 
 	if( Lara.left_arm.lock ) {
-		Lara.torso_x_rot = Lara.torso_y_rot = Lara.left_arm.y_rot;
+		Lara.torso_x_rot = Lara.left_arm.x_rot;
+		Lara.torso_y_rot = Lara.left_arm.y_rot;
 		Lara.head_x_rot = Lara.head_y_rot = 0;
 	}
 
