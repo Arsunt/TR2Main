@@ -43,6 +43,10 @@ static void setWindowStyle(bool isFullScreen) {
 }
 #endif // FEATURE_WINDOW_STYLE_FIX
 
+#ifdef FEATURE_INPUT_IMPROVED
+#include "modding/raw_input.h"
+#endif // FEATURE_INPUT_IMPROVED
+
 static bool InsertDisplayModeInListSorted(DISPLAY_MODE_LIST *modeList, DISPLAY_MODE *srcMode) {
 	DISPLAY_MODE_NODE *node = NULL;
 	DISPLAY_MODE *dstMode = NULL;
@@ -954,6 +958,13 @@ LRESULT CALLBACK WinVidGameWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
 			case WM_SYSCOMMAND :
 				if( wParam == SC_KEYMENU ) return 0;
 				break;
+#ifdef FEATURE_INPUT_IMPROVED
+			case WM_INPUT :
+				if( wParam == RIM_INPUT ) {
+					RawInputReceive(hWnd, (HRAWINPUT)lParam);
+				}
+				break;
+#endif // FEATURE_INPUT_IMPROVED
 		}
 		return DefWindowProc(hWnd, Msg, wParam, lParam);
 	}
@@ -1077,7 +1088,7 @@ LRESULT CALLBACK WinVidGameWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
 
 		case WM_SIZING :
 			WinVidResizeGameWindow(hWnd, wParam, (LPRECT)lParam);
-			return DefWindowProc(hWnd, Msg, wParam, lParam);
+			break;
 
 		case WM_MOVING :
 			if( IsGameFullScreen || IsGameWindowMaximized ) {
@@ -1098,6 +1109,13 @@ LRESULT CALLBACK WinVidGameWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
 			if( hWnd != (HWND)wParam && !IsGameFullScreen && DDrawPalette )
 				InvalidateRect(hWnd, NULL, FALSE);
 			break;
+#ifdef FEATURE_INPUT_IMPROVED
+		case WM_INPUT :
+			if( wParam == RIM_INPUT ) {
+				RawInputReceive(hWnd, (HRAWINPUT)lParam);
+			}
+			break;
+#endif // FEATURE_INPUT_IMPROVED
 	}
 	return DefWindowProc(hWnd, Msg, wParam, lParam);
 }

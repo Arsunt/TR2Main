@@ -88,6 +88,7 @@
 			<Add library="comctl32" />
 			<Add library="shlwapi" />
 			<Add library="winmm" />
+			<Add library="hid" />
 			<Add library="ole32" />
 			<Add library="oleaut32" />
 			<Add library="xinput" />
@@ -113,6 +114,8 @@
 		<Unit filename="global/types.h" />
 		<Unit filename="global/resource.h" />
 		<Unit filename="global/vars.h" />
+		<Unit filename="global/md5.c" />
+		<Unit filename="global/md5.h" />
 		<Unit filename="global/memmem.c" />
 		<Unit filename="global/memmem.h" />
 
@@ -373,6 +376,9 @@
 
 		<Unit filename="modding/psx_bar.cpp" />
 		<Unit filename="modding/psx_bar.h" />
+
+		<Unit filename="modding/raw_input.cpp" />
+		<Unit filename="modding/raw_input.h" />
 
 		<Unit filename="json-parser/json.c" />
 		<Unit filename="json-parser/json.h" />

@@ -26,6 +26,7 @@
 
 #ifdef FEATURE_INPUT_IMPROVED
 #include <XInput.h>
+#include "modding/raw_input.h"
 #define XINPUT_DPAD(x) (CHK_ALL((x), XINPUT_GAMEPAD_DPAD_UP|XINPUT_GAMEPAD_DPAD_DOWN|XINPUT_GAMEPAD_DPAD_LEFT|XINPUT_GAMEPAD_DPAD_RIGHT))
 #define HAS_AXIS(x) (JoyRanges[x].lMax != JoyRanges[x].lMin)
 
@@ -36,8 +37,6 @@ typedef enum {
 	JoyRX,
 	JoyRY,
 	JoyRZ,
-	JoyS0,
-	JoyS1,
 	JoyAxisNumber,
 } JOY_AXIS_ENUM;
 
@@ -46,6 +45,7 @@ typedef struct {
 	long lMax;
 } JOY_AXIS_RANGE;
 
+static bool IsRawInput = false;
 static int XInputIndex = -1;
 static XINPUT_CAPABILITIES XInputCaps;
 static DIDEVCAPS JoyCaps;
@@ -70,7 +70,6 @@ BOOL CALLBACK DInputEnumJoystickAxisCallback(LPCDIDEVICEOBJECTINSTANCE pdidoi, L
 	DWORD axisOfs[JoyAxisNumber] = {
 		DIJOFS_X, DIJOFS_Y, DIJOFS_Z,
 		DIJOFS_RX, DIJOFS_RY, DIJOFS_RZ,
-		DIJOFS_SLIDER(0), DIJOFS_SLIDER(1),
 	};
 
 	JOY_AXIS_RANGE *axisRanges = (JOY_AXIS_RANGE *)pContext;
@@ -84,15 +83,26 @@ BOOL CALLBACK DInputEnumJoystickAxisCallback(LPCDIDEVICEOBJECTINSTANCE pdidoi, L
 	return DIENUM_CONTINUE;
 }
 
-//-----------------------------------------------------------------------------
+static const char *GetRawInputName(DWORD dwVendorId, DWORD dwProductId) {
+	if( dwVendorId == 0x054C ) {
+		switch( dwProductId ) {
+			case 0x05C4: return "Sony DualShock 4 (1st gen)";
+			case 0x09CC: return "Sony DualShock 4 (2nd gen)";
+			case 0x0BA0: return "Sony DualShock 4 (wireless)";
+		}
+	}
+	return NULL;
+}
+
+// ----------------------- The ugly function by Microsoft -----------------------
 // Enum each PNP device using WMI and check each device ID to see if it contains
 // "IG_" (ex. "VID_045E&PID_028E&IG_00").  If it does, then it's an XInput device
 // Unfortunately this information can not be found by just using DirectInput
-//-----------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 #include <wbemidl.h>
 #include <oleauto.h>
 
-BOOL IsXInputDevice( const GUID* pGuidProductFromDirectInput ) {
+BOOL IsXInputDevice(DWORD dwVendorId, DWORD dwProductId) {
 	IWbemLocator* pIWbemLocator = NULL;
 	IEnumWbemClassObject* pEnumDevices = NULL;
 	IWbemClassObject* pDevices[20] = {0};
@@ -158,8 +168,7 @@ BOOL IsXInputDevice( const GUID* pGuidProductFromDirectInput ) {
 						dwPid = 0;
 
 					// Compare the VID/PID to the DInput device
-					DWORD dwVidPid = MAKELONG( dwVid, dwPid );
-					if( dwVidPid == pGuidProductFromDirectInput->Data1 )
+					if( dwVendorId == dwVid && dwProductId == dwPid )
 					{
 						bIsXinputDevice = true;
 						goto LCleanup;
@@ -185,6 +194,42 @@ LCleanup:
 	if( pIWbemServices ) pIWbemServices->Release();
 	if( bCleanupCOM ) CoUninitialize();
 	return bIsXinputDevice;
+}
+
+static BOOL CALLBACK RawInputCallBack(HANDLE hDevice, LPGUID lpGuid, PRID_DEVICE_INFO_HID lpInfo, LPVOID lpContext) {
+	if( hDevice == INVALID_HANDLE_VALUE || lpGuid == NULL || lpInfo == NULL || lpContext == NULL )
+		return TRUE;
+
+	const char *productName = GetRawInputName(lpInfo->dwVendorId, lpInfo->dwProductId);
+	if( !productName || IsXInputDevice(lpInfo->dwVendorId, lpInfo->dwProductId) ) {
+		return TRUE;
+	}
+
+	JOYSTICK_LIST *joyList = (JOYSTICK_LIST *)lpContext;
+	JOYSTICK_NODE *joyNode = new JOYSTICK_NODE;
+
+	if( joyNode == NULL )
+		return TRUE;
+
+	joyNode->next = NULL;
+	joyNode->previous = joyList->tail;
+
+	if( !joyList->head )
+		joyList->head = joyNode;
+
+	if( joyList->tail )
+		joyList->tail->next = joyNode;
+
+	joyList->tail = joyNode;
+	joyList->dwCount++;
+
+	joyNode->body.joystickGuid = *lpGuid;
+	joyNode->body.lpJoystickGuid = &joyNode->body.joystickGuid;
+	FlaggedStringCreate(&joyNode->body.productName, 256);
+	FlaggedStringCreate(&joyNode->body.instanceName, 256);
+	lstrcpy(joyNode->body.productName.lpString, productName);
+	joyNode->body.rawInputHandle = hDevice;
+	return TRUE;
 }
 #endif // FEATURE_INPUT_IMPROVED
 
@@ -250,6 +295,38 @@ DWORD __cdecl WinInReadJoystick(int *xPos, int *yPos) {
 		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_START) ? 0x200 : 0;
 		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_LEFT_THUMB) ? 0x400 : 0;
 		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_RIGHT_THUMB) ? 0x800 : 0;
+		return buttonStatus;
+	}
+
+	if( IsRawInput ) {
+		RINPUT_STATE state;
+		if( !RawInputGetState(&state) ) {
+			return 0;
+		}
+		if( JoystickMovement ) {
+			*xPos = (int)(+32.0 * state.axisLX);
+			*yPos = (int)(-32.0 * state.axisLY);
+		} else {
+			DWORD pov = state.dPad;
+			// Check if D-PAD is not centered
+			if( LOWORD(pov) != 0xFFFF ) {
+				*xPos = +16 * phd_sin(pov * PHD_360 / 36000) / PHD_IONE;
+				*yPos = -16 * phd_cos(pov * PHD_360 / 36000) / PHD_IONE;
+			}
+		}
+		buttonStatus |= state.btnCross ? 0x0001 : 0;
+		buttonStatus |= state.btnCircle ? 0x0002 : 0;
+		buttonStatus |= state.btnSquare ? 0x0004 : 0;
+		buttonStatus |= state.btnTriangle ? 0x0008 : 0;
+		buttonStatus |= state.btnL1 ? 0x0010 : 0;
+		buttonStatus |= state.btnR1 ? 0x0020 : 0;
+		buttonStatus |= state.btnL2 ? 0x0040 : 0;
+		buttonStatus |= state.btnR2 ? 0x0080 : 0;
+		buttonStatus |= state.btnShare ? 0x0100 : 0;
+		buttonStatus |= state.btnOptions ? 0x0200 : 0;
+		buttonStatus |= state.btnL3 ? 0x0400 : 0;
+		buttonStatus |= state.btnR3 ? 0x0800 : 0;
+		buttonStatus |= state.btnPS ? 0x1000 : 0;
 		return buttonStatus;
 	}
 
@@ -361,22 +438,29 @@ bool __cdecl DInputEnumDevices(JOYSTICK_LIST *joystickList) {
 		FlaggedStringCreate(&joyNode->body.instanceName, 256);
 		snprintf(joyNode->body.productName.lpString, 256, "XInput Controller %lu", i+1);
 	}
+	RawInputEnumerate(RawInputCallBack, (LPVOID)joystickList);
 #endif // FEATURE_INPUT_IMPROVED
 	return SUCCEEDED(DInput->EnumDevices(DIDEVTYPE_JOYSTICK, DInputEnumDevicesCallback, (LPVOID)joystickList, DIEDFL_ATTACHEDONLY));
 }
 
 BOOL CALLBACK DInputEnumDevicesCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef) {
-	JOYSTICK_LIST *joyList = (JOYSTICK_LIST *)pvRef;
-	JOYSTICK_NODE *joyNode = new JOYSTICK_NODE;
-
-	if( joyNode == NULL || lpddi == NULL )
+	if( lpddi == NULL || pvRef == NULL ) {
 		return DIENUM_CONTINUE;
+	}
 
 #ifdef FEATURE_INPUT_IMPROVED
-	if( IsXInputDevice(&lpddi->guidProduct) ) {
+	DWORD vid = LOWORD(lpddi->guidProduct.Data1);
+	DWORD pid = HIWORD(lpddi->guidProduct.Data1);
+	if( GetRawInputName(vid, pid) || IsXInputDevice(vid, pid) ) {
 		return DIENUM_CONTINUE;
 	}
 #endif // FEATURE_INPUT_IMPROVED
+
+	JOYSTICK_LIST *joyList = (JOYSTICK_LIST *)pvRef;
+	JOYSTICK_NODE *joyNode = new JOYSTICK_NODE;
+
+	if( joyNode == NULL )
+		return DIENUM_CONTINUE;
 
 	joyNode->next = NULL;
 	joyNode->previous = joyList->tail;
@@ -396,6 +480,9 @@ BOOL CALLBACK DInputEnumDevicesCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
 	FlaggedStringCreate(&joyNode->body.instanceName, 256);
 	lstrcpy(joyNode->body.productName.lpString, lpddi->tszProductName);
 	lstrcpy(joyNode->body.instanceName.lpString, lpddi->tszInstanceName);
+#ifdef FEATURE_INPUT_IMPROVED
+	joyNode->body.rawInputHandle = INVALID_HANDLE_VALUE;
+#endif // FEATURE_INPUT_IMPROVED
 
 	return DIENUM_CONTINUE;
 }
@@ -468,7 +555,10 @@ bool __cdecl DInputJoystickCreate() {
 		XInputIndex = guid->Data4[7];
 		return true;
 	}
-
+	if( CurrentJoystick.rawInputHandle != INVALID_HANDLE_VALUE ) {
+		IsRawInput = RawInputStart(HGameWindow, CurrentJoystick.rawInputHandle);
+		return IsRawInput;
+	}
 	memset(JoyRanges, 0, sizeof(JoyRanges));
 	memset(&JoyCaps, 0, sizeof(JoyCaps));
 	JoyCaps.dwSize = sizeof(JoyCaps);
@@ -496,6 +586,8 @@ bool __cdecl DInputJoystickCreate() {
 
 void __cdecl DInputJoystickRelease() {
 #ifdef FEATURE_INPUT_IMPROVED
+	RawInputStop();
+	IsRawInput = false;
 	XInputIndex = -1;
 #endif // FEATURE_INPUT_IMPROVED
 	if( IDID_SysJoystick != NULL ) {

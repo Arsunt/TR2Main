@@ -1209,6 +1209,9 @@ typedef struct Joystick_t {
 	GUID joystickGuid;
 	STRING_FLAGGED productName;
 	STRING_FLAGGED instanceName;
+#ifdef FEATURE_INPUT_IMPROVED
+	HANDLE rawInputHandle;
+#endif // FEATURE_INPUT_IMPROVED
 } JOYSTICK;
 
 typedef struct JoystickNode_t {

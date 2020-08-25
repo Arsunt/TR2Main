@@ -54,7 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added the ability to side step hitting the *Left*/*Right* key while holding *Walk* key (optional feature).
 - Added possibility to hold up/down keys to quickly scroll through game menus.
 - Added a configurable number of saved game slots (16-24).
-- Joystick support completely migrated from WinAPI to DirectInput. Added XInput controllers support.
+- Joystick support completely migrated from WinAPI to DirectInput. Added XInput controllers support. Added DualShock 4 support.
 - Added a setting to select the movement method for GamePads: D-Pad or Left Stick.
 
 ### The original game bugfixes

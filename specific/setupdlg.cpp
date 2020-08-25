@@ -1068,12 +1068,13 @@ void __cdecl SE_ControlsDlgUpdate(HWND hwndDlg) {
 	// 'Enable Joystick' CheckBox
 	HWND checkBox = GetDlgItem(hwndDlg, ID_CTRLS_BUTTON_JOYSTICK_ENABLE);
 #ifdef FEATURE_INPUT_IMPROVED
-	bool isXInput = false;
-	if( ChangedAppSettings.PreferredJoystick ) {
+	bool isDInput = false;
+	if( isAvailable && ChangedAppSettings.PreferredJoystick ) {
 		GUID *guid = &ChangedAppSettings.PreferredJoystick->body.joystickGuid;
-		isXInput = !guid->Data1 && !guid->Data2 && !guid->Data3;
+		HANDLE hRawInput = ChangedAppSettings.PreferredJoystick->body.rawInputHandle;
+		isDInput = (hRawInput == INVALID_HANDLE_VALUE) && (guid->Data1 || guid->Data2 || guid->Data3);
 	}
-	EnableWindow(GetDlgItem(hwndDlg, ID_CTRLS_BUTTON_CTL_PANEL), (isAvailable && !isXInput));
+	EnableWindow(GetDlgItem(hwndDlg, ID_CTRLS_BUTTON_CTL_PANEL), isDInput);
 #endif // FEATURE_INPUT_IMPROVED
 	EnableWindow(checkBox, isAvailable);
 	SendMessage(checkBox, BM_SETCHECK, isCheck, 0);
