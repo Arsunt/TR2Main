@@ -151,7 +151,11 @@ static bool ParseRawInputData(PRAWINPUT pRawInput) {
 				RawState.rangeRZ = 1 + (UWORD)pValueCaps[i].LogicalMax - pValueCaps[i].LogicalMin;
 				break;
 			case '9': // D-Pad
-				RawState.valueDP = (UWORD)value - pValueCaps[i].LogicalMin;
+				if( value < (UWORD)pValueCaps[i].LogicalMin || value > (UWORD)pValueCaps[i].LogicalMax ) {
+					RawState.valueDP = -1;
+				} else {
+					RawState.valueDP = (UWORD)value - pValueCaps[i].LogicalMin;
+				}
 				RawState.rangeDP = 1 + (UWORD)pValueCaps[i].LogicalMax - pValueCaps[i].LogicalMin;
 				break;
 		}
@@ -287,7 +291,7 @@ bool RawInputSend(WORD leftMotor, WORD rightMotor, DWORD color) {
 	HANDLE hDevice = INVALID_HANDLE_VALUE;
 	DWORD bytesWritten;
 	BYTE buf[32] = {
-		0x05, 0xFF,
+		0x05, 0xFF, 0x00, 0x00,
 		(BYTE)(rightMotor>>8),
 		(BYTE)(leftMotor>>8),
 		(BYTE)(RGB_GETRED(color)),
