@@ -84,6 +84,8 @@
 #define REG_BAREFOOT_SFX_ENABLE	"BarefootSFX"
 #define REG_REMASTER_PIX_ENABLE	"RemasteredPictures"
 #define REG_WALK_TO_SIDESTEP	"WalkToSidestep"
+#define REG_JOYSTICK_VIBRATION	"JoystickVibration"
+#define REG_JOYSTICK_LED_COLOR	"JoystickLedColor"
 
 // FLOAT value names
 #define REG_GAME_SIZER		"Sizer"

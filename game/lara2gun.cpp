@@ -26,6 +26,10 @@
 #include "game/larafire.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_INPUT_IMPROVED
+#include "modding/joy_output.h"
+#endif // FEATURE_INPUT_IMPROVED
+
 void __cdecl PistolHandler(int weaponType) {
 	WEAPON_INFO *weapon = &Weapons[weaponType];
 
@@ -60,6 +64,15 @@ void __cdecl PistolHandler(int weaponType) {
 		int y = LaraItem->pos.y - 0x200;
 		int z = LaraItem->pos.z + (phd_cos(LaraItem->pos.rotY) >> (W2V_SHIFT-10));
 		AddDynamicLight(x, y, z, 12, 11);
+#ifdef FEATURE_INPUT_IMPROVED
+		if( weaponType == LGT_Uzis ) {
+			JoyVibrate(0x400, 0x400, 1, 0x100, 2, false);
+		} else if( Lara.left_arm.flash_gun && Lara.right_arm.flash_gun ) {
+			JoyVibrate(0x600, 0x600, 1, 0x300, 2, false);
+		} else {
+			JoyVibrate(0x400, 0x400, 1, 0x100, 2, false);
+		}
+#endif // FEATURE_INPUT_IMPROVED
 	}
 }
 

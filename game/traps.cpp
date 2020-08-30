@@ -30,6 +30,10 @@
 #include "specific/game.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_INPUT_IMPROVED
+#include "modding/joy_output.h"
+#endif // FEATURE_INPUT_IMPROVED
+
 void __cdecl MineControl(__int16 mineID) {
 	ITEM_INFO *mine = &Items[mineID];
 	if( CHK_ANY(mine->flags, IFL_INVISIBLE) ) {
@@ -93,6 +97,9 @@ void __cdecl MineControl(__int16 mineID) {
 	mine->flags |= IFL_INVISIBLE;
 	mine->collidable = 0;
 	mine->meshBits = 1;
+#ifdef FEATURE_INPUT_IMPROVED
+	JoyRumbleExplode(mine->pos.x, mine->pos.y, mine->pos.z, 0x2800, false);
+#endif // FEATURE_INPUT_IMPROVED
 }
 
 void __cdecl FlameEmitterControl(__int16 item_id) {

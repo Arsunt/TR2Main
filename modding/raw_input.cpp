@@ -304,7 +304,7 @@ bool RawInputSend(WORD leftMotor, WORD rightMotor, DWORD color) {
 	if( hDevice == INVALID_HANDLE_VALUE ) goto CLEANUP;
 	WriteFile(hDevice, buf, sizeof(buf), &bytesWritten, NULL);
 	CloseHandle(hDevice);
-	result = true;
+	result = (bytesWritten == sizeof(buf));
 
 CLEANUP:
 	ReleaseMutex(hMutex);

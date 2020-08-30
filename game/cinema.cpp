@@ -30,6 +30,10 @@
 #include "specific/sndpc.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_INPUT_IMPROVED
+#include "modding/joy_output.h"
+#endif // FEATURE_INPUT_IMPROVED
+
 void __cdecl SetCutsceneTrack(int track) {
 	CineTrackID = track;
 }
@@ -138,6 +142,9 @@ int __cdecl DoCinematic(int nTicks) {
 	}
 
 	CineCurrentFrame = S_CDGetLoc()*4/5;
+#ifdef FEATURE_INPUT_IMPROVED
+	UpdateJoyOutput(false);
+#endif // FEATURE_INPUT_IMPROVED
 	return 0;
 }
 

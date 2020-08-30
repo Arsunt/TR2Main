@@ -79,8 +79,11 @@ extern char ScreenshotPath[MAX_PATH];
 #endif // FEATURE_SCREENSHOT_IMPROVED
 
 #ifdef FEATURE_INPUT_IMPROVED
+#include "modding/joy_output.h"
 extern bool WalkToSidestep;
 extern DWORD JoystickMovement;
+extern bool JoystickVibrationEnabled;
+extern bool JoystickLedColorEnabled;
 #endif // FEATURE_INPUT_IMPROVED
 
 #ifdef FEATURE_MOD_CONFIG
@@ -432,6 +435,9 @@ void __cdecl CheckCheatMode() {
 					ExplodingDeath(Lara.item_number, 0xFFFFFFFF, 1);
 					LaraItem->hitPoints = 0;
 					LaraItem->flags |= IFL_INVISIBLE;
+#ifdef FEATURE_INPUT_IMPROVED
+					JoyRumbleExplode(LaraItem->pos.x, LaraItem->pos.y, LaraItem->pos.z, 0x1400, true);
+#endif // FEATURE_INPUT_IMPROVED
 				} // Check jump forward
 				else if( as == AS_FORWARDJUMP ) {
 					// Complete level
@@ -537,6 +543,8 @@ void __cdecl S_LoadSettings() {
 #ifdef FEATURE_INPUT_IMPROVED
 	GetRegistryBoolValue(REG_WALK_TO_SIDESTEP, &WalkToSidestep, true);
 	GetRegistryDwordValue(REG_JOYSTICK_MOVEMENT, &JoystickMovement, 0);
+	GetRegistryBoolValue(REG_JOYSTICK_VIBRATION, &JoystickVibrationEnabled, true);
+	GetRegistryBoolValue(REG_JOYSTICK_LED_COLOR, &JoystickLedColorEnabled, true);
 #endif // FEATURE_INPUT_IMPROVED
 
 #ifdef FEATURE_HUD_IMPROVED

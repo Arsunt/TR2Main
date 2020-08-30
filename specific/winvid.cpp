@@ -45,6 +45,7 @@ static void setWindowStyle(bool isFullScreen) {
 
 #ifdef FEATURE_INPUT_IMPROVED
 #include "modding/raw_input.h"
+#include "modding/joy_output.h"
 #endif // FEATURE_INPUT_IMPROVED
 
 static bool InsertDisplayModeInListSorted(DISPLAY_MODE_LIST *modeList, DISPLAY_MODE *srcMode) {
@@ -1055,6 +1056,11 @@ LRESULT CALLBACK WinVidGameWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
 				S_CDVolume(0);
 			}
 #endif // FEATURE_AUDIO_IMPROVED
+#ifdef FEATURE_INPUT_IMPROVED
+			if( !wParam && IsGameWindowActive ) {
+				JoyVibrationMute();
+			}
+#endif // FEATURE_INPUT_IMPROVED
 			if( wParam && !IsGameWindowActive && IsGameFullScreen && SavedAppSettings.RenderMode == RM_Hardware )
 				WinVidNeedToResetBuffers = true;
 			IsGameWindowActive = ( wParam != 0 );

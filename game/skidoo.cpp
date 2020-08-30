@@ -34,6 +34,10 @@
 #include "specific/output.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_INPUT_IMPROVED
+#include "modding/joy_output.h"
+#endif // FEATURE_INPUT_IMPROVED
+
 static BITE_INFO SkidooLeftGun = {219, -71, 550, 0};
 static BITE_INFO SkidooRightGun = {-235, -71, 550, 0};
 
@@ -83,6 +87,9 @@ void __cdecl SkidooExplode(ITEM_INFO *item) {
 	ExplodingDeath(Lara.skidoo, ~3, 0);
 	PlaySoundEffect(105, NULL, 0);
 	Lara.skidoo = -1;
+#ifdef FEATURE_INPUT_IMPROVED
+	JoyRumbleExplode(LaraItem->pos.x, LaraItem->pos.y, LaraItem->pos.z, 0x1400, true);
+#endif // FEATURE_INPUT_IMPROVED
 }
 
 void __cdecl SkidooGuns() {
@@ -103,6 +110,9 @@ void __cdecl SkidooGuns() {
 			AddDynamicLight(x, y, z, 12, 11);
 			CreatureEffect(&Items[Lara.skidoo], &SkidooLeftGun, GunShot);
 			CreatureEffect(&Items[Lara.skidoo], &SkidooRightGun, GunShot);
+#ifdef FEATURE_INPUT_IMPROVED
+			JoyVibrate(0x400, 0x400, 2, 0x80, 4, false);
+#endif // FEATURE_INPUT_IMPROVED
 		}
 	}
 }

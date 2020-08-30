@@ -31,6 +31,10 @@
 #include "specific/sndpc.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_INPUT_IMPROVED
+#include "modding/joy_output.h"
+#endif // FEATURE_INPUT_IMPROVED
+
 void __cdecl MoveCamera(GAME_VECTOR *destination, int speed) {
 	Camera.pos.x += (destination->x - Camera.pos.x) / speed;
 	Camera.pos.z += (destination->z - Camera.pos.z) / speed;
@@ -53,12 +57,17 @@ void __cdecl MoveCamera(GAME_VECTOR *destination, int speed) {
 	}
 
 	if( Camera.bounce ) {
+		int shake;
+#ifdef FEATURE_INPUT_IMPROVED
+		shake = 0xFFFF*(UINT64)(ABS(Camera.bounce)+50)/250;
+		JoyRumble(shake, shake, 6, shake/6, 12, true);
+#endif // FEATURE_INPUT_IMPROVED
 		if( Camera.bounce > 0 ) {
 			Camera.pos.y += Camera.bounce;
 			Camera.target.y += Camera.bounce;
 			Camera.bounce = 0;
 		} else {
-			int shake = Camera.bounce * (GetRandomControl() - 0x4000) / 0x7FFF;
+			shake = Camera.bounce * (GetRandomControl() - 0x4000) / 0x7FFF;
 			Camera.pos.x += shake;
 			Camera.target.y += shake;
 			shake = Camera.bounce * (GetRandomControl() - 0x4000) / 0x7FFF;

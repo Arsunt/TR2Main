@@ -39,6 +39,10 @@
 #include "specific/sndpc.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_INPUT_IMPROVED
+#include "modding/joy_output.h"
+#endif // FEATURE_INPUT_IMPROVED
+
 typedef enum {
 	RINGSTATE_OPENING,
 	RINGSTATE_OPEN,
@@ -613,6 +617,9 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 					break;
 			}
 		}
+#ifdef FEATURE_INPUT_IMPROVED
+		UpdateJoyOutput(false);
+#endif // FEATURE_INPUT_IMPROVED
 	} while( motion.status != RINGSTATE_DONE );
 
 	RemoveInventoryText();

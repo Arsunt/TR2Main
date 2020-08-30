@@ -45,6 +45,10 @@
 #include "modding/background_new.h"
 #endif // FEATURE_BACKGROUND_IMPROVED
 
+#ifdef FEATURE_INPUT_IMPROVED
+#include "modding/joy_output.h"
+#endif // FEATURE_INPUT_IMPROVED
+
 #ifdef FEATURE_GOLD
 extern bool IsGold();
 #endif // FEATURE_GOLD
@@ -93,6 +97,9 @@ __int16 __cdecl StartGame(int levelID, GF_LEVEL_TYPE levelType) {
 #endif // FEATURE_VIDEOFX_IMPROVED
 
 	int res = GameLoop(FALSE);
+#ifdef FEATURE_INPUT_IMPROVED
+	JoyOutputReset();
+#endif // FEATURE_INPUT_IMPROVED
 	switch( res ) {
 		case GF_EXIT_GAME :
 			CurrentLevel = 0;

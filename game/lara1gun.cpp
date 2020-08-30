@@ -34,6 +34,10 @@
 #include "specific/game.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_INPUT_IMPROVED
+#include "modding/joy_output.h"
+#endif // FEATURE_INPUT_IMPROVED
+
 void __cdecl RifleHandler(int weaponType) {
 	WEAPON_INFO *weapon = &Weapons[weaponType];
 
@@ -82,6 +86,9 @@ void __cdecl FireShotgun() {
 	if( isFired ) {
 		Lara.right_arm.flash_gun = Weapons[LGT_Shotgun].flashTime;
 		PlaySoundEffect(Weapons[LGT_Shotgun].sampleNum, &LaraItem->pos, 0);
+#ifdef FEATURE_INPUT_IMPROVED
+		JoyVibrate(0x2000, 0x2000, 2, 0x800, 5, false);
+#endif // FEATURE_INPUT_IMPROVED
 	}
 }
 
@@ -101,6 +108,9 @@ void __cdecl FireM16(BOOL isRunning) {
 	}
 	if( FireWeapon(LGT_M16, Lara.target, LaraItem, angles) ) {
 		Lara.right_arm.flash_gun = Weapons[LGT_M16].flashTime;
+#ifdef FEATURE_INPUT_IMPROVED
+		JoyVibrate(0x400, 0x400, 2, 0x80, 4, false);
+#endif // FEATURE_INPUT_IMPROVED
 	}
 }
 
@@ -138,6 +148,9 @@ void __cdecl FireHarpoon() {
 		--Lara.harpoon_ammo;
 	}
 	++SaveGame.statistics.shots;
+#ifdef FEATURE_INPUT_IMPROVED
+	JoyVibrate(0xC00, 0xC00, 2, 0x400, 4, false);
+#endif // FEATURE_INPUT_IMPROVED
 }
 
 void __cdecl FireRocket() {
@@ -168,6 +181,9 @@ void __cdecl FireRocket() {
 			if (!SaveGame.bonusFlag)
 				--Lara.grenade_ammo;
 			++SaveGame.statistics.shots;
+#ifdef FEATURE_INPUT_IMPROVED
+			JoyVibrate(0x1000, 0x1000, 2, 0x400, 4, false);
+#endif // FEATURE_INPUT_IMPROVED
 		}
 	}
 }
@@ -262,6 +278,9 @@ void __cdecl ControlRocket(__int16 itemID) {
 		}
 		PlaySoundEffect(105, NULL, 0);
 		KillItem(itemID);
+#ifdef FEATURE_INPUT_IMPROVED
+		JoyRumbleExplode(oldX, oldY, oldZ, 0x1400, true);
+#endif // FEATURE_INPUT_IMPROVED
 	}
 }
 

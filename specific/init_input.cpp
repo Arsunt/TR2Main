@@ -27,6 +27,7 @@
 #ifdef FEATURE_INPUT_IMPROVED
 #include <XInput.h>
 #include "modding/raw_input.h"
+#include "modding/joy_output.h"
 #define XINPUT_DPAD(x) (CHK_ALL((x), XINPUT_GAMEPAD_DPAD_UP|XINPUT_GAMEPAD_DPAD_DOWN|XINPUT_GAMEPAD_DPAD_LEFT|XINPUT_GAMEPAD_DPAD_RIGHT))
 #define HAS_AXIS(x) (JoyRanges[x].lMax != JoyRanges[x].lMin)
 
@@ -52,6 +53,8 @@ static DIDEVCAPS JoyCaps;
 static JOY_AXIS_RANGE JoyRanges[JoyAxisNumber];
 
 DWORD JoystickMovement = 0;
+bool JoystickVibrationEnabled = true;
+bool JoystickLedColorEnabled = true;
 
 BOOL CALLBACK DInputEnumJoystickAxisCallback(LPCDIDEVICEOBJECTINSTANCE pdidoi, LPVOID pContext) {
 	if( !pdidoi || !pContext ) {
@@ -230,6 +233,54 @@ static BOOL CALLBACK RawInputCallBack(HANDLE hDevice, LPGUID lpGuid, PRID_DEVICE
 	lstrcpy(joyNode->body.productName.lpString, productName);
 	joyNode->body.rawInputHandle = hDevice;
 	return TRUE;
+}
+
+void SetJoystickOutput(WORD leftMotor, WORD rightMotor, DWORD ledColor) {
+	static DWORD leftMotorOld = ~0;
+	static DWORD rightMotorOld = ~0;
+	static DWORD ledColorOld = ~0;
+	if( leftMotor == leftMotorOld && rightMotor == rightMotorOld && ledColor == ledColorOld ) {
+		return;
+	}
+	bool result = true;
+
+	if( XInputIndex >= 0 ) {
+		XINPUT_VIBRATION vibration;
+		vibration.wLeftMotorSpeed  = leftMotor;
+		vibration.wRightMotorSpeed = rightMotor;
+		XInputEnable(TRUE);
+		result = (ERROR_SUCCESS == XInputSetState(XInputIndex, &vibration));
+	} else if( IsRawInput ) {
+		result = RawInputSend(leftMotor, rightMotor, ledColor);
+	}
+
+	if( result ) {
+		leftMotorOld = leftMotor;
+		rightMotorOld = rightMotor;
+		ledColorOld = ledColor;
+	}
+}
+
+bool IsJoyVibrationSupported() {
+	if( IsRawInput ) {
+		return true;
+	}
+	if( XInputIndex >= 0 ) {
+		return( XInputCaps.Vibration.wLeftMotorSpeed || XInputCaps.Vibration.wLeftMotorSpeed );
+	}
+	return false;
+}
+
+bool IsJoyLedColorSupported() {
+	return IsRawInput;
+}
+
+bool IsJoyVibrationEnabled() {
+	return JoystickVibrationEnabled && IsJoyVibrationSupported();
+}
+
+bool IsJoyLedColorEnabled() {
+	return JoystickLedColorEnabled && IsJoyLedColorSupported();
 }
 #endif // FEATURE_INPUT_IMPROVED
 
@@ -586,8 +637,10 @@ bool __cdecl DInputJoystickCreate() {
 
 void __cdecl DInputJoystickRelease() {
 #ifdef FEATURE_INPUT_IMPROVED
+	SetJoystickOutput(0, 0, DEFAULT_JOYSTICK_LED_COLOR);
 	RawInputStop();
 	IsRawInput = false;
+	XInputEnable(FALSE);
 	XInputIndex = -1;
 #endif // FEATURE_INPUT_IMPROVED
 	if( IDID_SysJoystick != NULL ) {

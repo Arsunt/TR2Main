@@ -34,6 +34,10 @@
 #include "specific/sndpc.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_INPUT_IMPROVED
+#include "modding/joy_output.h"
+#endif // FEATURE_INPUT_IMPROVED
+
 int __cdecl ControlPhase(int nTicks, BOOL demoMode) {
 	static int tickCount = 0;
 	int id = -1;
@@ -153,6 +157,9 @@ int __cdecl ControlPhase(int nTicks, BOOL demoMode) {
 			++SaveGame.statistics.timer;
 		}
 	}
+#ifdef FEATURE_INPUT_IMPROVED
+	UpdateJoyOutput(!IsDemoLevelType);
+#endif // FEATURE_INPUT_IMPROVED
 	return 0;
 }
 

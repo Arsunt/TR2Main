@@ -39,6 +39,10 @@
 #ifdef FEATURE_BACKGROUND_IMPROVED
 extern LPDDS CaptureBufferSurface;
 
+#ifdef FEATURE_INPUT_IMPROVED
+#include "modding/joy_output.h"
+#endif // FEATURE_INPUT_IMPROVED
+
 #ifdef FEATURE_GOLD
 extern bool IsGold();
 #endif
@@ -887,6 +891,9 @@ int __cdecl BGND2_ShowPicture(DWORD fadeIn, DWORD waitIn, DWORD fadeOut, DWORD w
 				}
 			}
 			++frame;
+#ifdef FEATURE_INPUT_IMPROVED
+			UpdateJoyOutput(false);
+#endif // FEATURE_INPUT_IMPROVED
 		}
 	}
 	return 0;
