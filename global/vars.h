@@ -63,6 +63,7 @@
 #define PerspectiveDistance			VAR_I_(0x00464060, DWORD,			0x3000000)
 #define RhwFactor 					VAR_I_(0x0046408C, float,			0x14000000.p0)
 #define CineTrackID					VAR_I_(0x004640B0, int,				1)
+#define CineTickRate				VAR_I_(0x004640B8, int,				0x8000) // 0x8000 = PHD_ONE/TICKS_PER_FRAME
 #define CD_TrackID					VAR_I_(0x004640BC, __int16,			-1)
 #define FlipEffect					VAR_I_(0x004640C4, int,				-1)
 #define AssaultBestTime				VAR_I_(0x004641F0, int,				-1)

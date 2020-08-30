@@ -178,8 +178,8 @@ x function is unused / included in another function
 	game/cinema.cpp
 0x00411F30:	+	SetCutsceneTrack
 0x00411F40:	+	StartCinematic
-0x00412060:	 *	InitCinematicRooms
-0x00412100:	 *	DoCinematic
+0x00412060:	+	InitCinematicRooms
+0x00412100:	+	DoCinematic
 0x00412270:	 *	CalculateCinematicCamera
 0x004123B0:	 *	GetCinematicRoom
 0x00412430:	 *	ControlCinematicPlayer

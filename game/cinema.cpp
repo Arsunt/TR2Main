@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -22,8 +22,10 @@
 #include "global/precompiled.h"
 #include "game/cinema.h"
 #include "game/draw.h"
+#include "game/hair.h"
 #include "game/setup.h"
 #include "specific/frontend.h"
+#include "specific/input.h"
 #include "specific/output.h"
 #include "specific/sndpc.h"
 #include "global/vars.h"
@@ -80,14 +82,74 @@ int __cdecl StartCinematic(int levelID) {
 	return result;
 }
 
+void __cdecl InitCinematicRooms() {
+	for( int i=0; i<RoomCount; ++i ) {
+		if( RoomInfo[i].flippedRoom >= 0 ) {
+			RoomInfo[RoomInfo[i].flippedRoom].boundActive = 1;
+		}
+		RoomInfo[i].flags |= ROOM_OUTSIDE;
+	}
+	DrawRoomsCount = 0;
+	for( int i=0; i<RoomCount; ++i ) {
+		if( !RoomInfo[i].boundActive ) {
+			DrawRoomsArray[DrawRoomsCount++] = i;
+		}
+	}
+}
+
+int __cdecl DoCinematic(int nTicks) {
+	static int tickCount = 0;
+	int id = -1;
+	int next = -1;
+
+	for( tickCount += CineTickRate*nTicks; tickCount >= 0; tickCount -= PHD_ONE ) {
+		if( S_UpdateInput() ) {
+			return 3;
+		}
+		if( CHK_ANY(InputStatus, IN_ACTION) ) {
+			return 1;
+		}
+		if( CHK_ANY(InputStatus, IN_OPTION) ) {
+			return 2;
+		}
+
+		DynamicLightCount = 0;
+
+		for( id = NextItemActive; id >= 0; id = next ) {
+			next = Items[id].nextActive;
+			if( Objects[Items[id].objectID].control ) {
+				Objects[Items[id].objectID].control(id);
+			}
+		}
+
+		for( id = NextEffectActive; id >= 0; id = next ) {
+			next = Effects[id].next_active;
+			if( Objects[Effects[id].object_number].control ) {
+				Objects[Effects[id].object_number].control(id);
+			}
+		}
+
+		HairControl(1);
+		CalculateCinematicCamera();
+
+		if( ++CineFrameIdx >= CineFramesCount ) {
+			return 1;
+		}
+	}
+
+	CineCurrentFrame = S_CDGetLoc()*4/5;
+	return 0;
+}
+
 /*
  * Inject function
  */
 void Inject_Cinema() {
 	INJECT(0x00411F30, SetCutsceneTrack);
 	INJECT(0x00411F40, StartCinematic);
-//	INJECT(0x00412060, InitCinematicRooms);
-//	INJECT(0x00412100, DoCinematic);
+	INJECT(0x00412060, InitCinematicRooms);
+	INJECT(0x00412100, DoCinematic);
+
 //	INJECT(0x00412270, CalculateCinematicCamera);
 //	INJECT(0x004123B0, GetCinematicRoom);
 //	INJECT(0x00412430, ControlCinematicPlayer);

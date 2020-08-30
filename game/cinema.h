@@ -29,9 +29,9 @@
  */
 void __cdecl SetCutsceneTrack(int track); // 0x00411F30
 int __cdecl StartCinematic(int levelID); // 0x00411F40
+void __cdecl InitCinematicRooms(); // 0x00412060
+int __cdecl DoCinematic(int nTicks); // 0x00412100
 
-#define InitCinematicRooms ((void(__cdecl*)(void)) 0x00412060)
-#define DoCinematic ((int(__cdecl*)(int)) 0x00412100)
 #define CalculateCinematicCamera ((void(__cdecl*)(void)) 0x00412270)
 #define GetCinematicRoom ((int(__cdecl*)(int, int, int)) 0x004123B0)
 #define ControlCinematicPlayer ((void(__cdecl*)(__int16)) 0x00412430)
