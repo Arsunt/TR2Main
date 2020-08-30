@@ -239,7 +239,9 @@ void SetJoystickOutput(WORD leftMotor, WORD rightMotor, DWORD ledColor) {
 	static DWORD leftMotorOld = ~0;
 	static DWORD rightMotorOld = ~0;
 	static DWORD ledColorOld = ~0;
-	if( leftMotor == leftMotorOld && rightMotor == rightMotorOld && ledColor == ledColorOld ) {
+	if( !SavedAppSettings.JoystickEnabled
+		|| (leftMotor == leftMotorOld && rightMotor == rightMotorOld && ledColor == ledColorOld) )
+	{
 		return;
 	}
 	bool result = true;
@@ -276,11 +278,11 @@ bool IsJoyLedColorSupported() {
 }
 
 bool IsJoyVibrationEnabled() {
-	return JoystickVibrationEnabled && IsJoyVibrationSupported();
+	return SavedAppSettings.JoystickEnabled && JoystickVibrationEnabled && IsJoyVibrationSupported();
 }
 
 bool IsJoyLedColorEnabled() {
-	return JoystickLedColorEnabled && IsJoyLedColorSupported();
+	return SavedAppSettings.JoystickEnabled && JoystickLedColorEnabled && IsJoyLedColorSupported();
 }
 #endif // FEATURE_INPUT_IMPROVED
 
