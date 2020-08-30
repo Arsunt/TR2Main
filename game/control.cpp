@@ -34,14 +34,14 @@
 #include "specific/sndpc.h"
 #include "global/vars.h"
 
-int __cdecl ControlPhase(int nFrames, BOOL demoMode) {
-	static int frameCount = 0;
+int __cdecl ControlPhase(int nTicks, BOOL demoMode) {
+	static int tickCount = 0;
 	int id = -1;
 	int next = -1;
 	int result = 0;
 
-	CLAMPG(nFrames, 10);
-	for( frameCount += nFrames; frameCount > 0; frameCount -= 2 ) {
+	CLAMPG(nTicks, 5 * TICKS_PER_FRAME);
+	for( tickCount += nTicks; tickCount > 0; tickCount -= TICKS_PER_FRAME ) {
 		if( CD_TrackID > 0 ) {
 			S_CDLoop();
 		}

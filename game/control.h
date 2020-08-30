@@ -27,7 +27,7 @@
 /*
  * Function list
  */
-int __cdecl ControlPhase(int nFrames, BOOL demoMode);
+int __cdecl ControlPhase(int nTicks, BOOL demoMode);
 
 #define AnimateItem ((void(__cdecl*)(ITEM_INFO*)) 0x004146C0)
 
