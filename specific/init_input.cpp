@@ -199,6 +199,20 @@ LCleanup:
 	return bIsXinputDevice;
 }
 
+// The hack to get XInput Guide button state
+#ifndef XINPUT_GAMEPAD_GUIDE
+#define XINPUT_GAMEPAD_GUIDE (0x400)
+#endif // XINPUT_GAMEPAD_GUIDE
+static DWORD XInputGetStateExt(DWORD dwUserIndex, XINPUT_STATE *pState) {
+	static DWORD (WINAPI *lpGetState)(DWORD, XINPUT_STATE*) = NULL;
+	if( lpGetState == NULL ) {
+		HMODULE hDLL = LoadLibrary("xinput1_3.dll");
+		if( hDLL != NULL ) *(FARPROC *)&lpGetState = GetProcAddress(hDLL, MAKEINTRESOURCE(100));
+		if( lpGetState == NULL ) lpGetState = XInputGetState;
+	}
+	return lpGetState(dwUserIndex, pState);
+}
+
 static BOOL CALLBACK RawInputCallBack(HANDLE hDevice, LPGUID lpGuid, PRID_DEVICE_INFO_HID lpInfo, LPVOID lpContext) {
 	if( hDevice == INVALID_HANDLE_VALUE || lpGuid == NULL || lpInfo == NULL || lpContext == NULL )
 		return TRUE;
@@ -324,7 +338,7 @@ DWORD __cdecl WinInReadJoystick(int *xPos, int *yPos) {
 	if( XInputIndex >= 0 ) {
 		XInputEnable(TRUE);
 		XINPUT_STATE state;
-		if( ERROR_SUCCESS != XInputGetState(XInputIndex, &state) ) {
+		if( ERROR_SUCCESS != XInputGetStateExt(XInputIndex, &state) ) {
 			return 0;
 		}
 		if( (JoystickMovement || !XINPUT_DPAD(XInputCaps.Gamepad.wButtons)) && XInputCaps.Gamepad.sThumbLX && XInputCaps.Gamepad.sThumbLY ) {
@@ -348,6 +362,7 @@ DWORD __cdecl WinInReadJoystick(int *xPos, int *yPos) {
 		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_START) ? 0x200 : 0;
 		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_LEFT_THUMB) ? 0x400 : 0;
 		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_RIGHT_THUMB) ? 0x800 : 0;
+		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_GUIDE) ? 0x1000 : 0;
 		return buttonStatus;
 	}
 
