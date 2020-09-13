@@ -45,6 +45,8 @@
 #endif
 /** @endcond */
 
+HINSTANCE hInstance = NULL;
+
 // 3d system
 extern void Inject_3Dgen();
 extern void Inject_3Dout();
@@ -228,6 +230,7 @@ extern "C" BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpv
 	switch( fdwReason ) {
 		case DLL_PROCESS_ATTACH :
 			// attach to process
+			hInstance = hinstDLL;
 			Inject();
 			break;
 

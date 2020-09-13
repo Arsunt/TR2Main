@@ -185,3 +185,14 @@ int AddFilenameSuffix(LPSTR destName, DWORD destSize, LPCSTR fileName, LPCSTR su
 		return 0;
 }
 
+LPCVOID GetResourceData(LPCTSTR resName, LPDWORD resSize) {
+	extern HINSTANCE hInstance;
+
+	HRSRC resInfo = FindResource(hInstance, resName, RT_RCDATA);
+	if( !resInfo ) return NULL;
+	if( resSize ) *resSize = SizeofResource(hInstance, resInfo);
+
+	HGLOBAL resHandle = LoadResource(hInstance, resInfo);
+	if( !resHandle ) return NULL;
+	return LockResource(resHandle);
+}
