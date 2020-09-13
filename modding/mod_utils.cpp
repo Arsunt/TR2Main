@@ -513,12 +513,11 @@ bool LoadModConfiguration(LPCTSTR levelFilePath) {
 	ReadFile(hFile, cfgData, cfgSize, &bytesRead, NULL);
 	CloseHandle(hFile);
 
-	json_char* json = (json_char*)cfgData;
-	json_value* value = json_parse(json, cfgSize);
-	if( value != NULL ) {
-		ModConfig.isLoaded = ParseModConfiguration(levelName, value);
+	json_value* json = json_parse((const json_char *)cfgData, cfgSize);
+	if( json != NULL ) {
+		ModConfig.isLoaded = ParseModConfiguration(levelName, json);
 	}
-	json_value_free(value);
+	json_value_free(json);
 	free(cfgData);
 	return ModConfig.isLoaded;
 }
