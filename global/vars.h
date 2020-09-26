@@ -532,7 +532,11 @@ extern DISPLAY_ADAPTER CurrentDisplayAdapter;
 
 // Uninitialized arrays
 #define GouraudTable				ARRAY_(0x0046C300, GOURAUD_ENTRY, [256])
+#ifdef FEATURE_EXTENDED_LIMITS
+extern PHD_SPRITE PhdSpriteInfo[2048];
+#else // FEATURE_EXTENDED_LIMITS
 #define PhdSpriteInfo				ARRAY_(0x0046E308, PHD_SPRITE, [512])
+#endif // FEATURE_EXTENDED_LIMITS
 #if defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_VIEW_IMPROVED)
 extern SORT_ITEM SortBuffer[16000];
 extern __int16 Info3dBuffer[480000];
