@@ -374,6 +374,9 @@
 		<Unit filename="modding/joy_output.cpp" />
 		<Unit filename="modding/joy_output.h" />
 
+		<Unit filename="modding/json_utils.cpp" />
+		<Unit filename="modding/json_utils.h" />
+
 		<Unit filename="modding/mod_utils.cpp" />
 		<Unit filename="modding/mod_utils.h" />
 

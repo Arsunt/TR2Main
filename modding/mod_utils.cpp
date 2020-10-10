@@ -21,11 +21,10 @@
 
 #include "global/precompiled.h"
 #include "modding/mod_utils.h"
+#include "modding/json_utils.h"
 #include "global/vars.h"
 
 #ifdef FEATURE_MOD_CONFIG
-#include "json-parser/json.h"
-
 #define MOD_CONFIG_NAME "TR2Main.json"
 
 typedef struct {
@@ -207,52 +206,6 @@ POLYFILTER_NODE *GetModReflectStaticsFilter() {
 
 POLYFILTER_NODE **GetModReflectObjectsFilter() {
 	return ModConfig.reflect.objects;
-}
-
-static json_value *GetJsonField(json_value *root, json_type fieldType, const char *name, DWORD *pIndex) {
-	if( root == NULL || root->type != json_object ) {
-		return NULL;
-	}
-	json_value *result = NULL;
-	DWORD len = name ? strlen(name) : 0;
-	DWORD i = pIndex ? *pIndex : 0;
-	for( ; i < root->u.object.length; ++i ) {
-		if( root->u.object.values[i].value->type == fieldType ) {
-			if( !name || (len == root->u.object.values[i].name_length
-				&& !strncmp(root->u.object.values[i].name, name, len)) )
-			{
-				result = root->u.object.values[i].value;
-				break;
-			}
-		}
-	}
-	if( pIndex ) *pIndex = i;
-	return result;
-}
-
-static json_value *GetJsonObjectByStringField(json_value *root, const char *name, const char *str, bool caseSensitive, DWORD *pIndex) {
-	if( root == NULL || root->type != json_array || !name || !*name || !str ) {
-		return NULL;
-	}
-	json_value *result = NULL;
-	DWORD len = strlen(str);
-	DWORD i = pIndex ? *pIndex : 0;
-	for( ; i < root->u.array.length; ++i ) {
-		json_value *key = GetJsonField(root->u.array.values[i], json_string, name, NULL);
-		if( key && len == key->u.string.length &&
-			(caseSensitive ? strncmp(key->u.string.ptr, str, len) : !strncasecmp(key->u.string.ptr, str, len)) )
-		{
-			result = root->u.array.values[i];
-			break;
-		}
-	}
-	if( pIndex ) *pIndex = i;
-	return result;
-}
-
-static int GetJsonIntegerFieldValue(json_value *root, const char *name) {
-	json_value *field = GetJsonField(root, json_integer, name, NULL);
-	return field ? field->u.integer : 0;
 }
 
 static int ParsePolyString(const char *str, POLYINDEX *lst, DWORD lstLen){
