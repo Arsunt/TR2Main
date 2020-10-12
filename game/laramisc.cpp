@@ -650,7 +650,7 @@ void __cdecl InitialiseLaraInventory(int levelID) {
 		Lara.m16_ammo = start->m16Ammo;
 		GlobalItemReplace(ID_M16_ITEM, ID_M16_AMMO_ITEM);
 	} else {
-		for( i = 0; i < start->grenadeAmmo / 10; ++i ) {
+		for( i = 0; i < start->m16Ammo / 40; ++i ) {
 			Inv_AddItem(ID_M16_AMMO_ITEM);
 		}
 		Lara.m16_ammo = 0;
