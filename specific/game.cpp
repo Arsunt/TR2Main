@@ -143,7 +143,7 @@ __int16 __cdecl StartGame(int levelID, GF_LEVEL_TYPE levelType) {
 
 int __cdecl GameLoop(BOOL demoMode) {
 	int result;
-	int nFrames;
+	int nTicks;
 
 	OverlayStatus = 1;
 	InitialiseCamera();
@@ -151,8 +151,8 @@ int __cdecl GameLoop(BOOL demoMode) {
 
 	result = ControlPhase(1, demoMode);
 	while( result == 0 ) {
-		nFrames = DrawPhaseGame();
-		result = IsGameToExit ? GF_EXIT_GAME : ControlPhase(nFrames, demoMode);
+		nTicks = DrawPhaseGame();
+		result = IsGameToExit ? GF_EXIT_GAME : ControlPhase(nTicks, demoMode);
 	}
 
 	S_SoundStopAllSamples();

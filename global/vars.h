@@ -70,7 +70,6 @@
 #define GF_NumSecrets				VAR_I_(0x004642E8, __int16,			3)
 #define CineTargetAngle				VAR_I_(0x00464310, __int16,			PHD_90)
 #define OverlayStatus				VAR_I_(0x004644E0, int,				1)
-#define InvNFrames					VAR_I_(0x004644F8, int,				2)
 #define InvMainObjectsCount			VAR_I_(0x004654E0, __int16,			8)
 #define InvOptionObjectsCount		VAR_I_(0x00465604, __int16,			4)
 #define GymInvOpenEnabled			VAR_I_(0x00465618, BOOL,			TRUE)

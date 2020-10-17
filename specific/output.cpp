@@ -743,14 +743,14 @@ void __cdecl S_DrawAirBar(int percent) {
 #endif // FEATURE_HUD_IMPROVED
 }
 
-void __cdecl AnimateTextures(int nFrames) {
-	static int frameComp = 0;
+void __cdecl AnimateTextures(int nTicks) {
+	static int tickComp = 0;
 	__int16 i, j;
 	__int16 *ptr;
 	PHD_TEXTURE temp;
 
-	frameComp += nFrames;
-	while( frameComp > 10 ) {
+	tickComp += nTicks;
+	while( tickComp > TICKS_PER_FRAME * 5 ) {
 		ptr = AnimatedTextureRanges;
 		i = *(ptr++);
 		for( ; i>0; --i, ++ptr ) {
@@ -761,7 +761,7 @@ void __cdecl AnimateTextures(int nFrames) {
 			}
 			PhdTextureInfo[*ptr] = temp;
 		}
-		frameComp -= 10;
+		tickComp -= TICKS_PER_FRAME * 5;
 	}
 }
 
@@ -781,18 +781,18 @@ void __cdecl S_SetupAboveWater(BOOL underwater) {
 	IsWibbleEffect = underwater;
 }
 
-void __cdecl S_AnimateTextures(int nFrames) {
-	WibbleOffset = (WibbleOffset + nFrames/2) % WIBBLE_SIZE;
+void __cdecl S_AnimateTextures(int nTicks) {
+	WibbleOffset = (WibbleOffset + nTicks / TICKS_PER_FRAME) % WIBBLE_SIZE;
 	RoomLightShades[1] = GetRandomDraw() & (WIBBLE_SIZE-1);
 	RoomLightShades[2] = (WIBBLE_SIZE-1) * (phd_sin(WibbleOffset * PHD_360 / WIBBLE_SIZE) + PHD_IONE) / 2 / PHD_IONE;
 
 	if( GF_SunsetEnabled ) {
 		DWORD sunsetTimeout = TICKS_PER_SECOND*60*20; // sunset sets in 20 minutes
-		SunsetTimer += nFrames;
+		SunsetTimer += nTicks;
 		CLAMPG(SunsetTimer, sunsetTimeout);
 		RoomLightShades[3] = (WIBBLE_SIZE-1) * SunsetTimer / sunsetTimeout;
 	}
-	AnimateTextures(nFrames);
+	AnimateTextures(nTicks);
 }
 
 void __cdecl S_DisplayPicture(LPCTSTR fileName, BOOL isTitle) {

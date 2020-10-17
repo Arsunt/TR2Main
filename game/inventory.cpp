@@ -91,7 +91,7 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 	AmmoTextInfo = NULL;
 	AlterFOV(80*PHD_DEGREE);
 	InventoryMode = invMode;
-	InvNFrames = 2;
+	int nTicks = TICKS_PER_FRAME;
 	Construct_Inventory();
 
 	if( InventoryMode == INV_TitleMode ) {
@@ -138,7 +138,7 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 	}
 
 	PlaySoundEffect(111, NULL, SFX_ALWAYS);
-	InvNFrames = 2;
+	nTicks = TICKS_PER_FRAME;
 
 	do {
 		if( InventoryMode == INV_TitleMode && CD_TrackID > 0 ) {
@@ -185,7 +185,7 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 			InputDB = IN_SELECT;
 		}
 
-		for( int i = 0; i < InvNFrames; ++i ) {
+		for( int i = 0; i < nTicks; ++i ) {
 			if( IsInvOptionsDelay ) {
 				if( InvOptionsDelayCounter ) {
 					--InvOptionsDelayCounter;
@@ -205,7 +205,7 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 			DoInventoryBackground();
 		}
 
-		S_AnimateTextures(InvNFrames);
+		S_AnimateTextures(nTicks);
 		Inv_RingGetView(&ring, &viewPos);
 		phd_GenerateW2V(&viewPos);
 		Inv_RingLight(&ring);
@@ -220,7 +220,7 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 			item = ring.itemList[i];
 
 			if( i == ring.currentObj ) {
-				for( int j = 0; j < InvNFrames; ++j ) {
+				for( int j = 0; j < nTicks; ++j ) {
 					if( ring.isRotating ) {
 						LsAdder = 0x1400;
 						if( item->zRot > 0 ) {
@@ -262,7 +262,7 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 				}
 			} else {
 				LsAdder = 0x1400;
-				for( int i = 0; i < InvNFrames; ++i ) {
+				for( int i = 0; i < nTicks; ++i ) {
 					if( item->zRot > 0 ) {
 						item->zRot -= 0x100;
 					} else if( item->zRot < 0 ) {
@@ -309,10 +309,10 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 		S_OutputPolyList();
 		SOUND_EndScene();
 
-		Camera.numberFrames = InvNFrames = S_DumpScreen();
+		Camera.numberFrames = nTicks = S_DumpScreen();
 
 		if( CurrentLevel != 0 ) { // not Lara home
-			SaveGame.statistics.timer += InvNFrames / 2;
+			SaveGame.statistics.timer += nTicks / TICKS_PER_FRAME;
 		}
 
 		if( !ring.isRotating ) {
@@ -532,7 +532,7 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 					if( item->objectID == ID_PASSPORT_CLOSED ) {
 						item->objectID = ID_PASSPORT_OPTION;
 					}
-					for( int i = 0; i < InvNFrames; ++i ) {
+					for( int i = 0; i < nTicks; ++i ) {
 						itemAnimateFrame = 0;
 						if( item->zRot == item->yRot ) {
 							itemAnimateFrame = AnimateInventoryItem(item);
@@ -590,7 +590,7 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 					break;
 				case RINGSTATE_CLOSING_ITEM :
 					item = ring.itemList[ring.currentObj];
-					for( int i = 0; i < InvNFrames; ++i ) {
+					for( int i = 0; i < nTicks; ++i ) {
 						if( !AnimateInventoryItem(item) ) {
 							if( item->objectID == ID_PASSPORT_OPTION ) {
 								item->objectID = ID_PASSPORT_CLOSED;

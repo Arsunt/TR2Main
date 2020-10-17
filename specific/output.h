@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -46,10 +46,10 @@ void __cdecl S_CalculateStaticMeshLight(int x, int y, int z, int shade1, int sha
 void __cdecl S_LightRoom(ROOM_INFO *room); // 0x004516B0
 void __cdecl S_DrawHealthBar(int percent); // 0x004518C0
 void __cdecl S_DrawAirBar(int percent); // 0x00451A90
-void __cdecl AnimateTextures(int nFrames); // 0x00451C90
+void __cdecl AnimateTextures(int nTicks); // 0x00451C90
 void __cdecl S_SetupBelowWater(BOOL underwater); // 0x00451D50
 void __cdecl S_SetupAboveWater(BOOL underwater); // 0x00451DB0
-void __cdecl S_AnimateTextures(int nFrames); // 0x00451DE0
+void __cdecl S_AnimateTextures(int nTicks); // 0x00451DE0
 void __cdecl S_DisplayPicture(LPCTSTR fileName, BOOL reallocGame); // 0x00451EA0
 void __cdecl S_SyncPictureBufferPalette(); // 0x00451FB0
 void __cdecl S_DontDisplayPicture(); // 0x00452030

@@ -41,13 +41,13 @@ void __cdecl SetCutsceneTrack(int track) {
 int __cdecl StartCinematic(int levelID) {
 	int result;
 	BOOL soundWasActive;
-	int framesCount;
+	int nTicks;
 
 	CineLevelID = levelID;
 	IsTitleLoaded = FALSE;
 	S_FadeToBlack();
 
-	if( !InitialiseLevel(levelID, 4) ) {
+	if( !InitialiseLevel(levelID, GFL_CUTSCENE) ) {
 		return 2;
 	}
 
@@ -70,11 +70,11 @@ int __cdecl StartCinematic(int levelID) {
 
 	do {
 		DrawPhaseCinematic();
-		framesCount = CineCurrentFrame + 2 * (4 - CineFrameIdx);
-		if( framesCount < 2 ) {
-			framesCount = 2;
+		nTicks = CineCurrentFrame - TICKS_PER_FRAME * (CineFrameIdx - 4);
+		if( nTicks < TICKS_PER_FRAME ) {
+			nTicks = TICKS_PER_FRAME;
 		}
-		result = DoCinematic(framesCount);
+		result = DoCinematic(nTicks);
 	} while( !result );
 
 	S_CDVolume((MusicVolume > 0) ? (25 * MusicVolume + 5) : 0);
