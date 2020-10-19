@@ -277,39 +277,38 @@ BOOL __cdecl LoadTexturePages(HANDLE hFile) {
 			ReadFileSync(hFile, TexturePageBuffer8[i], 256*256*1, &bytesRead, NULL);
 		}
 		SetFilePointer(hFile, pageCount*(256*256*2), NULL, FILE_CURRENT);
-		return TRUE;
-	}
-
-	// for hardware renderer do BPP check and load 8 bit or 16 bit texture pages to GLOBAL allocated memory and skip others
-	pageSize = ( TextureFormat.bpp < 16 ) ? 256*256*1 : 256*256*2;
-	texPageBuffer = GlobalAlloc(GMEM_FIXED, pageCount*pageSize);
-
-	if( texPageBuffer == NULL )
-		return FALSE;
-
-	texPagePtr = (BYTE *)texPageBuffer;
-
-	if( TextureFormat.bpp < 16 ) {
-		// load 8 bit texture pages and skip 16 bit texture pages
-		for( i=0; i<pageCount; ++i ) {
-			ReadFileSync(hFile, texPagePtr, pageSize, &bytesRead, NULL);
-			texPagePtr += pageSize;
-		}
-		SetFilePointer(hFile, pageCount*(256*256*2), NULL, FILE_CURRENT);
-		HWR_LoadTexturePages(pageCount, texPageBuffer, GamePalette8);
 	} else {
-		// skip 8 bit texture pages and load 16 bit texture pages
-		SetFilePointer(hFile, pageCount*(256*256*1), NULL, FILE_CURRENT);
-		for( i=0; i<pageCount; ++i ) {
-			ReadFileSync(hFile, texPagePtr, pageSize, &bytesRead, NULL);
-			texPagePtr += pageSize;
-		}
-		HWR_LoadTexturePages(pageCount, texPageBuffer, NULL);
-	}
+		// for hardware renderer do BPP check and load 8 bit or 16 bit texture pages to GLOBAL allocated memory and skip others
+		pageSize = ( TextureFormat.bpp < 16 ) ? 256*256*1 : 256*256*2;
+		texPageBuffer = GlobalAlloc(GMEM_FIXED, pageCount*pageSize);
 
-	// for hardware renderer textures stored in videomemory so we may clean up system memory
-	GlobalFree(texPageBuffer);
-	HwrTexturePagesCount = pageCount;
+		if( texPageBuffer == NULL )
+			return FALSE;
+
+		texPagePtr = (BYTE *)texPageBuffer;
+
+		if( TextureFormat.bpp < 16 ) {
+			// load 8 bit texture pages and skip 16 bit texture pages
+			for( i=0; i<pageCount; ++i ) {
+				ReadFileSync(hFile, texPagePtr, pageSize, &bytesRead, NULL);
+				texPagePtr += pageSize;
+			}
+			SetFilePointer(hFile, pageCount*(256*256*2), NULL, FILE_CURRENT);
+			HWR_LoadTexturePages(pageCount, texPageBuffer, GamePalette8);
+		} else {
+			// skip 8 bit texture pages and load 16 bit texture pages
+			SetFilePointer(hFile, pageCount*(256*256*1), NULL, FILE_CURRENT);
+			for( i=0; i<pageCount; ++i ) {
+				ReadFileSync(hFile, texPagePtr, pageSize, &bytesRead, NULL);
+				texPagePtr += pageSize;
+			}
+			HWR_LoadTexturePages(pageCount, texPageBuffer, NULL);
+		}
+
+		// for hardware renderer textures stored in videomemory so we may clean up system memory
+		GlobalFree(texPageBuffer);
+		HwrTexturePagesCount = pageCount;
+	}
 
 	return TRUE;
 }
