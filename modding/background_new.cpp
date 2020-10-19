@@ -233,31 +233,6 @@ void PSX_Background(HWR_TEXHANDLE texSource, int tu, int tv, int t_width, int t_
 	free(vertices);
 }
 
-static int GetPcxResolution(void *pcx, DWORD pcxSize, DWORD *width, DWORD *height) {
-	PCX_HEADER *header;
-
-	if( pcx == NULL || pcxSize <= sizeof(PCX_HEADER) || width == NULL || height == NULL ) {
-		return -1;
-	}
-
-	header  = (PCX_HEADER *)pcx;
-	*width  = header->xMax - header->xMin + 1;
-	*height = header->yMax - header->yMin + 1;
-
-	if( header->manufacturer != 10 ||
-		header->version < 5 ||
-		header->bpp != 8 ||
-		header->rle != 1 ||
-		header->planes != 1 ||
-		*width == 0 ||
-		*height == 0 )
-	{
-		return -1;
-	}
-
-	return 0;
-}
-
 // This prevents texture bleeding instead of UV adjustment
 static int FillEdgePadding(DWORD width, DWORD height, DWORD side, BYTE *bitmap, DWORD bpp) {
 	if( !width || !height || width > side || height > side || bitmap == NULL ) {

@@ -59,6 +59,9 @@ void __cdecl FadeToPal(int fadeValue, RGB888 *palette); // 0x00452060
 void __cdecl ScreenClear(bool isPhdWinSize); // 0x00452230
 void __cdecl S_CopyScreenToBuffer(); // 0x00452260
 void __cdecl S_CopyBufferToScreen(); // 0x00452310
-BOOL __cdecl DecompPCX(BYTE *pcx, DWORD pcxSize, BYTE *pic, RGB888 *pal); // 0x00452360
+BOOL __cdecl DecompPCX(LPCBYTE pcx, DWORD pcxSize, LPBYTE pic, RGB888 *pal); // 0x00452360
+
+// NOTE: this function is not presented in the original game
+int GetPcxResolution(LPCBYTE pcx, DWORD pcxSize, DWORD *width, DWORD *height);
 
 #endif // OUTPUT_H_INCLUDED
