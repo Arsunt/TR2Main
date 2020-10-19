@@ -386,6 +386,9 @@
 		<Unit filename="modding/raw_input.cpp" />
 		<Unit filename="modding/raw_input.h" />
 
+		<Unit filename="modding/texture_utils.cpp" />
+		<Unit filename="modding/texture_utils.h" />
+
 		<Unit filename="json-parser/json.c" />
 		<Unit filename="json-parser/json.h" />
 
