@@ -1079,6 +1079,12 @@ typedef enum {
 	ADDINV_KEY4,
 } ADDINV_TYPES;
 
+typedef enum {
+	CHAR_SECRET1 = 0x7F,
+	CHAR_SECRET2,
+	CHAR_SECRET3,
+} CHAR_SECRETS;
+
 /*
  * Structs
  */

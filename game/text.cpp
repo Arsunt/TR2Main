@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -30,6 +30,10 @@
 #ifdef FEATURE_HUD_IMPROVED
 extern DWORD InvTextBoxMode;
 #endif // FEATURE_HUD_IMPROVED
+
+#define IS_CHAR_SECRET(x)		((x) >= CHAR_SECRET1 && (x) <= CHAR_SECRET3)
+#define IS_CHAR_LEGAL(x)		((x) <= 0x12 || ((x) >= 0x20 && (x) <= 0x7F) || IS_CHAR_SECRET(x))
+#define IS_CHAR_DIACRITIC(x)	((x) == '(' || (x) == ')' || (x) == '$' || (x) == '~')
 
 static const BYTE T_TextSpacing[0x6E] = {
 //	A	B	C	D	E	F	G	H
@@ -140,15 +144,10 @@ void __cdecl T_ChangeText(TEXT_STR_INFO *textInfo, const char *newString) {
 	if( newString == NULL || textInfo == NULL || !CHK_ANY(textInfo->flags, TIF_Active) )
 		return;
 
-#if 0 // NOTE: original code was unsafe crap. Reimplemented it a little safer
-	if( T_GetStringLen(newString) >= 64 )
-		newString[63] = 0;
-	memcpy(textInfo->pString, newString, 64);
-#else
+	// NOTE: the original code was unsafe crap. Reimplemented it a little safer
 	strncpy(textInfo->pString, newString, 64);
 	if( T_GetStringLen(newString) >= 64 )
 		textInfo->pString[63] = 0;
-#endif
 }
 
 void __cdecl T_SetScale(TEXT_STR_INFO *textInfo, int scaleH, int scaleV) {
@@ -285,19 +284,14 @@ void __cdecl T_DrawTextBox(int sx, int sy, int z, int width, int height) {
 }
 
 DWORD __cdecl T_GetTextWidth(TEXT_STR_INFO *textInfo) {
-	DWORD width, spacing, scaleH, sprite;
+	int spacing;
+	DWORD width, scaleH, sprite;
 
 	width = 0;
 	scaleH = GetTextScaleH(textInfo->scaleH);
 
 	for( BYTE *str = (BYTE *)textInfo->pString; *str != 0; str++ ) {
-		if( *str > 0x81 || // 0x79, 0x80, 0x81 are "Secret" sprite codes, all codes above 0x81 are illegal
-			(*str > 0x12 && *str < 0x20) || // NOTE: original code was (*str > 0x0A && *str < 0x20) but this was wrong
-			*str == '(' || // Diacritic ^ (diacritics are drawn right on the next *str sprite, there is no spacing, so skip them here)
-			*str == ')' || // Diacritic '
-			*str == '$' || // Diacritic `
-			*str == '~' ) // Diacritic "
-		{
+		if( !IS_CHAR_LEGAL(*str) || IS_CHAR_DIACRITIC(*str) ) {
 			continue; // if char code is illegal or not required for width measuring, go to next char
 		}
 
@@ -305,7 +299,7 @@ DWORD __cdecl T_GetTextWidth(TEXT_STR_INFO *textInfo) {
 			// "Space" uses wordSpacing value instead of sprite width
 			spacing = textInfo->wordSpacing;
 		}
-		else if( *str >= 0x7F ) { // Check if "Secret" sprite
+		else if( IS_CHAR_SECRET(*str) ) { // Check if "Secret" sprite
 			// "Secret" sprites have spacing=16
 			spacing = 16;
 		} else {
@@ -413,16 +407,16 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
 
 	for( BYTE *str = (BYTE *)textInfo->pString; *str != 0; str++ ) {
 		// Check if char code is in illegal range
-		if( *str > 0x81 || (*str > 0x12 && *str < 0x20) )
+		if( !IS_CHAR_LEGAL(*str) )
 			continue;
 
 		if( *str == 0x20 ) { // Check if char is "Space"
 			// "Space" uses wordSpacing value instead of sprite width
 			x += textInfo->wordSpacing * scaleH / PHD_ONE;
 		}
-		else if( *str >= 0x7F ) { // Check if "Secret" sprite
+		else if( IS_CHAR_SECRET(*str) ) { // Check if "Secret" sprite
 			// Draw "Secret" sprite
-			S_DrawPickup(x + 10, y, 0x1BE8, Objects[ID_SECRET1 + (*str - 0x7F)].meshIndex, 0x1000);
+			S_DrawPickup(x + 10, y, 0x1BE8, Objects[ID_SECRET1 + (*str - CHAR_SECRET1)].meshIndex, 0x1000);
 			// "Secret" sprites have spacing=16
 			x += 16 * scaleH / PHD_ONE;
 		} else {
@@ -452,7 +446,7 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
 
 			// Check if letter is diacritic
 			// Diacritics are drawn right on the next letter sprite, so there is no spacing for them
-			if( *str == '(' || *str == ')' || *str == '$' || *str == '~' ) // Diacritics: ^ ' ` "
+			if( IS_CHAR_DIACRITIC(*str) )
 				continue;
 
 			// Check if normal letter sprite is digit representation
