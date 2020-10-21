@@ -1080,7 +1080,11 @@ typedef enum {
 } ADDINV_TYPES;
 
 typedef enum {
+#ifdef FEATURE_HUD_IMPROVED
+	CHAR_SECRET1 = 0x13,
+#else
 	CHAR_SECRET1 = 0x7F,
+#endif
 	CHAR_SECRET2,
 	CHAR_SECRET3,
 } CHAR_SECRETS;
