@@ -84,6 +84,11 @@ typedef struct {
 #define PHD_45				(PHD_ONE/8)
 #define PHD_DEGREE			(PHD_ONE/360)
 
+// String macros
+#ifdef FEATURE_HUD_IMPROVED
+#define K(a) "\x7F" a "\x1F"
+#endif // FEATURE_HUD_IMPROVED
+
 // Math macros
 #define MIN(a,b)			(((a)<(b))?(a):(b))
 #define MAX(a,b)			(((a)>(b))?(a):(b))

@@ -57,6 +57,10 @@ extern bool LoadingScreensEnabled;
 #include "modding/mod_utils.h"
 #endif // defined(FEATURE_MOD_CONFIG) || defined(FEATURE_VIDEOFX_IMPROVED)
 
+#ifdef FEATURE_HUD_IMPROVED
+#include "modding/texture_utils.h"
+#endif // FEATURE_HUD_IMPROVED
+
 #ifdef FEATURE_VIDEOFX_IMPROVED
 static bool MarkSemitransPoly(__int16 *ptrObj, int vtxCount, bool colored, LPVOID param) {
 	UINT16 index = ptrObj[vtxCount];
@@ -309,6 +313,9 @@ BOOL __cdecl LoadTexturePages(HANDLE hFile) {
 		GlobalFree(texPageBuffer);
 		HwrTexturePagesCount = pageCount;
 	}
+#ifdef FEATURE_HUD_IMPROVED
+	LoadButtonSprites();
+#endif // FEATURE_HUD_IMPROVED
 
 	return TRUE;
 }

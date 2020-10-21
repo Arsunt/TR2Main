@@ -112,6 +112,44 @@ extern GOURAUD_OUTLINE ReqSelGour2;
 /*
  * Control key names
  */
+#ifdef FEATURE_HUD_IMPROVED
+static LPCSTR ControlKeysText[0x110] = {
+	NULL,           K("esc"),       K("1"),         K("2"),         K("3"),         K("4"),         K("5"),         K("6"),
+	K("7"),         K("8"),         K("9"),         K("0"),         K("-"),         K("="),         K("backspace"), K("tab"),
+	K("q"),         K("w"),         K("e"),         K("r"),         K("t"),         K("y"),         K("u"),         K("i"),
+	K("o"),         K("p"),         K("["),         K("]"),         K("return"),    K("ctrl"),      K("a"),         K("s"),
+	K("d"),         K("f"),         K("g"),         K("h"),         K("j"),         K("k"),         K("l"),         K(";"),
+	K("'"),         K("`"),         K("shift"),     K("\\"),        K("z"),         K("x"),         K("c"),         K("v"),
+	K("b"),         K("n"),         K("m"),         K(","),         K("."),         K("/"),         K("shift"),     K("pad*"),
+	K("alt"),       K("space"),     K("capslock"),  NULL,           NULL,           NULL,           NULL,           NULL,
+	NULL,           NULL,           NULL,           NULL,           NULL,           K("numlock"),   NULL,           K("pad7"),
+	K("pad8"),      K("pad9"),      K("pad-"),      K("pad4"),      K("pad5"),      K("pad6"),      K("pad+"),      K("pad1"),
+	K("pad2"),      K("pad3"),      K("pad0"),      K("pad."),      NULL,           NULL,           K("<"),         NULL,
+	NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
+	NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
+	NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
+	NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
+	NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
+	NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
+	NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
+	NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
+	NULL,           NULL,           NULL,           NULL,           K("enter"),     K("ctrl"),      NULL,           NULL,
+	NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
+	NULL,           NULL,           K("shift"),     NULL,           NULL,           NULL,           NULL,           NULL,
+	NULL,           NULL,           NULL,           NULL,           NULL,           K("pad/"),      NULL,           NULL,
+	K("alt"),       NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
+	NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           K("home"),
+	K("up"),        K("pageup"),    NULL,           K("left"),      NULL,           K("right"),     NULL,           K("end"),
+	K("down"),      K("pagedown"),  K("insert"),    K("delete"),    NULL,           NULL,           NULL,           NULL,
+	NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
+	NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
+	NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
+	NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
+	NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
+	K("joy1"),      K("joy2"),      K("joy3"),      K("joy4"),      K("joy5"),      K("joy6"),      K("joy7"),      K("joy8"),
+	K("joy9"),      K("joy10"),     K("joy11"),     K("joy12"),     K("joy13"),     K("joy14"),     K("joy15"),     K("joy16"),
+};
+#else // FEATURE_HUD_IMPROVED
 static LPCSTR ControlKeysText[0x110] = {
 	NULL,   "ESC",   "1",     "2",     "3",     "4",     "5",     "6",
 	"7",    "8",     "9",     "0",     "-",     "+",     "BKSP",  "TAB",
@@ -148,6 +186,7 @@ static LPCSTR ControlKeysText[0x110] = {
 	"JOY1", "JOY2",  "JOY3",  "JOY4",  "JOY5",  "JOY6",  "JOY7",  "JOY8",
 	"JOY9", "JOY10", "JOY11", "JOY12", "JOY13", "JOY14", "JOY15", "JOY16",
 };
+#endif // FEATURE_HUD_IMPROVED
 
 // NOTE: not presented in the original game. SetPCRequesterSize() used directly instead
 void SetPassportRequesterSize(REQUEST_INFO *req) {

@@ -28,6 +28,8 @@
 #include "global/vars.h"
 
 #ifdef FEATURE_HUD_IMPROVED
+#include "modding/texture_utils.h"
+
 extern DWORD InvTextBoxMode;
 #endif // FEATURE_HUD_IMPROVED
 
@@ -302,6 +304,15 @@ DWORD __cdecl T_GetTextWidth(TEXT_STR_INFO *textInfo) {
 		else if( IS_CHAR_SECRET(*str) ) { // Check if "Secret" sprite
 			// "Secret" sprites have spacing=16
 			spacing = 16;
+#ifdef FEATURE_HUD_IMPROVED
+		} else if( *str == 0x7F ) { // Check if it's the opening code of the named sprite sequence
+			BYTE *ptr = (BYTE *)strchr((const char *)str+1, 0x1F);
+			if( ptr == NULL ) break; // Closing code is not found, break now!
+			if( !GetTextSpriteByName((const char *)str+1, ptr-str-1, &sprite, &spacing) ) {
+				spacing = 0;
+			}
+			str = ptr; // move pointer to the sequence end
+#endif // FEATURE_HUD_IMPROVED
 		} else {
 			if( *str < 0x0B ) { // Check if "Digit" sprite
 				sprite = *str + 0x51; // We have (*str >= 0x01) here. "Digit" sprite codes start from (0x52 = 0x01 + 0x51)
@@ -419,6 +430,19 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
 			S_DrawPickup(x + 10, y, 0x1BE8, Objects[ID_SECRET1 + (*str - CHAR_SECRET1)].meshIndex, 0x1000);
 			// "Secret" sprites have spacing=16
 			x += 16 * scaleH / PHD_ONE;
+#ifdef FEATURE_HUD_IMPROVED
+		} else if( *str == 0x7F ) { // Check if it's the opening code of the named sprite sequence
+			BYTE *ptr = (BYTE *)strchr((const char *)str+1, 0x1F);
+			if( ptr == NULL ) break; // Closing code is not found, break now!
+			if( GetTextSpriteByName((const char *)str+1, ptr-str-1, &sprite, &xOff) ) {
+				if( x > 0 && x < GetRenderWidth() && y > 0 && y < GetRenderHeight() ) {
+					S_DrawScreenSprite2d(x, y, z, scaleH, scaleV, sprite, 0x1000, textInfo->textFlags);
+				}
+				xOff += textInfo->letterSpacing;
+				x += xOff * scaleH / PHD_ONE;
+			}
+			str = ptr; // move pointer to the sequence end
+#endif // FEATURE_HUD_IMPROVED
 		} else {
 			if( *str < 0x0B ) { // Check if "Digit" sprite
 				sprite = *str + 0x51; // We have (*str >= 0x01) here. "Digit" sprite codes start from (0x52 = 0x01 + 0x51)

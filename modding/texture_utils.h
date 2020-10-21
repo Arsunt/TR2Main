@@ -27,6 +27,11 @@
 /*
  * Function list
  */
+#ifdef FEATURE_HUD_IMPROVED
+bool LoadButtonSprites();
+bool GetTextSpriteByName(const char *name, int nameLen, DWORD *sprite, int *spacing);
+#endif // FEATURE_HUD_IMPROVED
+
 int MakeCustomTexture(DWORD x, DWORD y, DWORD width, DWORD height, DWORD pitch, DWORD side, BYTE *bitmap, RGB888 *bmpPal, int hwrPal, BYTE *swrBuf, bool keyColor);
 
 #endif // TEXTURE_UTILS_H_INCLUDED
