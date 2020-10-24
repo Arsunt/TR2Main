@@ -29,6 +29,8 @@
 #include "specific/sndpc.h"
 #include "global/vars.h"
 
+static DWORD LayoutPage = CTRL_Default;
+
 /*
  * Passport option box parameters
  */
@@ -77,15 +79,26 @@
 /*
  * Control option box parameters
  */
-#define CONTROL_WIDTH_LOW	(300)
-#define CONTROL_WIDTH_HIGH	(420)
-
+#define CONTROL_LINE_COUNT	(ARRAY_SIZE(Layout->key)/2)
 #define CONTROL_LN_HEIGHT	(15)
-#define CONTROL_HEIGHT_LOW	(CONTROL_LN_HEIGHT * 7 + 35)
-#define CONTROL_HEIGHT_HIGH	(CONTROL_LN_HEIGHT * 7 + 45)
+
+#define CONTROL_WIDTH_LOW	(300)
+#define CONTROL_HEIGHT_LOW	(CONTROL_LN_HEIGHT * CONTROL_LINE_COUNT + 35)
+
+#ifdef FEATURE_HUD_IMPROVED
+#define CONTROL_WIDTH_HIGH	(360)
+#define CONTROL_HEIGHT_HIGH	CONTROL_HEIGHT_LOW
+
+#define CONTROL_COLUMN_B	(4)
+#define CONTROL_COLUMN_A	(60)
+#else // FEATURE_HUD_IMPROVED
+#define CONTROL_WIDTH_HIGH	(420)
+#define CONTROL_HEIGHT_HIGH	(CONTROL_LN_HEIGHT * CONTROL_LINE_COUNT + 45)
 
 #define CONTROL_COLUMN_B	(10)
 #define CONTROL_COLUMN_A	(80)
+#endif // FEATURE_HUD_IMPROVED
+
 // Y coordinates relative to the center of the screen
 #define CONTROL_Y_BOX		(-55)
 #define CONTROL_Y_TITLE		(CONTROL_Y_BOX + 2)
@@ -701,11 +714,11 @@ void __cdecl do_compass_option(INVENTORY_ITEM *item) {
 void __cdecl FlashConflicts() {
 	UINT16 key;
 
-	for( int i=0; i<14; ++i ) {
+	for( DWORD i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
 		key = Layout[LayoutPage].key[i];
 		T_FlashText(CtrlTextB[i], 0, 0);
 
-		for( int j=0; j<14; ++j ) {
+		for( DWORD j=0; j<CONTROL_LINE_COUNT*2; ++j ) {
 			if( (i != j) && (key == Layout[LayoutPage].key[j]) ) {
 				T_FlashText(CtrlTextB[i], 1, 20);
 				break;
@@ -715,12 +728,12 @@ void __cdecl FlashConflicts() {
 }
 
 void __cdecl DefaultConflict() {
-	for( int i=0; i<14; ++i ) {
-		ConflictLayout[i] = 0;
+	for( DWORD i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
+		ConflictLayout[i] = false;
 
-		for( int j=0; j<14; ++j ) {
+		for( DWORD j=0; j<CONTROL_LINE_COUNT*2; ++j ) {
 			if( Layout[CTRL_Custom].key[j] == Layout[CTRL_Default].key[i] ) {
-				ConflictLayout[i] = 1;
+				ConflictLayout[i] = true;
 				break;
 			}
 		}
@@ -731,8 +744,20 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 	static int KeySelector = 0;
 	int i;
 
+#ifdef FEATURE_HUD_IMPROVED
+	static int renderWidth = 0;
+	if( renderWidth != GetRenderWidthDownscaled() ) {
+		T_RemovePrint(ControlTextInfo[0]);
+		ControlTextInfo[0] = NULL;
+		T_RemovePrint(ControlTextInfo[1]);
+		ControlTextInfo[1] = NULL;
+		S_RemoveCtrlText();
+		renderWidth = GetRenderWidthDownscaled();
+	}
+#endif // !FEATURE_HUD_IMPROVED
+
 	if( ControlTextInfo[0] == NULL ) {
-		ControlTextInfo[0] = T_Print(0, -50, 0, GF_SpecificStringTable[(LayoutPage == 0) ? SSI_DefaultKeys : SSI_UserKeys]);
+		ControlTextInfo[0] = T_Print(0, -50, 0, GF_SpecificStringTable[(LayoutPage == CTRL_Default) ? SSI_DefaultKeys : SSI_UserKeys]);
 		T_CentreH(ControlTextInfo[0], 1);
 		T_CentreV(ControlTextInfo[0], 1);
 
@@ -740,6 +765,7 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 		KeyCursor = -1;
 		T_AddBackground(ControlTextInfo[0], 0, 0, 0, 0, CONTROL_FARZ, ICLR_Black, &ReqSelGour1, 0);
 		T_AddOutline(ControlTextInfo[0], TRUE, ICLR_Blue, &ReqSelGour2, 0);
+		FlashConflicts(); // NOTE: this line is absent in the original game
 	}
 
 	switch( KeySelector ) {
@@ -754,12 +780,12 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 					T_RemoveBackground(CtrlTextA[KeyCursor]);
 					T_RemoveOutline(CtrlTextA[KeyCursor]);
 
-					if( KeyCursor < 7 ) {
-						KeyCursor += 7;
-					} else if ( KeyCursor < 14 ) {
-						KeyCursor -= 7;
+					if( KeyCursor < (int)CONTROL_LINE_COUNT ) {
+						KeyCursor += CONTROL_LINE_COUNT;
+					} else if ( KeyCursor < (int)CONTROL_LINE_COUNT*2 ) {
+						KeyCursor -= CONTROL_LINE_COUNT;
 					} else {
-						KeyCursor = 7;
+						KeyCursor = CONTROL_LINE_COUNT;
 					}
 
 					CtrlTextA[KeyCursor]->zPos = 0;
@@ -777,7 +803,7 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 				return;
 			}
 
-			if( LayoutPage == 0 )
+			if( LayoutPage == CTRL_Default )
 				break;
 
 			if( CHK_ANY(InputDB, IN_SELECT) ) {
@@ -802,7 +828,7 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 				}
 
 				if( --KeyCursor < -1 ) {
-					KeyCursor = 13;
+					KeyCursor = CONTROL_LINE_COUNT*2 - 1;
 				}
 
 				if( KeyCursor == -1 ) {
@@ -824,7 +850,7 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 					T_RemoveOutline(CtrlTextA[KeyCursor]);
 				}
 
-				if( ++KeyCursor > 13 ) {
+				if( ++KeyCursor >= (int)CONTROL_LINE_COUNT*2 ) {
 					KeyCursor = -1;
 				}
 
@@ -841,7 +867,7 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 
 		case 1:
 			// NOTE: InputDB replaced by InputStatus here. This fixes the original game bug
-			if( !CHK_ANY(InputStatus, IN_SELECT) ) {
+			if( !CHK_ANY(InputStatus, IN_SELECT) && !CHK_ANY(DIKeys[DIK_RETURN], 0x80) ) {
 				KeySelector = 2;
 			}
 			break;
@@ -911,25 +937,21 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 }
 
 void __cdecl S_ShowControls() {
-	int i, x0, x1, xCenter;
+	DWORD i;
+	int x0, x1, xCenter;
 	bool isCompact;
 
 #ifdef FEATURE_HUD_IMPROVED
 	xCenter = GetRenderWidthDownscaled() / 2;
-	isCompact = (xCenter < 240);
+	isCompact = (xCenter < (CONTROL_WIDTH_HIGH + 20) / 2);
 #else // !FEATURE_HUD_IMPROVED
 	xCenter = GetRenderWidth() / 2;
 	CLAMPG(xCenter, 320);
 	isCompact = (xCenter < 320);
 #endif // FEATURE_HUD_IMPROVED
 
-
 	if( CtrlTextB[0] == NULL ) {
-		if( isCompact ) {
-			x0 = xCenter - (CONTROL_WIDTH_LOW / 2) + CONTROL_COLUMN_B;
-		} else {
-			x0 = xCenter - (CONTROL_WIDTH_HIGH / 2) + CONTROL_COLUMN_B;
-		}
+		x0 = xCenter - (isCompact ? CONTROL_WIDTH_LOW : CONTROL_WIDTH_HIGH) / 2 + CONTROL_COLUMN_B;
 		x1 = xCenter + CONTROL_COLUMN_B;
 
 		CtrlTextB[0]  = T_Print(x0, CONTROL_Y_LINE1, CONTROL_NEARZ, ControlKeysText[Layout[LayoutPage].key[0]]);
@@ -948,7 +970,7 @@ void __cdecl S_ShowControls() {
 		CtrlTextB[12] = T_Print(x1, CONTROL_Y_LINE6, CONTROL_NEARZ, ControlKeysText[Layout[LayoutPage].key[12]]);
 		CtrlTextB[13] = T_Print(x1, CONTROL_Y_LINE7, CONTROL_NEARZ, ControlKeysText[Layout[LayoutPage].key[13]]);
 
-		for( i=0; i<14; ++i ) {
+		for( i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
 			T_CentreV(CtrlTextB[i], 1);
 		}
 
@@ -956,12 +978,12 @@ void __cdecl S_ShowControls() {
 	}
 
 	if( CtrlTextA[0] == NULL ) {
-		if( isCompact ) {
-			x0 = xCenter - (CONTROL_WIDTH_LOW / 2) + CONTROL_COLUMN_A;
-		} else {
-			x0 = xCenter - (CONTROL_WIDTH_HIGH / 2) + CONTROL_COLUMN_A;
-		}
+		x0 = xCenter - (isCompact ? CONTROL_WIDTH_LOW : CONTROL_WIDTH_HIGH) / 2 + CONTROL_COLUMN_A;
+#ifdef FEATURE_HUD_IMPROVED
+		x1 = xCenter + CONTROL_COLUMN_A;
+#else // !FEATURE_HUD_IMPROVED
 		x1 = xCenter + CONTROL_COLUMN_A + 10;
+#endif // FEATURE_HUD_IMPROVED
 
 		CtrlTextA[0]  = T_Print(x0, CONTROL_Y_LINE1, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Run]);
 		CtrlTextA[1]  = T_Print(x0, CONTROL_Y_LINE2, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Back]);
@@ -979,7 +1001,7 @@ void __cdecl S_ShowControls() {
 		CtrlTextA[12] = T_Print(x1, CONTROL_Y_LINE6, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Roll]);
 		CtrlTextA[13] = T_Print(x1, CONTROL_Y_LINE7, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Inventory]);
 
-		for( i=0; i<14; ++i ) {
+		for( i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
 			T_CentreV(CtrlTextA[i], 1);
 		}
 	}
@@ -990,9 +1012,13 @@ void __cdecl S_ShowControls() {
 	T_AddOutline(ControlTextInfo[1], TRUE, ICLR_Blue, &ReqBgndGour2, 0);
 
 	if( isCompact ) {
-		for( i=0; i<14; ++i ) {
+		for( i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
+#ifdef FEATURE_HUD_IMPROVED
+			T_SetScale(CtrlTextA[i], PHD_ONE*3/4, PHD_ONE);
+#else // !FEATURE_HUD_IMPROVED
 			T_SetScale(CtrlTextB[i], PHD_ONE/2, PHD_ONE);
 			T_SetScale(CtrlTextA[i], PHD_ONE/2, PHD_ONE);
+#endif // FEATURE_HUD_IMPROVED
 		}
 		T_AddBackground(ControlTextInfo[1], CONTROL_WIDTH_LOW, CONTROL_HEIGHT_LOW, 0, 0, CONTROL_FARZ, ICLR_Black, &ReqBgndGour1, 0);
 	} else {
@@ -1012,18 +1038,22 @@ void __cdecl S_ChangeCtrlText() {
 		T_ChangeText(ControlTextInfo[0], headerStr);
 	}
 
-	for( int i=0; i<14; ++i ) {
+	for( DWORD i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
 		key = Layout[LayoutPage].key[i];
 		// NOTE: there was no key range check in the original code
 		if( key < 0x110 && ControlKeysText[key] != 0 )
 			T_ChangeText(CtrlTextB[i], ControlKeysText[key]);
 		else
+#ifdef FEATURE_HUD_IMPROVED
+			T_ChangeText(CtrlTextB[i], "?");
+#else // !FEATURE_HUD_IMPROVED
 			T_ChangeText(CtrlTextB[i], "BAD");
+#endif // FEATURE_HUD_IMPROVED
 	}
 }
 
 void __cdecl S_RemoveCtrlText() {
-	for( int i=0; i<14; ++i ) {
+	for( DWORD i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
 		T_RemovePrint(CtrlTextA[i]);
 		T_RemovePrint(CtrlTextB[i]);
 		CtrlTextA[i] = NULL;
