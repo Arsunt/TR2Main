@@ -44,29 +44,9 @@ static BOOL JoyKey(KEYMAP keyMap) {
 	return ( key >= 0x100 && CHK_ANY(JoyKeys, (1 << key)) );
 }
 
-BOOL __cdecl Key(KEYMAP keyMap) {
-	UINT16 key;
-
-	key = Layout[CTRL_Custom].key[keyMap];
-	if( key < 0x100 ) {
-		if KEY_DOWN(key) {
-			return TRUE;
-		}
-		if( key == DIK_LCONTROL )	return KEY_DOWN(DIK_RCONTROL);
-		if( key == DIK_RCONTROL )	return KEY_DOWN(DIK_LCONTROL);
-		if( key == DIK_LSHIFT )		return KEY_DOWN(DIK_RSHIFT);
-		if( key == DIK_RSHIFT )		return KEY_DOWN(DIK_LSHIFT);
-		if( key == DIK_LMENU )		return KEY_DOWN(DIK_RMENU);
-		if( key == DIK_RMENU )		return KEY_DOWN(DIK_LMENU);
-	}
-	else if CHK_ANY(JoyKeys, (1 << key)) {
-		return TRUE;
-	}
-
-	if( ConflictLayout[keyMap] )
-		return FALSE;
-
-	key = Layout[CTRL_Default].key[keyMap];
+// NOTE: not presented in the original game
+static BOOL KbdKey(KEYMAP keyMap, bool isCustom) {
+	UINT16 key = Layout[isCustom ? CTRL_Custom : CTRL_Default].key[keyMap];
 	if( key < 0x100 ) {
 		if KEY_DOWN(key) {
 			return TRUE;
@@ -79,6 +59,11 @@ BOOL __cdecl Key(KEYMAP keyMap) {
 		if( key == DIK_RMENU )		return KEY_DOWN(DIK_LMENU);
 	}
 	return FALSE;
+}
+
+// NOTE: the original function is splitted into JoyKey() and KbdKey()
+BOOL __cdecl Key(KEYMAP keyMap) {
+	return JoyKey(keyMap) || KbdKey(keyMap, true) || (!ConflictLayout[keyMap] && KbdKey(keyMap, false));
 }
 
 bool __cdecl S_UpdateInput() {
