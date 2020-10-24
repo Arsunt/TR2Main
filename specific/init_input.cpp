@@ -350,10 +350,10 @@ DWORD __cdecl WinInReadJoystick(int *xPos, int *yPos) {
 			*yPos += CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_DPAD_DOWN) ? 16 : 0;
 			*yPos -= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_DPAD_UP) ? 16 : 0;
 		}
-		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_A) ? 0x001 : 0;
+		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_Y) ? 0x001 : 0;
 		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_B) ? 0x002 : 0;
-		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_X) ? 0x004 : 0;
-		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_Y) ? 0x008 : 0;
+		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_A) ? 0x004 : 0;
+		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_X) ? 0x008 : 0;
 		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_LEFT_SHOULDER) ? 0x010 : 0;
 		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_RIGHT_SHOULDER) ? 0x020 : 0;
 		buttonStatus |= (state.Gamepad.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ? 0x040 : 0;
@@ -382,10 +382,10 @@ DWORD __cdecl WinInReadJoystick(int *xPos, int *yPos) {
 				*yPos = -16 * phd_cos(pov * PHD_360 / 36000) / PHD_IONE;
 			}
 		}
-		buttonStatus |= state.btnCross ? 0x0001 : 0;
+		buttonStatus |= state.btnTriangle ? 0x0001 : 0;
 		buttonStatus |= state.btnCircle ? 0x0002 : 0;
-		buttonStatus |= state.btnSquare ? 0x0004 : 0;
-		buttonStatus |= state.btnTriangle ? 0x0008 : 0;
+		buttonStatus |= state.btnCross ? 0x0004 : 0;
+		buttonStatus |= state.btnSquare ? 0x0008 : 0;
 		buttonStatus |= state.btnL1 ? 0x0010 : 0;
 		buttonStatus |= state.btnR1 ? 0x0020 : 0;
 		buttonStatus |= state.btnL2 ? 0x0040 : 0;
