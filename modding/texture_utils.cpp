@@ -355,7 +355,7 @@ static int LoadButtonSpriteTexturePage() {
 		return -1;
 	}
 
-	RGB888 bmpPal[256] = {0};
+	RGB888 bmpPal[256] = {{0,0,0}};
 	BYTE *bitmap = (BYTE *)malloc(width * height);
 	if( bitmap != NULL ) {
 		if( DecompPCX(pcxData, pcxSize, bitmap, bmpPal) ) {
