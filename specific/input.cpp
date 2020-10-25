@@ -275,6 +275,15 @@ bool __cdecl S_UpdateInput() {
 		if( KEY_DOWN(DIK_F7) ) {
 			if( !isF7KeyPressed ) {
 				isF7KeyPressed = true;
+#ifdef FEATURE_NOLEGACY_OPTIONS
+				// Detail Level (F7)
+				if( ++DetailLevel > 2) DetailLevel = 0;
+				switch( DetailLevel ) {
+					case 0: PerspectiveDistance = SW_DETAIL_LOW; break;
+					case 1: PerspectiveDistance = SW_DETAIL_MEDIUM; break;
+					case 2: PerspectiveDistance = SW_DETAIL_HIGH; break;
+				}
+#else
 				if( isShiftKeyPressed ) {
 					// Triple Buffer (Shift + F7)
 					if( SavedAppSettings.FullScreen ) {
@@ -293,6 +302,7 @@ bool __cdecl S_UpdateInput() {
 						PerspectiveDistance = SW_DETAIL_MEDIUM;
 					}
 				}
+#endif // FEATURE_NOLEGACY_OPTIONS
 			}
 		} else {
 			isF7KeyPressed = false;
@@ -303,6 +313,7 @@ bool __cdecl S_UpdateInput() {
 		if( KEY_DOWN(DIK_F7) ) {
 			if( !isF7KeyPressed ) {
 				isF7KeyPressed = true;
+#ifndef FEATURE_NOLEGACY_OPTIONS
 				if( isShiftKeyPressed ) {
 					// Triple Buffer (Shift + F7)
 					if( SavedAppSettings.FullScreen ) {
@@ -310,7 +321,9 @@ bool __cdecl S_UpdateInput() {
 						TOGGLE(newSettings.TripleBuffering);
 						GameApplySettings(&newSettings);
 					}
-				} else {
+				} else
+#endif // FEATURE_NOLEGACY_OPTIONS
+				{
 					// ZBuffer (F7)
 					newSettings = SavedAppSettings;
 					TOGGLE(newSettings.ZBuffer);
@@ -325,12 +338,15 @@ bool __cdecl S_UpdateInput() {
 		if( KEY_DOWN(DIK_F8) ) {
 			if( !isF8KeyPressed ) {
 				isF8KeyPressed = true;
+#ifndef FEATURE_NOLEGACY_OPTIONS
 				if( isShiftKeyPressed ) {
 					// Perspective Correction (Shift + F8)
 					newSettings = SavedAppSettings;
 					TOGGLE(newSettings.PerspectiveCorrect);
 					GameApplySettings(&newSettings);
-				} else {
+				} else
+#endif // FEATURE_NOLEGACY_OPTIONS
+				{
 					// Bilinear Filtering (F8)
 					newSettings = SavedAppSettings;
 					TOGGLE(newSettings.BilinearFiltering);

@@ -64,6 +64,7 @@
 			<Add option="-DFEATURE_JUMP_COLLISION_FIX" />
 			<Add option="-DFEATURE_MOD_CONFIG" />
 			<Add option="-DFEATURE_NOCD_DATA" />
+			<Add option="-DFEATURE_NOLEGACY_OPTIONS" />
 			<Add option="-DFEATURE_PAULD_CDAUDIO" />
 			<Add option="-DFEATURE_SCREENSHOT_IMPROVED" />
 			<Add option="-DFEATURE_SUBFOLDERS" />
