@@ -270,7 +270,7 @@ static int compareMap(const void *a, const void *b) {
 static void sortMaps() {
 	static bool once = false;
 	if( !once ) {
-		qsort(btnMap,    ARRAY_SIZE(btnMap),  sizeof(MAP), compareMap);
+		qsort(btnMap,   ARRAY_SIZE(btnMap),   sizeof(MAP), compareMap);
 		qsort(joyMapDI, ARRAY_SIZE(joyMapDI), sizeof(MAP), compareMap);
 		qsort(joyMapPS, ARRAY_SIZE(joyMapPS), sizeof(MAP), compareMap);
 		qsort(joyMapXI, ARRAY_SIZE(joyMapXI), sizeof(MAP), compareMap);
