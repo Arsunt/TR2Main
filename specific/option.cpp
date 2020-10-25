@@ -204,34 +204,11 @@ static LPCSTR ControlKeysText[0x110] = {
 // NOTE: not presented in the original game. SetPCRequesterSize() used directly instead
 void SetPassportRequesterSize(REQUEST_INFO *req) {
 #ifdef FEATURE_HUD_IMPROVED
-	extern double InvGUI_Scale;
 	extern DWORD SavegameSlots;
-	DWORD lines = PASSPORT_LINE_COUNT;
-
-	if( InvGUI_Scale < 1.0 ) {
-		DWORD disp, minBase, maxBase;
-
-		if( PHD_ONE*PhdWinWidth/640 < PHD_ONE*PhdWinHeight/480 ) {
-			disp = PhdWinWidth;
-			minBase = 640;
-			maxBase = minBase / InvGUI_Scale;
-		} else {
-			disp = PhdWinHeight;
-			minBase = 480;
-			maxBase = minBase / InvGUI_Scale;
-		}
-
-		double scale = InvGUI_Scale;
-		if( disp <= minBase ) {
-			scale = 1.0;
-		} else if( disp < maxBase ) {
-			scale = 1.0 - (1.0 - scale) * (disp - minBase) / (maxBase - minBase);
-		}
-
-		lines = (lines + 5)/scale - 5;
-		CLAMP(lines, PASSPORT_LINE_COUNT, SavegameSlots);
-	}
-
+	double scale = (double)GetRenderHeight() / (double)GetRenderScale(480);
+	DWORD adjust = ( scale > 1.0 ) ? 5 : 0;
+	DWORD lines = (PASSPORT_LINE_COUNT + adjust) * scale - adjust;
+	CLAMP(lines, 5, SavegameSlots);
 	SetPCRequesterSize(req, lines, PASSPORT_Y_BOX);
 #else // !FEATURE_HUD_IMPROVED
 	SetPCRequesterSize(req, PASSPORT_LINE_COUNT, PASSPORT_Y_BOX);

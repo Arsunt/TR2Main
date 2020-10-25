@@ -58,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a setting to select the movement method for GamePads: D-Pad or Left Stick.
 - Added vibration feedback support for XInput gamepads and DualShock 4.
 - Added the light bar color feedback support for DualShock 4. The color changes depending from health and oxygen.
+- Passport text box height is adjusted depending from HUD scale.
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.
