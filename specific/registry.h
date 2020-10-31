@@ -64,6 +64,7 @@
 #define REG_SAVEGAME_SLOTS		"SavegameSlots"
 #define REG_SCREENSHOT_FORMAT	"ScreenshotFormat"
 #define REG_JOYSTICK_MOVEMENT	"JoystickMovement"
+#define REG_JOYSTICK_BTN_STYLE	"JoystickButtonStyle"
 
 // BOOL value names
 #define REG_PERSPECTIVE			"PerspectiveCorrect"

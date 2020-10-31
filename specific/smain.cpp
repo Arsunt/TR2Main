@@ -47,6 +47,7 @@
 #include "global/vars.h"
 
 #ifdef FEATURE_HUD_IMPROVED
+extern DWORD JoystickButtonStyle;
 extern DWORD SavegameSlots;
 extern DWORD InvTextBoxMode;
 extern DWORD HealthBarMode;
@@ -548,12 +549,16 @@ void __cdecl S_LoadSettings() {
 #endif // FEATURE_INPUT_IMPROVED
 
 #ifdef FEATURE_HUD_IMPROVED
+	GetRegistryDwordValue(REG_JOYSTICK_BTN_STYLE, &JoystickButtonStyle, 0);
 	GetRegistryDwordValue(REG_SAVEGAME_SLOTS, &SavegameSlots, 0);
 	GetRegistryDwordValue(REG_INVTEXTBOX_MODE, &InvTextBoxMode, 0);
 	GetRegistryDwordValue(REG_HEALTHBAR_MODE, &HealthBarMode, 0);
 	GetRegistryBoolValue(REG_PSXBARPOS_ENABLE, &PsxBarPosEnabled, false);
 	GetRegistryFloatValue(REG_GAME_GUI_SCALE, &GameGUI_Scale, 1.0);
 	GetRegistryFloatValue(REG_INV_GUI_SCALE, &InvGUI_Scale, 1.0);
+	if( JoystickButtonStyle > 3 ) {
+		JoystickButtonStyle = 0;
+	}
 	CLAMP(SavegameSlots, 16, 24);
 	CLAMP(GameGUI_Scale, 0.5, 2.0);
 	CLAMP(InvGUI_Scale, 0.5, 2.0);

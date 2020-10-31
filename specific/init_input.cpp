@@ -277,6 +277,21 @@ void SetJoystickOutput(WORD leftMotor, WORD rightMotor, DWORD ledColor) {
 	}
 }
 
+JOYTYPE GetJoystickType() {
+	if( SavedAppSettings.JoystickEnabled && SavedAppSettings.PreferredJoystick ) {
+		if( IsRawInput ) {
+			return JT_PLAYSTATION;
+		}
+		if( XInputIndex >= 0 ) {
+			return JT_XINPUT;
+		}
+		if( IDID_SysJoystick != NULL ) {
+			return JT_DIRECTINPUT;
+		}
+	}
+	return JT_NONE;
+}
+
 bool IsJoyVibrationSupported() {
 	if( IsRawInput ) {
 		return true;
