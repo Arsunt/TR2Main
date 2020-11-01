@@ -499,7 +499,11 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
 		if( textInfo->bgndSizeY != 0 ) {
 			boxH = textInfo->bgndSizeY;
 		} else {
+#ifdef FEATURE_HUD_IMPROVED
+			boxH = (InvTextBoxMode ? 14 : 16) * scaleV / PHD_ONE;
+#else // !FEATURE_HUD_IMPROVED
 			boxH = 16 * scaleV / PHD_ONE;
+#endif // FEATURE_HUD_IMPROVED
 		}
 
 		// Draw background

@@ -36,7 +36,11 @@ static DWORD LayoutPage = CTRL_Default;
  */
 #define PASSPORT_LINE_COUNT	(10)
 // Y coordinates relative to the bottom of the screen
+#ifdef FEATURE_HUD_IMPROVED
+#define PASSPORT_Y_BOX		(-44)
+#else // FEATURE_HUD_IMPROVED
 #define PASSPORT_Y_BOX		(-32)
+#endif
 #define PASSPORT_Y_TITLE	(-16)
 
 /*
@@ -91,24 +95,35 @@ static DWORD LayoutPage = CTRL_Default;
 
 #define CONTROL_COLUMN_B	(4)
 #define CONTROL_COLUMN_A	(60)
+
+// Y coordinates relative to the center of the screen
+#define CONTROL_Y_BOX		(-70)
+#define CONTROL_Y_TITLE		(CONTROL_Y_BOX + 4)
+#define CONTROL_Y_LINE1		(CONTROL_LN_HEIGHT * 0 + CONTROL_Y_BOX + 24)
+#define CONTROL_Y_LINE2		(CONTROL_LN_HEIGHT * 1 + CONTROL_Y_BOX + 24)
+#define CONTROL_Y_LINE3		(CONTROL_LN_HEIGHT * 2 + CONTROL_Y_BOX + 24)
+#define CONTROL_Y_LINE4		(CONTROL_LN_HEIGHT * 3 + CONTROL_Y_BOX + 24)
+#define CONTROL_Y_LINE5		(CONTROL_LN_HEIGHT * 4 + CONTROL_Y_BOX + 24)
+#define CONTROL_Y_LINE6		(CONTROL_LN_HEIGHT * 5 + CONTROL_Y_BOX + 24)
+#define CONTROL_Y_LINE7		(CONTROL_LN_HEIGHT * 6 + CONTROL_Y_BOX + 24)
 #else // FEATURE_HUD_IMPROVED
 #define CONTROL_WIDTH_HIGH	(420)
 #define CONTROL_HEIGHT_HIGH	(CONTROL_LN_HEIGHT * CONTROL_LINE_COUNT + 45)
 
 #define CONTROL_COLUMN_B	(10)
 #define CONTROL_COLUMN_A	(80)
-#endif // FEATURE_HUD_IMPROVED
 
 // Y coordinates relative to the center of the screen
 #define CONTROL_Y_BOX		(-55)
-#define CONTROL_Y_TITLE		(CONTROL_Y_BOX + 2)
-#define CONTROL_Y_LINE1		(CONTROL_LN_HEIGHT * 0 - 25)
-#define CONTROL_Y_LINE2		(CONTROL_LN_HEIGHT * 1 - 25)
-#define CONTROL_Y_LINE3		(CONTROL_LN_HEIGHT * 2 - 25)
-#define CONTROL_Y_LINE4		(CONTROL_LN_HEIGHT * 3 - 25)
-#define CONTROL_Y_LINE5		(CONTROL_LN_HEIGHT * 4 - 25)
-#define CONTROL_Y_LINE6		(CONTROL_LN_HEIGHT * 5 - 25)
-#define CONTROL_Y_LINE7		(CONTROL_LN_HEIGHT * 6 - 25)
+#define CONTROL_Y_TITLE		(CONTROL_Y_BOX + 5)
+#define CONTROL_Y_LINE1		(CONTROL_LN_HEIGHT * 0 + CONTROL_Y_BOX + 30)
+#define CONTROL_Y_LINE2		(CONTROL_LN_HEIGHT * 1 + CONTROL_Y_BOX + 30)
+#define CONTROL_Y_LINE3		(CONTROL_LN_HEIGHT * 2 + CONTROL_Y_BOX + 30)
+#define CONTROL_Y_LINE4		(CONTROL_LN_HEIGHT * 3 + CONTROL_Y_BOX + 30)
+#define CONTROL_Y_LINE5		(CONTROL_LN_HEIGHT * 4 + CONTROL_Y_BOX + 30)
+#define CONTROL_Y_LINE6		(CONTROL_LN_HEIGHT * 5 + CONTROL_Y_BOX + 30)
+#define CONTROL_Y_LINE7		(CONTROL_LN_HEIGHT * 6 + CONTROL_Y_BOX + 30)
+#endif // FEATURE_HUD_IMPROVED
 
 #define CONTROL_NEARZ		(16)
 #define CONTROL_FARZ		(48)
@@ -297,6 +312,12 @@ void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 	frame = item->goalFrame - item->openFrame;
 	page = ( (frame % 5) == 0 ) ? (frame / 5) : -1;
 
+#ifdef FEATURE_HUD_IMPROVED
+	if( InventoryMode == INV_DeathMode ) {
+		InputDB &= ~IN_DESELECT;
+	}
+#endif // FEATURE_HUD_IMPROVED
+
 	if( InventoryMode == INV_LoadMode ||
 		InventoryMode == INV_SaveMode ||
 		CHK_ANY(GF_GameFlow.flags, GFF_LoadSaveDisabled) )
@@ -359,6 +380,9 @@ void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 				SetPassportRequesterSize(requester);
 				select = Display_Requester(requester, TRUE, TRUE);
 				if( select == 0 ) {
+#ifdef FEATURE_HUD_IMPROVED
+					if( SavedGamesCount == 0 ) InputDB &= ~IN_LEFT;
+#endif // FEATURE_HUD_IMPROVED
 					if( CHK_ANY(InputDB, IN_LEFT|IN_RIGHT) ) {
 						Remove_Requester(requester);
 						passportMode = 0;
@@ -734,12 +758,17 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 #endif // !FEATURE_HUD_IMPROVED
 
 	if( ControlTextInfo[0] == NULL ) {
-		ControlTextInfo[0] = T_Print(0, -50, 0, GF_SpecificStringTable[(LayoutPage == CTRL_Default) ? SSI_DefaultKeys : SSI_UserKeys]);
+#ifdef FEATURE_HUD_IMPROVED
+		KeyCursor = -1;
+#endif // FEATURE_HUD_IMPROVED
+		ControlTextInfo[0] = T_Print(0, CONTROL_Y_TITLE, 0, GF_SpecificStringTable[(LayoutPage == CTRL_Default) ? SSI_DefaultKeys : SSI_UserKeys]);
 		T_CentreH(ControlTextInfo[0], 1);
 		T_CentreV(ControlTextInfo[0], 1);
 
 		S_ShowControls();
+#ifndef FEATURE_HUD_IMPROVED
 		KeyCursor = -1;
+#endif // FEATURE_HUD_IMPROVED
 		T_AddBackground(ControlTextInfo[0], 0, 0, 0, 0, CONTROL_FARZ, ICLR_Black, &ReqSelGour1, 0);
 		T_AddOutline(ControlTextInfo[0], TRUE, ICLR_Blue, &ReqSelGour2, 0);
 		FlashConflicts(); // NOTE: this line is absent in the original game
@@ -770,7 +799,7 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 					T_AddOutline(CtrlTextA[KeyCursor], TRUE, ICLR_Blue, &ReqSelGour2, 0);
 				}
 			}
-			else if( CHK_ANY(InputDB, IN_DESELECT) || (CHK_ANY(InputDB, IN_SELECT) && KeyCursor == -1) ) {
+			else if( (CHK_ANY(InputDB, IN_DESELECT) && !CHK_ANY(InputDB, IN_SELECT)) || (CHK_ANY(InputDB, IN_SELECT) && KeyCursor == -1) ) {
 				T_RemovePrint(ControlTextInfo[0]);
 				ControlTextInfo[0] = NULL;
 				T_RemovePrint(ControlTextInfo[1]);
@@ -951,7 +980,9 @@ void __cdecl S_ShowControls() {
 			T_CentreV(CtrlTextB[i], 1);
 		}
 
+#ifndef FEATURE_HUD_IMPROVED
 		KeyCursor = 0;
+#endif // FEATURE_HUD_IMPROVED
 	}
 
 	if( CtrlTextA[0] == NULL ) {
@@ -1018,7 +1049,7 @@ void __cdecl S_ChangeCtrlText() {
 	for( DWORD i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
 		key = Layout[LayoutPage].key[i];
 		// NOTE: there was no key range check in the original code
-		if( key < 0x110 && ControlKeysText[key] != 0 )
+		if( key < 0x110 && ControlKeysText[key] != NULL )
 			T_ChangeText(CtrlTextB[i], ControlKeysText[key]);
 		else
 #ifdef FEATURE_HUD_IMPROVED

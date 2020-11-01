@@ -30,11 +30,17 @@
 #define REQ_MIDZ		(16)
 #define REQ_FARZ		(48)
 
-#define REQ_LN_HEIGHT	(16) /* NOTE: original value is 18, but it looks wrong with low resolutions */
 #define STATS_LN_COUNT	(7)
-// Y coordinates relative to the bottom of the screen
-#define STATS_Y_POS		(-32)
 #define STATS_WIDTH		(304)
+
+// Y coordinates relative to the bottom of the screen
+#ifdef FEATURE_HUD_IMPROVED
+#define STATS_Y_POS		(-44)
+#define REQ_LN_HEIGHT (15)
+#else // FEATURE_HUD_IMPROVED
+#define STATS_Y_POS		(-32)
+#define REQ_LN_HEIGHT	(18)
+#endif // FEATURE_HUD_IMPROVED
 
 // NOTE: gouraud arrays have been taken from PlayStation version of the game.
 // These arrays are not used in the original PC version of the game.

@@ -50,7 +50,13 @@ void __cdecl S_DrawScreenLine(int x, int y, int z, int xLen, int yLen, BYTE colo
 void __cdecl S_DrawScreenBox(int sx, int sy, int z, int width, int height, BYTE colorIdx, GOURAUD_OUTLINE *gour, UINT16 flags) {
 	int adder;
 #ifdef FEATURE_HUD_IMPROVED
-	adder = GetRenderScale(2);
+	if( InvTextBoxMode ) {
+		adder = GetRenderScale(1);
+		sx += adder;
+		sy += adder;
+	} else {
+		adder = GetRenderScale(2);
+	}
 #else // !FEATURE_HUD_IMPROVED
 	// NOTE: in the original code there was no adder at all for this function
 	adder = 2;
@@ -144,7 +150,13 @@ void __cdecl S_DrawScreenFBox(int sx, int sy, int z, int width, int height, BYTE
 	int adder;
 	int sz = PhdNearZ + z * 8;
 #ifdef FEATURE_HUD_IMPROVED
-	adder = GetRenderScale(2);
+	if( InvTextBoxMode ) {
+		adder = GetRenderScale(1);
+		sx += adder;
+		sy += adder;
+	} else {
+		adder = GetRenderScale(2);
+	}
 #else // !FEATURE_HUD_IMPROVED
 	// NOTE: in the original code the adder was 1, but 1 is insufficient,
 	// because there was visible gap between FBox and bottom/right Frame
