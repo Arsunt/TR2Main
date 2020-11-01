@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added possibility to hold up/down keys to quickly scroll through game menus.
 - Added a configurable number of saved game slots (16-24).
 - Joystick support completely migrated from WinAPI to DirectInput. Added XInput controllers support. Added DualShock 4 support.
-- Added a setting to select the movement method for GamePads: D-Pad or Left Stick.
+- Joystick controls redesigned to use thumb sticks and D-Pad at the same time.
 - Added vibration feedback support for XInput gamepads and DualShock 4.
 - Added the light bar color feedback support for DualShock 4. The color changes depending from health and oxygen.
 - Passport text box height is adjusted depending from HUD scale.

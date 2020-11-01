@@ -82,7 +82,6 @@ extern char ScreenshotPath[MAX_PATH];
 #ifdef FEATURE_INPUT_IMPROVED
 #include "modding/joy_output.h"
 extern bool WalkToSidestep;
-extern DWORD JoystickMovement;
 extern bool JoystickVibrationEnabled;
 extern bool JoystickLedColorEnabled;
 #endif // FEATURE_INPUT_IMPROVED
@@ -543,7 +542,6 @@ void __cdecl S_LoadSettings() {
 	GetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)Layout[CTRL_Custom].key, sizeof(CONTROL_LAYOUT), NULL);
 #ifdef FEATURE_INPUT_IMPROVED
 	GetRegistryBoolValue(REG_WALK_TO_SIDESTEP, &WalkToSidestep, true);
-	GetRegistryDwordValue(REG_JOYSTICK_MOVEMENT, &JoystickMovement, 0);
 	GetRegistryBoolValue(REG_JOYSTICK_VIBRATION, &JoystickVibrationEnabled, true);
 	GetRegistryBoolValue(REG_JOYSTICK_LED_COLOR, &JoystickLedColorEnabled, true);
 #endif // FEATURE_INPUT_IMPROVED
