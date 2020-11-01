@@ -37,6 +37,11 @@
 #ifdef FEATURE_HUD_IMPROVED
 #define STATS_Y_POS		(-44)
 #define REQ_LN_HEIGHT (15)
+
+extern DWORD InvTextBoxMode;
+
+static const char MoreDownString[]	= " \x0F                                        \x0F ";
+static const char MoreUpString[]	= " \x10                                        \x10 ";
 #else // FEATURE_HUD_IMPROVED
 #define STATS_Y_POS		(-32)
 #define REQ_LN_HEIGHT	(18)
@@ -254,6 +259,11 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 		req->moreupText = NULL;
 	}
 	else if( req->moreupText == NULL && CHK_ANY(req->moreupFlags, REQFLAG_ACTIVE) ) {
+#ifdef FEATURE_HUD_IMPROVED
+		if( InvTextBoxMode ) {
+			req->moreupText = T_Print(req->xPos, linesOff - req->lineHeight + 4, 0, MoreUpString);
+		}
+#endif // FEATURE_HUD_IMPROVED
 		T_CentreH(req->moreupText, 1);
 		T_BottomAlign(req->moreupText, 1);
 	}
@@ -264,6 +274,11 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 		req->moredownText = 0;
 	}
 	else if( req->moredownText == NULL && CHK_ANY(req->moredownFlags, REQFLAG_ACTIVE) ) {
+#ifdef FEATURE_HUD_IMPROVED
+		if( InvTextBoxMode ) {
+			req->moredownText = T_Print(req->xPos, req->yPos - 12, 0, MoreDownString);
+		}
+#endif // FEATURE_HUD_IMPROVED
 		T_CentreH(req->moredownText, 1);
 		T_BottomAlign(req->moredownText, 1);
 	}

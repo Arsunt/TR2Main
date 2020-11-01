@@ -29,6 +29,10 @@
 #include "specific/sndpc.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_HUD_IMPROVED
+extern DWORD InvTextBoxMode;
+#endif // FEATURE_HUD_IMPROVED
+
 static DWORD LayoutPage = CTRL_Default;
 
 /*
@@ -301,6 +305,18 @@ void __cdecl do_inventory_options(INVENTORY_ITEM *item) {
 	}
 }
 
+#ifdef FEATURE_HUD_IMPROVED
+static void SetPassportTextInfo(GAME_STRING_ID id, bool left, bool right) {
+	if( InvTextBoxMode ) {
+		char text[64] = {0};
+		snprintf(text, sizeof(text), "%c    %s   %c ", left?'\x11':' ', GF_GameStringTable[id], right?'\x12':' ');
+		PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, text);
+	} else {
+		PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[id]);
+	}
+}
+#endif // FEATURE_HUD_IMPROVED
+
 void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 	static int passportMode = 0;
 	int frame, page, select;
@@ -313,6 +329,9 @@ void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 	page = ( (frame % 5) == 0 ) ? (frame / 5) : -1;
 
 #ifdef FEATURE_HUD_IMPROVED
+	bool left = page > 0;
+	bool right = page < 2;
+
 	if( InventoryMode == INV_DeathMode ) {
 		InputDB &= ~IN_DESELECT;
 	}
@@ -323,6 +342,10 @@ void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 		CHK_ANY(GF_GameFlow.flags, GFF_LoadSaveDisabled) )
 	{
 		InputDB &= ~(IN_LEFT|IN_RIGHT);
+#ifdef FEATURE_HUD_IMPROVED
+		left = false;
+		right = false;
+#endif // FEATURE_HUD_IMPROVED
 	}
 
 	switch( page ) {
@@ -353,7 +376,11 @@ void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 					InputDB = IN_RIGHT;
 				} else {
 					if( PassportTextInfo == NULL ) {
+#ifdef FEATURE_HUD_IMPROVED
+						SetPassportTextInfo(GSI_Passport_LoadGame, left, right);
+#else // FEATURE_HUD_IMPROVED
 						PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[GSI_Passport_LoadGame]);
+#endif // FEATURE_HUD_IMPROVED
 						T_BottomAlign(PassportTextInfo, 1);
 						T_CentreH(PassportTextInfo, 1);
 					}
@@ -402,10 +429,17 @@ void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 					InputDB = ( item->animDirection == -1 ) ? IN_LEFT : IN_RIGHT;
 				} else {
 					if( PassportTextInfo == NULL ) {
+						GAME_STRING_ID textID;
 						if( InventoryMode != INV_TitleMode && CurrentLevel != 0 )
-							PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[GSI_Passport_SaveGame]);
+							textID = GSI_Passport_SaveGame;
 						else
-							PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[GSI_Passport_NewGame]);
+							textID = GSI_Passport_NewGame;
+#ifdef FEATURE_HUD_IMPROVED
+						if( SavedGamesCount == 0 ) left = false;
+						SetPassportTextInfo(textID, left, right);
+#else // FEATURE_HUD_IMPROVED
+						PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[textID]);
+#endif // FEATURE_HUD_IMPROVED
 						T_BottomAlign(PassportTextInfo, 1);
 						T_CentreH(PassportTextInfo, 1);
 					}
@@ -440,15 +474,22 @@ void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 
 		case 2 : // exit game
 			if( PassportTextInfo == NULL ) {
-				if( InventoryMode == INV_TitleMode ) {
-					PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[GSI_Passport_ExitGame]);
+				GAME_STRING_ID textID;
+				if( InventoryMode != INV_TitleMode ) {
+					textID = GSI_Passport_ExitGame;
 				}
 				else if( CHK_ANY(GF_GameFlow.flags, GFF_DemoVersion) ) {
-					PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[GSI_Passport_ExitDemo]);
+					textID = GSI_Passport_ExitDemo;
 				}
 				else {
-					PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[GSI_Passport_ExitToTitle]);
+					textID = GSI_Passport_ExitToTitle;
 				}
+#ifdef FEATURE_HUD_IMPROVED
+				if( InventoryMode == INV_DeathMode && SavedGamesCount == 0 ) left = false;
+				SetPassportTextInfo(textID, left, right);
+#else // FEATURE_HUD_IMPROVED
+				PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[textID]);
+#endif // FEATURE_HUD_IMPROVED
 				T_BottomAlign(PassportTextInfo, 1);
 				T_CentreH(PassportTextInfo, 1);
 			}
@@ -741,6 +782,18 @@ void __cdecl DefaultConflict() {
 	}
 }
 
+#ifdef FEATURE_HUD_IMPROVED
+static const char *GetControlsHeaderString() {
+	const char *header = GF_SpecificStringTable[(LayoutPage == CTRL_Default) ? SSI_DefaultKeys : SSI_UserKeys];
+	if( InvTextBoxMode && KeyCursor < 0 ) {
+		static char text[64] = {0};
+		snprintf(text, sizeof(text), " \x11    %s   \x12  ", header);
+		return text;
+	}
+	return header;
+}
+#endif // FEATURE_HUD_IMPROVED
+
 void __cdecl do_control_option(INVENTORY_ITEM *item) {
 	static int KeySelector = 0;
 	int i;
@@ -760,8 +813,10 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 	if( ControlTextInfo[0] == NULL ) {
 #ifdef FEATURE_HUD_IMPROVED
 		KeyCursor = -1;
-#endif // FEATURE_HUD_IMPROVED
+		ControlTextInfo[0] = T_Print(0, CONTROL_Y_TITLE, 0, GetControlsHeaderString());
+#else // FEATURE_HUD_IMPROVED
 		ControlTextInfo[0] = T_Print(0, CONTROL_Y_TITLE, 0, GF_SpecificStringTable[(LayoutPage == CTRL_Default) ? SSI_DefaultKeys : SSI_UserKeys]);
+#endif // FEATURE_HUD_IMPROVED
 		T_CentreH(ControlTextInfo[0], 1);
 		T_CentreV(ControlTextInfo[0], 1);
 
@@ -1036,6 +1091,9 @@ void __cdecl S_ShowControls() {
 
 void __cdecl S_ChangeCtrlText() {
 	UINT16 key;
+#ifdef FEATURE_HUD_IMPROVED
+	T_ChangeText(ControlTextInfo[0], GetControlsHeaderString());
+#else // FEATURE_HUD_IMPROVED
 	char headerStr[40];
 
 	if( LayoutPage == CTRL_Default ) {
@@ -1045,6 +1103,7 @@ void __cdecl S_ChangeCtrlText() {
 		sprintf(headerStr, GF_SpecificStringTable[SSI_UserKeys], LayoutPage);
 		T_ChangeText(ControlTextInfo[0], headerStr);
 	}
+#endif // FEATURE_HUD_IMPROVED
 
 	for( DWORD i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
 		key = Layout[LayoutPage].key[i];

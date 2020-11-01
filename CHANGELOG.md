@@ -61,6 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Passport text box height is adjusted depending from HUD scale.
 - Some legacy options are removed (Triple Buffer, Perspective Correction, Texel Adjustment, Disable 16 bit textures, Don't sort transparent polys).
 - Implemented embedded textures for Keyboard/Joystick button sprites. There are 3 styles for Joystick buttons: Numeric, XBox, PlayStation.
+- Added arrows to PlayStation styled inventory text boxes.
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.
