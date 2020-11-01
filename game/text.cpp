@@ -444,7 +444,6 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
 				if( x > 0 && x < GetRenderWidth() && y > 0 && y < GetRenderHeight() ) {
 					S_DrawScreenSprite2d(x, y, z, scaleH, scaleV, sprite, 0x1000, textInfo->textFlags);
 				}
-				xOff += textInfo->letterSpacing;
 				x += xOff * scaleH / PHD_ONE;
 			}
 			str = ptr; // move pointer to the sequence end
