@@ -379,6 +379,12 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
 	scaleH = GetTextScaleH(textInfo->scaleH);
 	scaleV = GetTextScaleV(textInfo->scaleV);
 
+#ifdef FEATURE_HUD_IMPROVED
+	if( CHK_ANY(textInfo->flags, TIF_Hide) ) {
+		return;
+	}
+#endif // FEATURE_HUD_IMPROVED
+
 	// Do text flashing if required
 	if( CHK_ANY(textInfo->flags, TIF_Flash) ) {
 		textInfo->flashCount -= (__int16)Camera.numberFrames;
@@ -553,6 +559,19 @@ DWORD __cdecl GetTextScaleV(DWORD baseScale) {
 	return (baseScale / PHD_HALF) * (renderScale / PHD_HALF);
 #endif // FEATURE_HUD_IMPROVED
 }
+
+#ifdef FEATURE_HUD_IMPROVED
+void T_HideText(TEXT_STR_INFO *textInfo, __int16 state) {
+	if( textInfo == NULL)
+		return;
+
+	if( state == 0 ) {
+		textInfo->flags &= ~TIF_Hide;
+	} else {
+		textInfo->flags |= TIF_Hide;
+	}
+}
+#endif // FEATURE_HUD_IMPROVED
 
 /*
  * Inject function

@@ -148,7 +148,7 @@ typedef struct {
 #define TIF_RotateV					(0x0008)
 #define TIF_CentreH					(0x0010)
 #define TIF_CentreV					(0x0020)
-#define TIF_Unused					(0x0040)
+#define TIF_Hide					(0x0040)
 #define TIF_Right					(0x0080)
 #define TIF_Bottom					(0x0100)
 #define TIF_Bgnd					(0x0200)
