@@ -43,6 +43,11 @@
 #include "modding/joy_output.h"
 #endif // FEATURE_INPUT_IMPROVED
 
+#ifdef FEATURE_HUD_IMPROVED
+extern void RemoveJoystickHintText(bool deselect, bool select);
+extern void DisplayJoystickHintText(bool deselect, bool select);
+#endif // FEATURE_HUD_IMPROVED
+
 typedef enum {
 	RINGSTATE_OPENING,
 	RINGSTATE_OPEN,
@@ -318,6 +323,10 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 		if( !ring.isRotating ) {
 			switch( motion.status ) {
 				case RINGSTATE_OPEN :
+#ifdef FEATURE_HUD_IMPROVED
+					DisplayJoystickHintText(InventoryMode != INV_TitleMode && InventoryMode != INV_DeathMode, true);
+#endif // FEATURE_HUD_IMPROVED
+
 					if( CHK_ANY(InputStatus, IN_RIGHT) && ring.objCount > 1 ) {
 						Inv_RingRotateLeft(&ring);
 						PlaySoundEffect(108, 0, SFX_ALWAYS);
@@ -527,6 +536,9 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 					ring.ringPos.rotY = motion.rotateTarget - PHD_180;
 					break;
 				case RINGSTATE_SELECTED :
+#ifdef FEATURE_HUD_IMPROVED
+					DisplayJoystickHintText(InventoryMode != INV_DeathMode, true);
+#endif // FEATURE_HUD_IMPROVED
 					item = ring.itemList[ring.currentObj];
 
 					if( item->objectID == ID_PASSPORT_CLOSED ) {
@@ -582,6 +594,9 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 					}
 					break;
 				case RINGSTATE_DESELECT :
+#ifdef FEATURE_HUD_IMPROVED
+					RemoveJoystickHintText(InventoryMode == INV_TitleMode || InventoryMode == INV_DeathMode, false);
+#endif // FEATURE_HUD_IMPROVED
 					PlaySoundEffect(112, 0, SFX_ALWAYS);
 					Inv_RingMotionSetup(&ring, RINGSTATE_DESELECTING, RINGSTATE_OPEN, 16);
 					Inv_RingMotionRotation(&ring, 0, -PHD_90 - ring.angleAdder * ring.currentObj);
@@ -603,6 +618,9 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 					}
 					break;
 				case RINGSTATE_EXITING_INVENTORY :
+#ifdef FEATURE_HUD_IMPROVED
+					RemoveJoystickHintText(true, true);
+#endif // FEATURE_HUD_IMPROVED
 					if( !motion.framesCount ) {
 						if( InventoryMode == INV_TitleMode ) {
 							S_FadeOutInventory(FALSE);
@@ -622,6 +640,9 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 #endif // FEATURE_INPUT_IMPROVED
 	} while( motion.status != RINGSTATE_DONE );
 
+#ifdef FEATURE_HUD_IMPROVED
+	RemoveJoystickHintText(true, true);
+#endif // FEATURE_HUD_IMPROVED
 	RemoveInventoryText();
 	S_FinishInventory();
 	IsInventoryActive = 0;

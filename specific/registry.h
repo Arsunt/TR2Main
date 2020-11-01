@@ -86,6 +86,7 @@
 #define REG_WALK_TO_SIDESTEP	"WalkToSidestep"
 #define REG_JOYSTICK_VIBRATION	"JoystickVibration"
 #define REG_JOYSTICK_LED_COLOR	"JoystickLedColor"
+#define REG_JOYSTICK_HINTS		"JoystickHints"
 
 // FLOAT value names
 #define REG_GAME_SIZER		"Sizer"

@@ -25,12 +25,15 @@
 #include "game/sound.h"
 #include "game/text.h"
 #include "specific/game.h"
+#include "specific/init_input.h"
 #include "specific/output.h"
 #include "specific/sndpc.h"
 #include "global/vars.h"
 
 #ifdef FEATURE_HUD_IMPROVED
 extern DWORD InvTextBoxMode;
+
+bool JoystickHintsEnabled = true;
 #endif // FEATURE_HUD_IMPROVED
 
 static DWORD LayoutPage = CTRL_Default;
@@ -181,6 +184,100 @@ static LPCSTR ControlKeysText[0x110] = {
 	K("joy1"),      K("joy2"),      K("joy3"),      K("joy4"),      K("joy5"),      K("joy6"),      K("joy7"),      K("joy8"),
 	K("joy9"),      K("joy10"),     K("joy11"),     K("joy12"),     K("joy13"),     K("joy14"),     K("joy15"),     K("joy16"),
 };
+
+static TEXT_STR_INFO *DeselectHintText, *SelectHintText;
+
+typedef enum {
+	HINT_HIDDEN,
+	HINT_JOYSTICK,
+	HINT_KEYBOARD,
+} HINT_MODE;
+
+static void UpdateJoystickHintText(HINT_MODE deselect, HINT_MODE select) {
+	const char *keyName = NULL;
+	char text[64] = {0};
+
+	if( DeselectHintText != NULL ) {
+		if( deselect != HINT_HIDDEN ) {
+			if( deselect == HINT_JOYSTICK && Layout[CTRL_Custom].key[KM_WeaponDraw] >= 0x100 ) {
+				keyName = ControlKeysText[Layout[CTRL_Custom].key[KM_WeaponDraw]];
+			} else {
+				keyName = ControlKeysText[DIK_ESCAPE];
+			}
+			snprintf(text, sizeof(text), "%s Go Back", keyName);
+			T_ChangeText(DeselectHintText, text);
+		}
+		T_HideText(DeselectHintText, deselect == HINT_HIDDEN);
+	}
+
+	if( SelectHintText != NULL ) {
+		if( select != HINT_HIDDEN ) {
+			if( select == HINT_JOYSTICK && Layout[CTRL_Custom].key[KM_Action] >= 0x100 ) {
+				keyName = ControlKeysText[Layout[CTRL_Custom].key[KM_Action]];
+			} else {
+				keyName = ControlKeysText[DIK_RETURN];
+			}
+			snprintf(text, sizeof(text), "%s Select", keyName);
+			T_ChangeText(SelectHintText, text);
+		}
+		T_HideText(SelectHintText, select == HINT_HIDDEN);
+	}
+}
+
+void RemoveJoystickHintText(bool deselect, bool select) {
+	if( deselect ) {
+		T_RemovePrint(DeselectHintText);
+		DeselectHintText = NULL;
+	}
+	if( select ) {
+		T_RemovePrint(SelectHintText);
+		SelectHintText = NULL;
+	}
+}
+
+void DisplayJoystickHintText(bool deselect, bool select) {
+	if( !JoystickHintsEnabled ) return;
+#ifdef FEATURE_INPUT_IMPROVED
+	if( GetJoystickType() == JT_NONE ) return;
+#else // FEATURE_INPUT_IMPROVED
+	if( !SavedAppSettings.JoystickEnabled || !SavedAppSettings.PreferredJoystick ) return;
+#endif // FEATURE_INPUT_IMPROVED
+
+	static int renderWidth = 0;
+	if( renderWidth != GetRenderWidthDownscaled() ) {
+		if( DeselectHintText != NULL ) deselect = true;
+		if( SelectHintText != NULL ) select = true;
+		RemoveJoystickHintText(true, true);
+		renderWidth = GetRenderWidthDownscaled();
+	}
+
+	const char *keyName = NULL;
+	char text[64] = {0};
+	int x = (renderWidth > 325) ? (renderWidth - 320) / 2 : 2;
+
+	if( deselect && DeselectHintText == NULL ) {
+		if( Layout[CTRL_Custom].key[KM_WeaponDraw] >= 0x100 ) {
+			keyName = ControlKeysText[Layout[CTRL_Custom].key[KM_WeaponDraw]];
+		} else {
+			keyName = ControlKeysText[DIK_ESCAPE];
+		}
+		snprintf(text, sizeof(text), "%s Go Back", keyName);
+		DeselectHintText = T_Print(-x, -40, 0, text);
+		T_BottomAlign(DeselectHintText, 1);
+		T_RightAlign(DeselectHintText, 1);
+	}
+
+	if( select && SelectHintText == NULL ) {
+		if( Layout[CTRL_Custom].key[KM_Action] >= 0x100 ) {
+			keyName = ControlKeysText[Layout[CTRL_Custom].key[KM_Action]];
+		} else {
+			keyName = ControlKeysText[DIK_RETURN];
+		}
+		snprintf(text, sizeof(text), "%s Select", keyName);
+		SelectHintText = T_Print(x, -40, 0, text);
+		T_BottomAlign(SelectHintText, 1);
+	}
+}
 #else // FEATURE_HUD_IMPROVED
 static LPCSTR ControlKeysText[0x110] = {
 	NULL,   "ESC",   "1",     "2",     "3",     "4",     "5",     "6",
@@ -868,6 +965,9 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 				break;
 
 			if( CHK_ANY(InputDB, IN_SELECT) ) {
+#ifdef FEATURE_HUD_IMPROVED
+				UpdateJoystickHintText(HINT_KEYBOARD, HINT_HIDDEN);
+#endif // FEATURE_HUD_IMPROVED
 				KeySelector = 1;
 
 				CtrlTextA[KeyCursor]->zPos = CONTROL_NEARZ;
@@ -990,6 +1090,11 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 					Layout[LayoutPage].key[KeyCursor] = DIK_RMENU;
 				FlashConflicts();
 			}
+#ifdef FEATURE_HUD_IMPROVED
+			if( KeySelector == 0 ) {
+				UpdateJoystickHintText(HINT_JOYSTICK, HINT_JOYSTICK);
+			}
+#endif // FEATURE_HUD_IMPROVED
 			break;
 	}
 

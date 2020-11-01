@@ -52,6 +52,7 @@ extern DWORD SavegameSlots;
 extern DWORD InvTextBoxMode;
 extern DWORD HealthBarMode;
 extern bool PsxBarPosEnabled;
+extern bool JoystickHintsEnabled;
 extern double GameGUI_Scale;
 extern double InvGUI_Scale;
 #endif // FEATURE_HUD_IMPROVED
@@ -552,6 +553,7 @@ void __cdecl S_LoadSettings() {
 	GetRegistryDwordValue(REG_INVTEXTBOX_MODE, &InvTextBoxMode, 0);
 	GetRegistryDwordValue(REG_HEALTHBAR_MODE, &HealthBarMode, 0);
 	GetRegistryBoolValue(REG_PSXBARPOS_ENABLE, &PsxBarPosEnabled, false);
+	GetRegistryBoolValue(REG_JOYSTICK_HINTS, &JoystickHintsEnabled, true);
 	GetRegistryFloatValue(REG_GAME_GUI_SCALE, &GameGUI_Scale, 1.0);
 	GetRegistryFloatValue(REG_INV_GUI_SCALE, &InvGUI_Scale, 1.0);
 	if( JoystickButtonStyle > 3 ) {
