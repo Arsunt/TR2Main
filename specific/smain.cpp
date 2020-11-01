@@ -541,7 +541,7 @@ void __cdecl S_LoadSettings() {
 	GetRegistryFloatValue(REG_GAME_SIZER, &GameSizer, 1.0);
 	GetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)Layout[CTRL_Custom].key, sizeof(CONTROL_LAYOUT), NULL);
 #ifdef FEATURE_INPUT_IMPROVED
-	GetRegistryBoolValue(REG_WALK_TO_SIDESTEP, &WalkToSidestep, true);
+	GetRegistryBoolValue(REG_WALK_TO_SIDESTEP, &WalkToSidestep, false);
 	GetRegistryBoolValue(REG_JOYSTICK_VIBRATION, &JoystickVibrationEnabled, true);
 	GetRegistryBoolValue(REG_JOYSTICK_LED_COLOR, &JoystickLedColorEnabled, true);
 #endif // FEATURE_INPUT_IMPROVED

@@ -31,7 +31,7 @@
 #include "global/vars.h"
 
 #ifdef FEATURE_INPUT_IMPROVED
-bool WalkToSidestep = true;
+bool WalkToSidestep = false;
 #endif // FEATURE_INPUT_IMPROVED
 
 // Macros
