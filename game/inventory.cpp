@@ -617,6 +617,11 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 						}
 					}
 					break;
+				case RINGSTATE_CLOSING :
+#ifdef FEATURE_HUD_IMPROVED
+					RemoveJoystickHintText(true, true);
+#endif // FEATURE_HUD_IMPROVED
+					break;
 				case RINGSTATE_EXITING_INVENTORY :
 #ifdef FEATURE_HUD_IMPROVED
 					RemoveJoystickHintText(true, true);
