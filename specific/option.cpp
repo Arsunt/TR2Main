@@ -404,7 +404,7 @@ void __cdecl do_inventory_options(INVENTORY_ITEM *item) {
 
 #ifdef FEATURE_HUD_IMPROVED
 static void SetPassportTextInfo(GAME_STRING_ID id, bool left, bool right) {
-	if( InvTextBoxMode ) {
+	if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
 		char text[64] = {0};
 		snprintf(text, sizeof(text), "%c    %s   %c ", left?'\x11':' ', GF_GameStringTable[id], right?'\x12':' ');
 		PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, text);
@@ -572,7 +572,7 @@ void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 		case 2 : // exit game
 			if( PassportTextInfo == NULL ) {
 				GAME_STRING_ID textID;
-				if( InventoryMode != INV_TitleMode ) {
+				if( InventoryMode == INV_TitleMode ) {
 					textID = GSI_Passport_ExitGame;
 				}
 				else if( CHK_ANY(GF_GameFlow.flags, GFF_DemoVersion) ) {
@@ -882,7 +882,7 @@ void __cdecl DefaultConflict() {
 #ifdef FEATURE_HUD_IMPROVED
 static const char *GetControlsHeaderString() {
 	const char *header = GF_SpecificStringTable[(LayoutPage == CTRL_Default) ? SSI_DefaultKeys : SSI_UserKeys];
-	if( InvTextBoxMode && KeyCursor < 0 ) {
+	if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode && KeyCursor < 0 ) {
 		static char text[64] = {0};
 		snprintf(text, sizeof(text), " \x11    %s   \x12  ", header);
 		return text;

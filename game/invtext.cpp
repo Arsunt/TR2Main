@@ -260,7 +260,7 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 	}
 	else if( req->moreupText == NULL && CHK_ANY(req->moreupFlags, REQFLAG_ACTIVE) ) {
 #ifdef FEATURE_HUD_IMPROVED
-		if( InvTextBoxMode ) {
+		if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
 			req->moreupText = T_Print(req->xPos, linesOff - req->lineHeight + 4, 0, MoreUpString);
 		}
 #endif // FEATURE_HUD_IMPROVED
@@ -275,7 +275,7 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 	}
 	else if( req->moredownText == NULL && CHK_ANY(req->moredownFlags, REQFLAG_ACTIVE) ) {
 #ifdef FEATURE_HUD_IMPROVED
-		if( InvTextBoxMode ) {
+		if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
 			req->moredownText = T_Print(req->xPos, req->yPos - 12, 0, MoreDownString);
 		}
 #endif // FEATURE_HUD_IMPROVED

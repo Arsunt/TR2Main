@@ -50,7 +50,7 @@ void __cdecl S_DrawScreenLine(int x, int y, int z, int xLen, int yLen, BYTE colo
 void __cdecl S_DrawScreenBox(int sx, int sy, int z, int width, int height, BYTE colorIdx, GOURAUD_OUTLINE *gour, UINT16 flags) {
 	int adder;
 #ifdef FEATURE_HUD_IMPROVED
-	if( InvTextBoxMode ) {
+	if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
 		adder = GetRenderScale(1);
 		sx += adder;
 		sy += adder;
@@ -150,7 +150,7 @@ void __cdecl S_DrawScreenFBox(int sx, int sy, int z, int width, int height, BYTE
 	int adder;
 	int sz = PhdNearZ + z * 8;
 #ifdef FEATURE_HUD_IMPROVED
-	if( InvTextBoxMode ) {
+	if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
 		adder = GetRenderScale(1);
 		sx += adder;
 		sy += adder;

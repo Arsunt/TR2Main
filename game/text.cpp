@@ -340,10 +340,9 @@ DWORD __cdecl T_GetTextWidth(TEXT_STR_INFO *textInfo) {
 		}
 		width += spacing * scaleH / PHD_ONE;
 	}
-	// Align width (minus last letterSpacing) to lesser even value
 	// NOTE: original code was ((width - textInfo->letterSpacing) & ~1) but this was wrong, because letterSpacing is not scaled
 	// And also we calculate width of any string, there may not be letterSpacing at all (i.e. digit letter sprites )
-	return width & ~1;
+	return width;
 }
 
 BOOL __cdecl T_RemovePrint(TEXT_STR_INFO *textInfo) {
@@ -505,7 +504,7 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
 			boxH = textInfo->bgndSizeY;
 		} else {
 #ifdef FEATURE_HUD_IMPROVED
-			boxH = (InvTextBoxMode ? 14 : 16) * scaleV / PHD_ONE;
+			boxH = (SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ? 14 : 16) * scaleV / PHD_ONE;
 #else // !FEATURE_HUD_IMPROVED
 			boxH = 16 * scaleV / PHD_ONE;
 #endif // FEATURE_HUD_IMPROVED
