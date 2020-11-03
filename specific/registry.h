@@ -103,6 +103,8 @@
 
 // BINARY value names
 #define REG_GAME_LAYOUT		"Layout"
+#define REG_GAME_KBD_LAYOUT	"KeyboardLayout"
+#define REG_GAME_JOY_LAYOUT	"JoystickLayout"
 #define REG_GAME_ASSAULT	"Assault"
 
 // STRING value names

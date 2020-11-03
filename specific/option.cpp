@@ -34,9 +34,69 @@
 extern DWORD InvTextBoxMode;
 
 bool JoystickHintsEnabled = true;
-#endif // FEATURE_HUD_IMPROVED
 
+CONTROL_LAYOUT Layout[3] = {
+	{	// Joystick Layout
+		0,0,0,0, // directions are not mappable, so they are ignored
+		10, // Step Left
+		11, // Step Right
+		7, // Step
+		5, // Walk
+		3, // Jump
+		2, // Action
+		1, // Roll
+		0, // Draw Weapon
+		6, // Flare
+		4, // Look
+		8, // Inventory
+		9, // Pause
+	},
+	{	// User Keyboard Layout
+		DIK_NUMPAD8, // Run
+		DIK_NUMPAD2, // Back
+		DIK_NUMPAD4, // Left
+		DIK_NUMPAD6, // Right
+		DIK_NUMPAD7, // Step Left
+		DIK_NUMPAD9, // Step Right
+		DIK_DIVIDE, // Step
+		DIK_NUMPAD1, // Walk
+		DIK_ADD, // Jump
+		DIK_NUMPADENTER, // Action
+		DIK_NUMPAD5, // Roll
+		DIK_NUMPAD3, // Draw Weapon
+		DIK_SUBTRACT, // Flare
+		DIK_NUMPAD0, // Look
+		DIK_DECIMAL, // Inventory
+		DIK_MULTIPLY, // Pause
+	},
+	{	// Default Keyboard Layout
+		DIK_UP, // Run
+		DIK_DOWN, // Back
+		DIK_LEFT, // Left
+		DIK_RIGHT, // Right
+		DIK_DELETE, // Step Left
+		DIK_NEXT, // Step Right
+		DIK_PERIOD, // Step
+		DIK_RSHIFT, // Walk
+		DIK_RMENU, // Jump
+		DIK_RCONTROL, // Action
+		DIK_END, // Roll
+		DIK_SPACE, // Draw Weapon
+		DIK_SLASH, // Flare
+		DIK_NUMPAD0, // Look
+		DIK_ESCAPE, // Inventory
+		DIK_TAB, // Pause
+	},
+};
+bool ConflictLayout[ARRAY_SIZE(Layout->key)];
+TEXT_STR_INFO *CtrlTextA[ARRAY_SIZE(Layout->key)];
+TEXT_STR_INFO *CtrlTextB[ARRAY_SIZE(Layout->key)];
+TEXT_STR_INFO *CtrlTextC[ARRAY_SIZE(Layout->key)];
+
+static DWORD LayoutPage = CTRL_Joystick;
+#else // FEATURE_HUD_IMPROVED
 static DWORD LayoutPage = CTRL_Default;
+#endif // FEATURE_HUD_IMPROVED
 
 /*
  * Passport option box parameters
@@ -93,14 +153,16 @@ static DWORD LayoutPage = CTRL_Default;
 #define CONTROL_LINE_COUNT	(ARRAY_SIZE(Layout->key)/2)
 #define CONTROL_LN_HEIGHT	(15)
 
-#define CONTROL_WIDTH_LOW	(300)
-#define CONTROL_HEIGHT_LOW	(CONTROL_LN_HEIGHT * CONTROL_LINE_COUNT + 35)
-
 #ifdef FEATURE_HUD_IMPROVED
+#define CONTROL_WIDTH_LOW	(300)
+#define CONTROL_HEIGHT_LOW	(CONTROL_LN_HEIGHT * CONTROL_LINE_COUNT + 26)
+
 #define CONTROL_WIDTH_HIGH	(360)
 #define CONTROL_HEIGHT_HIGH	CONTROL_HEIGHT_LOW
 
-#define CONTROL_COLUMN_B	(4)
+#define CONTROL_COLUMN_C	(15)
+#define CONTROL_COLUMN_B2	(30)
+#define CONTROL_COLUMN_B1	(40)
 #define CONTROL_COLUMN_A	(60)
 
 // Y coordinates relative to the center of the screen
@@ -113,7 +175,11 @@ static DWORD LayoutPage = CTRL_Default;
 #define CONTROL_Y_LINE5		(CONTROL_LN_HEIGHT * 4 + CONTROL_Y_BOX + 24)
 #define CONTROL_Y_LINE6		(CONTROL_LN_HEIGHT * 5 + CONTROL_Y_BOX + 24)
 #define CONTROL_Y_LINE7		(CONTROL_LN_HEIGHT * 6 + CONTROL_Y_BOX + 24)
+#define CONTROL_Y_LINE8		(CONTROL_LN_HEIGHT * 7 + CONTROL_Y_BOX + 24)
 #else // FEATURE_HUD_IMPROVED
+#define CONTROL_WIDTH_LOW	(300)
+#define CONTROL_HEIGHT_LOW	(CONTROL_LN_HEIGHT * CONTROL_LINE_COUNT + 35)
+
 #define CONTROL_WIDTH_HIGH	(420)
 #define CONTROL_HEIGHT_HIGH	(CONTROL_LN_HEIGHT * CONTROL_LINE_COUNT + 45)
 
@@ -199,8 +265,8 @@ static void UpdateJoystickHintText(HINT_MODE deselect, HINT_MODE select) {
 
 	if( DeselectHintText != NULL ) {
 		if( deselect != HINT_HIDDEN ) {
-			if( deselect == HINT_JOYSTICK && Layout[CTRL_Custom].key[KM_WeaponDraw] >= 0x100 ) {
-				keyName = ControlKeysText[Layout[CTRL_Custom].key[KM_WeaponDraw]];
+			if( deselect == HINT_JOYSTICK && Layout[CTRL_Joystick].key[KM_WeaponDraw] < 0x10 ) {
+				keyName = ControlKeysText[0x100 + Layout[CTRL_Joystick].key[KM_WeaponDraw]];
 			} else {
 				keyName = ControlKeysText[DIK_ESCAPE];
 			}
@@ -212,8 +278,8 @@ static void UpdateJoystickHintText(HINT_MODE deselect, HINT_MODE select) {
 
 	if( SelectHintText != NULL ) {
 		if( select != HINT_HIDDEN ) {
-			if( select == HINT_JOYSTICK && Layout[CTRL_Custom].key[KM_Action] >= 0x100 ) {
-				keyName = ControlKeysText[Layout[CTRL_Custom].key[KM_Action]];
+			if( select == HINT_JOYSTICK && Layout[CTRL_Joystick].key[KM_Action] < 0x10 ) {
+				keyName = ControlKeysText[0x100 + Layout[CTRL_Joystick].key[KM_Action]];
 			} else {
 				keyName = ControlKeysText[DIK_RETURN];
 			}
@@ -256,8 +322,8 @@ void DisplayJoystickHintText(bool deselect, bool select) {
 	int x = (renderWidth > 325) ? (renderWidth - 320) / 2 : 2;
 
 	if( deselect && DeselectHintText == NULL ) {
-		if( Layout[CTRL_Custom].key[KM_WeaponDraw] >= 0x100 ) {
-			keyName = ControlKeysText[Layout[CTRL_Custom].key[KM_WeaponDraw]];
+		if( Layout[CTRL_Joystick].key[KM_WeaponDraw] < 0x10 ) {
+			keyName = ControlKeysText[0x100 + Layout[CTRL_Joystick].key[KM_WeaponDraw]];
 		} else {
 			keyName = ControlKeysText[DIK_ESCAPE];
 		}
@@ -268,8 +334,8 @@ void DisplayJoystickHintText(bool deselect, bool select) {
 	}
 
 	if( select && SelectHintText == NULL ) {
-		if( Layout[CTRL_Custom].key[KM_Action] >= 0x100 ) {
-			keyName = ControlKeysText[Layout[CTRL_Custom].key[KM_Action]];
+		if( Layout[CTRL_Joystick].key[KM_Action] < 0x10 ) {
+			keyName = ControlKeysText[0x100 + Layout[CTRL_Joystick].key[KM_Action]];
 		} else {
 			keyName = ControlKeysText[DIK_RETURN];
 		}
@@ -278,6 +344,58 @@ void DisplayJoystickHintText(bool deselect, bool select) {
 		T_BottomAlign(SelectHintText, 1);
 	}
 }
+
+static const char *GetEmptyOptState(void) {
+	return "";
+}
+
+static const char *ToggleEmptyOptState(void) {
+	return GetEmptyOptState();
+}
+
+static const char *GetShowHintsOptState(void) {
+	return JoystickHintsEnabled ? GF_SpecificStringTable[SSI_On] : GF_SpecificStringTable[SSI_Off];
+}
+
+static const char *ToggleShowHintsOptState(void) {
+	JoystickHintsEnabled = !JoystickHintsEnabled;
+	if( JoystickHintsEnabled ) {
+		DisplayJoystickHintText(true, true);
+	} else {
+		RemoveJoystickHintText(true, true);
+	}
+	return GetShowHintsOptState();
+}
+
+#ifdef FEATURE_INPUT_IMPROVED
+extern bool JoystickVibrationEnabled;
+
+static const char *GetVibrationOptState(void) {
+	return JoystickVibrationEnabled ? GF_SpecificStringTable[SSI_On] : GF_SpecificStringTable[SSI_Off];
+}
+
+static const char *ToggleVibrationOptState(void) {
+	JoystickVibrationEnabled = !JoystickVibrationEnabled;
+	return GetVibrationOptState();
+}
+#endif // FEATURE_INPUT_IMPROVED
+
+typedef struct {
+	const char *name;
+	const char *(*getState)(void);
+	const char *(*toggle)(void);
+} JOYOPT;
+
+static JOYOPT JoystickOpts[4] = {
+	{"Show Hints", GetShowHintsOptState, ToggleShowHintsOptState},
+#ifdef FEATURE_INPUT_IMPROVED
+	{"Vibration", GetVibrationOptState, ToggleVibrationOptState},
+#else // FEATURE_INPUT_IMPROVED
+	{"", GetEmptyOptState, ToggleEmptyOptState},
+#endif // FEATURE_INPUT_IMPROVED
+	{"", GetEmptyOptState, ToggleEmptyOptState},
+	{"", GetEmptyOptState, ToggleEmptyOptState},
+};
 #else // FEATURE_HUD_IMPROVED
 static LPCSTR ControlKeysText[0x110] = {
 	NULL,   "ESC",   "1",     "2",     "3",     "4",     "5",     "6",
@@ -852,12 +970,18 @@ void __cdecl do_compass_option(INVENTORY_ITEM *item) {
 
 void __cdecl FlashConflicts() {
 	UINT16 key;
+	DWORD skip = 0;
+#ifdef FEATURE_HUD_IMPROVED
+	if( LayoutPage == CTRL_Joystick ) skip = 4;
+#endif // FEATURE_HUD_IMPROVED
 
 	for( DWORD i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
 		key = Layout[LayoutPage].key[i];
 		T_FlashText(CtrlTextB[i], 0, 0);
-
-		for( DWORD j=0; j<CONTROL_LINE_COUNT*2; ++j ) {
+#ifdef FEATURE_HUD_IMPROVED
+		if( i<skip ) continue;
+#endif // FEATURE_HUD_IMPROVED
+		for( DWORD j=skip; j<CONTROL_LINE_COUNT*2; ++j ) {
 			if( (i != j) && (key == Layout[LayoutPage].key[j]) ) {
 				T_FlashText(CtrlTextB[i], 1, 20);
 				break;
@@ -881,7 +1005,7 @@ void __cdecl DefaultConflict() {
 
 #ifdef FEATURE_HUD_IMPROVED
 static const char *GetControlsHeaderString() {
-	const char *header = GF_SpecificStringTable[(LayoutPage == CTRL_Default) ? SSI_DefaultKeys : SSI_UserKeys];
+	const char *header = (LayoutPage == CTRL_Joystick) ? "Joystick" : "Keyboard";
 	if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode && KeyCursor < 0 ) {
 		static char text[64] = {0};
 		snprintf(text, sizeof(text), " \x11    %s   \x12  ", header);
@@ -896,6 +1020,11 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 	int i;
 
 #ifdef FEATURE_HUD_IMPROVED
+#ifdef FEATURE_INPUT_IMPROVED
+	bool isJoystickUnavailable = ( GetJoystickType() == JT_NONE );
+#else // FEATURE_INPUT_IMPROVED
+	bool isJoystickUnavailable = ( !SavedAppSettings.JoystickEnabled || !SavedAppSettings.PreferredJoystick );
+#endif // FEATURE_INPUT_IMPROVED
 	static int renderWidth = 0;
 	if( renderWidth != GetRenderWidthDownscaled() ) {
 		T_RemovePrint(ControlTextInfo[0]);
@@ -909,7 +1038,13 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 
 	if( ControlTextInfo[0] == NULL ) {
 #ifdef FEATURE_HUD_IMPROVED
-		KeyCursor = -1;
+		if( isJoystickUnavailable ) {
+			LayoutPage = CTRL_Custom;
+			KeyCursor = 0;
+		} else {
+			KeyCursor = -1;
+		}
+
 		ControlTextInfo[0] = T_Print(0, CONTROL_Y_TITLE, 0, GetControlsHeaderString());
 #else // FEATURE_HUD_IMPROVED
 		ControlTextInfo[0] = T_Print(0, CONTROL_Y_TITLE, 0, GF_SpecificStringTable[(LayoutPage == CTRL_Default) ? SSI_DefaultKeys : SSI_UserKeys]);
@@ -918,11 +1053,20 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 		T_CentreV(ControlTextInfo[0], 1);
 
 		S_ShowControls();
-#ifndef FEATURE_HUD_IMPROVED
+#ifdef FEATURE_HUD_IMPROVED
+		if( KeyCursor == -1 ) {
+			T_AddBackground(ControlTextInfo[0], 0, 0, 0, 0, CONTROL_FARZ, ICLR_Black, &ReqSelGour1, 0);
+			T_AddOutline(ControlTextInfo[0], TRUE, ICLR_Blue, &ReqSelGour2, 0);
+		} else {
+			CtrlTextA[KeyCursor]->zPos = 0;
+			T_AddBackground(CtrlTextA[KeyCursor], 0, 0, 0, 0, 0, ICLR_Black, &ReqSelGour1, 0);
+			T_AddOutline(CtrlTextA[KeyCursor], TRUE, ICLR_Blue, &ReqSelGour2, 0);
+		}
+#else // FEATURE_HUD_IMPROVED
 		KeyCursor = -1;
-#endif // FEATURE_HUD_IMPROVED
 		T_AddBackground(ControlTextInfo[0], 0, 0, 0, 0, CONTROL_FARZ, ICLR_Black, &ReqSelGour1, 0);
 		T_AddOutline(ControlTextInfo[0], TRUE, ICLR_Blue, &ReqSelGour2, 0);
+#endif // FEATURE_HUD_IMPROVED
 		FlashConflicts(); // NOTE: this line is absent in the original game
 	}
 
@@ -945,7 +1089,16 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 					} else {
 						KeyCursor = CONTROL_LINE_COUNT;
 					}
+#ifdef FEATURE_HUD_IMPROVED
+					while( KeyCursor >= 0 && !*CtrlTextA[KeyCursor]->pString ) {
+						--KeyCursor;
+					}
+					if( KeyCursor == -1 ) {
+						while( ++KeyCursor < (int)CONTROL_LINE_COUNT*2 && !*CtrlTextA[KeyCursor]->pString ) {}
+					}
 
+					T_ChangeText(ControlTextInfo[0], GetControlsHeaderString());
+#endif // FEATURE_HUD_IMPROVED
 					CtrlTextA[KeyCursor]->zPos = 0;
 					T_AddBackground(CtrlTextA[KeyCursor], 0, 0, 0, 0, 0, ICLR_Black, &ReqSelGour1, 0);
 					T_AddOutline(CtrlTextA[KeyCursor], TRUE, ICLR_Blue, &ReqSelGour2, 0);
@@ -961,11 +1114,17 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 				return;
 			}
 
+#ifndef FEATURE_HUD_IMPROVED
 			if( LayoutPage == CTRL_Default )
 				break;
+#endif // FEATURE_HUD_IMPROVED
 
 			if( CHK_ANY(InputDB, IN_SELECT) ) {
 #ifdef FEATURE_HUD_IMPROVED
+				if( LayoutPage == CTRL_Joystick && KeyCursor >= 0 && KeyCursor < 4 ) {
+					T_ChangeText(CtrlTextB[KeyCursor], JoystickOpts[KeyCursor].toggle());
+					break;
+				}
 				UpdateJoystickHintText(HINT_KEYBOARD, HINT_HIDDEN);
 #endif // FEATURE_HUD_IMPROVED
 				KeySelector = 1;
@@ -992,6 +1151,21 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 					KeyCursor = CONTROL_LINE_COUNT*2 - 1;
 				}
 
+#ifdef FEATURE_HUD_IMPROVED
+				while( KeyCursor >= 0 && !*CtrlTextA[KeyCursor]->pString ) {
+					--KeyCursor;
+				}
+
+				if( isJoystickUnavailable && KeyCursor == -1 ) {
+					KeyCursor = CONTROL_LINE_COUNT*2 - 1;
+					while( KeyCursor >= 0 && !*CtrlTextA[KeyCursor]->pString ) {
+						--KeyCursor;
+					}
+				}
+
+				T_ChangeText(ControlTextInfo[0], GetControlsHeaderString());
+#endif // FEATURE_HUD_IMPROVED
+
 				if( KeyCursor == -1 ) {
 					T_AddBackground(ControlTextInfo[0], 0, 0, 0, 0, 0, ICLR_Black, &ReqSelGour1, 0);
 					T_AddOutline(ControlTextInfo[0], TRUE, ICLR_Blue, &ReqSelGour2, 0);
@@ -1011,9 +1185,28 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 					T_RemoveOutline(CtrlTextA[KeyCursor]);
 				}
 
+#ifdef FEATURE_HUD_IMPROVED
+				++KeyCursor;
+				while( KeyCursor < (int)CONTROL_LINE_COUNT*2 && !*CtrlTextA[KeyCursor]->pString ) {
+					++KeyCursor;
+				}
+				if( KeyCursor >= (int)CONTROL_LINE_COUNT*2 ) {
+					if( isJoystickUnavailable ) {
+						KeyCursor = 0;
+						while( KeyCursor < (int)CONTROL_LINE_COUNT*2 && !*CtrlTextA[KeyCursor]->pString ) {
+							++KeyCursor;
+						}
+					} else {
+						KeyCursor = -1;
+					}
+				}
+
+				T_ChangeText(ControlTextInfo[0], GetControlsHeaderString());
+#else // FEATURE_HUD_IMPROVED
 				if( ++KeyCursor >= (int)CONTROL_LINE_COUNT*2 ) {
 					KeyCursor = -1;
 				}
+#endif // FEATURE_HUD_IMPROVED
 
 				if( KeyCursor == -1 ) {
 					T_AddBackground(ControlTextInfo[0], 0, 0, 0, 0, 0, ICLR_Black, &ReqSelGour1, 0);
@@ -1034,6 +1227,19 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 			break;
 
 		case 2:
+#ifdef FEATURE_HUD_IMPROVED
+			i = 0;
+			if( LayoutPage == CTRL_Joystick && CHK_ANY(JoyKeys, 0xFFFF) ) {
+				for( i = 0; i < 0x10; ++i ) {
+					if( CHK_ANY((1 << i), JoyKeys) )
+						break;
+				}
+				if( i == 0x10 ) {
+					break;
+				}
+				i += 0x100;
+			} else if( LayoutPage == CTRL_Custom || CHK_ANY(DIKeys[DIK_ESCAPE], 0x80) )
+#else // FEATURE_HUD_IMPROVED
 			if( JoyKeys != 0 ) {
 				for( i = 0; i < 0x20; ++i ) {
 					if( CHK_ANY((1 << i), JoyKeys) )
@@ -1043,7 +1249,9 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 					break;
 				}
 				i += 0x100;
-			} else {
+			} else
+#endif // FEATURE_HUD_IMPROVED
+			{
 				for( i = 0; i < 0x100; ++i ) {
 					if( CHK_ANY(DIKeys[i], 0x80) )
 						break;
@@ -1057,8 +1265,20 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 				i != DIK_LEFT && i != DIK_RIGHT && i != DIK_UP && i != DIK_DOWN )
 			{
 				if( i != DIK_ESCAPE ) {
+#ifdef FEATURE_HUD_IMPROVED
+					Layout[LayoutPage].key[KeyCursor] = (i >= 0x100) ? i-0x100 : i;
+					if( Layout[LayoutPage].key[KeyCursor] == DIK_LCONTROL )
+						Layout[LayoutPage].key[KeyCursor] = DIK_RCONTROL;
+					if( Layout[LayoutPage].key[KeyCursor] == DIK_LSHIFT )
+						Layout[LayoutPage].key[KeyCursor] = DIK_RSHIFT;
+					if( Layout[LayoutPage].key[KeyCursor] == DIK_LMENU )
+						Layout[LayoutPage].key[KeyCursor] = DIK_RMENU;
+					DefaultConflict();
+					S_ChangeCtrlText();
+#else // FEATURE_HUD_IMPROVED
 					Layout[LayoutPage].key[KeyCursor] = i;
 					T_ChangeText(CtrlTextB[KeyCursor], ControlKeysText[i]);
+#endif // FEATURE_HUD_IMPROVED
 				}
 
 				CtrlTextB[KeyCursor]->zPos = CONTROL_NEARZ;
@@ -1075,13 +1295,19 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 			break;
 
 		case 3:
-			if( CHK_ANY(Layout[LayoutPage].key[KeyCursor], 0x100) ) {
+#ifdef FEATURE_HUD_IMPROVED
+			if( LayoutPage == CTRL_Joystick )
+#else // FEATURE_HUD_IMPROVED
+			if( CHK_ANY(Layout[LayoutPage].key[KeyCursor], 0x100) )
+#endif // FEATURE_HUD_IMPROVED
+			{
 				if( !CHK_ANY((1 << Layout[LayoutPage].key[KeyCursor]), JoyKeys) ) {
 					KeySelector = 0;
 				}
 			}
 			else if( !CHK_ANY(DIKeys[Layout[LayoutPage].key[KeyCursor]], 0x80) ) {
 				KeySelector = 0;
+#ifndef FEATURE_HUD_IMPROVED
 				if( Layout[LayoutPage].key[KeyCursor] == DIK_LCONTROL )
 					Layout[LayoutPage].key[KeyCursor] = DIK_RCONTROL;
 				if( Layout[LayoutPage].key[KeyCursor] == DIK_LSHIFT )
@@ -1089,6 +1315,7 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 				if( Layout[LayoutPage].key[KeyCursor] == DIK_LMENU )
 					Layout[LayoutPage].key[KeyCursor] = DIK_RMENU;
 				FlashConflicts();
+#endif // FEATURE_HUD_IMPROVED
 			}
 #ifdef FEATURE_HUD_IMPROVED
 			if( KeySelector == 0 ) {
@@ -1110,6 +1337,35 @@ void __cdecl S_ShowControls() {
 #ifdef FEATURE_HUD_IMPROVED
 	xCenter = GetRenderWidthDownscaled() / 2;
 	isCompact = (xCenter < (CONTROL_WIDTH_HIGH + 20) / 2);
+
+	if( CtrlTextC[0] == NULL ) {
+		x1 = CONTROL_COLUMN_C;
+		x0 = x1 - (isCompact ? CONTROL_WIDTH_LOW : CONTROL_WIDTH_HIGH) / 2;
+
+		CtrlTextC[0]  = T_Print(x0, CONTROL_Y_LINE1, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[0]]);
+		CtrlTextC[1]  = T_Print(x0, CONTROL_Y_LINE2, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[1]]);
+		CtrlTextC[2]  = T_Print(x0, CONTROL_Y_LINE3, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[2]]);
+		CtrlTextC[3]  = T_Print(x0, CONTROL_Y_LINE4, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[3]]);
+		CtrlTextC[4]  = T_Print(x0, CONTROL_Y_LINE5, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[4]]);
+		CtrlTextC[5]  = T_Print(x0, CONTROL_Y_LINE6, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[5]]);
+		CtrlTextC[6]  = T_Print(x0, CONTROL_Y_LINE7, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[6]]);
+		CtrlTextC[7]  = T_Print(x0, CONTROL_Y_LINE8, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[7]]);
+
+		CtrlTextC[8]  = T_Print(x1, CONTROL_Y_LINE1, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[8]]);
+		CtrlTextC[9]  = T_Print(x1, CONTROL_Y_LINE2, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[9]]);
+		CtrlTextC[10] = T_Print(x1, CONTROL_Y_LINE3, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[10]]);
+		CtrlTextC[11] = T_Print(x1, CONTROL_Y_LINE4, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[11]]);
+		CtrlTextC[12] = T_Print(x1, CONTROL_Y_LINE5, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[12]]);
+		CtrlTextC[13] = T_Print(x1, CONTROL_Y_LINE6, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[13]]);
+		CtrlTextC[14] = T_Print(x1, CONTROL_Y_LINE7, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[14]]);
+		CtrlTextC[15] = T_Print(x1, CONTROL_Y_LINE8, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[15]]);
+
+		for( i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
+			T_CentreV(CtrlTextC[i], 1);
+			T_CentreH(CtrlTextC[i], 1);
+			T_HideText(CtrlTextC[i], (LayoutPage == CTRL_Joystick || ConflictLayout[i]) ? 1 : 0);
+		}
+	}
 #else // !FEATURE_HUD_IMPROVED
 	xCenter = GetRenderWidth() / 2;
 	CLAMPG(xCenter, 320);
@@ -1117,6 +1373,47 @@ void __cdecl S_ShowControls() {
 #endif // FEATURE_HUD_IMPROVED
 
 	if( CtrlTextB[0] == NULL ) {
+#ifdef FEATURE_HUD_IMPROVED
+		DWORD base = (LayoutPage == CTRL_Joystick) ? 0x100 : 0;
+
+		x1 = ( LayoutPage == CTRL_Joystick ) ? CONTROL_COLUMN_B2 : CONTROL_COLUMN_B1;
+		x0 = x1 - (isCompact ? CONTROL_WIDTH_LOW : CONTROL_WIDTH_HIGH) / 2;
+
+		if( LayoutPage == CTRL_Joystick ) {
+			CtrlTextB[0]  = T_Print(x0, CONTROL_Y_LINE1, CONTROL_NEARZ, JoystickOpts[0].getState());
+			CtrlTextB[1]  = T_Print(x0, CONTROL_Y_LINE2, CONTROL_NEARZ, JoystickOpts[1].getState());
+			CtrlTextB[2]  = T_Print(x0, CONTROL_Y_LINE3, CONTROL_NEARZ, JoystickOpts[2].getState());
+			CtrlTextB[3]  = T_Print(x0, CONTROL_Y_LINE4, CONTROL_NEARZ, JoystickOpts[3].getState());
+		} else {
+			CtrlTextB[0]  = T_Print(x0, CONTROL_Y_LINE1, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[0]]);
+			CtrlTextB[1]  = T_Print(x0, CONTROL_Y_LINE2, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[1]]);
+			CtrlTextB[2]  = T_Print(x0, CONTROL_Y_LINE3, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[2]]);
+			CtrlTextB[3]  = T_Print(x0, CONTROL_Y_LINE4, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[3]]);
+		}
+		CtrlTextB[4]  = T_Print(x0, CONTROL_Y_LINE5, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[4]]);
+		CtrlTextB[5]  = T_Print(x0, CONTROL_Y_LINE6, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[5]]);
+		CtrlTextB[6]  = T_Print(x0, CONTROL_Y_LINE7, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[6]]);
+		CtrlTextB[7]  = T_Print(x0, CONTROL_Y_LINE8, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[7]]);
+
+		CtrlTextB[8]  = T_Print(x1, CONTROL_Y_LINE1, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[8]]);
+		CtrlTextB[9]  = T_Print(x1, CONTROL_Y_LINE2, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[9]]);
+		CtrlTextB[10] = T_Print(x1, CONTROL_Y_LINE3, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[10]]);
+		CtrlTextB[11] = T_Print(x1, CONTROL_Y_LINE4, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[11]]);
+		CtrlTextB[12] = T_Print(x1, CONTROL_Y_LINE5, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[12]]);
+		CtrlTextB[13] = T_Print(x1, CONTROL_Y_LINE6, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[13]]);
+		CtrlTextB[14] = T_Print(x1, CONTROL_Y_LINE7, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[14]]);
+		CtrlTextB[15] = T_Print(x1, CONTROL_Y_LINE8, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[15]]);
+
+		for( i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
+			x1 = CONTROL_COLUMN_B2;
+			x0 = x1 - (isCompact ? CONTROL_WIDTH_LOW : CONTROL_WIDTH_HIGH) / 2;
+			if( LayoutPage != CTRL_Joystick && ConflictLayout[i] ) {
+				CtrlTextB[i]->xPos = (i < CONTROL_LINE_COUNT ? x0 : x1) * GetTextScaleH(PHD_ONE) / PHD_ONE;
+			}
+			T_CentreH(CtrlTextB[i], 1);
+			T_CentreV(CtrlTextB[i], 1);
+		}
+#else // FEATURE_HUD_IMPROVED
 		x0 = xCenter - (isCompact ? CONTROL_WIDTH_LOW : CONTROL_WIDTH_HIGH) / 2 + CONTROL_COLUMN_B;
 		x1 = xCenter + CONTROL_COLUMN_B;
 
@@ -1140,7 +1437,6 @@ void __cdecl S_ShowControls() {
 			T_CentreV(CtrlTextB[i], 1);
 		}
 
-#ifndef FEATURE_HUD_IMPROVED
 		KeyCursor = 0;
 #endif // FEATURE_HUD_IMPROVED
 	}
@@ -1149,9 +1445,33 @@ void __cdecl S_ShowControls() {
 		x0 = xCenter - (isCompact ? CONTROL_WIDTH_LOW : CONTROL_WIDTH_HIGH) / 2 + CONTROL_COLUMN_A;
 #ifdef FEATURE_HUD_IMPROVED
 		x1 = xCenter + CONTROL_COLUMN_A;
+
+		if( LayoutPage == CTRL_Joystick ) {
+			CtrlTextA[0]  = T_Print(x0, CONTROL_Y_LINE1, CONTROL_NEARZ, JoystickOpts[0].name);
+			CtrlTextA[1]  = T_Print(x0, CONTROL_Y_LINE2, CONTROL_NEARZ, JoystickOpts[1].name);
+			CtrlTextA[2]  = T_Print(x0, CONTROL_Y_LINE3, CONTROL_NEARZ, JoystickOpts[2].name);
+			CtrlTextA[3]  = T_Print(x0, CONTROL_Y_LINE4, CONTROL_NEARZ, JoystickOpts[3].name);
+		} else {
+			CtrlTextA[0]  = T_Print(x0, CONTROL_Y_LINE1, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Run]);
+			CtrlTextA[1]  = T_Print(x0, CONTROL_Y_LINE2, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Back]);
+			CtrlTextA[2]  = T_Print(x0, CONTROL_Y_LINE3, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Left]);
+			CtrlTextA[3]  = T_Print(x0, CONTROL_Y_LINE4, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Right]);
+		}
+		CtrlTextA[4]  = T_Print(x0, CONTROL_Y_LINE5, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_StepLeft]);
+		CtrlTextA[5]  = T_Print(x0, CONTROL_Y_LINE6, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_StepRight]);
+		CtrlTextA[6]  = T_Print(x0, CONTROL_Y_LINE7, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Step]);
+		CtrlTextA[7]  = T_Print(x0, CONTROL_Y_LINE8, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Walk]);
+
+		CtrlTextA[8]  = T_Print(x1, CONTROL_Y_LINE1, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Jump]);
+		CtrlTextA[9]  = T_Print(x1, CONTROL_Y_LINE2, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Action]);
+		CtrlTextA[10] = T_Print(x1, CONTROL_Y_LINE3, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Roll]);
+		CtrlTextA[11] = T_Print(x1, CONTROL_Y_LINE4, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_DrawWeapon]);
+		CtrlTextA[12] = T_Print(x1, CONTROL_Y_LINE5, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Flare]);
+		CtrlTextA[13] = T_Print(x1, CONTROL_Y_LINE6, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Look]);
+		CtrlTextA[14] = T_Print(x1, CONTROL_Y_LINE7, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Inventory]);
+		CtrlTextA[15] = T_Print(x1, CONTROL_Y_LINE8, CONTROL_NEARZ, "Pause");
 #else // !FEATURE_HUD_IMPROVED
 		x1 = xCenter + CONTROL_COLUMN_A + 10;
-#endif // FEATURE_HUD_IMPROVED
 
 		CtrlTextA[0]  = T_Print(x0, CONTROL_Y_LINE1, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Run]);
 		CtrlTextA[1]  = T_Print(x0, CONTROL_Y_LINE2, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Back]);
@@ -1168,7 +1488,7 @@ void __cdecl S_ShowControls() {
 		CtrlTextA[11] = T_Print(x1, CONTROL_Y_LINE5, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Look]);
 		CtrlTextA[12] = T_Print(x1, CONTROL_Y_LINE6, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Roll]);
 		CtrlTextA[13] = T_Print(x1, CONTROL_Y_LINE7, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Inventory]);
-
+#endif // FEATURE_HUD_IMPROVED
 		for( i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
 			T_CentreV(CtrlTextA[i], 1);
 		}
@@ -1198,6 +1518,48 @@ void __cdecl S_ChangeCtrlText() {
 	UINT16 key;
 #ifdef FEATURE_HUD_IMPROVED
 	T_ChangeText(ControlTextInfo[0], GetControlsHeaderString());
+
+	for( DWORD i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
+		T_HideText(CtrlTextC[i], (LayoutPage == CTRL_Joystick || ConflictLayout[i]) ? 1 : 0);
+	}
+
+	if( LayoutPage == CTRL_Joystick ) {
+		for( DWORD i=0; i<4; ++i ) {
+			T_ChangeText(CtrlTextA[i], JoystickOpts[i].name);
+			T_ChangeText(CtrlTextB[i], JoystickOpts[i].getState());
+		}
+	} else {
+		T_ChangeText(CtrlTextA[0], GF_GameStringTable[GSI_Keymap_Run]);
+		T_ChangeText(CtrlTextA[1], GF_GameStringTable[GSI_Keymap_Back]);
+		T_ChangeText(CtrlTextA[2], GF_GameStringTable[GSI_Keymap_Left]);
+		T_ChangeText(CtrlTextA[3], GF_GameStringTable[GSI_Keymap_Right]);
+	}
+
+	bool isCompact = ( GetRenderWidthDownscaled() < CONTROL_WIDTH_HIGH + 20 );
+	for( DWORD i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
+		int x1 = ( LayoutPage == CTRL_Joystick || ConflictLayout[i] ) ? CONTROL_COLUMN_B2 : CONTROL_COLUMN_B1;
+		int x0 = x1 - (isCompact ? CONTROL_WIDTH_LOW : CONTROL_WIDTH_HIGH) / 2;
+		CtrlTextB[i]->xPos = (i < CONTROL_LINE_COUNT ? x0 : x1) * GetTextScaleH(PHD_ONE) / PHD_ONE;
+		T_CentreH(CtrlTextB[i], 1);
+	}
+
+	for( DWORD i=(LayoutPage == CTRL_Joystick)? 4 : 0; i<CONTROL_LINE_COUNT*2; ++i ) {
+		key = Layout[LayoutPage].key[i];
+		switch( LayoutPage ) {
+			case CTRL_Joystick:
+				if( key < 0x10 && ControlKeysText[key+0x100] != NULL )
+					T_ChangeText(CtrlTextB[i], ControlKeysText[key+0x100]);
+				else
+					T_ChangeText(CtrlTextB[i], "?");
+				break;
+			case CTRL_Custom:
+				if( key < 0x100 && ControlKeysText[key] != NULL )
+					T_ChangeText(CtrlTextB[i], ControlKeysText[key]);
+				else
+					T_ChangeText(CtrlTextB[i], "?");
+				break;
+		}
+	}
 #else // FEATURE_HUD_IMPROVED
 	char headerStr[40];
 
@@ -1208,7 +1570,6 @@ void __cdecl S_ChangeCtrlText() {
 		sprintf(headerStr, GF_SpecificStringTable[SSI_UserKeys], LayoutPage);
 		T_ChangeText(ControlTextInfo[0], headerStr);
 	}
-#endif // FEATURE_HUD_IMPROVED
 
 	for( DWORD i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
 		key = Layout[LayoutPage].key[i];
@@ -1216,12 +1577,9 @@ void __cdecl S_ChangeCtrlText() {
 		if( key < 0x110 && ControlKeysText[key] != NULL )
 			T_ChangeText(CtrlTextB[i], ControlKeysText[key]);
 		else
-#ifdef FEATURE_HUD_IMPROVED
-			T_ChangeText(CtrlTextB[i], "?");
-#else // !FEATURE_HUD_IMPROVED
 			T_ChangeText(CtrlTextB[i], "BAD");
-#endif // FEATURE_HUD_IMPROVED
 	}
+#endif // FEATURE_HUD_IMPROVED
 }
 
 void __cdecl S_RemoveCtrlText() {
@@ -1230,6 +1588,10 @@ void __cdecl S_RemoveCtrlText() {
 		T_RemovePrint(CtrlTextB[i]);
 		CtrlTextA[i] = NULL;
 		CtrlTextB[i] = NULL;
+#ifdef FEATURE_HUD_IMPROVED
+		T_RemovePrint(CtrlTextC[i]);
+		CtrlTextC[i] = NULL;
+#endif // FEATURE_HUD_IMPROVED
 	}
 }
 

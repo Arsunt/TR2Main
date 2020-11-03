@@ -493,6 +493,9 @@ extern DISPLAY_ADAPTER CurrentDisplayAdapter;
 	},
 }; */
 #define SaveSlotFlags				ARRAY_(0x00466B80, __int16, [16]) /* = {-1, 0}; */
+#ifdef FEATURE_HUD_IMPROVED
+extern CONTROL_LAYOUT Layout[3];
+#else // FEATURE_HUD_IMPROVED
 #define Layout						ARRAY_(0x00466F58, CONTROL_LAYOUT, [2]) /* = {
 	{	// Default Layout
 		DIK_UP,
@@ -527,6 +530,7 @@ extern DISPLAY_ADAPTER CurrentDisplayAdapter;
 		DIK_DECIMAL,
 	},
 }; */
+#endif // FEATURE_HUD_IMPROVED
 
 // Uninitialized arrays
 #define GouraudTable				ARRAY_(0x0046C300, GOURAUD_ENTRY, [256])
@@ -596,7 +600,11 @@ extern int HWR_TexturePageIndexes[128];
 #define HWR_PageHandles				ARRAY_(0x00519ED0, HWR_TEXHANDLE, [32])
 #define HWR_TexturePageIndexes		ARRAY_(0x00519F68, int, [32])
 #endif // FEATURE_EXTENDED_LIMITS
+#ifdef FEATURE_HUD_IMPROVED
+extern bool ConflictLayout[ARRAY_SIZE(Layout->key)];
+#else // FEATURE_HUD_IMPROVED
 #define ConflictLayout				ARRAY_(0x0051A0C0, BOOL, [14])
+#endif // FEATURE_HUD_IMPROVED
 #define DIKeys						ARRAY_(0x0051A0F8, BYTE, [256])
 #define DetailTextInfo				ARRAY_(0x0051A2C8, TEXT_STR_INFO*, [5])
 #define SoundTextInfo				ARRAY_(0x0051A2E0, TEXT_STR_INFO*, [4])
@@ -757,8 +765,13 @@ extern LPDIRECTDRAWPALETTE DDrawPalettes[256];
 	&InvSoundOption,
 	&InvPhotoOption
 }; */
+#ifdef FEATURE_HUD_IMPROVED
+extern TEXT_STR_INFO* CtrlTextA[ARRAY_SIZE(Layout->key)];
+extern TEXT_STR_INFO* CtrlTextB[ARRAY_SIZE(Layout->key)];
+#else // FEATURE_HUD_IMPROVED
 #define CtrlTextA					ARRAY_(0x0051A248, TEXT_STR_INFO*, [14])
 #define CtrlTextB					ARRAY_(0x0051A280, TEXT_STR_INFO*, [14])
+#endif // FEATURE_HUD_IMPROVED
 #define GF_ScriptTable				ARRAY_(0x00521EE0, __int16*, [24])
 #define GF_DemoLevels				ARRAY_(0x00521F60, UINT16, [24])
 #define GF_SecretInvItems			ARRAY_(0x00521FA0, char, [27])

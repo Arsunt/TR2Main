@@ -40,8 +40,14 @@ bool WalkToSidestep = false;
 
 // NOTE: not presented in the original game
 static BOOL JoyKey(KEYMAP keyMap) {
+#ifdef FEATURE_HUD_IMPROVED
+	if( keyMap < 4 ) return FALSE; // ignore direction keys
+	UINT16 key = Layout[CTRL_Joystick].key[keyMap];
+	return CHK_ANY(JoyKeys, (1 << key));
+#else // FEATURE_HUD_IMPROVED
 	UINT16 key = Layout[CTRL_Custom].key[keyMap];
 	return ( key >= 0x100 && CHK_ANY(JoyKeys, (1 << key)) );
+#endif // FEATURE_HUD_IMPROVED
 }
 
 // NOTE: not presented in the original game
@@ -154,6 +160,19 @@ bool __cdecl S_UpdateInput() {
 	}
 
 	// Key combinations and alternatives
+#ifdef FEATURE_HUD_IMPROVED
+	if( Key(KM_Step) ) {
+		if( CHK_ANY(input, IN_LEFT) ) {
+			input &= ~(IN_LEFT|IN_FORWARD|IN_BACK);
+			input |= IN_STEPL;
+		} else if( CHK_ANY(input, IN_RIGHT) ) {
+			input &= ~(IN_RIGHT|IN_FORWARD|IN_BACK);
+			input |= IN_STEPR;
+		} else {
+			input |= IN_SLOW;
+		}
+	}
+#endif // FEATURE_HUD_IMPROVED
 #ifdef FEATURE_INPUT_IMPROVED
 	if( WalkToSidestep && CHK_ANY(input, IN_SLOW) && !CHK_ANY(input, IN_FORWARD|IN_BACK|IN_STEPL|IN_STEPR) ) {
 		if( CHK_ANY(input, IN_LEFT) ) {
@@ -245,7 +264,12 @@ bool __cdecl S_UpdateInput() {
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	static bool isPauseKeyPressed = false;
-	if( KEY_DOWN(DIK_P) ) {
+#ifdef FEATURE_HUD_IMPROVED
+	if( Key(KM_Pause) )
+#else // FEATURE_HUD_IMPROVED
+	if( KEY_DOWN(DIK_P) )
+#endif // FEATURE_HUD_IMPROVED
+	{
 		if( !isPauseKeyPressed ) {
 			isPauseKeyPressed = true;
 			input |= IN_PAUSE;
