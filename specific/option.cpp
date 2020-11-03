@@ -371,11 +371,14 @@ static const char *ToggleShowHintsOptState(void) {
 extern bool JoystickVibrationEnabled;
 
 static const char *GetVibrationOptState(void) {
+	if( !IsJoyVibrationSupported() ) return GF_GameStringTable[GSI_String_NA];
 	return JoystickVibrationEnabled ? GF_SpecificStringTable[SSI_On] : GF_SpecificStringTable[SSI_Off];
 }
 
 static const char *ToggleVibrationOptState(void) {
-	JoystickVibrationEnabled = !JoystickVibrationEnabled;
+	if( IsJoyVibrationSupported() ) {
+		JoystickVibrationEnabled = !JoystickVibrationEnabled;
+	}
 	return GetVibrationOptState();
 }
 #endif // FEATURE_INPUT_IMPROVED
