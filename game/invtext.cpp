@@ -287,15 +287,18 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 	for( i = 0; i < linesCount; ++i ) {
 		if( CHK_ANY(req->lpItemFlags1[req->lineOffset + i], REQFLAG_ACTIVE) ) {
 			if( req->itemTexts1[i] == NULL ) {
-				req->itemTexts1[i] = T_Print(0, (linesOff + req->lineHeight * i), 0, &req->lpItemStrings1[(req->lineOffset + i) * req->itemStringLen]);
+				// NOTE: here was 0 instead of REQ_NEARZ in the original game
+				req->itemTexts1[i] = T_Print(0, (linesOff + req->lineHeight * i), REQ_NEARZ, &req->lpItemStrings1[(req->lineOffset + i) * req->itemStringLen]);
 				T_CentreH(req->itemTexts1[i], 1);
 				T_BottomAlign(req->itemTexts1[i], 1);
 			}
 
 			if( CHK_ANY(req->reqFlags, REQFLAG_NOCURSOR) || (req->lineOffset + i != req->selected) ) {
+				req->itemTexts1[i]->zPos = REQ_NEARZ; // NOTE: this line is absent in the original game
 				T_RemoveBackground(req->itemTexts1[i]);
 				T_RemoveOutline(req->itemTexts1[i]);
 			} else {
+				req->itemTexts1[i]->zPos = 0; // NOTE: this line is absent in the original game
 				T_AddBackground(req->itemTexts1[i], (req->pixWidth - 12), 0, 0, 0, REQ_MIDZ, ICLR_Black, &ReqSelGour1, 1);
 				T_AddOutline(req->itemTexts1[i], TRUE, ICLR_Orange, &ReqSelGour2, 0);
 			}
@@ -318,9 +321,17 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 
 		if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], REQFLAG_ACTIVE) ) {
 			if( req->itemTexts2[i] == NULL ) {
-				req->itemTexts2[i] = T_Print(0, (linesOff + req->lineHeight * i), 0, &req->lpItemStrings2[(req->lineOffset + i) * req->itemStringLen]);
+				// NOTE: here was 0 instead of REQ_NEARZ in the original game
+				req->itemTexts2[i] = T_Print(0, (linesOff + req->lineHeight * i), REQ_NEARZ, &req->lpItemStrings2[(req->lineOffset + i) * req->itemStringLen]);
 				T_CentreH(req->itemTexts2[i], 1);
 				T_BottomAlign(req->itemTexts2[i], 1);
+			}
+
+			// NOTE: this code block is absent in the original game
+			if( CHK_ANY(req->reqFlags, REQFLAG_NOCURSOR) || (req->lineOffset + i != req->selected) ) {
+				req->itemTexts2[i]->zPos = REQ_NEARZ;
+			} else {
+				req->itemTexts2[i]->zPos = 0;
 			}
 
 			if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], REQFLAG_LEFT) ) {
