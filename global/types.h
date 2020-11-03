@@ -662,6 +662,7 @@ typedef enum {
 	INV_SaveMode,
 	INV_LoadMode,
 	INV_DeathMode,
+	INV_PauseMode, // NOTE: not presented in the original game
 } INVENTORY_MODE;
 
 typedef enum {

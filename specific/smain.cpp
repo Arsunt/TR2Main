@@ -61,6 +61,7 @@ extern double InvGUI_Scale;
 static char PictureSuffix[32];
 extern DWORD InvBackgroundMode;
 extern DWORD StatsBackgroundMode;
+extern DWORD PauseBackgroundMode;
 extern DWORD PictureStretchLimit;
 extern bool LoadingScreensEnabled;
 extern bool RemasteredPixEnabled;
@@ -567,6 +568,7 @@ void __cdecl S_LoadSettings() {
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	GetRegistryDwordValue(REG_INVBGND_MODE, &InvBackgroundMode, 1);
 	GetRegistryDwordValue(REG_STATSBGND_MODE, &StatsBackgroundMode, 0);
+	GetRegistryDwordValue(REG_PAUSEBGND_MODE, &PauseBackgroundMode, 1);
 	GetRegistryDwordValue(REG_PICTURE_STRETCH, &PictureStretchLimit, 10);
 	GetRegistryBoolValue(REG_REMASTER_PIX_ENABLE, &RemasteredPixEnabled, true);
 	GetRegistryBoolValue(REG_LOADING_SCREENS, &LoadingScreensEnabled, false);

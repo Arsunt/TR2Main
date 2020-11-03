@@ -243,6 +243,18 @@ bool __cdecl S_UpdateInput() {
 #endif // FEATURE_CHEAT
 	}
 
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	static bool isPauseKeyPressed = false;
+	if( KEY_DOWN(DIK_P) ) {
+		if( !isPauseKeyPressed ) {
+			isPauseKeyPressed = true;
+			input |= IN_PAUSE;
+		}
+	} else {
+		isPauseKeyPressed = false;
+	}
+#endif // FEATURE_BACKGROUND_IMPROVED
+
 	// Screenshot
 #ifdef FEATURE_SCREENSHOT_IMPROVED
 	if( KEY_DOWN(DIK_BACK) ) { // BackSpace Key instead of S

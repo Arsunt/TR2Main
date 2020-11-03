@@ -381,6 +381,9 @@
 		<Unit filename="modding/mod_utils.cpp" />
 		<Unit filename="modding/mod_utils.h" />
 
+		<Unit filename="modding/pause.cpp" />
+		<Unit filename="modding/pause.h" />
+
 		<Unit filename="modding/psx_bar.cpp" />
 		<Unit filename="modding/psx_bar.h" />
 

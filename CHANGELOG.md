@@ -63,6 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implemented embedded textures for Keyboard/Joystick button sprites. There are 3 styles for Joystick buttons: Numeric, XBox, PlayStation.
 - Added arrows to PlayStation styled inventory text boxes.
 - Added PlayStation styled Joystick button hints for inventory (optional feature).
+- Added Pause feature. Two styles are available: transparent and 50% darkened.
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.
