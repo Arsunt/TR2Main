@@ -740,7 +740,7 @@ void __cdecl Construct_Inventory() {
 
 	IsInventoryActive = 1;
 	InventoryChosen = 0;
-	InvOptionObjectsCount = (InventoryMode == INV_TitleMode) ? 4 : 3;
+	InvOptionObjectsCount = ARRAY_SIZE(InvOptionList) - ((InventoryMode == INV_TitleMode) ? 0 : 1);
 
 	for( int i = 0; i < InvMainObjectsCount; ++i ) {
 		InvMainList[i]->currentFrame = 0;
@@ -759,7 +759,7 @@ void __cdecl Construct_Inventory() {
 
 	InvMainCurrent = 0;
 	if( GymInvOpenEnabled && InventoryMode == INV_TitleMode && !CHK_ANY(GF_GameFlow.flags, GFF_LoadSaveDisabled) && CHK_ANY(GF_GameFlow.flags, GFF_GymEnabled) ) {
-		InvOptionCurrent = 3;
+		InvOptionCurrent = ARRAY_SIZE(InvOptionList) - 1;
 	} else {
 		InvOptionCurrent = 0;
 		GymInvOpenEnabled = FALSE;

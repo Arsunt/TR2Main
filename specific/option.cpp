@@ -88,6 +88,17 @@ CONTROL_LAYOUT Layout[3] = {
 		DIK_TAB, // Pause
 	},
 };
+
+INVENTORY_ITEM *InvOptionList[5] = {
+	&InvPassportOption,
+	&InvSoundOption,
+	&InvDetailOption,
+	&InvControlOption,
+	&InvPhotoOption,
+};
+
+__int16 InvOptionObjectsCount = ARRAY_SIZE(InvOptionList);
+
 bool ConflictLayout[ARRAY_SIZE(Layout->key)];
 TEXT_STR_INFO *CtrlTextA[ARRAY_SIZE(Layout->key)];
 TEXT_STR_INFO *CtrlTextB[ARRAY_SIZE(Layout->key)];

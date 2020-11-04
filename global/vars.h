@@ -71,7 +71,11 @@
 #define CineTargetAngle				VAR_I_(0x00464310, __int16,			PHD_90)
 #define OverlayStatus				VAR_I_(0x004644E0, int,				1)
 #define InvMainObjectsCount			VAR_I_(0x004654E0, __int16,			8)
+#ifdef FEATURE_HUD_IMPROVED
+extern __int16 InvOptionObjectsCount;
+#else // FEATURE_HUD_IMPROVED
 #define InvOptionObjectsCount		VAR_I_(0x00465604, __int16,			4)
+#endif // FEATURE_HUD_IMPROVED
 #define GymInvOpenEnabled			VAR_I_(0x00465618, BOOL,			TRUE)
 #define InventoryChosen				VAR_I_(0x00465A50, __int16,			-1)
 #define InventoryMode				VAR_I_(0x00465A54, INVENTORY_MODE,	INV_TitleMode)
@@ -759,16 +763,17 @@ extern LPDIRECTDRAWPALETTE DDrawPalettes[256];
 	&InvPickup2Option,
 	NULL,
 }; */
+#ifdef FEATURE_HUD_IMPROVED
+extern INVENTORY_ITEM *InvOptionList[5];
+extern TEXT_STR_INFO *CtrlTextA[ARRAY_SIZE(Layout->key)];
+extern TEXT_STR_INFO *CtrlTextB[ARRAY_SIZE(Layout->key)];
+#else // FEATURE_HUD_IMPROVED
 #define InvOptionList				ARRAY_(0x00465608, INVENTORY_ITEM*, [4]) /* = {
 	&InvPassportOption,
 	&InvControlOption,
 	&InvSoundOption,
 	&InvPhotoOption
 }; */
-#ifdef FEATURE_HUD_IMPROVED
-extern TEXT_STR_INFO* CtrlTextA[ARRAY_SIZE(Layout->key)];
-extern TEXT_STR_INFO* CtrlTextB[ARRAY_SIZE(Layout->key)];
-#else // FEATURE_HUD_IMPROVED
 #define CtrlTextA					ARRAY_(0x0051A248, TEXT_STR_INFO*, [14])
 #define CtrlTextB					ARRAY_(0x0051A280, TEXT_STR_INFO*, [14])
 #endif // FEATURE_HUD_IMPROVED
