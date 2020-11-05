@@ -152,27 +152,33 @@ void __cdecl ReqItemCentreAlign(REQUEST_INFO *req, TEXT_STR_INFO *textInfo) {
 }
 
 void __cdecl ReqItemLeftAlign(REQUEST_INFO *req, TEXT_STR_INFO *textInfo) {
-	DWORD scaleH;
 	int bgndOffX;
 
 	if( textInfo == NULL )
 		return;
 
-	scaleH = GetTextScaleH(textInfo->scaleH);
+#ifdef FEATURE_HUD_IMPROVED
+	bgndOffX = (req->pixWidth - T_GetTextWidth(textInfo)) / 2 - 8;
+#else // FEATURE_HUD_IMPROVED
+	DWORD scaleH = GetTextScaleH(textInfo->scaleH);
 	bgndOffX = (req->pixWidth * scaleH / PHD_ONE) / 2 - T_GetTextWidth(textInfo) / 2 - (8 * scaleH / PHD_ONE);
+#endif // FEATURE_HUD_IMPROVED
 	textInfo->xPos = req->xPos - bgndOffX;
 	textInfo->bgndOffX = bgndOffX;
 }
 
 void __cdecl ReqItemRightAlign(REQUEST_INFO *req, TEXT_STR_INFO *textInfo) {
-	DWORD scaleH;
 	int bgndOffX;
 
 	if( textInfo == NULL )
 		return;
 
-	scaleH = GetTextScaleH(textInfo->scaleH);
+#ifdef FEATURE_HUD_IMPROVED
+	bgndOffX = (req->pixWidth - T_GetTextWidth(textInfo)) / 2 - 8;
+#else // FEATURE_HUD_IMPROVED
+	DWORD scaleH = GetTextScaleH(textInfo->scaleH);
 	bgndOffX = (req->pixWidth * scaleH / PHD_ONE) / 2 - T_GetTextWidth(textInfo) / 2 - (8 * scaleH / PHD_ONE);
+#endif // FEATURE_HUD_IMPROVED
 	textInfo->xPos = req->xPos + bgndOffX;
 	textInfo->bgndOffX = -bgndOffX;
 }

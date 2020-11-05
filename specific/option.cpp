@@ -1422,7 +1422,7 @@ void __cdecl S_ShowControls() {
 			x1 = CONTROL_COLUMN_B2;
 			x0 = x1 - (isCompact ? CONTROL_WIDTH_LOW : CONTROL_WIDTH_HIGH) / 2;
 			if( LayoutPage != CTRL_Joystick && ConflictLayout[i] ) {
-				CtrlTextB[i]->xPos = (i < CONTROL_LINE_COUNT ? x0 : x1) * GetTextScaleH(PHD_ONE) / PHD_ONE;
+				CtrlTextB[i]->xPos = (i < CONTROL_LINE_COUNT) ? x0 : x1;
 			}
 			T_CentreH(CtrlTextB[i], 1);
 			T_CentreV(CtrlTextB[i], 1);
@@ -1553,7 +1553,7 @@ void __cdecl S_ChangeCtrlText() {
 	for( DWORD i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
 		int x1 = ( LayoutPage == CTRL_Joystick || ConflictLayout[i] ) ? CONTROL_COLUMN_B2 : CONTROL_COLUMN_B1;
 		int x0 = x1 - (isCompact ? CONTROL_WIDTH_LOW : CONTROL_WIDTH_HIGH) / 2;
-		CtrlTextB[i]->xPos = (i < CONTROL_LINE_COUNT ? x0 : x1) * GetTextScaleH(PHD_ONE) / PHD_ONE;
+		CtrlTextB[i]->xPos = (i < CONTROL_LINE_COUNT) ? x0 : x1;
 		T_CentreH(CtrlTextB[i], 1);
 	}
 

@@ -45,11 +45,6 @@ static void RemovePausedText() {
 }
 
 static void DisplayPausedText() {
-	static int renderHeight = 0;
-	if( renderHeight != GetRenderHeightDownscaled() ) {
-		RemovePausedText();
-		renderHeight = GetRenderHeightDownscaled();
-	}
 	if( PausedText == NULL ) {
 		PausedText = T_Print(0, -24, 5, "Paused");
 		T_CentreH(PausedText, 1);

@@ -115,8 +115,13 @@ TEXT_STR_INFO *__cdecl T_Print(int x, int y, __int16 z, const char *str) {
 
 			TextInfoTable[i].scaleH = PHD_ONE;
 			TextInfoTable[i].scaleV = PHD_ONE;
+#ifdef FEATURE_HUD_IMPROVED
+			TextInfoTable[i].xPos = x;
+			TextInfoTable[i].yPos = y;
+#else // FEATURE_HUD_IMPROVED
 			TextInfoTable[i].xPos = x * GetTextScaleH(PHD_ONE) / PHD_ONE;
 			TextInfoTable[i].yPos = y * GetTextScaleV(PHD_ONE) / PHD_ONE;
+#endif // FEATURE_HUD_IMPROVED
 			TextInfoTable[i].zPos = z;
 			TextInfoTable[i].letterSpacing = 1;
 			TextInfoTable[i].wordSpacing   = 6;
@@ -173,19 +178,23 @@ void __cdecl T_FlashText(TEXT_STR_INFO *textInfo, __int16 state, __int16 rate) {
 }
 
 void __cdecl T_AddBackground(TEXT_STR_INFO *textInfo, __int16 xSize, __int16 ySize, __int16 xOff, __int16 yOff, __int16 zOff, INV_COLOURS invColour, GOURAUD_FILL *gour, UINT16 flags) {
-	DWORD scaleH, scaleV;
-
 	if( textInfo == NULL )
 		return;
 
-	scaleH = GetTextScaleH(textInfo->scaleH);
-	scaleV = GetTextScaleV(textInfo->scaleV);
-
 	textInfo->flags |= TIF_Bgnd;
+#ifdef FEATURE_HUD_IMPROVED
+	textInfo->bgndSizeX = xSize;
+	textInfo->bgndSizeY = ySize;
+	textInfo->bgndOffX = xOff;
+	textInfo->bgndOffY = yOff;
+#else // FEATURE_HUD_IMPROVED
+	DWORD scaleH = GetTextScaleH(textInfo->scaleH);
+	DWORD scaleV = GetTextScaleV(textInfo->scaleV);
 	textInfo->bgndSizeX = scaleH * xSize / PHD_ONE;
 	textInfo->bgndSizeY = scaleV * ySize / PHD_ONE;
 	textInfo->bgndOffX = scaleH * xOff / PHD_ONE;
 	textInfo->bgndOffY = scaleV * yOff / PHD_ONE;
+#endif // FEATURE_HUD_IMPROVED
 	textInfo->bgndOffZ = zOff;
 	textInfo->bgndColor = invColour;
 	textInfo->bgndGour = gour;
@@ -290,7 +299,11 @@ DWORD __cdecl T_GetTextWidth(TEXT_STR_INFO *textInfo) {
 	DWORD width, scaleH, sprite;
 
 	width = 0;
+#ifdef FEATURE_HUD_IMPROVED
+	scaleH = textInfo->scaleH;
+#else // FEATURE_HUD_IMPROVED
 	scaleH = GetTextScaleH(textInfo->scaleH);
+#endif // FEATURE_HUD_IMPROVED
 
 	for( BYTE *str = (BYTE *)textInfo->pString; *str != 0; str++ ) {
 		if( !IS_CHAR_LEGAL(*str) || IS_CHAR_DIACRITIC(*str) ) {
@@ -374,14 +387,18 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
 	int x, y, z, xOff;
 	int boxX, boxY, boxZ, boxW, boxH;
 	DWORD textWidth, scaleH, scaleV, sprite;
-
-	scaleH = GetTextScaleH(textInfo->scaleH);
-	scaleV = GetTextScaleV(textInfo->scaleV);
-
 #ifdef FEATURE_HUD_IMPROVED
+	int sx, sy, sh, sv;
+
 	if( CHK_ANY(textInfo->flags, TIF_Hide) ) {
 		return;
 	}
+
+	scaleH = textInfo->scaleH;
+	scaleV = textInfo->scaleV;
+#else // FEATURE_HUD_IMPROVED
+	scaleH = GetTextScaleH(textInfo->scaleH);
+	scaleV = GetTextScaleV(textInfo->scaleV);
 #endif // FEATURE_HUD_IMPROVED
 
 	// Do text flashing if required
@@ -401,6 +418,23 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
 	z = textInfo->zPos;
 	textWidth = T_GetTextWidth(textInfo);
 
+#ifdef FEATURE_HUD_IMPROVED
+	// Horizontal alignment
+	if( CHK_ANY(textInfo->flags, TIF_CentreH) ) {
+		x += (GetRenderWidthDownscaled() - textWidth) / 2;
+	}
+	else if( CHK_ANY(textInfo->flags, TIF_Right) ) {
+		x += GetRenderWidthDownscaled() - textWidth;
+	}
+
+	// Vertical alignment
+	if( CHK_ANY(textInfo->flags, TIF_CentreV) ) {
+		y += GetRenderHeightDownscaled() / 2;
+	}
+	else if ( CHK_ANY(textInfo->flags, TIF_Bottom) ) {
+		y += GetRenderHeightDownscaled();
+	}
+#else // FEATURE_HUD_IMPROVED
 	// Horizontal alignment
 	if( CHK_ANY(textInfo->flags, TIF_CentreH) ) {
 		x += (GetRenderWidth() - textWidth) / 2;
@@ -416,6 +450,7 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
 	else if ( CHK_ANY(textInfo->flags, TIF_Bottom) ) {
 		y += GetRenderHeight();
 	}
+#endif // FEATURE_HUD_IMPROVED
 
 	boxX = x + textInfo->bgndOffX - (2 * scaleH / PHD_ONE);
 	boxY = y + textInfo->bgndOffY - (4 * scaleV / PHD_ONE) - (11 * scaleV / PHD_ONE);
@@ -432,7 +467,13 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
 		}
 		else if( IS_CHAR_SECRET(*str) ) { // Check if "Secret" sprite
 			// Draw "Secret" sprite
+#ifdef FEATURE_HUD_IMPROVED
+			sx = GetTextScaleH(x + 10);
+			sy = GetTextScaleV(y);
+			S_DrawPickup(sx, sy, 0x1BE8, Objects[ID_SECRET1 + (*str - CHAR_SECRET1)].meshIndex, 0x1000);
+#else // FEATURE_HUD_IMPROVED
 			S_DrawPickup(x + 10, y, 0x1BE8, Objects[ID_SECRET1 + (*str - CHAR_SECRET1)].meshIndex, 0x1000);
+#endif // FEATURE_HUD_IMPROVED
 			// "Secret" sprites have spacing=16
 			x += 16 * scaleH / PHD_ONE;
 #ifdef FEATURE_HUD_IMPROVED
@@ -440,8 +481,12 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
 			BYTE *ptr = (BYTE *)strchr((const char *)str+1, 0x1F);
 			if( ptr == NULL ) break; // Closing code is not found, break now!
 			if( GetTextSpriteByName((const char *)str+1, ptr-str-1, &sprite, &xOff) ) {
-				if( x > 0 && x < GetRenderWidth() && y > 0 && y < GetRenderHeight() ) {
-					S_DrawScreenSprite2d(x, y, z, scaleH, scaleV, sprite, 0x1000, textInfo->textFlags);
+				if( x > 0 && x < GetRenderWidthDownscaled() && y > 0 && y < GetRenderHeightDownscaled() ) {
+					sx = GetTextScaleH(x);
+					sy = GetTextScaleV(y);
+					sh = GetTextScaleH(scaleH);
+					sv = GetTextScaleV(scaleV);
+					S_DrawScreenSprite2d(sx, sy, z, sh, sv, sprite, 0x1000, textInfo->textFlags);
 				}
 				x += xOff * scaleH / PHD_ONE;
 			}
@@ -468,9 +513,19 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
 			}
 
 			// Draw letter sprite
+#ifdef FEATURE_HUD_IMPROVED
+			if( x > 0 && x < GetRenderWidthDownscaled() && y > 0 && y < GetRenderHeightDownscaled() ) {
+				sx = GetTextScaleH(x);
+				sy = GetTextScaleV(y);
+				sh = GetTextScaleH(scaleH);
+				sv = GetTextScaleV(scaleV);
+				S_DrawScreenSprite2d(sx, sy, z, sh, sv, (Objects[ID_ALPHABET].meshIndex + sprite), 0x1000, textInfo->textFlags);
+			}
+#else // FEATURE_HUD_IMPROVED
 			if( x > 0 && x < GetRenderWidth() && y > 0 && y < GetRenderHeight() ) {
 				S_DrawScreenSprite2d(x, y, z, scaleH, scaleV, (Objects[ID_ALPHABET].meshIndex + sprite), 0x1000, textInfo->textFlags);
 			}
+#endif // FEATURE_HUD_IMPROVED
 
 			// Check if letter is diacritic
 			// Diacritics are drawn right on the next letter sprite, so there is no spacing for them
@@ -494,7 +549,7 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
 	// Draw background/outline if required
 	if( CHK_ANY(textInfo->flags, TIF_Bgnd|TIF_Outline) ) {
 		if( textInfo->bgndSizeX != 0 ) {
-			boxX += textWidth / 2 - textInfo->bgndSizeX / 2;
+			boxX += ((int)textWidth - textInfo->bgndSizeX) / 2;
 			boxW = textInfo->bgndSizeX + 4;
 		} else {
 			boxW = textWidth + 4;
@@ -510,6 +565,26 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
 #endif // FEATURE_HUD_IMPROVED
 		}
 
+#ifdef FEATURE_HUD_IMPROVED
+		sx = GetTextScaleH(boxX);
+		sy = GetTextScaleV(boxY);
+		sh = GetTextScaleH(boxW);
+		sv = GetTextScaleV(boxH);
+
+		// Draw background
+		if( CHK_ANY(textInfo->flags, TIF_Bgnd) ) {
+			S_DrawScreenFBox(sx, sy, boxZ, sh, sv, textInfo->bgndColor, textInfo->bgndGour, textInfo->bgndFlags);
+		}
+
+		// Draw outline
+		if( CHK_ANY(textInfo->flags, TIF_Outline) ) {
+			if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
+				S_DrawScreenBox(sx, sy, boxZ, sh, sv, textInfo->outlColour, textInfo->outlGour, textInfo->outlFlags);
+			} else {
+				T_DrawTextBox(sx, sy, z, sh, sv);
+			}
+		}
+#else // FEATURE_HUD_IMPROVED
 		// Draw background
 		if( CHK_ANY(textInfo->flags, TIF_Bgnd) ) {
 			S_DrawScreenFBox(boxX, boxY, boxZ, boxW, boxH, textInfo->bgndColor, textInfo->bgndGour, textInfo->bgndFlags);
@@ -517,16 +592,9 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
 
 		// Draw outline
 		if( CHK_ANY(textInfo->flags, TIF_Outline) ) {
-#ifdef FEATURE_HUD_IMPROVED
-			if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
-				S_DrawScreenBox(boxX, boxY, boxZ, boxW, boxH, textInfo->outlColour, textInfo->outlGour, textInfo->outlFlags);
-			} else {
-				T_DrawTextBox(boxX, boxY, z, boxW, boxH);
-			}
-#else // !FEATURE_HUD_IMPROVED
 			T_DrawTextBox(boxX, boxY, z, boxW, boxH);
-#endif // FEATURE_HUD_IMPROVED
 		}
+#endif // FEATURE_HUD_IMPROVED
 	}
 }
 
