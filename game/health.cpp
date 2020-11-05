@@ -319,6 +319,9 @@ void __cdecl DisplayModeInfo(char *modeString) {
 		T_BottomAlign(DisplayModeTextInfo, 1);
 	}
 	DisplayModeInfoTimer = 75; // 2.5 seconds
+#ifdef FEATURE_HUD_IMPROVED
+	T_HideText(DisplayModeTextInfo, (OverlayStatus <= 0));
+#endif // FEATURE_HUD_IMPROVED
 }
 
 void __cdecl DrawModeInfo() {
@@ -326,6 +329,9 @@ void __cdecl DrawModeInfo() {
 		T_RemovePrint(DisplayModeTextInfo);
 		DisplayModeTextInfo = NULL;
 	}
+#ifdef FEATURE_HUD_IMPROVED
+	T_HideText(DisplayModeTextInfo, (OverlayStatus <= 0));
+#endif // FEATURE_HUD_IMPROVED
 }
 
 void __cdecl InitialisePickUpDisplay() {

@@ -128,6 +128,8 @@ static int PauseRequester() {
 }
 
 bool S_Pause() {
+	int oldOverlayStatus = OverlayStatus;
+	OverlayStatus = -3;
 	InventoryMode = INV_PauseMode;
 	T_RemovePrint(AmmoTextInfo);
 	AmmoTextInfo = NULL;
@@ -176,6 +178,7 @@ bool S_Pause() {
 	InventoryChosen = ID_PASSPORT_OPTION;
 	InventoryExtraData[0] = 2; // set the last passport page in case if "Exit to Title" is selected
 	InventoryMode = INV_GameMode;
+	OverlayStatus = oldOverlayStatus;
 	return (select < 0);
 }
 #endif // FEATURE_BACKGROUND_IMPROVED
