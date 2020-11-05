@@ -182,14 +182,25 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 	DWORD renderWidth, renderHeight;
 
 	linesCount = req->visibleCount;
+
+#ifdef FEATURE_HUD_IMPROVED
+	if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
+		boxHeight = req->lineHeight * linesCount + 42;
+		boxOff = req->yPos - boxHeight + 2;
+		linesOff = boxOff + 30;
+	} else {
+		boxHeight = req->lineHeight * (linesCount + 1) + 22;
+		boxOff = req->yPos - boxHeight + 2;
+		linesOff = boxOff + req->lineHeight + 10;
+	}
+
+	renderWidth = GetRenderWidthDownscaled();
+	renderHeight = GetRenderHeightDownscaled();
+#else // !FEATURE_HUD_IMPROVED
 	boxHeight = req->lineHeight * (linesCount + 1) + 22;
 	boxOff = req->yPos - boxHeight + 2;
 	linesOff = boxOff + req->lineHeight + 10;
 
-#ifdef FEATURE_HUD_IMPROVED
-	renderWidth = GetRenderWidthDownscaled();
-	renderHeight = GetRenderHeightDownscaled();
-#else // !FEATURE_HUD_IMPROVED
 	renderWidth = GetRenderWidth();
 	renderHeight = GetRenderHeight();
 #endif // FEATURE_HUD_IMPROVED
@@ -262,7 +273,7 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 	else if( req->moreupText == NULL && CHK_ANY(req->moreupFlags, REQFLAG_ACTIVE) ) {
 #ifdef FEATURE_HUD_IMPROVED
 		if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
-			req->moreupText = T_Print(req->xPos, boxOff + 14, 0, MoreUpString);
+			req->moreupText = T_Print(req->xPos, boxOff + 15, 0, MoreUpString);
 		}
 #endif // FEATURE_HUD_IMPROVED
 		T_CentreH(req->moreupText, 1);
