@@ -178,12 +178,13 @@ void __cdecl ReqItemRightAlign(REQUEST_INFO *req, TEXT_STR_INFO *textInfo) {
 }
 
 int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isBackground) {
-	int i, linesCount, linesHeight, linesOff;
+	int i, linesCount, boxHeight, boxOff, linesOff;
 	DWORD renderWidth, renderHeight;
 
 	linesCount = req->visibleCount;
-	linesHeight = req->lineHeight * linesCount + 10;
-	linesOff = req->yPos - linesHeight;
+	boxHeight = req->lineHeight * (linesCount + 1) + 22;
+	boxOff = req->yPos - boxHeight + 2;
+	linesOff = boxOff + req->lineHeight + 10;
 
 #ifdef FEATURE_HUD_IMPROVED
 	renderWidth = GetRenderWidthDownscaled();
@@ -209,7 +210,7 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 	// Heading 1
 	if( CHK_ANY(req->headingFlags1, REQFLAG_ACTIVE) ) {
 		if( req->headingText1 == NULL ) {
-			req->headingText1 = T_Print(req->xPos, (linesOff - req->lineHeight - 10), req->zPos, req->headingString1);
+			req->headingText1 = T_Print(req->xPos, boxOff, req->zPos, req->headingString1);
 			T_CentreH(req->headingText1, 1);
 			T_BottomAlign(req->headingText1, 1);
 			if( isBackground ) {
@@ -228,7 +229,7 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 	// Heading 2
 	if( CHK_ANY(req->headingFlags2, REQFLAG_ACTIVE) ) {
 		if( req->headingText2 == NULL ) {
-			req->headingText2 = T_Print(req->xPos, (linesOff - req->lineHeight - 10), req->zPos, req->headingString2);
+			req->headingText2 = T_Print(req->xPos, boxOff, req->zPos, req->headingString2);
 			T_CentreH(req->headingText2, 1);
 			T_BottomAlign(req->headingText2, 1);
 			if( isBackground ) {
@@ -246,10 +247,10 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 
 	// Background
 	if( isBackground && req->backgroundText == NULL && CHK_ANY(req->backgroundFlags, REQFLAG_ACTIVE) ) {
-		req->backgroundText = T_Print(req->xPos, (linesOff - req->lineHeight - 12), 0, " ");
+		req->backgroundText = T_Print(req->xPos, boxOff - 2, 0, " ");
 		T_CentreH(req->backgroundText, 1);
 		T_BottomAlign(req->backgroundText, 1);
-		T_AddBackground(req->backgroundText, req->pixWidth, (req->lineHeight + linesHeight + 12), 0, 0, REQ_FARZ, ICLR_Black, &ReqBgndGour1, 1);
+		T_AddBackground(req->backgroundText, req->pixWidth, boxHeight, 0, 0, REQ_FARZ, ICLR_Black, &ReqBgndGour1, 1);
 		T_AddOutline(req->backgroundText, TRUE, ICLR_Blue, &ReqBgndGour2, 0);
 	}
 
@@ -261,7 +262,7 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 	else if( req->moreupText == NULL && CHK_ANY(req->moreupFlags, REQFLAG_ACTIVE) ) {
 #ifdef FEATURE_HUD_IMPROVED
 		if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
-			req->moreupText = T_Print(req->xPos, linesOff - req->lineHeight + 4, 0, MoreUpString);
+			req->moreupText = T_Print(req->xPos, boxOff + 14, 0, MoreUpString);
 		}
 #endif // FEATURE_HUD_IMPROVED
 		T_CentreH(req->moreupText, 1);
