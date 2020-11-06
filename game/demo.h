@@ -28,7 +28,9 @@
  * Function list
  */
 #define DoDemoSequence ((int(__cdecl*)(int)) 0x004168E0)
-#define StartDemo ((int(__cdecl*)(int)) 0x00416940)
+
+int __cdecl StartDemo(int levelID); // 0x00416940
+
 #define LoadLaraDemoPos ((void(__cdecl*)(void)) 0x00416AF0)
 #define GetDemoInput ((void(__cdecl*)(void)) 0x00416BC0)
 

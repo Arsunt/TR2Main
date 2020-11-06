@@ -76,6 +76,7 @@ typedef struct {
 
 // AI values
 #define HP_DONT_TARGET		(0xC000)
+#define RANDOM_SEED			(0xD371F947)
 
 // Angle values
 #define PHD_360				(PHD_ONE)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -21,16 +21,81 @@
 
 #include "global/precompiled.h"
 #include "game/demo.h"
+#include "game/laramisc.h"
+#include "game/setup.h"
+#include "game/text.h"
+#include "specific/frontend.h"
+#include "specific/game.h"
+#include "specific/winmain.h"
 #include "global/vars.h"
 
+int __cdecl StartDemo(int levelID) {
+	static int DemoLevelID = 0;
 
+	if( levelID < 0 && !GF_GameFlow.num_Demos ) {
+		return GF_EXIT_TO_TITLE;
+	}
+
+	if( levelID < 0 ) {
+		if( DemoLevelID >= GF_GameFlow.num_Demos ) {
+			DemoLevelID = 0;
+		}
+		levelID = GF_DemoLevels[DemoLevelID++];
+	} else {
+		DemoLevelID = levelID;
+	}
+
+	START_INFO *start = &SaveGame.start[levelID];
+	START_INFO startBackup = *start;
+	start->available = 1;
+	start->pistolAmmo = 1000;
+	start->gunStatus = LGS_Armless;
+	start->gunType = LGT_Pistols;
+	SeedRandomDraw(RANDOM_SEED);
+	SeedRandomControl(RANDOM_SEED);
+	IsTitleLoaded = FALSE;
+
+	if( !InitialiseLevel(levelID, GFL_DEMO) ) {
+		return GF_EXIT_GAME;
+	}
+
+	IsLevelComplete = FALSE;
+
+	if( !IsDemoLoaded ) {
+		char str[64];
+		sprintf(str, "Level '%s' has no demo data!", GF_LevelFilesStringTable[levelID]);
+		S_ExitSystem(str);
+	}
+
+	LoadLaraDemoPos();
+	LaraCheatGetStuff();
+	SeedRandomDraw(RANDOM_SEED);
+	SeedRandomControl(RANDOM_SEED);
+
+	TEXT_STR_INFO *text = T_Print(0, DumpHeight / 2 - 16, 0, GF_SpecificStringTable[SSI_DemoMode]);
+	T_FlashText(text, 1, 20);
+	T_CentreV(text, 1);
+	T_CentreH(text, 1);
+
+	InvDemoMode = TRUE;
+	int result = GameLoop(1);
+	InvDemoMode = FALSE;
+
+	T_RemovePrint(text);
+	S_FadeToBlack();
+
+	*start = startBackup;
+	return result;
+}
 
 /*
  * Inject function
  */
 void Inject_Demo() {
 //	INJECT(0x004168E0, DoDemoSequence);
-//	INJECT(0x00416940, StartDemo);
+
+	INJECT(0x00416940, StartDemo);
+
 //	INJECT(0x00416AF0, LoadLaraDemoPos);
 //	INJECT(0x00416BC0, GetDemoInput);
 }
