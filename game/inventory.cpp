@@ -44,8 +44,8 @@
 #endif // FEATURE_INPUT_IMPROVED
 
 #ifdef FEATURE_HUD_IMPROVED
-extern void RemoveJoystickHintText(bool deselect, bool select);
-extern void DisplayJoystickHintText(bool deselect, bool select);
+extern void RemoveJoystickHintText(bool isSelect, bool isDeselect);
+extern void DisplayJoystickHintText(bool isSelect, bool isDeselect);
 #endif // FEATURE_HUD_IMPROVED
 
 typedef enum {
@@ -324,7 +324,7 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 			switch( motion.status ) {
 				case RINGSTATE_OPEN :
 #ifdef FEATURE_HUD_IMPROVED
-					DisplayJoystickHintText(InventoryMode != INV_TitleMode && InventoryMode != INV_DeathMode, true);
+					DisplayJoystickHintText(true, InventoryMode != INV_TitleMode && InventoryMode != INV_DeathMode);
 #endif // FEATURE_HUD_IMPROVED
 
 					if( CHK_ANY(InputStatus, IN_RIGHT) && ring.objCount > 1 ) {
@@ -537,7 +537,7 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 					break;
 				case RINGSTATE_SELECTED :
 #ifdef FEATURE_HUD_IMPROVED
-					DisplayJoystickHintText(InventoryMode != INV_DeathMode, true);
+					DisplayJoystickHintText(true, InventoryMode != INV_DeathMode);
 #endif // FEATURE_HUD_IMPROVED
 					item = ring.itemList[ring.currentObj];
 
@@ -595,7 +595,7 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 					break;
 				case RINGSTATE_DESELECT :
 #ifdef FEATURE_HUD_IMPROVED
-					RemoveJoystickHintText(InventoryMode == INV_TitleMode || InventoryMode == INV_DeathMode, false);
+					RemoveJoystickHintText(false, InventoryMode == INV_TitleMode || InventoryMode == INV_DeathMode);
 #endif // FEATURE_HUD_IMPROVED
 					PlaySoundEffect(112, 0, SFX_ALWAYS);
 					Inv_RingMotionSetup(&ring, RINGSTATE_DESELECTING, RINGSTATE_OPEN, 16);

@@ -262,7 +262,7 @@ static LPCSTR ControlKeysText[0x110] = {
 	K("joy9"),      K("joy10"),     K("joy11"),     K("joy12"),     K("joy13"),     K("joy14"),     K("joy15"),     K("joy16"),
 };
 
-static TEXT_STR_INFO *DeselectHintText, *SelectHintText;
+static TEXT_STR_INFO *SelectHintText, *DeselectHintText;
 
 typedef enum {
 	HINT_HIDDEN,
@@ -270,49 +270,45 @@ typedef enum {
 	HINT_KEYBOARD,
 } HINT_MODE;
 
-static void UpdateJoystickHintText(HINT_MODE deselect, HINT_MODE select) {
-	const char *keyName = NULL;
-	char text[64] = {0};
-
-	if( DeselectHintText != NULL ) {
-		if( deselect != HINT_HIDDEN ) {
-			if( deselect == HINT_JOYSTICK && Layout[CTRL_Joystick].key[KM_WeaponDraw] < 0x10 ) {
-				keyName = ControlKeysText[0x100 + Layout[CTRL_Joystick].key[KM_WeaponDraw]];
-			} else {
-				keyName = ControlKeysText[DIK_ESCAPE];
-			}
-			snprintf(text, sizeof(text), "%s Go Back", keyName);
-			T_ChangeText(DeselectHintText, text);
-		}
-		T_HideText(DeselectHintText, deselect == HINT_HIDDEN);
+static const char *GetHintText(HINT_MODE mode, KEYMAP joyKeyMap, DWORD kbdKeyCode, const char *message) {
+	static char text[64] = {0};
+	const char *key = NULL;
+	if( mode == HINT_JOYSTICK && Layout[CTRL_Joystick].key[joyKeyMap] < 0x10 ) {
+		key = ControlKeysText[0x100 + Layout[CTRL_Joystick].key[joyKeyMap]];
+	} else {
+		key = ControlKeysText[kbdKeyCode];
 	}
+	snprintf(text, sizeof(text), "%s %s", key, message);
+	return text;
+}
 
+static void UpdateJoystickHintText(HINT_MODE selectMode, HINT_MODE deselectMode) {
 	if( SelectHintText != NULL ) {
-		if( select != HINT_HIDDEN ) {
-			if( select == HINT_JOYSTICK && Layout[CTRL_Joystick].key[KM_Action] < 0x10 ) {
-				keyName = ControlKeysText[0x100 + Layout[CTRL_Joystick].key[KM_Action]];
-			} else {
-				keyName = ControlKeysText[DIK_RETURN];
-			}
-			snprintf(text, sizeof(text), "%s Select", keyName);
-			T_ChangeText(SelectHintText, text);
+		if( selectMode != HINT_HIDDEN ) {
+			T_ChangeText(SelectHintText, GetHintText(selectMode, KM_Action, DIK_RETURN, "Select"));
 		}
-		T_HideText(SelectHintText, select == HINT_HIDDEN);
+		T_HideText(SelectHintText, selectMode == HINT_HIDDEN);
+	}
+	if( DeselectHintText != NULL ) {
+		if( deselectMode != HINT_HIDDEN ) {
+			T_ChangeText(DeselectHintText, GetHintText(deselectMode, KM_WeaponDraw, DIK_ESCAPE, "Go Back"));
+		}
+		T_HideText(DeselectHintText, deselectMode == HINT_HIDDEN);
 	}
 }
 
-void RemoveJoystickHintText(bool deselect, bool select) {
-	if( deselect ) {
-		T_RemovePrint(DeselectHintText);
-		DeselectHintText = NULL;
-	}
-	if( select ) {
+void RemoveJoystickHintText(bool isSelect, bool isDeselect) {
+	if( isSelect ) {
 		T_RemovePrint(SelectHintText);
 		SelectHintText = NULL;
 	}
+	if( isDeselect ) {
+		T_RemovePrint(DeselectHintText);
+		DeselectHintText = NULL;
+	}
 }
 
-void DisplayJoystickHintText(bool deselect, bool select) {
+void DisplayJoystickHintText(bool isSelect, bool isDeselect) {
 	if( !JoystickHintsEnabled ) return;
 #ifdef FEATURE_INPUT_IMPROVED
 	if( GetJoystickType() == JT_NONE ) return;
@@ -320,39 +316,27 @@ void DisplayJoystickHintText(bool deselect, bool select) {
 	if( !SavedAppSettings.JoystickEnabled || !SavedAppSettings.PreferredJoystick ) return;
 #endif // FEATURE_INPUT_IMPROVED
 
+	bool isRealignX = false;
 	static int renderWidth = 0;
 	if( renderWidth != GetRenderWidthDownscaled() ) {
-		if( DeselectHintText != NULL ) deselect = true;
-		if( SelectHintText != NULL ) select = true;
-		RemoveJoystickHintText(true, true);
+		isRealignX = true;
 		renderWidth = GetRenderWidthDownscaled();
 	}
-
-	const char *keyName = NULL;
-	char text[64] = {0};
 	int x = (renderWidth > 325) ? (renderWidth - 320) / 2 : 2;
 
-	if( deselect && DeselectHintText == NULL ) {
-		if( Layout[CTRL_Joystick].key[KM_WeaponDraw] < 0x10 ) {
-			keyName = ControlKeysText[0x100 + Layout[CTRL_Joystick].key[KM_WeaponDraw]];
-		} else {
-			keyName = ControlKeysText[DIK_ESCAPE];
-		}
-		snprintf(text, sizeof(text), "%s Go Back", keyName);
-		DeselectHintText = T_Print(-x, -40, 0, text);
-		T_BottomAlign(DeselectHintText, 1);
-		T_RightAlign(DeselectHintText, 1);
+	if( isSelect && SelectHintText == NULL ) {
+		SelectHintText = T_Print(x, -40, 0, GetHintText(HINT_JOYSTICK, KM_Action, DIK_RETURN, "Select"));
+		T_BottomAlign(SelectHintText, 1);
+	} else if( isRealignX && SelectHintText != NULL ) {
+		SelectHintText->xPos = x;
 	}
 
-	if( select && SelectHintText == NULL ) {
-		if( Layout[CTRL_Joystick].key[KM_Action] < 0x10 ) {
-			keyName = ControlKeysText[0x100 + Layout[CTRL_Joystick].key[KM_Action]];
-		} else {
-			keyName = ControlKeysText[DIK_RETURN];
-		}
-		snprintf(text, sizeof(text), "%s Select", keyName);
-		SelectHintText = T_Print(x, -40, 0, text);
-		T_BottomAlign(SelectHintText, 1);
+	if( isDeselect && DeselectHintText == NULL ) {
+		DeselectHintText = T_Print(-x, -40, 0, GetHintText(HINT_JOYSTICK, KM_WeaponDraw, DIK_ESCAPE, "Go Back"));
+		T_BottomAlign(DeselectHintText, 1);
+		T_RightAlign(DeselectHintText, 1);
+	} else if( isRealignX && SelectHintText != NULL ) {
+		DeselectHintText->xPos = -x;
 	}
 }
 
@@ -1139,7 +1123,7 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 					T_ChangeText(CtrlTextB[KeyCursor], JoystickOpts[KeyCursor].toggle());
 					break;
 				}
-				UpdateJoystickHintText(HINT_KEYBOARD, HINT_HIDDEN);
+				UpdateJoystickHintText(HINT_HIDDEN, HINT_KEYBOARD);
 #endif // FEATURE_HUD_IMPROVED
 				KeySelector = 1;
 
