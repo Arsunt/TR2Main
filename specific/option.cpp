@@ -1056,7 +1056,7 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 		} else {
 			KeyCursor = -1;
 		}
-
+		KeySelector = 0;
 		ControlTextInfo[0] = T_Print(0, CONTROL_Y_TITLE, 0, GetControlsHeaderString());
 #else // FEATURE_HUD_IMPROVED
 		ControlTextInfo[0] = T_Print(0, CONTROL_Y_TITLE, 0, GF_SpecificStringTable[(LayoutPage == CTRL_Default) ? SSI_DefaultKeys : SSI_UserKeys]);
