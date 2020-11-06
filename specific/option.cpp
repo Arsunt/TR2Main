@@ -262,7 +262,7 @@ static LPCSTR ControlKeysText[0x110] = {
 	K("joy9"),      K("joy10"),     K("joy11"),     K("joy12"),     K("joy13"),     K("joy14"),     K("joy15"),     K("joy16"),
 };
 
-static TEXT_STR_INFO *SelectHintText, *DeselectHintText;
+static TEXT_STR_INFO *SelectHintText, *ContinueHintText, *DeselectHintText;
 
 typedef enum {
 	HINT_HIDDEN,
@@ -282,12 +282,18 @@ static const char *GetHintText(HINT_MODE mode, KEYMAP joyKeyMap, DWORD kbdKeyCod
 	return text;
 }
 
-static void UpdateJoystickHintText(HINT_MODE selectMode, HINT_MODE deselectMode) {
+static void UpdateJoystickHintText(HINT_MODE selectMode, HINT_MODE continueMode, HINT_MODE deselectMode) {
 	if( SelectHintText != NULL ) {
 		if( selectMode != HINT_HIDDEN ) {
 			T_ChangeText(SelectHintText, GetHintText(selectMode, KM_Action, DIK_RETURN, "Select"));
 		}
 		T_HideText(SelectHintText, selectMode == HINT_HIDDEN);
+	}
+	if( ContinueHintText != NULL ) {
+		if( continueMode != HINT_HIDDEN ) {
+			T_ChangeText(ContinueHintText, GetHintText(continueMode, KM_Action, DIK_RETURN, "Continue"));
+		}
+		T_HideText(ContinueHintText, continueMode == HINT_HIDDEN);
 	}
 	if( DeselectHintText != NULL ) {
 		if( deselectMode != HINT_HIDDEN ) {
@@ -297,10 +303,14 @@ static void UpdateJoystickHintText(HINT_MODE selectMode, HINT_MODE deselectMode)
 	}
 }
 
-void RemoveJoystickHintText(bool isSelect, bool isDeselect) {
+void RemoveJoystickHintText(bool isSelect, bool isContinue, bool isDeselect) {
 	if( isSelect ) {
 		T_RemovePrint(SelectHintText);
 		SelectHintText = NULL;
+	}
+	if( isContinue ) {
+		T_RemovePrint(ContinueHintText);
+		ContinueHintText = NULL;
 	}
 	if( isDeselect ) {
 		T_RemovePrint(DeselectHintText);
@@ -308,7 +318,7 @@ void RemoveJoystickHintText(bool isSelect, bool isDeselect) {
 	}
 }
 
-void DisplayJoystickHintText(bool isSelect, bool isDeselect) {
+void DisplayJoystickHintText(bool isSelect, bool isContinue, bool isDeselect) {
 	if( !JoystickHintsEnabled ) return;
 #ifdef FEATURE_INPUT_IMPROVED
 	if( GetJoystickType() == JT_NONE ) return;
@@ -330,12 +340,16 @@ void DisplayJoystickHintText(bool isSelect, bool isDeselect) {
 	} else if( isRealignX && SelectHintText != NULL ) {
 		SelectHintText->xPos = x;
 	}
-
+	if( isContinue && ContinueHintText == NULL ) {
+		ContinueHintText = T_Print(0, -40, 0, GetHintText(HINT_JOYSTICK, KM_Action, DIK_RETURN, "Continue"));
+		T_BottomAlign(ContinueHintText, 1);
+		T_CentreH(ContinueHintText, 1);
+	}
 	if( isDeselect && DeselectHintText == NULL ) {
 		DeselectHintText = T_Print(-x, -40, 0, GetHintText(HINT_JOYSTICK, KM_WeaponDraw, DIK_ESCAPE, "Go Back"));
 		T_BottomAlign(DeselectHintText, 1);
 		T_RightAlign(DeselectHintText, 1);
-	} else if( isRealignX && SelectHintText != NULL ) {
+	} else if( isRealignX && DeselectHintText != NULL ) {
 		DeselectHintText->xPos = -x;
 	}
 }
@@ -355,9 +369,9 @@ static const char *GetShowHintsOptState(void) {
 static const char *ToggleShowHintsOptState(void) {
 	JoystickHintsEnabled = !JoystickHintsEnabled;
 	if( JoystickHintsEnabled ) {
-		DisplayJoystickHintText(true, true);
+		DisplayJoystickHintText(true, false, true);
 	} else {
-		RemoveJoystickHintText(true, true);
+		RemoveJoystickHintText(true, false, true);
 	}
 	return GetShowHintsOptState();
 }
@@ -1123,7 +1137,7 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 					T_ChangeText(CtrlTextB[KeyCursor], JoystickOpts[KeyCursor].toggle());
 					break;
 				}
-				UpdateJoystickHintText(HINT_HIDDEN, HINT_KEYBOARD);
+				UpdateJoystickHintText(HINT_HIDDEN, HINT_KEYBOARD, HINT_KEYBOARD);
 #endif // FEATURE_HUD_IMPROVED
 				KeySelector = 1;
 
@@ -1317,7 +1331,7 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 			}
 #ifdef FEATURE_HUD_IMPROVED
 			if( KeySelector == 0 ) {
-				UpdateJoystickHintText(HINT_JOYSTICK, HINT_JOYSTICK);
+				UpdateJoystickHintText(HINT_JOYSTICK, HINT_JOYSTICK, HINT_JOYSTICK);
 			}
 #endif // FEATURE_HUD_IMPROVED
 			break;
