@@ -279,6 +279,9 @@ int __cdecl GameStats(int levelID) {
 		SaveGame.bonusFlag = true;
 	}
 
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	BGND2_ShowPicture(0, 0, 10, 2, FALSE);
+#endif // FEATURE_BACKGROUND_IMPROVED
 	S_DontDisplayPicture();
 	TempVideoRemove(); // NOTE: this line was not in the original code
 	return 0;
@@ -350,7 +353,7 @@ void __cdecl DisplayCredits() {
 	char fileName[64] = "data\\credit0?.pcx";
 #endif // FEATURE_BACKGROUND_IMPROVED
 
-	S_FadeToBlack(); // fade out 12 frames / 0.4 seconds (software renderer only)
+	S_FadeToBlack(); // fade out 12 frames / 0.4 seconds
 	S_UnloadLevelFile();
 	TempVideoAdjust(HiRes, 1.0); // NOTE: this line was not in the original code
 

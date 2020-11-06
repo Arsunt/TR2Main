@@ -29,6 +29,10 @@
 #include "specific/utils.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_BACKGROUND_IMPROVED
+#include "modding/background_new.h"
+#endif // FEATURE_BACKGROUND_IMPROVED
+
 #ifdef FEATURE_HUD_IMPROVED
 #include "3dsystem/3dinsert.h"
 
@@ -200,6 +204,13 @@ void __cdecl S_FinishInventory() {
 }
 
 void __cdecl S_FadeToBlack() {
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	if( SavedAppSettings.RenderMode == RM_Hardware ) {
+		S_CopyScreenToBuffer();
+		BGND2_ShowPicture(0, 0, 10, 2, FALSE);
+		return;
+	}
+#endif // FEATURE_BACKGROUND_IMPROVED
 	memset(GamePalette8, 0, sizeof(GamePalette8));
 	FadeToPal(10, GamePalette8);
 	FadeWait();
