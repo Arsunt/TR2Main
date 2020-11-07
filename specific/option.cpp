@@ -1017,7 +1017,7 @@ void __cdecl DefaultConflict() {
 
 #ifdef FEATURE_HUD_IMPROVED
 static const char *GetControlsHeaderString() {
-	const char *header = (LayoutPage == CTRL_Joystick) ? "Joystick" : "Keyboard";
+	const char *header = (LayoutPage == CTRL_Joystick) ? "Gamepad" : "Keyboard";
 	if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode && KeyCursor < 0 ) {
 		static char text[64] = {0};
 		snprintf(text, sizeof(text), " \x11    %s   \x12  ", header);
