@@ -29,6 +29,11 @@
 #include "specific/winmain.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_HUD_IMPROVED
+extern bool PsxBarPosEnabled;
+DWORD DemoTextMode = 0;
+#endif // FEATURE_HUD_IMPROVED
+
 int __cdecl StartDemo(int levelID) {
 	static int DemoLevelID = 0;
 
@@ -72,8 +77,19 @@ int __cdecl StartDemo(int levelID) {
 	SeedRandomDraw(RANDOM_SEED);
 	SeedRandomControl(RANDOM_SEED);
 
+#ifdef FEATURE_HUD_IMPROVED
+	TEXT_STR_INFO *bottomText = NULL;
+	TEXT_STR_INFO *topText = NULL;
+	if( DemoTextMode == 1 ) {
+		bottomText = T_Print(0, -16, 0, GF_SpecificStringTable[SSI_DemoMode]);
+	} else if( DemoTextMode == 2 ) {
+		bottomText = T_Print(0, -16, 0, "Press any button to quit");
+		topText = T_Print(16, PsxBarPosEnabled ? 26 : 32, 0, "DEMO MODE");
+	}
+#else // FEATURE_HUD_IMPROVED
 	// NOTE: here was the bug in the original game, wrong y coordinate and wrong align
 	TEXT_STR_INFO *bottomText = T_Print(0, -16, 0, GF_SpecificStringTable[SSI_DemoMode]);
+#endif // FEATURE_HUD_IMPROVED
 	T_FlashText(bottomText, 1, 20);
 	T_BottomAlign(bottomText, 1);
 	T_CentreH(bottomText, 1);
@@ -82,6 +98,9 @@ int __cdecl StartDemo(int levelID) {
 	int result = GameLoop(1);
 	InvDemoMode = FALSE;
 
+#ifdef FEATURE_HUD_IMPROVED
+	T_RemovePrint(topText);
+#endif // FEATURE_HUD_IMPROVED
 	T_RemovePrint(bottomText);
 	S_FadeToBlack();
 

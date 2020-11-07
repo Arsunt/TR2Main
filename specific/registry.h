@@ -61,6 +61,7 @@
 #define REG_INVTEXTBOX_MODE		"InvTextBoxMode"
 #define REG_HEALTHBAR_MODE		"HealthBarMode"
 #define REG_PICKUPITEM_MODE		"PickupItemMode"
+#define REG_DEMOTEXT_MODE		"DemoTextMode"
 #define REG_SAVEGAME_SLOTS		"SavegameSlots"
 #define REG_SCREENSHOT_FORMAT	"ScreenshotFormat"
 #define REG_JOYSTICK_BTN_STYLE	"JoystickButtonStyle"

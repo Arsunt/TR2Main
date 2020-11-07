@@ -47,6 +47,7 @@
 #include "global/vars.h"
 
 #ifdef FEATURE_HUD_IMPROVED
+extern DWORD DemoTextMode;
 extern DWORD JoystickButtonStyle;
 extern DWORD SavegameSlots;
 extern DWORD InvTextBoxMode;
@@ -564,6 +565,7 @@ void __cdecl S_LoadSettings() {
 			}
 		}
 	}
+	GetRegistryDwordValue(REG_DEMOTEXT_MODE, &DemoTextMode, 0);
 	GetRegistryDwordValue(REG_JOYSTICK_BTN_STYLE, &JoystickButtonStyle, 0);
 	GetRegistryDwordValue(REG_SAVEGAME_SLOTS, &SavegameSlots, 0);
 	GetRegistryDwordValue(REG_INVTEXTBOX_MODE, &InvTextBoxMode, 0);
