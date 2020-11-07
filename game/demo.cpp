@@ -72,16 +72,17 @@ int __cdecl StartDemo(int levelID) {
 	SeedRandomDraw(RANDOM_SEED);
 	SeedRandomControl(RANDOM_SEED);
 
-	TEXT_STR_INFO *text = T_Print(0, DumpHeight / 2 - 16, 0, GF_SpecificStringTable[SSI_DemoMode]);
-	T_FlashText(text, 1, 20);
-	T_CentreV(text, 1);
-	T_CentreH(text, 1);
+	// NOTE: here was the bug in the original game, wrong y coordinate and wrong align
+	TEXT_STR_INFO *bottomText = T_Print(0, -16, 0, GF_SpecificStringTable[SSI_DemoMode]);
+	T_FlashText(bottomText, 1, 20);
+	T_BottomAlign(bottomText, 1);
+	T_CentreH(bottomText, 1);
 
 	InvDemoMode = TRUE;
 	int result = GameLoop(1);
 	InvDemoMode = FALSE;
 
-	T_RemovePrint(text);
+	T_RemovePrint(bottomText);
 	S_FadeToBlack();
 
 	*start = startBackup;
