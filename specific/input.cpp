@@ -397,10 +397,12 @@ bool __cdecl S_UpdateInput() {
 		if( KEY_DOWN(DIK_F11) ) {
 			if( !isF11KeyPressed ) {
 				isF11KeyPressed = true;
+#ifndef FEATURE_NOLEGACY_OPTIONS
 				// Dithering (F11)
 				newSettings = SavedAppSettings;
 				TOGGLE(newSettings.Dither);
 				GameApplySettings(&newSettings);
+#endif // FEATURE_NOLEGACY_OPTIONS
 			}
 		} else {
 			isF11KeyPressed = false;

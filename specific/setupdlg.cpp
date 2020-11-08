@@ -38,8 +38,8 @@ static LPCTSTR String_FullScreen = "Full Screen";
 static LPCTSTR String_Windowed = "Windowed";
 static LPCTSTR String_ZBuffered = "Z Buffered";
 static LPCTSTR String_BilinearFiltered = "Bilinear Filtered";
-static LPCTSTR String_Dithered = "Dithered";
 #ifndef FEATURE_NOLEGACY_OPTIONS
+static LPCTSTR String_Dithered = "Dithered";
 static LPCTSTR String_TripleBuffered = "Triple Buffered";
 static LPCTSTR String_PerspectiveCorrect = "Perspective Correct";
 #endif // FEATURE_NOLEGACY_OPTIONS
@@ -123,12 +123,12 @@ bool __cdecl SE_WriteAppSettings(APP_SETTINGS *settings) {
 	SetRegistryDwordValue(REG_ADJUST_LINEAR,	settings->LinearAdjustment);
 
 	SetRegistryBoolValue(REG_PERSPECTIVE,		settings->PerspectiveCorrect);
+	SetRegistryBoolValue(REG_DITHER,			settings->Dither);
 	SetRegistryBoolValue(REG_TRIPLEBUFFER,		settings->TripleBuffering);
 	SetRegistryBoolValue(REG_16BIT_DISABLE,		settings->Disable16BitTextures);
 	SetRegistryBoolValue(REG_SORT_DISABLE,		settings->DontSortPrimitives);
 #endif // FEATURE_NOLEGACY_OPTIONS
 
-	SetRegistryBoolValue(REG_DITHER,			settings->Dither);
 	SetRegistryBoolValue(REG_ZBUFFER,			settings->ZBuffer);
 	SetRegistryBoolValue(REG_BILINEAR,			settings->BilinearFiltering);
 	SetRegistryBoolValue(REG_FULLSCREEN,		settings->FullScreen);
@@ -195,6 +195,7 @@ int __cdecl SE_ReadAppSettings(APP_SETTINGS *settings) {
 	settings->NearestAdjustment = 1;
 	settings->LinearAdjustment = 128;
 	settings->PerspectiveCorrect = true;
+	settings->Dither = true;
 	settings->TripleBuffering = false;
 	settings->Disable16BitTextures = false;
 	settings->DontSortPrimitives = false;
@@ -211,13 +212,13 @@ int __cdecl SE_ReadAppSettings(APP_SETTINGS *settings) {
 	CLAMP(settings->LinearAdjustment, 0, 256);
 
 	GetRegistryBoolValue(REG_PERSPECTIVE,	&settings->PerspectiveCorrect,		settings->RenderMode == RM_Hardware);
+	GetRegistryBoolValue(REG_DITHER,		&settings->Dither,					false);
 	GetRegistryBoolValue(REG_TRIPLEBUFFER,	&settings->TripleBuffering,			false);
 	GetRegistryBoolValue(REG_16BIT_DISABLE,	&settings->Disable16BitTextures,	false);
 	GetRegistryBoolValue(REG_SORT_DISABLE,	&settings->DontSortPrimitives,		false);
 	GetRegistryBoolValue(REG_FLIP_BROKEN,	&settings->FlipBroken,				false);
 #endif // FEATURE_NOLEGACY_OPTIONS
 
-	GetRegistryBoolValue(REG_DITHER,		&settings->Dither,					false);
 	GetRegistryBoolValue(REG_ZBUFFER,		&settings->ZBuffer,					true);
 	GetRegistryBoolValue(REG_BILINEAR,		&settings->BilinearFiltering,		true);
 	GetRegistryBoolValue(REG_FULLSCREEN,	&settings->FullScreen,				true);
@@ -288,8 +289,8 @@ void __cdecl SE_DefaultGraphicsSettings() {
 			hwAdapter = adapter;
 #ifndef FEATURE_NOLEGACY_OPTIONS
 			ChangedAppSettings.PerspectiveCorrect = adapter->body.perspectiveCorrectSupported;
-#endif // FEATURE_NOLEGACY_OPTIONS
 			ChangedAppSettings.Dither = adapter->body.ditherSupported;
+#endif // FEATURE_NOLEGACY_OPTIONS
 			ChangedAppSettings.ZBuffer = adapter->body.zBufferSupported;
 			ChangedAppSettings.BilinearFiltering = adapter->body.linearFilterSupported;
 		}
@@ -510,11 +511,11 @@ INT_PTR CALLBACK SE_GraphicsDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPAR
 						ChangedAppSettings.PerspectiveCorrect = isCheck;
 						SE_GraphicsDlgUpdate(hwndDlg);
 						break;
-#endif // FEATURE_NOLEGACY_OPTIONS
 					case ID_GRAPH_BUTTON_DITHER : // 'Dither' CheckBox
 						ChangedAppSettings.Dither = isCheck;
 						SE_GraphicsDlgUpdate(hwndDlg);
 						break;
+#endif // FEATURE_NOLEGACY_OPTIONS
 					case ID_GRAPH_BUTTON_ZBUFFER : // 'Z Buffer' CheckBox
 						ChangedAppSettings.ZBuffer = isCheck;
 						SE_GraphicsDlgUpdate(hwndDlg);
@@ -667,9 +668,9 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 	bool renderAvailable;
 #ifndef FEATURE_NOLEGACY_OPTIONS
 	bool perspectiveCorrectAvailable;
+	bool ditherAvailable;
 	bool tripleBufferingAvailable;
 #endif // FEATURE_NOLEGACY_OPTIONS
-	bool ditherAvailable;
 	bool zBufferAvailable;
 	bool bilinearFilteringAvailable;
 	bool windowedSizeAvailable;
@@ -701,9 +702,9 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 		// Software Renderer
 #ifndef FEATURE_NOLEGACY_OPTIONS
 		perspectiveCorrectAvailable = true;
+		ditherAvailable = false;
 		tripleBufferingAvailable = true;
 #endif // FEATURE_NOLEGACY_OPTIONS
-		ditherAvailable = false;
 		zBufferAvailable = false;
 		bilinearFilteringAvailable = false;
 		windowedModeAvailable = preferred->swWindowedSupported;
@@ -713,9 +714,9 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 		// Hardware Renderer
 #ifndef FEATURE_NOLEGACY_OPTIONS
 		perspectiveCorrectAvailable = preferred->perspectiveCorrectSupported;
+		ditherAvailable = preferred->ditherSupported;
 		tripleBufferingAvailable = true;
 #endif // FEATURE_NOLEGACY_OPTIONS
-		ditherAvailable = preferred->ditherSupported;
 		zBufferAvailable = preferred->zBufferSupported;
 		bilinearFilteringAvailable = preferred->linearFilterSupported;
 		windowedModeAvailable = preferred->hwWindowedSupported;
@@ -725,9 +726,9 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 		// Unknown Renderer
 #ifndef FEATURE_NOLEGACY_OPTIONS
 		perspectiveCorrectAvailable = false;
+		ditherAvailable = false;
 		tripleBufferingAvailable = false;
 #endif // FEATURE_NOLEGACY_OPTIONS
-		ditherAvailable = false;
 		zBufferAvailable = false;
 		bilinearFilteringAvailable = false;
 		windowedModeAvailable = false;
@@ -746,11 +747,11 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 		tripleBufferingAvailable = false;
 	if( !perspectiveCorrectAvailable )
 		ChangedAppSettings.PerspectiveCorrect = false;
+	if( !ditherAvailable )
+		ChangedAppSettings.Dither = false;
 	if( !tripleBufferingAvailable )
 		ChangedAppSettings.TripleBuffering = false;
 #endif // FEATURE_NOLEGACY_OPTIONS
-	if( !ditherAvailable )
-		ChangedAppSettings.Dither = false;
 	if( !zBufferAvailable )
 		ChangedAppSettings.ZBuffer = false;
 	if( !bilinearFilteringAvailable )
@@ -778,18 +779,22 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 	// 'Perspective Correct' CheckBox
 	hItem = GetDlgItem(hwndDlg, ID_GRAPH_BUTTON_PERSPECTIVE);
 #ifdef FEATURE_NOLEGACY_OPTIONS
-    POINT checkPos = {0, 0};
-    MapWindowPoints(hItem, hwndDlg, &checkPos, 1);
 	ShowWindow(hItem, SW_HIDE);
 #else // FEATURE_NOLEGACY_OPTIONS
 	EnableWindow(hItem, perspectiveCorrectAvailable);
-	SendMessage(hItem, BM_SETCHECK, ChangedAppSettings.PerspectiveCorrect, 0);
+	SendMessage(hItem, BM_SETCHECK3, ChangedAppSettings.PerspectiveCorrect, 0);
 #endif // FEATURE_NOLEGACY_OPTIONS
 
 	// 'Dither' CheckBox
 	hItem = GetDlgItem(hwndDlg, ID_GRAPH_BUTTON_DITHER);
+#ifdef FEATURE_NOLEGACY_OPTIONS
+    POINT checkPos = {0, 0};
+    MapWindowPoints(hItem, hwndDlg, &checkPos, 1);
+	ShowWindow(hItem, SW_HIDE);
+#else // FEATURE_NOLEGACY_OPTIONS
 	EnableWindow(hItem, ditherAvailable);
 	SendMessage(hItem, BM_SETCHECK, ChangedAppSettings.Dither, 0);
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 	// 'Triple Buffer' CheckBox
 	hItem = GetDlgItem(hwndDlg, ID_GRAPH_BUTTON_TRIPLEBUFFER);
@@ -1201,8 +1206,8 @@ void __cdecl SE_OptionsDlgUpdate(HWND hwndDlg) {
 		LPTSTR pResultString = resultString;
 		SE_OptionsStrCat(&pResultString, ChangedAppSettings.ZBuffer, &isNext, String_ZBuffered);
 		SE_OptionsStrCat(&pResultString, ChangedAppSettings.BilinearFiltering, &isNext, String_BilinearFiltered);
-		SE_OptionsStrCat(&pResultString, ChangedAppSettings.Dither, &isNext, String_Dithered);
 #ifndef FEATURE_NOLEGACY_OPTIONS
+		SE_OptionsStrCat(&pResultString, ChangedAppSettings.Dither, &isNext, String_Dithered);
 		SE_OptionsStrCat(&pResultString, ChangedAppSettings.TripleBuffering, &isNext, String_TripleBuffered);
 		SE_OptionsStrCat(&pResultString, ChangedAppSettings.PerspectiveCorrect, &isNext, String_PerspectiveCorrect);
 #endif // FEATURE_NOLEGACY_OPTIONS
