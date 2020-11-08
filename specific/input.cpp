@@ -311,15 +311,7 @@ bool __cdecl S_UpdateInput() {
 		if( KEY_DOWN(DIK_F7) ) {
 			if( !isF7KeyPressed ) {
 				isF7KeyPressed = true;
-#ifdef FEATURE_NOLEGACY_OPTIONS
-				// Detail Level (F7)
-				if( ++DetailLevel > 2) DetailLevel = 0;
-				switch( DetailLevel ) {
-					case 0: PerspectiveDistance = SW_DETAIL_LOW; break;
-					case 1: PerspectiveDistance = SW_DETAIL_MEDIUM; break;
-					case 2: PerspectiveDistance = SW_DETAIL_HIGH; break;
-				}
-#else
+#ifndef FEATURE_NOLEGACY_OPTIONS
 				if( isShiftKeyPressed ) {
 					// Triple Buffer (Shift + F7)
 					if( SavedAppSettings.FullScreen ) {
@@ -597,6 +589,37 @@ bool __cdecl S_UpdateInput() {
 		isF2KeyPressed = false;
 	}
 
+#ifdef FEATURE_NOLEGACY_OPTIONS
+	if( SavedAppSettings.RenderMode == RM_Software ) {
+		// Decrease Software Renderer Detail Level
+		if( KEY_DOWN(DIK_F3) ) {
+			if( !isF3KeyPressed && DetailLevel > 0 ) {
+				isF3KeyPressed = true;
+				switch( --DetailLevel ) {
+					case 0: PerspectiveDistance = SW_DETAIL_LOW; break;
+					case 1: PerspectiveDistance = SW_DETAIL_MEDIUM; break;
+					case 2: PerspectiveDistance = SW_DETAIL_HIGH; break;
+				}
+			}
+		} else {
+			isF3KeyPressed = false;
+		}
+
+		// Increase Software Renderer Detail Level
+		if( KEY_DOWN(DIK_F4) ) {
+			if( !isF4KeyPressed && DetailLevel < 2 ) {
+				isF4KeyPressed = true;
+				switch( ++DetailLevel ) {
+					case 0: PerspectiveDistance = SW_DETAIL_LOW; break;
+					case 1: PerspectiveDistance = SW_DETAIL_MEDIUM; break;
+					case 2: PerspectiveDistance = SW_DETAIL_HIGH; break;
+				}
+			}
+		} else {
+			isF4KeyPressed = false;
+		}
+	}
+#else // FEATURE_NOLEGACY_OPTIONS
 	// Decrease inner screen size (F3)
 	if( KEY_DOWN(DIK_F3) ) {
 		if( !isF3KeyPressed ) {
@@ -616,6 +639,8 @@ bool __cdecl S_UpdateInput() {
 	} else {
 		isF4KeyPressed = false;
 	}
+#endif // FEATURE_NOLEGACY_OPTIONS
+
 EXIT :
 	InputStatus = input;
 	return IsGameToExit;

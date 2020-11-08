@@ -518,7 +518,10 @@ void __cdecl S_SaveSettings() {
 	SetRegistryDwordValue(REG_MUSIC_VOLUME, MusicVolume);
 	SetRegistryDwordValue(REG_SOUND_VOLUME, SoundVolume);
 	SetRegistryDwordValue(REG_DETAIL_LEVEL, DetailLevel);
+
+#ifndef FEATURE_NOLEGACY_OPTIONS
 	SetRegistryFloatValue(REG_GAME_SIZER, GameSizer);
+#endif // FEATURE_NOLEGACY_OPTIONS
 #ifdef FEATURE_HUD_IMPROVED
 	SetRegistryBinaryValue(REG_GAME_JOY_LAYOUT, Layout[CTRL_Joystick].key, sizeof(CONTROL_LAYOUT));
 	SetRegistryBinaryValue(REG_GAME_KBD_LAYOUT, Layout[CTRL_Custom].key, sizeof(CONTROL_LAYOUT));
@@ -550,7 +553,13 @@ void __cdecl S_LoadSettings() {
 	GetRegistryDwordValue(REG_MUSIC_VOLUME, &musicVol, 10); // NOTE: There was bug in the original code. 165 instead of 10.
 	GetRegistryDwordValue(REG_SOUND_VOLUME, &soundVol, 10);
 	GetRegistryDwordValue(REG_DETAIL_LEVEL, &DetailLevel, 1);
+
+#ifdef FEATURE_NOLEGACY_OPTIONS
+	GameSizer = 1.0;
+#else // FEATURE_NOLEGACY_OPTIONS
 	GetRegistryFloatValue(REG_GAME_SIZER, &GameSizer, 1.0);
+#endif // FEATURE_NOLEGACY_OPTIONS
+
 #ifdef FEATURE_HUD_IMPROVED
 	GetRegistryBinaryValue(REG_GAME_JOY_LAYOUT, Layout[CTRL_Joystick].key, sizeof(CONTROL_LAYOUT), NULL);
 	if( !GetRegistryBinaryValue(REG_GAME_KBD_LAYOUT, Layout[CTRL_Custom].key, sizeof(CONTROL_LAYOUT), NULL) ) {
