@@ -638,10 +638,17 @@ extern LPDIRECTDRAWPALETTE DDrawPalettes[256];
 #define SaveGameItemFlags1			ARRAY_(0x00521C40, DWORD, [24])
 #define PickupInfos					ARRAY_(0x00521CA0, PICKUP_INFO, [12])
 #define Objects						ARRAY_(0x00522000, OBJECT_INFO, [265])
+#ifdef FEATURE_EXTENDED_LIMITS
+extern LIGHT_INFO DynamicLights[64];
+extern int BoundRooms[1024];
+extern __int16 DrawRoomsArray[1024];
+extern STATIC_INFO StaticObjects[256];
+#else // FEATURE_EXTENDED_LIMITS
 #define DynamicLights				ARRAY_(0x005251C0, LIGHT_INFO, [10])
 #define BoundRooms					ARRAY_(0x00525900, int, [128])
 #define DrawRoomsArray				ARRAY_(0x00525B20, __int16, [100])
 #define StaticObjects				ARRAY_(0x00525C00, STATIC_INFO, [50])
+#endif // FEATURE_EXTENDED_LIMITS
 #define GroundZones					ARRAY_(0x005263A0, __int16*, [8])
 #define FlyZones					ARRAY_(0x005263C0, __int16*, [2])
 
