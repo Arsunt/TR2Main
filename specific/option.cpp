@@ -85,7 +85,7 @@ CONTROL_LAYOUT Layout[3] = {
 		DIK_SLASH, // Flare
 		DIK_NUMPAD0, // Look
 		DIK_ESCAPE, // Inventory
-		DIK_TAB, // Pause
+		DIK_P, // Pause
 	},
 };
 

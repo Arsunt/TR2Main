@@ -63,7 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implemented embedded textures for Keyboard/Joystick button sprites. There are 3 styles for Joystick buttons: Numeric, XBox, PlayStation.
 - Added arrows to PlayStation styled inventory text boxes.
 - Added PlayStation styled Joystick button hints for inventory (optional feature).
-- Added Pause feature. Two styles are available: transparent and 50% darkened.
+- Added Pause feature (P key). Two styles are available: transparent and 50% darkened.
 - Controls text box completely redesigned. Now you can view both default and custom keyboard layouts on the same page. Joystick layout is now independent from the custom keyboard layout.
 - Fade out to black implemented for levels, demos, cut scenes and statistics.
 - Added an option to select Demo Mode text style: none, PC or PlayStation.
