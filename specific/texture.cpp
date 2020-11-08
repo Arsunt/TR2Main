@@ -197,6 +197,10 @@ BYTE __cdecl FindNearestPaletteEntry(RGB888 *palette, int red, int green, int bl
 		palStartIdx += 10;
 		palEndIdx -= 10;
 		palSize -= 20;
+	} else {
+		// NOTE: index 0 is transparent color key, it must be skipped!
+		++palStartIdx;
+		--palSize;
 	}
 
 	for( i=palStartIdx; i<palEndIdx; ++i ) {
