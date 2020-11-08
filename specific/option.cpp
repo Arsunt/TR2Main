@@ -863,17 +863,32 @@ void __cdecl do_detail_option(INVENTORY_ITEM *item) {
 }
 
 void __cdecl do_sound_option(INVENTORY_ITEM *item) {
+#ifdef FEATURE_HUD_IMPROVED
+	static TEXT_STR_INFO *SoundTextInfo[8] = {NULL};
+#else // FEATURE_HUD_IMPROVED
 	static TEXT_STR_INFO *SoundTextInfo[4] = {NULL};
+#endif // FEATURE_HUD_IMPROVED
 	char volumeString[20];
 	DWORD i;
 
 	if( SoundTextInfo[0] == NULL ) {
 		CLAMP(MusicVolume, 0, 10);
 		CLAMP(SoundVolume, 0, 10);
+#ifdef FEATURE_HUD_IMPROVED
+		SoundTextInfo[0] = T_Print(0, 0, 0, "");
+		SoundTextInfo[1] = T_Print(0, 25, 0, "");
+		SoundTextInfo[4] = T_Print(-15, 0, 0, "|"); // Char '|' is musical note picture
+		SoundTextInfo[5] = T_Print(-15, 25, 0, "}"); // Char '}' is dynamic speaker picture
+		sprintf(volumeString, "%2d", MusicVolume);
+		SoundTextInfo[6] = T_Print(10, 0, 0, volumeString);
+		sprintf(volumeString, "%2d", SoundVolume);
+		SoundTextInfo[7] = T_Print(10, 25, 0, volumeString);
+#else // FEATURE_HUD_IMPROVED
 		sprintf(volumeString, "| %2d", MusicVolume); // Char '|' is musical note picture
 		SoundTextInfo[0] = T_Print(0, 0, 0, volumeString);
 		sprintf(volumeString, "} %2d", SoundVolume); // Char '}' is dynamic speaker picture
 		SoundTextInfo[1] = T_Print(0, 25, 0, volumeString);
+#endif // FEATURE_HUD_IMPROVED
 
 		T_AddBackground(SoundTextInfo[0], SOUND_WIDTH_S, 0, 0, 0, SOUND_NEARZ, ICLR_Black, &ReqSelGour1, 0);
 		T_AddOutline(SoundTextInfo[0], TRUE, ICLR_Orange, &ReqSelGour2, 0);
@@ -919,8 +934,13 @@ void __cdecl do_sound_option(INVENTORY_ITEM *item) {
 
 			IsInvOptionsDelay = 1;
 			InvOptionsDelayCounter = 10;
+#ifdef FEATURE_HUD_IMPROVED
+			sprintf(volumeString, "%2d", MusicVolume);
+			T_ChangeText(SoundTextInfo[6], volumeString);
+#else // FEATURE_HUD_IMPROVED
 			sprintf(volumeString, "| %2d", MusicVolume); // Char '|' is musical note picture
 			T_ChangeText(SoundTextInfo[0], volumeString);
+#endif // FEATURE_HUD_IMPROVED
 			S_CDVolume(( MusicVolume == 0 ) ? 0 : (25 * MusicVolume + 5));
 			PlaySoundEffect(115, NULL, SFX_ALWAYS); // page flip SFX
 			break;
@@ -935,8 +955,13 @@ void __cdecl do_sound_option(INVENTORY_ITEM *item) {
 
 			IsInvOptionsDelay = 1;
 			InvOptionsDelayCounter = 10;
+#ifdef FEATURE_HUD_IMPROVED
+			sprintf(volumeString, "%2d", SoundVolume);
+			T_ChangeText(SoundTextInfo[7], volumeString);
+#else // FEATURE_HUD_IMPROVED
 			sprintf(volumeString, "} %2d", SoundVolume); // Char '}' is dynamic speaker picture
 			T_ChangeText(SoundTextInfo[1], volumeString);
+#endif // FEATURE_HUD_IMPROVED
 			S_SoundSetMasterVolume(( SoundVolume == 0 ) ? 0 : (6 * SoundVolume + 4));
 			PlaySoundEffect(115, NULL, SFX_ALWAYS); // page flip SFX
 			break;
@@ -945,10 +970,13 @@ void __cdecl do_sound_option(INVENTORY_ITEM *item) {
 			break;
 	}
 
+#ifndef FEATURE_HUD_IMPROVED
+	// NOTE: this is leftover from the original code. The code is unused
 	InvSpriteSoundVolume[6].param1 = SoundVolume;
 	InvSpriteSoundVolumeLow[6].param1 = SoundVolume;
 	InvSpriteMusicVolume[6].param1 = MusicVolume;
 	InvSpriteMusicVolumeLow[6].param1 = MusicVolume;
+#endif // FEATURE_HUD_IMPROVED
 
 	if( CHK_ANY(InputDB, IN_SELECT|IN_DESELECT) ) {
 		for( i=0; i<ARRAY_SIZE(SoundTextInfo); ++i ) {
