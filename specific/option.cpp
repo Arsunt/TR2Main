@@ -799,7 +799,8 @@ void __cdecl do_gamma_option(INVENTORY_ITEM *item) {
 }
 
 void __cdecl do_detail_option(INVENTORY_ITEM *item) {
-	int i;
+	static TEXT_STR_INFO *DetailTextInfo[5] = {NULL};
+	DWORD i;
 
 	if( DetailTextInfo[0] == NULL ) {
 		DetailTextInfo[4] = T_Print(0, DETAIL_Y_TITLE, 0, GF_GameStringTable[GSI_Detail_SelectDetail]);
@@ -817,7 +818,7 @@ void __cdecl do_detail_option(INVENTORY_ITEM *item) {
 		T_AddBackground(DetailTextInfo[3], DETAIL_WIDTH_L, DETAIL_HEIGHT, 0, 0, DETAIL_FARZ, ICLR_Black, &ReqBgndGour1, 0);
 		T_AddOutline(DetailTextInfo[3], TRUE, ICLR_Blue, &ReqBgndGour2, 0);
 
-		for( i=0; i<5 ; ++i ) {
+		for( i=0; i<ARRAY_SIZE(DetailTextInfo); ++i ) {
 			T_CentreH(DetailTextInfo[i], 1);
 			T_CentreV(DetailTextInfo[i], 1);
 		}
@@ -854,7 +855,7 @@ void __cdecl do_detail_option(INVENTORY_ITEM *item) {
 	}
 
 	if( CHK_ANY(InputDB, IN_SELECT|IN_DESELECT) ) {
-		for( i=0; i<5 ; ++i ) {
+		for( i=0; i<ARRAY_SIZE(DetailTextInfo); ++i ) {
 			T_RemovePrint(DetailTextInfo[i]);
 			DetailTextInfo[i] = NULL;
 		}
@@ -862,8 +863,9 @@ void __cdecl do_detail_option(INVENTORY_ITEM *item) {
 }
 
 void __cdecl do_sound_option(INVENTORY_ITEM *item) {
-	int i;
+	static TEXT_STR_INFO *SoundTextInfo[4] = {NULL};
 	char volumeString[20];
+	DWORD i;
 
 	if( SoundTextInfo[0] == NULL ) {
 		CLAMP(MusicVolume, 0, 10);
@@ -884,7 +886,7 @@ void __cdecl do_sound_option(INVENTORY_ITEM *item) {
 		T_AddBackground(SoundTextInfo[3], SOUND_WIDTH_M, 0, 0, 0, SOUND_NEARZ, ICLR_Black, &ReqMainGour1, 0);
 		T_AddOutline(SoundTextInfo[3], TRUE, ICLR_Blue, &ReqMainGour2, 0);
 
-		for( i=0; i<4 ; ++i ) {
+		for( i=0; i<ARRAY_SIZE(SoundTextInfo); ++i ) {
 			T_CentreH(SoundTextInfo[i], 1);
 			T_CentreV(SoundTextInfo[i], 1);
 		}
@@ -949,7 +951,7 @@ void __cdecl do_sound_option(INVENTORY_ITEM *item) {
 	InvSpriteMusicVolumeLow[6].param1 = MusicVolume;
 
 	if( CHK_ANY(InputDB, IN_SELECT|IN_DESELECT) ) {
-		for( i=0; i<4 ; ++i ) {
+		for( i=0; i<ARRAY_SIZE(SoundTextInfo); ++i ) {
 			T_RemovePrint(SoundTextInfo[i]);
 			SoundTextInfo[i] = NULL;
 		}
