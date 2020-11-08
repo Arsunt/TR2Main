@@ -704,6 +704,12 @@ bool __cdecl ApplySettings(APP_SETTINGS *newSettings) {
 
 			modeList = &PrimaryDisplayAdapter->body.swDispModeList;
 
+#ifdef FEATURE_NOLEGACY_OPTIONS
+			if( modeList->head ) {
+				targetMode.bpp = modeList->head->body.bpp;
+				targetMode.vga = modeList->head->body.vga;
+			}
+#endif // FEATURE_NOLEGACY_OPTIONS
 			for( mode = modeList->head; mode; mode = mode->next ) {
 				if( !CompareVideoModes(&mode->body, &targetMode) )
 					break;
@@ -729,10 +735,14 @@ bool __cdecl ApplySettings(APP_SETTINGS *newSettings) {
 		S_ReloadLevelGraphics(1, 0);
 	}
 
+#ifdef FEATURE_NOLEGACY_OPTIONS
+	snprintf(modeString, sizeof(modeString), "%dx%d", GameVidWidth, GameVidHeight);
+#else // FEATURE_NOLEGACY_OPTIONS
 	if( SavedAppSettings.FullScreen )
 		sprintf(modeString, "%dx%dx%d", GameVidWidth, GameVidHeight, GameVidBPP);
 	else
 		sprintf(modeString, "%dx%d", GameVidWidth, GameVidHeight);
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 	DisplayModeInfo(modeString);
 	return true;
@@ -761,6 +771,12 @@ void __cdecl FmvBackToGame() {
 
 		modeList = &PrimaryDisplayAdapter->body.swDispModeList;
 
+#ifdef FEATURE_NOLEGACY_OPTIONS
+		if( modeList->head ) {
+			targetMode.bpp = modeList->head->body.bpp;
+			targetMode.vga = modeList->head->body.vga;
+		}
+#endif // FEATURE_NOLEGACY_OPTIONS
 		for( mode = modeList->head; mode; mode = mode->next ) {
 			if( !CompareVideoModes(&mode->body, &targetMode) )
 				break;

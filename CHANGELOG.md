@@ -60,6 +60,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added the light bar color feedback support for DualShock 4. The color changes depending from health and oxygen.
 - Passport text box height is adjusted depending from HUD scale.
 - Some legacy options are removed (Triple Buffer, Dither, Perspective Correction, Texel Adjustment, Disable 16 bit textures, Don't sort transparent polys).
+- Screen resolution settings reworked, now the game automatically selects between True Color / High Color.
+- Now the game correctly keeps proper resolutions when it switches between Windowed / Full Screen.
 - Implemented embedded textures for Keyboard/Joystick button sprites. There are 3 styles for Joystick buttons: Numeric, XBox, PlayStation.
 - Added arrows to PlayStation styled inventory text boxes.
 - Added PlayStation styled Joystick button hints for inventory (optional feature).

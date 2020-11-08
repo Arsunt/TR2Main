@@ -666,6 +666,36 @@ bool __thiscall CompareVideoModes(DISPLAY_MODE *mode1, DISPLAY_MODE *mode2) {
 	return false;
 }
 
+#ifdef FEATURE_NOLEGACY_OPTIONS
+static void DeleteDisplayMode(DISPLAY_MODE_LIST *modeList, DISPLAY_MODE_NODE *node) {
+	if( !modeList || !node ) return;
+	DISPLAY_MODE_NODE *previous = node->previous;
+	DISPLAY_MODE_NODE *next = node->next;
+	if( previous ) previous->next = next;
+	if( next ) next->previous = previous;
+	if( modeList->head == node ) modeList->head = next;
+	if( modeList->tail == node ) modeList->tail = previous;
+	if( modeList->dwCount ) --modeList->dwCount;
+	delete(node);
+}
+
+static void FilterDisplayModes(DISPLAY_MODE_LIST *modeList, bool isHWR) {
+	DISPLAY_MODE_NODE *mode, *next;
+	int bppMax = 16;
+	if( isHWR ) {
+		for( mode = modeList->head; mode; mode = mode->next ) {
+			CLAMPL(bppMax, mode->body.bpp);
+		}
+	}
+	for( mode = modeList->head; mode; mode = next ) {
+		next = mode->next;
+		if( (isHWR && mode->body.bpp < bppMax) || (!isHWR && mode->body.vga != VGA_256Color)  ) {
+			DeleteDisplayMode(modeList, mode);
+		}
+	}
+}
+#endif // FEATURE_NOLEGACY_OPTIONS
+
 bool __cdecl WinVidGetDisplayModes() {
 	DISPLAY_ADAPTER_NODE *adapter;
 
@@ -673,6 +703,10 @@ bool __cdecl WinVidGetDisplayModes() {
 		DDrawCreate(adapter->body.lpAdapterGuid);
 		ShowDDrawGameWindow(false);
 		DDraw->EnumDisplayModes(DDEDM_STANDARDVGAMODES, NULL, (LPVOID)&adapter->body, EnumDisplayModesCallback);
+#ifdef FEATURE_NOLEGACY_OPTIONS
+		FilterDisplayModes(&adapter->body.swDispModeList, false);
+		FilterDisplayModes(&adapter->body.hwDispModeList, true);
+#endif // FEATURE_NOLEGACY_OPTIONS
 		HideDDrawGameWindow();
 		DDrawRelease();
 	}

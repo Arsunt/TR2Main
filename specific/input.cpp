@@ -415,12 +415,18 @@ bool __cdecl S_UpdateInput() {
 					if( SavedAppSettings.FullScreen ) {
 
 						// FullScreen to Windowed
-						int winWidth  = ( PhdWinWidth  > 320 ) ? PhdWinWidth  : 320;
-						int winHeight = ( PhdWinHeight > 240 ) ? PhdWinHeight : 240;
+#ifdef FEATURE_NOLEGACY_OPTIONS
+						CLAMPL(newSettings.WindowWidth, 320);
+						CLAMPL(newSettings.WindowHeight, 240);
+						newSettings.WindowWidth = CalculateWindowWidth(newSettings.WindowWidth, newSettings.WindowHeight);
+#else // FEATURE_NOLEGACY_OPTIONS
+						int winWidth  = MAX(PhdWinWidth, 320);
+						int winHeight = MAX(PhdWinHeight, 240);
 
 						newSettings.WindowHeight = winHeight;
 						newSettings.WindowWidth = CalculateWindowWidth(winWidth, winHeight);
 						newSettings.TripleBuffering = false;
+#endif // FEATURE_NOLEGACY_OPTIONS
 						GameApplySettings(&newSettings);
 
 						// Reset inner screen size for windowed mode
@@ -440,6 +446,16 @@ bool __cdecl S_UpdateInput() {
 							targetMode.height = GameVidHeight;
 							targetMode.bpp = GameVidBPP;
 							targetMode.vga = VGA_NoVga;
+#ifdef FEATURE_NOLEGACY_OPTIONS
+							if( SavedAppSettings.VideoMode ) {
+								targetMode.width = SavedAppSettings.VideoMode->body.width;
+								targetMode.height = SavedAppSettings.VideoMode->body.height;
+							}
+							if( modeList->head ) {
+								targetMode.bpp = modeList->head->body.bpp;
+								targetMode.vga = modeList->head->body.vga;
+							}
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 							for( mode = modeList->head; mode != NULL; mode = mode->next ) {
 								if( !CompareVideoModes(&mode->body, &targetMode) )
@@ -474,6 +490,16 @@ bool __cdecl S_UpdateInput() {
 						targetMode.width  = GameVidWidth;
 						targetMode.height = GameVidHeight;
 						targetMode.vga = VGA_NoVga;
+#ifdef FEATURE_NOLEGACY_OPTIONS
+						if( SavedAppSettings.VideoMode ) {
+							targetMode.width = SavedAppSettings.VideoMode->body.width;
+							targetMode.height = SavedAppSettings.VideoMode->body.height;
+						}
+						if( modeList->head ) {
+							targetMode.bpp = modeList->head->body.bpp;
+							targetMode.vga = modeList->head->body.vga;
+						}
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 						for( mode = modeList->head; mode != NULL; mode = mode->next ) {
 							if( !CompareVideoModes(&mode->body, &targetMode) )
@@ -516,6 +542,7 @@ bool __cdecl S_UpdateInput() {
 			// Additional checks for Hardware Renderer
 			if( SavedAppSettings.RenderMode == RM_Hardware ) {
 				for( ; mode != NULL; mode = mode->previous ) {
+#ifndef FEATURE_NOLEGACY_OPTIONS
 					// Decrease depth (Shift + F1)
 					if( isShiftKeyPressed ) {
 						if( mode->body.width  == SavedAppSettings.VideoMode->body.width &&
@@ -525,9 +552,10 @@ bool __cdecl S_UpdateInput() {
 						{
 							break;
 						}
-					}
+					} else
+#endif // FEATURE_NOLEGACY_OPTIONS
 					// Decrease resolution (F1)
-					else {
+					{
 						if( mode->body.vga == SavedAppSettings.VideoMode->body.vga &&
 							mode->body.bpp == SavedAppSettings.VideoMode->body.bpp )
 						{
@@ -559,6 +587,7 @@ bool __cdecl S_UpdateInput() {
 			// Additional checks for Hardware Renderer
 			if( SavedAppSettings.RenderMode == RM_Hardware ) {
 				for( ; mode != NULL; mode = mode->next ) {
+#ifndef FEATURE_NOLEGACY_OPTIONS
 					// Increase depth (Shift + F2)
 					if( isShiftKeyPressed ) {
 						if( mode->body.width  == SavedAppSettings.VideoMode->body.width &&
@@ -568,9 +597,10 @@ bool __cdecl S_UpdateInput() {
 						{
 							break;
 						}
-					}
+					} else
+#endif // FEATURE_NOLEGACY_OPTIONS
 					// Increase resolution (F2)
-					else {
+					{
 						if( mode->body.vga == SavedAppSettings.VideoMode->body.vga &&
 							mode->body.bpp == SavedAppSettings.VideoMode->body.bpp )
 						{
