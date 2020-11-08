@@ -645,21 +645,21 @@ void __cdecl WinVidSetDisplayAdapter(DISPLAY_ADAPTER *dispAdapter) {
 }
 
 bool __thiscall CompareVideoModes(DISPLAY_MODE *mode1, DISPLAY_MODE *mode2) {
-#if defined FEATURE_VIDMODESORT
+#ifdef FEATURE_NOLEGACY_OPTIONS
 	if( mode1->bpp < mode2->bpp ) return true;
 	if( mode1->bpp > mode2->bpp ) return false;
 	if( mode1->width < mode2->width ) return true;
 	if( mode1->width > mode2->width ) return false;
 	if( mode1->height < mode2->height ) return true;
 	if( mode1->height > mode2->height ) return false;
-#else // !FEATURE_VIDMODESORT
+#else // !FEATURE_NOLEGACY_OPTIONS
 	DWORD square1 = mode1->width * mode1->height;
 	DWORD square2 = mode2->width * mode2->height;
 	if( square1 < square2 ) return true;
 	if( square1 > square2 ) return false;
 	if( mode1->bpp < mode2->bpp ) return true;
 	if( mode1->bpp > mode2->bpp ) return false;
-#endif // FEATURE_VIDMODESORT
+#endif // FEATURE_NOLEGACY_OPTIONS
 	if( mode1->vga < mode2->vga ) return true;
 	if( mode1->vga > mode2->vga ) return false;
 	// equal state
@@ -695,7 +695,7 @@ HRESULT WINAPI EnumDisplayModesCallback(LPDDSDESC lpDDSurfaceDesc, LPVOID lpCont
 	if( (lpDDSurfaceDesc->ddpfPixelFormat.dwFlags & DDPF_PALETTEINDEXED8) != 0 &&
 		lpDDSurfaceDesc->ddpfPixelFormat.dwRGBBitCount == 8 )
 	{
-#ifdef FEATURE_VIDMODESORT
+#ifdef FEATURE_NOLEGACY_OPTIONS
 		// Check software renderer requirements for 8 bit display modes
 		if( lpDDSurfaceDesc->dwWidth  % 8 != 0 ||
 			lpDDSurfaceDesc->dwHeight % 4 != 0 ||
@@ -703,7 +703,7 @@ HRESULT WINAPI EnumDisplayModesCallback(LPDDSDESC lpDDSurfaceDesc, LPVOID lpCont
 		{
 			return DDENUMRET_OK;
 		}
-#endif // FEATURE_VIDMODESORT
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 		if( (lpDDSurfaceDesc->ddsCaps.dwCaps & DDSCAPS_MODEX) != 0 ) {
 			vgaMode = VGA_ModeX;

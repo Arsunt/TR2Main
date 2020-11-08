@@ -893,11 +893,11 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 				ChangedAppSettings.WindowHeight = ChangedAppSettings.WindowWidth*9/16;
 				break;
 			case AM_Any :
-#ifdef FEATURE_VIDMODESORT
+#ifdef FEATURE_NOLEGACY_OPTIONS
 				ChangedAppSettings.WindowHeight = ChangedAppSettings.WindowWidth*3/4;
-#else // !FEATURE_VIDMODESORT
+#else // !FEATURE_NOLEGACY_OPTIONS
 				ChangedAppSettings.WindowHeight = ChangedAppSettings.WindowWidth;
-#endif // FEATURE_VIDMODESORT
+#endif // FEATURE_NOLEGACY_OPTIONS
 				break;
 		}
 	}
