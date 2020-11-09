@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -28,9 +28,9 @@
  * Function list
  */
 
-void __cdecl PSX_DrawHealthBar(int x0, int y0, int x1, int y1, int bar, int pixel);
-void __cdecl PSX_DrawAirBar(int x0, int y0, int x1, int y1, int bar, int pixel);
-void __cdecl PSX_InsertHealthBar(int x0, int y0, int x1, int y1, int bar, int pixel);
-void __cdecl PSX_InsertAirBar(int x0, int y0, int x1, int y1, int bar, int pixel);
+void __cdecl PSX_DrawHealthBar(int x0, int y0, int x1, int y1, int bar, int pixel, int alpha);
+void __cdecl PSX_DrawAirBar(int x0, int y0, int x1, int y1, int bar, int pixel, int alpha);
+void __cdecl PSX_InsertHealthBar(int x0, int y0, int x1, int y1, int bar, int pixel, int alpha);
+void __cdecl PSX_InsertAirBar(int x0, int y0, int x1, int y1, int bar, int pixel, int alpha);
 
 #endif // PSX_BAR_H_INCLUDED

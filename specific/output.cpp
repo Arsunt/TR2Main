@@ -619,9 +619,9 @@ void __cdecl S_DrawHealthBar(int percent) {
 
 	if( HealthBarMode != 0 && SavedAppSettings.RenderMode == RM_Hardware ) {
 		if( SavedAppSettings.ZBuffer ) {
-			PSX_DrawHealthBar(x0, y0, x1, y1, bar, pixel);
+			PSX_DrawHealthBar(x0, y0, x1, y1, bar, pixel, 255);
 		} else {
-			PSX_InsertHealthBar(x0, y0, x1, y1, bar, pixel);
+			PSX_InsertHealthBar(x0, y0, x1, y1, bar, pixel, 255);
 		}
 		return;
 	}
@@ -692,9 +692,9 @@ void __cdecl S_DrawAirBar(int percent) {
 
 	if( HealthBarMode != 0 && SavedAppSettings.RenderMode == RM_Hardware ) {
 		if( SavedAppSettings.ZBuffer ) {
-			PSX_DrawAirBar(x0, y0, x1, y1, bar, pixel);
+			PSX_DrawAirBar(x0, y0, x1, y1, bar, pixel, 255);
 		} else {
-			PSX_InsertAirBar(x0, y0, x1, y1, bar, pixel);
+			PSX_InsertAirBar(x0, y0, x1, y1, bar, pixel, 255);
 		}
 		return;
 	}
