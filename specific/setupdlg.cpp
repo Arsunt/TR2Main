@@ -330,15 +330,27 @@ void __cdecl SE_DefaultGraphicsSettings() {
 	}
 
 	ChangedAppSettings.FullScreen = true;
+#ifdef FEATURE_NOLEGACY_OPTIONS
+	ChangedAppSettings.AspectMode = AM_Any;
+	ChangedAppSettings.WindowWidth = 1024;
+	ChangedAppSettings.WindowHeight = 768;
+#else // FEATURE_NOLEGACY_OPTIONS
 	ChangedAppSettings.WindowWidth = 512;
 	ChangedAppSettings.WindowHeight = 384;
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 	if( ChangedAppSettings.PreferredDisplayAdapter == NULL )
 		return;
 
+#ifdef FEATURE_NOLEGACY_OPTIONS
+	targetMode.width = 1920;
+	targetMode.height = 1080;
+	targetMode.bpp = 32;
+#else // FEATURE_NOLEGACY_OPTIONS
 	targetMode.width = 640;
 	targetMode.height = 480;
 	targetMode.bpp = 16;
+#endif // FEATURE_NOLEGACY_OPTIONS
 	targetMode.vga = VGA_NoVga;
 
 	if( ChangedAppSettings.RenderMode == RM_Hardware )
