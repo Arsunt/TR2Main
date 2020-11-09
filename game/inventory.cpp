@@ -46,6 +46,9 @@
 #ifdef FEATURE_HUD_IMPROVED
 extern void RemoveJoystickHintText(bool isSelect, bool isContinue, bool isDeselect);
 extern void DisplayJoystickHintText(bool isSelect, bool isContinue, bool isDeselect);
+extern void DisplayVolumeBars(bool isSmooth);
+
+extern DWORD InvTextBoxMode;
 #endif // FEATURE_HUD_IMPROVED
 
 typedef enum {
@@ -311,6 +314,20 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 
 		DrawModeInfo();
 		T_DrawText();
+#ifdef FEATURE_HUD_IMPROVED
+		if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode &&
+			ring.itemList[ring.currentObj]->objectID == ID_SOUND_OPTION )
+		{
+			static bool isSoundSelected = false;
+			if( motion.status == RINGSTATE_SELECTING && isSoundSelected ) {
+				isSoundSelected = false;
+			}
+			if( motion.status == RINGSTATE_SELECTED ) {
+				DisplayVolumeBars(isSoundSelected);
+				if( !isSoundSelected ) isSoundSelected = true;
+			}
+		}
+#endif // FEATURE_HUD_IMPROVED
 		S_OutputPolyList();
 		SOUND_EndScene();
 

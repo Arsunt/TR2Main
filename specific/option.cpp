@@ -31,6 +31,8 @@
 #include "global/vars.h"
 
 #ifdef FEATURE_HUD_IMPROVED
+#include "modding/psx_bar.h"
+
 extern DWORD InvTextBoxMode;
 
 bool JoystickHintsEnabled = true;
@@ -352,6 +354,47 @@ void DisplayJoystickHintText(bool isSelect, bool isContinue, bool isDeselect) {
 	} else if( isRealignX && DeselectHintText != NULL ) {
 		DeselectHintText->xPos = -x;
 	}
+}
+
+static void DrawVolumeBar(int x, int y, int percent, int alpha) {
+	// draw at least one percent
+	CLAMP(percent, 1, 100);
+	// coordinates are relative to the center of the screen
+	int width = GetRenderScale(100);
+	int height = GetRenderScale(5);
+	int pixel = GetRenderScale(1);
+	int x0 = PhdWinMinX + GetRenderScale(x) + (GetRenderWidth() - width) / 2;
+	int x1 = x0 + width;
+	int y0 = PhdWinMinY + GetRenderScale(y) + (GetRenderHeight() - height) / 2;
+	int y1 = y0 + height;
+	int bar = width * percent / 100;
+	if( SavedAppSettings.ZBuffer ) {
+		PSX_DrawAirBar(x0, y0, x1, y1, bar, pixel, alpha);
+	} else {
+		PSX_InsertAirBar(x0, y0, x1, y1, bar, pixel, alpha);
+	}
+}
+
+void DisplayVolumeBars(bool isSmooth) {
+	static int soundVolumePos = 0;
+	static int musicVolumePos = 0;
+	if( isSmooth ) {
+		if( musicVolumePos < MusicVolume*10 ) {
+			musicVolumePos += 2;
+		} else if( musicVolumePos > MusicVolume*10 ) {
+			musicVolumePos -= 2;
+		}
+		if( soundVolumePos < SoundVolume*10 ) {
+			soundVolumePos += 2;
+		} else if( soundVolumePos > SoundVolume*10 ) {
+			soundVolumePos -= 2;
+		}
+	} else {
+		musicVolumePos = MusicVolume*10;
+		soundVolumePos = SoundVolume*10;
+	}
+	DrawVolumeBar(10, -5, musicVolumePos, SoundOptionLine ? 100 : 255);
+	DrawVolumeBar(10, 20, soundVolumePos, SoundOptionLine ? 255 : 100);
 }
 
 static const char *GetEmptyOptState(void) {
@@ -875,23 +918,31 @@ void __cdecl do_sound_option(INVENTORY_ITEM *item) {
 		CLAMP(MusicVolume, 0, 10);
 		CLAMP(SoundVolume, 0, 10);
 #ifdef FEATURE_HUD_IMPROVED
-		SoundTextInfo[0] = T_Print(0, 0, 0, "");
-		SoundTextInfo[1] = T_Print(0, 25, 0, "");
-		SoundTextInfo[4] = T_Print(-15, 0, 0, "|"); // Char '|' is musical note picture
-		SoundTextInfo[5] = T_Print(-15, 25, 0, "}"); // Char '}' is dynamic speaker picture
-		sprintf(volumeString, "%2d", MusicVolume);
-		SoundTextInfo[6] = T_Print(10, 0, 0, volumeString);
-		sprintf(volumeString, "%2d", SoundVolume);
-		SoundTextInfo[7] = T_Print(10, 25, 0, volumeString);
+		if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
+			SoundTextInfo[0] = T_Print(-55, 0, 0, "|"); // Char '|' is musical note picture
+			SoundTextInfo[1] = T_Print(-55, 25, 0, "}"); // Char '}' is dynamic speaker picture
+		} else {
+			SoundTextInfo[0] = T_Print(0, 0, 0, "");
+			SoundTextInfo[1] = T_Print(0, 25, 0, "");
+			SoundTextInfo[4] = T_Print(-15, 0, 0, "|"); // Char '|' is musical note picture
+			SoundTextInfo[5] = T_Print(-15, 25, 0, "}"); // Char '}' is dynamic speaker picture
+			sprintf(volumeString, "%2d", MusicVolume);
+			SoundTextInfo[6] = T_Print(10, 0, 0, volumeString);
+			sprintf(volumeString, "%2d", SoundVolume);
+			SoundTextInfo[7] = T_Print(10, 25, 0, volumeString);
+
+			T_AddBackground(SoundTextInfo[0], SOUND_WIDTH_S, 0, 0, 0, SOUND_NEARZ, ICLR_Black, &ReqSelGour1, 0);
+			T_AddOutline(SoundTextInfo[0], TRUE, ICLR_Orange, &ReqSelGour2, 0);
+		}
 #else // FEATURE_HUD_IMPROVED
 		sprintf(volumeString, "| %2d", MusicVolume); // Char '|' is musical note picture
 		SoundTextInfo[0] = T_Print(0, 0, 0, volumeString);
 		sprintf(volumeString, "} %2d", SoundVolume); // Char '}' is dynamic speaker picture
 		SoundTextInfo[1] = T_Print(0, 25, 0, volumeString);
-#endif // FEATURE_HUD_IMPROVED
 
 		T_AddBackground(SoundTextInfo[0], SOUND_WIDTH_S, 0, 0, 0, SOUND_NEARZ, ICLR_Black, &ReqSelGour1, 0);
 		T_AddOutline(SoundTextInfo[0], TRUE, ICLR_Orange, &ReqSelGour2, 0);
+#endif // FEATURE_HUD_IMPROVED
 
 		SoundTextInfo[2] = T_Print(0, SOUND_Y_BOX, 0, " ");
 		T_AddBackground(SoundTextInfo[2], SOUND_WIDTH_L, SOUND_HEIGHT, 0, 0, SOUND_FARZ, ICLR_Black, &ReqBgndGour1, 0);
@@ -908,19 +959,43 @@ void __cdecl do_sound_option(INVENTORY_ITEM *item) {
 	}
 
 	if( CHK_ANY(InputDB, IN_FORWARD) && SoundOptionLine > 0 ) {
+#ifdef FEATURE_HUD_IMPROVED
+		if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
+			--SoundOptionLine;
+		} else {
+			T_RemoveOutline(SoundTextInfo[SoundOptionLine]);
+			T_RemoveBackground(SoundTextInfo[SoundOptionLine]);
+			--SoundOptionLine;
+			T_AddBackground(SoundTextInfo[SoundOptionLine], SOUND_WIDTH_S, 0, 0, 0, SOUND_NEARZ, ICLR_Black, &ReqSelGour1, 0);
+			T_AddOutline(SoundTextInfo[SoundOptionLine], TRUE, ICLR_Orange, &ReqSelGour2, 0);
+		}
+#else // FEATURE_HUD_IMPROVED
 		T_RemoveOutline(SoundTextInfo[SoundOptionLine]);
 		T_RemoveBackground(SoundTextInfo[SoundOptionLine]);
 		--SoundOptionLine;
 		T_AddBackground(SoundTextInfo[SoundOptionLine], SOUND_WIDTH_S, 0, 0, 0, SOUND_NEARZ, ICLR_Black, &ReqSelGour1, 0);
 		T_AddOutline(SoundTextInfo[SoundOptionLine], TRUE, ICLR_Orange, &ReqSelGour2, 0);
+#endif // FEATURE_HUD_IMPROVED
 	}
 
 	if( CHK_ANY(InputDB, IN_BACK) && SoundOptionLine < 1 ) {
+#ifdef FEATURE_HUD_IMPROVED
+		if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
+			++SoundOptionLine;
+		} else {
+			T_RemoveOutline(SoundTextInfo[SoundOptionLine]);
+			T_RemoveBackground(SoundTextInfo[SoundOptionLine]);
+			++SoundOptionLine;
+			T_AddBackground(SoundTextInfo[SoundOptionLine], SOUND_WIDTH_S, 0, 0, 0, SOUND_NEARZ, ICLR_Black, &ReqSelGour1, 0);
+			T_AddOutline(SoundTextInfo[SoundOptionLine], TRUE, ICLR_Orange, &ReqSelGour2, 0);
+		}
+#else // FEATURE_HUD_IMPROVED
 		T_RemoveOutline(SoundTextInfo[SoundOptionLine]);
 		T_RemoveBackground(SoundTextInfo[SoundOptionLine]);
 		++SoundOptionLine;
 		T_AddBackground(SoundTextInfo[SoundOptionLine], SOUND_WIDTH_S, 0, 0, 0, SOUND_NEARZ, ICLR_Black, &ReqSelGour1, 0);
 		T_AddOutline(SoundTextInfo[SoundOptionLine], TRUE, ICLR_Orange, &ReqSelGour2, 0);
+#endif // FEATURE_HUD_IMPROVED
 	}
 
 	switch( SoundOptionLine ) {
@@ -932,11 +1007,13 @@ void __cdecl do_sound_option(INVENTORY_ITEM *item) {
 			else
 				break;
 
-			IsInvOptionsDelay = 1;
-			InvOptionsDelayCounter = 10;
+			IsInvOptionsDelay = TRUE;
+			InvOptionsDelayCounter = 5 * TICKS_PER_FRAME;
 #ifdef FEATURE_HUD_IMPROVED
-			sprintf(volumeString, "%2d", MusicVolume);
-			T_ChangeText(SoundTextInfo[6], volumeString);
+			if( SavedAppSettings.RenderMode != RM_Hardware || !InvTextBoxMode ) {
+				sprintf(volumeString, "%2d", MusicVolume);
+				T_ChangeText(SoundTextInfo[6], volumeString);
+			}
 #else // FEATURE_HUD_IMPROVED
 			sprintf(volumeString, "| %2d", MusicVolume); // Char '|' is musical note picture
 			T_ChangeText(SoundTextInfo[0], volumeString);
@@ -953,11 +1030,13 @@ void __cdecl do_sound_option(INVENTORY_ITEM *item) {
 			else
 				break;
 
-			IsInvOptionsDelay = 1;
-			InvOptionsDelayCounter = 10;
+			IsInvOptionsDelay = TRUE;
+			InvOptionsDelayCounter = 5 * TICKS_PER_FRAME;
 #ifdef FEATURE_HUD_IMPROVED
-			sprintf(volumeString, "%2d", SoundVolume);
-			T_ChangeText(SoundTextInfo[7], volumeString);
+			if( SavedAppSettings.RenderMode != RM_Hardware || !InvTextBoxMode ) {
+				sprintf(volumeString, "%2d", SoundVolume);
+				T_ChangeText(SoundTextInfo[7], volumeString);
+			}
 #else // FEATURE_HUD_IMPROVED
 			sprintf(volumeString, "} %2d", SoundVolume); // Char '}' is dynamic speaker picture
 			T_ChangeText(SoundTextInfo[1], volumeString);
