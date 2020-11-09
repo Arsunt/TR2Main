@@ -679,17 +679,15 @@ static void DeleteDisplayMode(DISPLAY_MODE_LIST *modeList, DISPLAY_MODE_NODE *no
 	delete(node);
 }
 
-static void FilterDisplayModes(DISPLAY_MODE_LIST *modeList, bool isHWR) {
+static void FilterDisplayModes(DISPLAY_MODE_LIST *modeList) {
 	DISPLAY_MODE_NODE *mode, *next;
-	int bppMax = 16;
-	if( isHWR ) {
-		for( mode = modeList->head; mode; mode = mode->next ) {
-			CLAMPL(bppMax, mode->body.bpp);
-		}
+	int bppMax = 8;
+	for( mode = modeList->head; mode; mode = mode->next ) {
+		CLAMPL(bppMax, mode->body.bpp);
 	}
 	for( mode = modeList->head; mode; mode = next ) {
 		next = mode->next;
-		if( (isHWR && mode->body.bpp < bppMax) || (!isHWR && mode->body.vga != VGA_256Color)  ) {
+		if( mode->body.bpp < bppMax ) {
 			DeleteDisplayMode(modeList, mode);
 		}
 	}
@@ -702,10 +700,11 @@ bool __cdecl WinVidGetDisplayModes() {
 	for( adapter = DisplayAdapterList.head; adapter; adapter = adapter->next ) {
 		DDrawCreate(adapter->body.lpAdapterGuid);
 		ShowDDrawGameWindow(false);
-		DDraw->EnumDisplayModes(DDEDM_STANDARDVGAMODES, NULL, (LPVOID)&adapter->body, EnumDisplayModesCallback);
 #ifdef FEATURE_NOLEGACY_OPTIONS
-		FilterDisplayModes(&adapter->body.swDispModeList, false);
-		FilterDisplayModes(&adapter->body.hwDispModeList, true);
+		DDraw->EnumDisplayModes(0, NULL, (LPVOID)&adapter->body, EnumDisplayModesCallback);
+		FilterDisplayModes(&adapter->body.hwDispModeList);
+#else // FEATURE_NOLEGACY_OPTIONS
+		DDraw->EnumDisplayModes(DDEDM_STANDARDVGAMODES, NULL, (LPVOID)&adapter->body, EnumDisplayModesCallback);
 #endif // FEATURE_NOLEGACY_OPTIONS
 		HideDDrawGameWindow();
 		DDrawRelease();
@@ -733,19 +732,22 @@ HRESULT WINAPI EnumDisplayModesCallback(LPDDSDESC lpDDSurfaceDesc, LPVOID lpCont
 		// Check software renderer requirements for 8 bit display modes
 		if( lpDDSurfaceDesc->dwWidth  % 8 != 0 ||
 			lpDDSurfaceDesc->dwHeight % 4 != 0 ||
-			lpDDSurfaceDesc->dwHeight > 1200 )
+			lpDDSurfaceDesc->dwHeight > 1200 ||
+			CHK_ANY(lpDDSurfaceDesc->ddsCaps.dwCaps, DDSCAPS_MODEX|DDSCAPS_STANDARDVGAMODE) )
 		{
 			return DDENUMRET_OK;
 		}
-#endif // FEATURE_NOLEGACY_OPTIONS
 
-		if( (lpDDSurfaceDesc->ddsCaps.dwCaps & DDSCAPS_MODEX) != 0 ) {
+		vgaMode = VGA_256Color;
+#else // FEATURE_NOLEGACY_OPTIONS
+		if( CHK_ANY(lpDDSurfaceDesc->ddsCaps.dwCaps, DDSCAPS_MODEX) ) {
 			vgaMode = VGA_ModeX;
-		} else if( (lpDDSurfaceDesc->ddsCaps.dwCaps & DDSCAPS_STANDARDVGAMODE) != 0 ) {
+		} else if( CHK_ANY(lpDDSurfaceDesc->ddsCaps.dwCaps, DDSCAPS_STANDARDVGAMODE) ) {
 			vgaMode = VGA_Standard;
 		} else {
 			vgaMode = VGA_256Color;
 		}
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 		if( lpDDSurfaceDesc->dwWidth == 320 &&
 			lpDDSurfaceDesc->dwHeight == 200 &&
