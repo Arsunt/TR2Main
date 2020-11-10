@@ -64,7 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now the game correctly keeps proper resolutions when it switches between Windowed / Full Screen.
 - Implemented embedded textures for Keyboard/Joystick button sprites. There are 3 styles for Joystick buttons: Numeric, XBox, PlayStation.
 - Added arrows to PlayStation styled inventory text boxes.
-- Sound/Music volumes presented as gradient bars if PlayStation styled inventory text boxes are enabled.
+- Sound/Music volumes presented as gradient bars if PlayStation styled inventory text boxes are enabled. Also there are PlayStation styled SFX for changing volume.
 - Added PlayStation styled Joystick button hints for inventory (optional feature).
 - Added Pause feature (P key). Two styles are available: transparent and 50% darkened.
 - Controls text box completely redesigned. Now you can view both default and custom keyboard layouts on the same page. Joystick layout is now independent from the custom keyboard layout.

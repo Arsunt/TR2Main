@@ -395,6 +395,9 @@ void DisplayVolumeBars(bool isSmooth) {
 	}
 	DrawVolumeBar(10, -5, musicVolumePos, SoundOptionLine ? 100 : 255);
 	DrawVolumeBar(10, 20, soundVolumePos, SoundOptionLine ? 255 : 100);
+	if( SoundOptionLine ) {
+		PlaySoundEffect(113, NULL, SFX_ALWAYS); // ticking clock sound
+	}
 }
 
 static const char *GetEmptyOptState(void) {
@@ -1010,16 +1013,18 @@ void __cdecl do_sound_option(INVENTORY_ITEM *item) {
 			IsInvOptionsDelay = TRUE;
 			InvOptionsDelayCounter = 5 * TICKS_PER_FRAME;
 #ifdef FEATURE_HUD_IMPROVED
+			S_CDVolume(( MusicVolume == 0 ) ? 0 : (25 * MusicVolume + 5));
 			if( SavedAppSettings.RenderMode != RM_Hardware || !InvTextBoxMode ) {
 				sprintf(volumeString, "%2d", MusicVolume);
 				T_ChangeText(SoundTextInfo[6], volumeString);
+				PlaySoundEffect(115, NULL, SFX_ALWAYS); // page flip SFX
 			}
 #else // FEATURE_HUD_IMPROVED
 			sprintf(volumeString, "| %2d", MusicVolume); // Char '|' is musical note picture
 			T_ChangeText(SoundTextInfo[0], volumeString);
-#endif // FEATURE_HUD_IMPROVED
 			S_CDVolume(( MusicVolume == 0 ) ? 0 : (25 * MusicVolume + 5));
 			PlaySoundEffect(115, NULL, SFX_ALWAYS); // page flip SFX
+#endif // FEATURE_HUD_IMPROVED
 			break;
 
 		case 1 :
@@ -1033,16 +1038,18 @@ void __cdecl do_sound_option(INVENTORY_ITEM *item) {
 			IsInvOptionsDelay = TRUE;
 			InvOptionsDelayCounter = 5 * TICKS_PER_FRAME;
 #ifdef FEATURE_HUD_IMPROVED
+			S_SoundSetMasterVolume(( SoundVolume == 0 ) ? 0 : (6 * SoundVolume + 4));
 			if( SavedAppSettings.RenderMode != RM_Hardware || !InvTextBoxMode ) {
 				sprintf(volumeString, "%2d", SoundVolume);
 				T_ChangeText(SoundTextInfo[7], volumeString);
+				PlaySoundEffect(115, NULL, SFX_ALWAYS); // page flip SFX
 			}
 #else // FEATURE_HUD_IMPROVED
 			sprintf(volumeString, "} %2d", SoundVolume); // Char '}' is dynamic speaker picture
 			T_ChangeText(SoundTextInfo[1], volumeString);
-#endif // FEATURE_HUD_IMPROVED
 			S_SoundSetMasterVolume(( SoundVolume == 0 ) ? 0 : (6 * SoundVolume + 4));
 			PlaySoundEffect(115, NULL, SFX_ALWAYS); // page flip SFX
+#endif // FEATURE_HUD_IMPROVED
 			break;
 
 		default :
