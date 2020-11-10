@@ -552,7 +552,7 @@ bool __cdecl WinVidGoFullScreen(DISPLAY_MODE *dispMode) {
 		goto FAIL;
 
 	IsGameWindowUpdating = true;
-	rc = DDraw->SetDisplayMode(dispMode->width, dispMode->height, dispMode->bpp, 0, (dispMode->vga == 3));
+	rc = DDraw->SetDisplayMode(dispMode->width, dispMode->height, dispMode->bpp, 0, (dispMode->vga == VGA_Standard) ? DDSDM_STANDARDVGAMODE : 0);
 	IsGameWindowUpdating = false;
 
 	if FAILED(rc)
