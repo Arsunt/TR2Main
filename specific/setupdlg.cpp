@@ -32,6 +32,10 @@
 #include "global/vars.h"
 #include <commctrl.h>
 
+#ifdef FEATURE_NOLEGACY_OPTIONS
+extern bool AvoidInterlacedVideoModes;
+#endif // FEATURE_NOLEGACY_OPTIONS
+
 static LPCTSTR String_Software3d = "Software (256 Colors)";
 static LPCTSTR String_Hardware3d = "Hardware 3D Acceleration";
 static LPCTSTR String_FullScreen = "Full Screen";
@@ -249,6 +253,9 @@ int __cdecl SE_ReadAppSettings(APP_SETTINGS *settings) {
 	GetRegistryBoolValue(REG_JOY_ENABLE,	&settings->JoystickEnabled,			true);
 	GetRegistryBoolValue(REG_FMV_DISABLE,	&settings->DisableFMV,				false);
 
+#ifdef FEATURE_NOLEGACY_OPTIONS
+	GetRegistryBoolValue(REG_AVOID_INTERLACED, &AvoidInterlacedVideoModes, false);
+#endif // FEATURE_NOLEGACY_OPTIONS
 	CloseGameRegistryKey();
 	return IsNewRegistryKeyCreated() ? 2 : 1;
 }

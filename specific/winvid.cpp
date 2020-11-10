@@ -43,6 +43,10 @@ static void setWindowStyle(bool isFullScreen) {
 }
 #endif // FEATURE_WINDOW_STYLE_FIX
 
+#ifdef FEATURE_NOLEGACY_OPTIONS
+bool AvoidInterlacedVideoModes = false;
+#endif // FEATURE_NOLEGACY_OPTIONS
+
 #ifdef FEATURE_INPUT_IMPROVED
 #include "modding/raw_input.h"
 #include "modding/joy_output.h"
@@ -679,17 +683,71 @@ static void DeleteDisplayMode(DISPLAY_MODE_LIST *modeList, DISPLAY_MODE_NODE *no
 	delete(node);
 }
 
+static DWORD GetProgressiveDisplayModes(DWORD bpp, DEVMODE *modes, DWORD modeNum) {
+	DWORD idx = 0;
+	DWORD num = 0;
+	if( modes == NULL ) {
+		DEVMODE mode;
+		memset(&mode, 0, sizeof(mode));
+		mode.dmSize = sizeof(mode);
+		while( EnumDisplaySettings(NULL, idx++, &mode) ) {
+			if( mode.dmBitsPerPel == bpp && !CHK_ANY(mode.dmDisplayFlags, DM_INTERLACED) ) {
+				++num;
+			}
+		}
+	} else {
+		memset(modes, 0, sizeof(DEVMODE) * modeNum);
+		while( num < modeNum ) {
+			modes[num].dmSize = sizeof(DEVMODE);
+			if( !EnumDisplaySettings(NULL, idx++, &modes[num]) ) {
+				break;
+			}
+			if( modes[num].dmBitsPerPel == bpp && !CHK_ANY(modes[num].dmDisplayFlags, DM_INTERLACED) ) {
+				++num;
+			}
+		}
+	}
+	return num;
+}
+
+static bool IsModeInList(DISPLAY_MODE *mode, DEVMODE *modes, DWORD modeNum) {
+	if( !mode || !modes || !modeNum ) return false;
+	for( DWORD i = 0; i < modeNum; ++i ) {
+		if( modes[i].dmPelsWidth  == (DWORD)mode->width  &&
+			modes[i].dmPelsHeight == (DWORD)mode->height &&
+			modes[i].dmBitsPerPel == (DWORD)mode->bpp )
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 static void FilterDisplayModes(DISPLAY_MODE_LIST *modeList) {
+	DWORD wlistSize = 0;
+	DEVMODE *whitelist = NULL;
 	DISPLAY_MODE_NODE *mode, *next;
 	int bppMax = 8;
 	for( mode = modeList->head; mode; mode = mode->next ) {
 		CLAMPL(bppMax, mode->body.bpp);
 	}
+	if( AvoidInterlacedVideoModes ) {
+		wlistSize = GetProgressiveDisplayModes(bppMax, NULL, 0);
+		if( wlistSize ) {
+			whitelist = (DEVMODE *)malloc(sizeof(DEVMODE) * wlistSize);
+			if( whitelist ) {
+				GetProgressiveDisplayModes(bppMax, whitelist, wlistSize);
+			}
+		}
+	}
 	for( mode = modeList->head; mode; mode = next ) {
 		next = mode->next;
-		if( mode->body.bpp < bppMax ) {
+		if( mode->body.bpp < bppMax || (whitelist && !IsModeInList(&mode->body, whitelist, wlistSize)) ) {
 			DeleteDisplayMode(modeList, mode);
 		}
+	}
+	if( whitelist ) {
+		free(whitelist);
 	}
 }
 #endif // FEATURE_NOLEGACY_OPTIONS

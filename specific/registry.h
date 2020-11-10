@@ -89,6 +89,7 @@
 #define REG_JOYSTICK_VIBRATION	"JoystickVibration"
 #define REG_JOYSTICK_LED_COLOR	"JoystickLedColor"
 #define REG_JOYSTICK_HINTS		"JoystickHints"
+#define REG_AVOID_INTERLACED	"AvoidInterlacedVideoModes"
 
 // FLOAT value names
 #define REG_GAME_SIZER		"Sizer"
