@@ -48,6 +48,7 @@ extern void RemoveJoystickHintText(bool isSelect, bool isContinue, bool isDesele
 extern void DisplayJoystickHintText(bool isSelect, bool isContinue, bool isDeselect);
 extern void DisplayVolumeBars(bool isSmooth);
 
+extern bool PsxFovEnabled;
 extern DWORD InvTextBoxMode;
 #endif // FEATURE_HUD_IMPROVED
 
@@ -783,6 +784,17 @@ void __cdecl Construct_Inventory() {
 	}
 
 	SoundOptionLine = 0;
+
+#ifdef FEATURE_HUD_IMPROVED
+	double scale = (double)GetRenderScale(480) / (double)GetRenderHeight();
+	if( scale < 1.5 ) {
+		InvCompassOption.yTransSel = PsxFovEnabled ? -140 : -170;
+	} else if( scale < 1.7) {
+		InvCompassOption.yTransSel = -15 - (scale - 1.5) * 35.0;
+	} else {
+		InvCompassOption.yTransSel = -22 - (scale - 1.7) / 0.0075;
+	}
+#endif // FEATURE_HUD_IMPROVED
 }
 
 void __cdecl SelectMeshes(INVENTORY_ITEM *invItem) {

@@ -70,6 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Controls text box completely redesigned. Now you can view both default and custom keyboard layouts on the same page. Joystick layout is now independent from the custom keyboard layout.
 - Fade out to black implemented for levels, demos, cut scenes and statistics.
 - Added an option to select Demo Mode text style: none, PC or PlayStation.
+- Now the inventory stopwatch (statistics item) position depends from HUD scale and Field of View options. So it looks both PlayStation and PC authentic.
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.
