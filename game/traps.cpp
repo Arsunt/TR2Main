@@ -21,6 +21,7 @@
 
 #include "global/precompiled.h"
 #include "game/traps.h"
+#include "3dsystem/phd_math.h"
 #include "game/control.h"
 #include "game/effects.h"
 #include "game/items.h"
@@ -100,6 +101,387 @@ void __cdecl MineControl(__int16 mineID) {
 #ifdef FEATURE_INPUT_IMPROVED
 	JoyRumbleExplode(mine->pos.x, mine->pos.y, mine->pos.z, 0x2800, false);
 #endif // FEATURE_INPUT_IMPROVED
+}
+
+void __cdecl ControlSpikeWall(__int16 itemID) {
+	ITEM_INFO *item;
+	int x, z;
+	__int16 roomID;
+
+	item = &Items[itemID];
+	if (TriggerActive(item) && item->status != ITEM_DISABLED) {
+		z = item->pos.z + (16 * phd_cos(item->pos.rotY) >> W2V_SHIFT);
+		x = item->pos.x + (16 * phd_sin(item->pos.rotY) >> W2V_SHIFT);
+		roomID = item->roomNumber;
+		if (GetHeight(GetFloor(x, item->pos.y, z, &roomID), x, item->pos.y, z) != item->pos.y) {
+			item->status = ITEM_DISABLED;
+		} else {
+			item->pos.z = z;
+			item->pos.x = x;
+			if (roomID != item->roomNumber)
+				ItemNewRoom(itemID, roomID);
+		}
+		PlaySoundEffect(204, &item->pos, 0);
+	}
+	if (item->touchBits) {
+		LaraItem->hitPoints -= 20;
+		LaraItem->hit_status = 1;
+		DoLotsOfBlood(LaraItem->pos.x, LaraItem->pos.y - 512, LaraItem->pos.z, 1, item->pos.rotY, LaraItem->roomNumber, 3);
+		item->touchBits = 0;
+		PlaySoundEffect(205, &item->pos, 0);
+	}
+}
+
+void __cdecl ControlCeilingSpikes(__int16 itemID) {
+	ITEM_INFO *item;
+	int y;
+	__int16 roomID;
+
+	item = &Items[itemID];
+	if (TriggerActive(item) && item->status != ITEM_DISABLED) {
+		y = item->pos.y + 5;
+		roomID = item->roomNumber;
+		if (GetHeight(GetFloor(item->pos.x, y, item->pos.z, &roomID), item->pos.x, y, item->pos.z) < y + 1024) {
+			item->status = ITEM_DISABLED;
+		} else {
+			item->pos.y = y;
+			if (roomID != item->roomNumber)
+				ItemNewRoom(itemID, roomID);
+		}
+		PlaySoundEffect(204, &item->pos, 0);
+	}
+	if (item->touchBits) {
+		LaraItem->hitPoints -= 20;
+		LaraItem->hit_status = 1;
+		DoLotsOfBlood(LaraItem->pos.x, LaraItem->pos.y + 768, LaraItem->pos.z, 1, item->pos.rotY, LaraItem->roomNumber, 3);
+		item->touchBits = 0;
+		PlaySoundEffect(205, &item->pos, 0);
+	}
+}
+
+void __cdecl HookControl(__int16 itemID) {
+	ITEM_INFO *item;
+	static BOOL IsHookHit = FALSE;
+
+	item = &Items[itemID];
+	if (item->touchBits && !IsHookHit) {
+		LaraItem->hitPoints -= 50;
+		LaraItem->hit_status = 1;
+		DoLotsOfBlood(LaraItem->pos.x, LaraItem->pos.y - 512, LaraItem->pos.z, LaraItem->speed, LaraItem->pos.rotY, LaraItem->roomNumber, 3);
+	} else {
+		IsHookHit = FALSE;
+	}
+	AnimateItem(item);
+}
+
+void __cdecl SpinningBlade(__int16 itemID) {
+	ITEM_INFO *item;
+	int x, z;
+	__int16 roomID;
+	BOOL reverse;
+
+	item = &Items[itemID];
+	if (item->currentAnimState == 2) {
+		if (item->goalAnimState != 1) {
+			z = item->pos.z + (1536 * phd_cos(item->pos.rotY) >> W2V_SHIFT);
+			x = item->pos.x + (1536 * phd_sin(item->pos.rotY) >> W2V_SHIFT);
+			roomID = item->roomNumber;
+			if (GetHeight(GetFloor(x, item->pos.y, z, &roomID), x, item->pos.y, z) == NO_HEIGHT)
+				item->goalAnimState = 1;
+		}
+		reverse = TRUE;
+		if (item->touchBits) {
+			LaraItem->hit_status = 1;
+			LaraItem->hitPoints -= 100;
+			DoLotsOfBlood(LaraItem->pos.x, LaraItem->pos.y - 512, LaraItem->pos.z, 2 * item->speed, LaraItem->pos.rotY, LaraItem->roomNumber, 2);
+		}
+		PlaySoundEffect(231, &item->pos, 0);
+	} else {
+		if (TriggerActive(item))
+			item->goalAnimState = 2;
+		reverse = FALSE;
+	}
+	AnimateItem(item);
+	roomID = item->roomNumber;
+	item->pos.y = GetHeight(GetFloor(item->pos.x, item->pos.y, item->pos.z, &roomID), item->pos.x, item->pos.y, item->pos.z);
+	item->floor = item->pos.y;
+	if (roomID != item->roomNumber)
+		ItemNewRoom(itemID, roomID);
+	if (reverse && item->currentAnimState == 1)
+		item->pos.rotY += PHD_180;
+}
+
+void __cdecl IcicleControl(__int16 itemID) {
+	ITEM_INFO *item;
+	__int16 roomID;
+	FLOOR_INFO *floor;
+
+	item = &Items[itemID];
+	switch (item->currentAnimState) {
+		case 1:
+			item->goalAnimState = 2;
+			break;
+		case 2:
+			if (!item->gravity) {
+				item->fallSpeed = 50;
+				item->gravity = 1;
+			}
+			if (item->touchBits) {
+				LaraItem->hitPoints -= 200;
+				LaraItem->hit_status = 1;
+			}
+			break;
+		case 3:
+			item->gravity = 0;
+			break;
+	}
+	AnimateItem(item);
+	if (item->status == ITEM_DISABLED) {
+		RemoveActiveItem(itemID);
+	} else {
+		roomID = item->roomNumber;
+		floor = GetFloor(item->pos.x, item->pos.y, item->pos.z, &roomID);
+		if (item->roomNumber != roomID)
+			ItemNewRoom(itemID, roomID);
+		item->floor = GetHeight(floor, item->pos.x, item->pos.y, item->pos.z);
+		if (item->currentAnimState == 2 && item->pos.y >= item->floor) {
+			item->gravity = 0;
+			item->goalAnimState = 3;
+			item->pos.y = item->floor;
+			item->fallSpeed = 0;
+			item->meshBits = 0x2B;
+		}
+	}
+}
+
+void __cdecl InitialiseBlade(__int16 itemID) {
+	ITEM_INFO *item;
+
+	item = &Items[itemID];
+	item->animNumber = Objects[ID_BLADE].animIndex + 2;
+	item->currentAnimState = 1;
+	item->frameNumber = Anims[item->animNumber].frameBase;
+}
+
+void __cdecl BladeControl(__int16 itemID) {
+	ITEM_INFO *item;
+
+	item = &Items[itemID];
+	if (TriggerActive(item) && item->currentAnimState == 1) {
+		item->goalAnimState = 2;
+	} else {
+		item->goalAnimState = 1;
+	}
+	if (CHK_ANY(item->touchBits, 2) && item->currentAnimState == 2) {
+		LaraItem->hit_status = 1;
+		LaraItem->hitPoints -= 100;
+		DoLotsOfBlood(LaraItem->pos.x, item->pos.y - 256, LaraItem->pos.z, LaraItem->speed, LaraItem->pos.rotY, LaraItem->roomNumber, 2);
+	}
+	AnimateItem(item);
+}
+
+void __cdecl InitialiseKillerStatue(__int16 itemID) {
+	ITEM_INFO *item;
+
+	item = &Items[itemID];
+	item->animNumber = Objects[item->objectID].animIndex + 3;
+	item->currentAnimState = 1;
+	item->frameNumber = Anims[item->animNumber].frameBase;
+}
+
+void __cdecl KillerStatueControl(__int16 itemID) {
+	ITEM_INFO *item;
+
+	item = &Items[itemID];
+	if (TriggerActive(item) && item->currentAnimState == 1) {
+		item->goalAnimState = 2;
+	} else {
+		item->goalAnimState = 1;
+	}
+	if (CHK_ANY(item->touchBits, 0x80) && item->currentAnimState == 2) {
+		LaraItem->hit_status = 1;
+		LaraItem->hitPoints -= 20;
+		DoBloodSplat(LaraItem->pos.x + (GetRandomControl() - 16384) / 256,
+					LaraItem->pos.y - GetRandomControl() / 44,
+					LaraItem->pos.z + (GetRandomControl() - 16384) / 256,
+					LaraItem->speed,
+					LaraItem->pos.rotY + (GetRandomControl() - 16384) / 8,
+					LaraItem->roomNumber);
+	}
+	AnimateItem(item);
+}
+
+void __cdecl Pendulum(__int16 itemID) {
+	ITEM_INFO *item;
+
+	item = &Items[itemID];
+	if (item->touchBits) {
+		LaraItem->hitPoints -= 50;
+		LaraItem->hit_status = 1;
+		DoBloodSplat(LaraItem->pos.x + (GetRandomControl() - 16384) / 256,
+					LaraItem->pos.y - GetRandomControl() / 44,
+					LaraItem->pos.z + (GetRandomControl() - 16384) / 256,
+					LaraItem->speed,
+					LaraItem->pos.rotY + (GetRandomControl() - 16384) / 8,
+					LaraItem->roomNumber);
+	}
+	item->floor = GetHeight(GetFloor(item->pos.x, item->pos.y, item->pos.z, &item->roomNumber), item->pos.x, item->pos.y, item->pos.z);
+	AnimateItem(item);
+}
+
+void __cdecl TeethTrap(__int16 itemID) {
+	ITEM_INFO *item;
+	static BITE_INFO Teeth[3][2] = {
+		{{-23, 0, -1718, 0}, {71, 0, -1718, 1}},
+		{{-23, 10, -1718, 0}, {71, 10, -1718, 1}},
+		{{-23, -10, -1718, 0}, {71, -10, -1718, 1}}
+	};
+
+	item = &Items[itemID];
+	if (TriggerActive(item)) {
+		item->goalAnimState = 1;
+		if (item->touchBits && item->currentAnimState == 1) {
+			LaraItem->hitPoints -= 400;
+			LaraItem->hit_status = 1;
+			BaddieBiteEffect(item, &Teeth[0][0]);
+			BaddieBiteEffect(item, &Teeth[0][1]);
+			BaddieBiteEffect(item, &Teeth[1][0]);
+			BaddieBiteEffect(item, &Teeth[1][1]);
+			BaddieBiteEffect(item, &Teeth[2][0]);
+			BaddieBiteEffect(item, &Teeth[2][1]);
+		}
+	} else {
+		item->goalAnimState = 0;
+	}
+	AnimateItem(item);
+}
+
+void __cdecl FallingCeiling(__int16 itemID) {
+	ITEM_INFO *item;
+	__int16 roomID;
+
+	item = &Items[itemID];
+	if (!item->currentAnimState) {
+		item->gravity = 1;
+		item->goalAnimState = 1;
+	} else {
+		if (item->currentAnimState == 1 && item->touchBits) {
+			LaraItem->hitPoints -= 300;
+			LaraItem->hit_status = 1;
+		}
+	}
+	AnimateItem(item);
+	if (item->status == ITEM_DISABLED) {
+		RemoveActiveItem(itemID);
+	} else {
+		roomID = item->roomNumber;
+		item->floor = GetHeight(GetFloor(item->pos.x, item->pos.y, item->pos.z, &roomID), item->pos.x, item->pos.y, item->pos.z);
+		if (roomID != item->roomNumber)
+			ItemNewRoom(itemID, roomID);
+		if (item->currentAnimState == 1 && item->pos.y >= item->floor) {
+			item->gravity = 0;
+			item->goalAnimState = 2;
+			item->pos.y = item->floor;
+			item->fallSpeed = 0;
+		}
+	}
+}
+
+void __cdecl DartEmitterControl(__int16 itemID) {
+	ITEM_INFO *item, *dynamic;
+	__int16 dynamicID;
+	int dx, dz;
+
+	item = &Items[itemID];
+	if (TriggerActive(item)) {
+		if (!item->currentAnimState)
+			item->goalAnimState = 1;
+	} else {
+		if (item->currentAnimState == 1)
+			item->goalAnimState = 0;
+	}
+	if (item->currentAnimState == 1 && item->frameNumber == Anims[item->animNumber].frameBase) {
+		dynamicID = CreateItem();
+		if (dynamicID != -1) {
+			dynamic = &Items[dynamicID];
+			dynamic->objectID = ID_DARTS;
+			dynamic->roomNumber = item->roomNumber;
+			dynamic->shade1 = -1;
+			dynamic->pos.rotY = item->pos.rotY;
+			dynamic->pos.y = item->pos.y - 512;
+			dz = 0;
+			dx = 0;
+			if (dynamic->pos.rotY <= -PHD_90) {
+				if (dynamic->pos.rotY == -PHD_90) {
+					dx = 412;
+				} else {
+					if (dynamic->pos.rotY == -PHD_180)
+						dz = 412;
+				}
+			} else {
+				if (!dynamic->pos.rotY) {
+					dz = -412;
+				} else {
+					if (dynamic->pos.rotY == PHD_90)
+						dx = -412;
+				}
+			}
+			dynamic->pos.x = item->pos.x + dx;
+			dynamic->pos.z = item->pos.z + dz;
+			InitialiseItem(dynamicID);
+			AddActiveItem(dynamicID);
+			dynamic->status = ITEM_ACTIVE;
+			PlaySoundEffect(254, &dynamic->pos, 0);
+		}
+	}
+	AnimateItem(item);
+}
+
+void __cdecl DartsControl(__int16 itemID) {
+	ITEM_INFO *item;
+	__int16 roomID, fxID;
+	FLOOR_INFO *floor;
+	FX_INFO *fx;
+
+	item = &Items[itemID];
+	if (item->touchBits) {
+		LaraItem->hitPoints -= 50;
+		LaraItem->hit_status = 1;
+		DoBloodSplat(item->pos.x, item->pos.y, item->pos.z, LaraItem->speed, LaraItem->pos.rotY, LaraItem->roomNumber);
+	}
+	AnimateItem(item);
+	roomID = item->roomNumber;
+	floor = GetFloor(item->pos.x, item->pos.y, item->pos.z, &roomID);
+	if (item->roomNumber != roomID)
+		ItemNewRoom(itemID, roomID);
+	item->floor = GetHeight(floor, item->pos.x, item->pos.y, item->pos.z);
+	item->pos.rotX += PHD_45 / 2;
+	if (item->pos.y >= item->floor) {
+		KillItem(itemID);
+		fxID = CreateEffect(item->roomNumber);
+		if (fxID != -1) {
+			fx = &Effects[fxID];
+			fx->pos = item->pos;
+			fx->speed = 0;
+			fx->counter = 6;
+			fx->object_number = ID_RICOCHET;
+			fx->frame_number = -3 * GetRandomControl() / 32768;
+		}
+		PlaySoundEffect(258, &item->pos, 0);
+	}
+}
+
+void __cdecl DartEffectControl(__int16 fxID) {
+	FX_INFO *fx;
+
+	fx = &Effects[fxID];
+	++fx->counter;
+	if (fx->counter >= 3) {
+		--fx->frame_number;
+		fx->counter = 0;
+		if (fx->frame_number <= Objects[fx->object_number].nMeshes)
+			KillEffect(fxID);
+	}
 }
 
 void __cdecl FlameEmitterControl(__int16 item_id) {
@@ -232,17 +614,19 @@ void __cdecl LavaBurn(ITEM_INFO *item) {
  */
 void Inject_Traps() {
 	INJECT(0x00440FC0, MineControl);
+	INJECT(0x004411C0, ControlSpikeWall);
+	INJECT(0x00441300, ControlCeilingSpikes);
+	INJECT(0x00441420, HookControl);
 
-//	INJECT(0x004411C0, ControlSpikeWall);
-//	INJECT(0x00441300, ControlCeilingSpikes);
-//	INJECT(0x00441420, HookControl);
 //	INJECT(0x004414B0, PropellerControl);
-//	INJECT(0x00441640, SpinningBlade);
-//	INJECT(0x004417C0, IcicleControl);
-//	INJECT(0x004418C0, InitialiseBlade);
-//	INJECT(0x00441900, BladeControl);
-//	INJECT(0x004419A0, InitialiseKillerStatue);
-//	INJECT(0x004419F0, KillerStatueControl);
+
+	INJECT(0x00441640, SpinningBlade);
+	INJECT(0x004417C0, IcicleControl);
+	INJECT(0x004418C0, InitialiseBlade);
+	INJECT(0x00441900, BladeControl);
+	INJECT(0x004419A0, InitialiseKillerStatue);
+	INJECT(0x004419F0, KillerStatueControl);
+
 //	INJECT(0x00441B00, SpringBoardControl);
 //	INJECT(0x00441BE0, InitialiseRollingBall);
 //	INJECT(0x00441C20, RollingBallControl);
@@ -252,16 +636,18 @@ void Inject_Traps() {
 //	INJECT(0x00442370, TrapDoorFloor);
 //	INJECT(0x004423B0, TrapDoorCeiling);
 //	INJECT(0x004423F0, OnTrapDoor);
-//	INJECT(0x004424A0, Pendulum);
+
+	INJECT(0x004424A0, Pendulum);
+
 //	INJECT(0x004425B0, FallingBlock);
 //	INJECT(0x004426C0, FallingBlockFloor);
 //	INJECT(0x00442700, FallingBlockCeiling);
-//	INJECT(0x00442750, TeethTrap);
-//	INJECT(0x00442810, FallingCeiling);
-//	INJECT(0x004428F0, DartEmitterControl);
-//	INJECT(0x00442A30, DartsControl);
-//	INJECT(0x00442B90, DartEffectControl);
 
+	INJECT(0x00442750, TeethTrap);
+	INJECT(0x00442810, FallingCeiling);
+	INJECT(0x004428F0, DartEmitterControl);
+	INJECT(0x00442A30, DartsControl);
+	INJECT(0x00442B90, DartEffectControl);
 	INJECT(0x00442BE0, FlameEmitterControl);
 	INJECT(0x00442C70, FlameControl);
 	INJECT(0x00442DE0, LaraBurn);

@@ -31,7 +31,6 @@
 //	0x0043FB90:		GetSpheres
 
 #define GetJointAbsPosition ((void(__cdecl*)(ITEM_INFO*, PHD_VECTOR*, int)) 0x0043FE70)
-
-//	0x00440010:		BaddieBiteEffect
+#define BaddieBiteEffect ((void(__cdecl*)(ITEM_INFO*,BITE_INFO*)) 0x00440010)
 
 #endif // SPHERE_H_INCLUDED
