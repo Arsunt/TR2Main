@@ -40,6 +40,7 @@ void __cdecl DoWakeEffect(ITEM_INFO *item); // 0x0040D0F0
 //	0x0040D7A0:		BoatUserControl
 //	0x0040D930:		BoatAnimation
 //	0x0040DAA0:		BoatControl
-//	0x0040E0D0:		GondolaControl
+
+void __cdecl GondolaControl(__int16 itemID); // 0x0040E0D0
 
 #endif // BOAT_H_INCLUDED

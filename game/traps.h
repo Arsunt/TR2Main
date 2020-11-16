@@ -29,17 +29,19 @@
  */
 
 void __cdecl MineControl(__int16 mineID); // 0x00440FC0
+void __cdecl ControlSpikeWall(__int16 itemID); // 0x004411C0
+void __cdecl ControlCeilingSpikes(__int16 itemID); // 0x00441300
+void __cdecl HookControl(__int16 itemID); // 0x00441420
 
-//	0x004411C0:		ControlSpikeWall
-//	0x00441300:		ControlCeilingSpikes
-//	0x00441420:		HookControl
 //	0x004414B0:		PropellerControl
-//	0x00441640:		SpinningBlade
-//	0x004417C0:		IcicleControl
-//	0x004418C0:		InitialiseBlade
-//	0x00441900:		BladeControl
-//	0x004419A0:		InitialiseKillerStatue
-//	0x004419F0:		KillerStatueControl
+
+void __cdecl SpinningBlade(__int16 itemID); // 0x00441640
+void __cdecl IcicleControl(__int16 itemID); // 0x004417C0
+void __cdecl InitialiseBlade(__int16 itemID); // 0x004418C0
+void __cdecl BladeControl(__int16 itemID); // 0x00441900
+void __cdecl InitialiseKillerStatue(__int16 itemID); // 0x004419A0
+void __cdecl KillerStatueControl(__int16 itemID); // 0x004419F0
+
 //	0x00441B00:		SpringBoardControl
 //	0x00441BE0:		InitialiseRollingBall
 //	0x00441C20:		RollingBallControl
@@ -49,16 +51,18 @@ void __cdecl MineControl(__int16 mineID); // 0x00440FC0
 //	0x00442370:		TrapDoorFloor
 //	0x004423B0:		TrapDoorCeiling
 //	0x004423F0:		OnTrapDoor
-//	0x004424A0:		Pendulum
+
+void __cdecl Pendulum(__int16 itemID); // 0x004424A0
+
 //	0x004425B0:		FallingBlock
 //	0x004426C0:		FallingBlockFloor
 //	0x00442700:		FallingBlockCeiling
-//	0x00442750:		TeethTrap
-//	0x00442810:		FallingCeiling
-//	0x004428F0:		DartEmitterControl
-//	0x00442A30:		DartsControl
-//	0x00442B90:		DartEffectControl
 
+void __cdecl TeethTrap(__int16 itemID); // 0x00442750
+void __cdecl FallingCeiling(__int16 itemID); // 0x00442810
+void __cdecl DartEmitterControl(__int16 itemID); // 0x004428F0
+void __cdecl DartsControl(__int16 itemID); // 0x00442A30
+void __cdecl DartEffectControl(__int16 fxID); // 0x00442B90
 void __cdecl FlameEmitterControl(__int16 item_id); // 0x00442BE0
 void __cdecl FlameControl(__int16 fx_id); // 0x00442C70
 void __cdecl LaraBurn(); // 0x00442DE0

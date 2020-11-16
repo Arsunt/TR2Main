@@ -22,7 +22,9 @@
 #include "global/precompiled.h"
 #include "game/boat.h"
 #include "3dsystem/phd_math.h"
+#include "game/control.h"
 #include "game/items.h"
+#include "game/missile.h"
 #include "specific/game.h"
 #include "specific/output.h"
 #include "global/vars.h"
@@ -42,7 +44,7 @@ void __cdecl DoWakeEffect(ITEM_INFO *item) {
 			fx->pos.x = item->pos.x + ((-700 * phd_sin(item->pos.rotY) + 300 * (i - 1) * phd_cos(item->pos.rotY)) >> W2V_SHIFT);
 			fx->pos.y = item->pos.y;
 			fx->pos.z = item->pos.z + ((-700 * phd_cos(item->pos.rotY) - 300 * (i - 1) * phd_sin(item->pos.rotY)) >> W2V_SHIFT);
-			fx->pos.rotY = 16384 * (i - 1) + item->pos.rotY;
+			fx->pos.rotY = PHD_90 * (i - 1) + item->pos.rotY;
 			fx->room_number = item->roomNumber;
 			fx->frame_number = frame_number;
 			fx->counter = 20;
@@ -57,6 +59,33 @@ void __cdecl DoWakeEffect(ITEM_INFO *item) {
 			CLAMPL(fx->shade, 0);
 		}
 	}
+}
+
+void __cdecl GondolaControl(__int16 itemID) {
+	ITEM_INFO *item;
+	__int16 roomID;
+
+	item = &Items[itemID];
+	switch (item->currentAnimState) {
+		case 1:
+			if (item->goalAnimState == 2) {
+				item->meshBits = 0xFF;
+				ExplodingDeath(itemID, 0xF0, 0);
+			}
+			break;
+		case 3:
+			item->pos.y += 50;
+			roomID = item->roomNumber;
+			item->floor = GetHeight(GetFloor(item->pos.x, item->pos.y, item->pos.z, &roomID), item->pos.x, item->pos.y, item->pos.z);
+			if (item->pos.y >= item->floor) {
+				item->goalAnimState = 4;
+				item->pos.y = item->floor;
+			}
+			break;
+	}
+	AnimateItem(item);
+	if (item->status == ITEM_DISABLED)
+		RemoveActiveItem(itemID);
 }
 
 /*
@@ -76,5 +105,6 @@ void Inject_Boat() {
 //	INJECT(0x0040D7A0, BoatUserControl);
 //	INJECT(0x0040D930, BoatAnimation);
 //	INJECT(0x0040DAA0, BoatControl);
-//	INJECT(0x0040E0D0, GondolaControl);
+
+	INJECT(0x0040E0D0, GondolaControl);
 }
