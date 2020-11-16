@@ -202,10 +202,11 @@ void __cdecl HWR_DrawPolyList() {
 			UINT16 y1 = *(bufPtr++);
 			UINT16 bar = *(bufPtr++);
 			UINT16 pixel = *(bufPtr++);
+			UINT16 alpha = *(bufPtr++);
 			if( polyType == POLY_HWR_healthbar ) {
-				PSX_DrawHealthBar(x0, y0, x1, y1, bar, pixel);
+				PSX_DrawHealthBar(x0, y0, x1, y1, bar, pixel, alpha);
 			} else {
-				PSX_DrawAirBar(x0, y0, x1, y1, bar, pixel);
+				PSX_DrawAirBar(x0, y0, x1, y1, bar, pixel, alpha);
 			}
 			continue;
 		}

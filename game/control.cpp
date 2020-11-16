@@ -34,6 +34,10 @@
 #include "specific/sndpc.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_BACKGROUND_IMPROVED
+#include "modding/pause.h"
+#endif // FEATURE_BACKGROUND_IMPROVED
+
 #ifdef FEATURE_INPUT_IMPROVED
 #include "modding/joy_output.h"
 #endif // FEATURE_INPUT_IMPROVED
@@ -128,6 +132,12 @@ int __cdecl ControlPhase(int nTicks, BOOL demoMode) {
 				}
 			}
 		}
+
+#ifdef FEATURE_BACKGROUND_IMPROVED
+		if( !Lara.death_count && !Lara.extra_anim && CHK_ANY(InputStatus, IN_PAUSE) && S_Pause() ) {
+			return 1;
+		}
+#endif // FEATURE_BACKGROUND_IMPROVED
 
 		DynamicLightCount = 0;
 

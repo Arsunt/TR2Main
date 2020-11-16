@@ -32,17 +32,23 @@
 #include "global/vars.h"
 #include <commctrl.h>
 
+#ifdef FEATURE_NOLEGACY_OPTIONS
+extern bool AvoidInterlacedVideoModes;
+#endif // FEATURE_NOLEGACY_OPTIONS
+
 static LPCTSTR String_Software3d = "Software (256 Colors)";
 static LPCTSTR String_Hardware3d = "Hardware 3D Acceleration";
 static LPCTSTR String_FullScreen = "Full Screen";
 static LPCTSTR String_Windowed = "Windowed";
 static LPCTSTR String_ZBuffered = "Z Buffered";
 static LPCTSTR String_BilinearFiltered = "Bilinear Filtered";
-static LPCTSTR String_Dithered = "Dithered";
+
 #ifndef FEATURE_NOLEGACY_OPTIONS
+static LPCTSTR String_Dithered = "Dithered";
 static LPCTSTR String_TripleBuffered = "Triple Buffered";
 static LPCTSTR String_PerspectiveCorrect = "Perspective Correct";
 #endif // FEATURE_NOLEGACY_OPTIONS
+
 static LPCTSTR String_None = "None";
 static LPCTSTR String_NA = "n/a";
 static LPCTSTR String_Enabled = "Enabled";
@@ -51,11 +57,13 @@ static LPCTSTR String_Lara = "Lara";
 static LPCTSTR String_Camera = "Camera";
 static LPCTSTR Strings_Aspect[] = {" (4:3)", " (16:9)", ""};
 
+#ifndef FEATURE_NOLEGACY_OPTIONS
 static LPCTSTR String_HighColor = "High Color";
 static LPCTSTR String_TrueColor = "True Color";
 static LPCTSTR String_256Color = "256 Color";
 static LPCTSTR String_ModeX = "Mode X";
 static LPCTSTR String_StandardVga = "Standard VGA";
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 static LPCTSTR String_VidTestPassed = "PASSED";
 static LPCTSTR String_VidTestFailed = "FAILED";
@@ -123,12 +131,12 @@ bool __cdecl SE_WriteAppSettings(APP_SETTINGS *settings) {
 	SetRegistryDwordValue(REG_ADJUST_LINEAR,	settings->LinearAdjustment);
 
 	SetRegistryBoolValue(REG_PERSPECTIVE,		settings->PerspectiveCorrect);
+	SetRegistryBoolValue(REG_DITHER,			settings->Dither);
 	SetRegistryBoolValue(REG_TRIPLEBUFFER,		settings->TripleBuffering);
 	SetRegistryBoolValue(REG_16BIT_DISABLE,		settings->Disable16BitTextures);
 	SetRegistryBoolValue(REG_SORT_DISABLE,		settings->DontSortPrimitives);
 #endif // FEATURE_NOLEGACY_OPTIONS
 
-	SetRegistryBoolValue(REG_DITHER,			settings->Dither);
 	SetRegistryBoolValue(REG_ZBUFFER,			settings->ZBuffer);
 	SetRegistryBoolValue(REG_BILINEAR,			settings->BilinearFiltering);
 	SetRegistryBoolValue(REG_FULLSCREEN,		settings->FullScreen);
@@ -164,9 +172,15 @@ int __cdecl SE_ReadAppSettings(APP_SETTINGS *settings) {
 	if( settings->RenderMode < RM_Software || settings->RenderMode > RM_Hardware )
 		settings->RenderMode = RM_Hardware;
 
+#ifdef FEATURE_NOLEGACY_OPTIONS
+	GetRegistryDwordValue(REG_FS_WIDTH,		(DWORD *)&targetMode.width,		1920);
+	GetRegistryDwordValue(REG_FS_HEIGHT,	(DWORD *)&targetMode.height,	1080);
+	GetRegistryDwordValue(REG_FS_BPP,		(DWORD *)&targetMode.bpp,		32);
+#else // FEATURE_NOLEGACY_OPTIONS
 	GetRegistryDwordValue(REG_FS_WIDTH,		(DWORD *)&targetMode.width,		640);
 	GetRegistryDwordValue(REG_FS_HEIGHT,	(DWORD *)&targetMode.height,	480);
 	GetRegistryDwordValue(REG_FS_BPP,		(DWORD *)&targetMode.bpp,		16);
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 	targetMode.vga = VGA_NoVga;
 	if( settings->RenderMode == RM_Software )
@@ -177,15 +191,27 @@ int __cdecl SE_ReadAppSettings(APP_SETTINGS *settings) {
 	else
 		modeList = &settings->PreferredDisplayAdapter->body.swDispModeList;
 
+#ifdef FEATURE_NOLEGACY_OPTIONS
+	if( modeList->head ) {
+		targetMode.bpp = modeList->head->body.bpp;
+		targetMode.vga = modeList->head->body.vga;
+	}
+#endif // FEATURE_NOLEGACY_OPTIONS
 	for( mode = modeList->head; mode; mode = mode->next ) {
 		if( !CompareVideoModes(&mode->body, &targetMode) )
 			break;
 	}
 	settings->VideoMode = mode ? mode : modeList->tail;
 
+#ifdef FEATURE_NOLEGACY_OPTIONS
+	GetRegistryDwordValue(REG_WIN_WIDTH,	(DWORD *)&settings->WindowWidth,	1024);
+	GetRegistryDwordValue(REG_WIN_HEIGHT,	(DWORD *)&settings->WindowHeight,	768);
+	GetRegistryDwordValue(REG_WIN_ASPECT,	(DWORD *)&settings->AspectMode,		AM_Any);
+#else // FEATURE_NOLEGACY_OPTIONS
 	GetRegistryDwordValue(REG_WIN_WIDTH,	(DWORD *)&settings->WindowWidth,	512);
 	GetRegistryDwordValue(REG_WIN_HEIGHT,	(DWORD *)&settings->WindowHeight,	384);
 	GetRegistryDwordValue(REG_WIN_ASPECT,	(DWORD *)&settings->AspectMode,		AM_4_3);
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 	if( settings->AspectMode < AM_4_3 || settings->AspectMode > AM_Any )
 		settings->AspectMode = AM_4_3;
@@ -195,6 +221,7 @@ int __cdecl SE_ReadAppSettings(APP_SETTINGS *settings) {
 	settings->NearestAdjustment = 1;
 	settings->LinearAdjustment = 128;
 	settings->PerspectiveCorrect = true;
+	settings->Dither = true;
 	settings->TripleBuffering = false;
 	settings->Disable16BitTextures = false;
 	settings->DontSortPrimitives = false;
@@ -211,13 +238,13 @@ int __cdecl SE_ReadAppSettings(APP_SETTINGS *settings) {
 	CLAMP(settings->LinearAdjustment, 0, 256);
 
 	GetRegistryBoolValue(REG_PERSPECTIVE,	&settings->PerspectiveCorrect,		settings->RenderMode == RM_Hardware);
+	GetRegistryBoolValue(REG_DITHER,		&settings->Dither,					false);
 	GetRegistryBoolValue(REG_TRIPLEBUFFER,	&settings->TripleBuffering,			false);
 	GetRegistryBoolValue(REG_16BIT_DISABLE,	&settings->Disable16BitTextures,	false);
 	GetRegistryBoolValue(REG_SORT_DISABLE,	&settings->DontSortPrimitives,		false);
 	GetRegistryBoolValue(REG_FLIP_BROKEN,	&settings->FlipBroken,				false);
 #endif // FEATURE_NOLEGACY_OPTIONS
 
-	GetRegistryBoolValue(REG_DITHER,		&settings->Dither,					false);
 	GetRegistryBoolValue(REG_ZBUFFER,		&settings->ZBuffer,					true);
 	GetRegistryBoolValue(REG_BILINEAR,		&settings->BilinearFiltering,		true);
 	GetRegistryBoolValue(REG_FULLSCREEN,	&settings->FullScreen,				true);
@@ -226,6 +253,9 @@ int __cdecl SE_ReadAppSettings(APP_SETTINGS *settings) {
 	GetRegistryBoolValue(REG_JOY_ENABLE,	&settings->JoystickEnabled,			true);
 	GetRegistryBoolValue(REG_FMV_DISABLE,	&settings->DisableFMV,				false);
 
+#ifdef FEATURE_NOLEGACY_OPTIONS
+	GetRegistryBoolValue(REG_AVOID_INTERLACED, &AvoidInterlacedVideoModes, false);
+#endif // FEATURE_NOLEGACY_OPTIONS
 	CloseGameRegistryKey();
 	return IsNewRegistryKeyCreated() ? 2 : 1;
 }
@@ -288,8 +318,8 @@ void __cdecl SE_DefaultGraphicsSettings() {
 			hwAdapter = adapter;
 #ifndef FEATURE_NOLEGACY_OPTIONS
 			ChangedAppSettings.PerspectiveCorrect = adapter->body.perspectiveCorrectSupported;
-#endif // FEATURE_NOLEGACY_OPTIONS
 			ChangedAppSettings.Dither = adapter->body.ditherSupported;
+#endif // FEATURE_NOLEGACY_OPTIONS
 			ChangedAppSettings.ZBuffer = adapter->body.zBufferSupported;
 			ChangedAppSettings.BilinearFiltering = adapter->body.linearFilterSupported;
 		}
@@ -307,15 +337,27 @@ void __cdecl SE_DefaultGraphicsSettings() {
 	}
 
 	ChangedAppSettings.FullScreen = true;
+#ifdef FEATURE_NOLEGACY_OPTIONS
+	ChangedAppSettings.AspectMode = AM_Any;
+	ChangedAppSettings.WindowWidth = 1024;
+	ChangedAppSettings.WindowHeight = 768;
+#else // FEATURE_NOLEGACY_OPTIONS
 	ChangedAppSettings.WindowWidth = 512;
 	ChangedAppSettings.WindowHeight = 384;
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 	if( ChangedAppSettings.PreferredDisplayAdapter == NULL )
 		return;
 
+#ifdef FEATURE_NOLEGACY_OPTIONS
+	targetMode.width = 1920;
+	targetMode.height = 1080;
+	targetMode.bpp = 32;
+#else // FEATURE_NOLEGACY_OPTIONS
 	targetMode.width = 640;
 	targetMode.height = 480;
 	targetMode.bpp = 16;
+#endif // FEATURE_NOLEGACY_OPTIONS
 	targetMode.vga = VGA_NoVga;
 
 	if( ChangedAppSettings.RenderMode == RM_Hardware )
@@ -323,6 +365,12 @@ void __cdecl SE_DefaultGraphicsSettings() {
 	else
 		modeList = &ChangedAppSettings.PreferredDisplayAdapter->body.swDispModeList;
 
+#ifdef FEATURE_NOLEGACY_OPTIONS
+	if( modeList->head ) {
+		targetMode.bpp = modeList->head->body.bpp;
+		targetMode.vga = modeList->head->body.vga;
+	}
+#endif // FEATURE_NOLEGACY_OPTIONS
 	for( mode = modeList->head; mode; mode = mode->next ) {
 		if( !CompareVideoModes(&mode->body, &targetMode) )
 			break;
@@ -510,11 +558,11 @@ INT_PTR CALLBACK SE_GraphicsDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPAR
 						ChangedAppSettings.PerspectiveCorrect = isCheck;
 						SE_GraphicsDlgUpdate(hwndDlg);
 						break;
-#endif // FEATURE_NOLEGACY_OPTIONS
 					case ID_GRAPH_BUTTON_DITHER : // 'Dither' CheckBox
 						ChangedAppSettings.Dither = isCheck;
 						SE_GraphicsDlgUpdate(hwndDlg);
 						break;
+#endif // FEATURE_NOLEGACY_OPTIONS
 					case ID_GRAPH_BUTTON_ZBUFFER : // 'Z Buffer' CheckBox
 						ChangedAppSettings.ZBuffer = isCheck;
 						SE_GraphicsDlgUpdate(hwndDlg);
@@ -608,6 +656,12 @@ void __cdecl SE_GraphicsDlgFullScreenModesUpdate(HWND hwndDlg) {
 		return;
 	}
 
+#ifdef FEATURE_NOLEGACY_OPTIONS
+	if( modeList->head ) {
+		SE_FullScreenMode.bpp = modeList->head->body.bpp;
+		SE_FullScreenMode.vga = modeList->head->body.vga;
+	}
+#endif // FEATURE_NOLEGACY_OPTIONS
 	for( mode = modeList->head; mode; mode = mode->next ) {
 		if( !CompareVideoModes(&mode->body, &SE_FullScreenMode) )
 			break;
@@ -616,6 +670,9 @@ void __cdecl SE_GraphicsDlgFullScreenModesUpdate(HWND hwndDlg) {
 
 	selectedIndex = 0;
 	for( mode = modeList->head; mode; mode = mode->next ) {
+#ifdef FEATURE_NOLEGACY_OPTIONS
+		wsprintf(stringBuf, "%dx%d", mode->body.width, mode->body.height);
+#else // FEATURE_NOLEGACY_OPTIONS
 		LPCTSTR lpColorString = "";
 		switch( mode->body.vga ) {
 			case VGA_NoVga :
@@ -640,6 +697,7 @@ void __cdecl SE_GraphicsDlgFullScreenModesUpdate(HWND hwndDlg) {
 				break;
 		}
 		wsprintf(stringBuf, "%dx%d %s", mode->body.width, mode->body.height, lpColorString);
+#endif // FEATURE_NOLEGACY_OPTIONS
 		addedIndex = SendMessage(comboBox, CB_ADDSTRING, 0, (LPARAM)stringBuf);
 		SendMessage(comboBox, CB_SETITEMDATA, addedIndex, (LPARAM)mode);
 		if( mode == selected )
@@ -667,9 +725,9 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 	bool renderAvailable;
 #ifndef FEATURE_NOLEGACY_OPTIONS
 	bool perspectiveCorrectAvailable;
+	bool ditherAvailable;
 	bool tripleBufferingAvailable;
 #endif // FEATURE_NOLEGACY_OPTIONS
-	bool ditherAvailable;
 	bool zBufferAvailable;
 	bool bilinearFilteringAvailable;
 	bool windowedSizeAvailable;
@@ -701,9 +759,9 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 		// Software Renderer
 #ifndef FEATURE_NOLEGACY_OPTIONS
 		perspectiveCorrectAvailable = true;
+		ditherAvailable = false;
 		tripleBufferingAvailable = true;
 #endif // FEATURE_NOLEGACY_OPTIONS
-		ditherAvailable = false;
 		zBufferAvailable = false;
 		bilinearFilteringAvailable = false;
 		windowedModeAvailable = preferred->swWindowedSupported;
@@ -713,9 +771,9 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 		// Hardware Renderer
 #ifndef FEATURE_NOLEGACY_OPTIONS
 		perspectiveCorrectAvailable = preferred->perspectiveCorrectSupported;
+		ditherAvailable = preferred->ditherSupported;
 		tripleBufferingAvailable = true;
 #endif // FEATURE_NOLEGACY_OPTIONS
-		ditherAvailable = preferred->ditherSupported;
 		zBufferAvailable = preferred->zBufferSupported;
 		bilinearFilteringAvailable = preferred->linearFilterSupported;
 		windowedModeAvailable = preferred->hwWindowedSupported;
@@ -725,9 +783,9 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 		// Unknown Renderer
 #ifndef FEATURE_NOLEGACY_OPTIONS
 		perspectiveCorrectAvailable = false;
+		ditherAvailable = false;
 		tripleBufferingAvailable = false;
 #endif // FEATURE_NOLEGACY_OPTIONS
-		ditherAvailable = false;
 		zBufferAvailable = false;
 		bilinearFilteringAvailable = false;
 		windowedModeAvailable = false;
@@ -746,15 +804,15 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 		tripleBufferingAvailable = false;
 	if( !perspectiveCorrectAvailable )
 		ChangedAppSettings.PerspectiveCorrect = false;
-	if( !tripleBufferingAvailable )
-		ChangedAppSettings.TripleBuffering = false;
-#endif // FEATURE_NOLEGACY_OPTIONS
 	if( !ditherAvailable )
 		ChangedAppSettings.Dither = false;
+	if( !tripleBufferingAvailable )
+		ChangedAppSettings.TripleBuffering = false;
 	if( !zBufferAvailable )
 		ChangedAppSettings.ZBuffer = false;
 	if( !bilinearFilteringAvailable )
 		ChangedAppSettings.BilinearFiltering = false;
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 	renderAvailable = ( ChangedAppSettings.RenderMode != RM_Unknown );
 	windowedSizeAvailable = ( preferred->screenWidth > 0 );
@@ -778,18 +836,22 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 	// 'Perspective Correct' CheckBox
 	hItem = GetDlgItem(hwndDlg, ID_GRAPH_BUTTON_PERSPECTIVE);
 #ifdef FEATURE_NOLEGACY_OPTIONS
-    POINT checkPos = {0, 0};
-    MapWindowPoints(hItem, hwndDlg, &checkPos, 1);
 	ShowWindow(hItem, SW_HIDE);
 #else // FEATURE_NOLEGACY_OPTIONS
 	EnableWindow(hItem, perspectiveCorrectAvailable);
-	SendMessage(hItem, BM_SETCHECK, ChangedAppSettings.PerspectiveCorrect, 0);
+	SendMessage(hItem, BM_SETCHECK3, ChangedAppSettings.PerspectiveCorrect, 0);
 #endif // FEATURE_NOLEGACY_OPTIONS
 
 	// 'Dither' CheckBox
 	hItem = GetDlgItem(hwndDlg, ID_GRAPH_BUTTON_DITHER);
+#ifdef FEATURE_NOLEGACY_OPTIONS
+    POINT checkPos = {0, 0};
+    MapWindowPoints(hItem, hwndDlg, &checkPos, 1);
+	ShowWindow(hItem, SW_HIDE);
+#else // FEATURE_NOLEGACY_OPTIONS
 	EnableWindow(hItem, ditherAvailable);
 	SendMessage(hItem, BM_SETCHECK, ChangedAppSettings.Dither, 0);
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 	// 'Triple Buffer' CheckBox
 	hItem = GetDlgItem(hwndDlg, ID_GRAPH_BUTTON_TRIPLEBUFFER);
@@ -803,7 +865,11 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 	// 'Z Buffer' CheckBox
 	hItem = GetDlgItem(hwndDlg, ID_GRAPH_BUTTON_ZBUFFER);
 	EnableWindow(hItem, zBufferAvailable);
+#ifdef FEATURE_NOLEGACY_OPTIONS
+	SendMessage(hItem, BM_SETCHECK, zBufferAvailable ? ChangedAppSettings.ZBuffer : 0, 0);
+#else // FEATURE_NOLEGACY_OPTIONS
 	SendMessage(hItem, BM_SETCHECK, ChangedAppSettings.ZBuffer, 0);
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 	// 'Bilinear Filter' CheckBox
 	hItem = GetDlgItem(hwndDlg, ID_GRAPH_BUTTON_BILINEAR);
@@ -813,7 +879,11 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 	}
 #endif // FEATURE_NOLEGACY_OPTIONS
 	EnableWindow(hItem, bilinearFilteringAvailable);
+#ifdef FEATURE_NOLEGACY_OPTIONS
+	SendMessage(hItem, BM_SETCHECK, bilinearFilteringAvailable ? ChangedAppSettings.BilinearFiltering : 0, 0);
+#else // FEATURE_NOLEGACY_OPTIONS
 	SendMessage(hItem, BM_SETCHECK, ChangedAppSettings.BilinearFiltering, 0);
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 	// 'Display Type' GroupBox
 	hItem = GetDlgItem(hwndDlg, ID_GRAPH_GROUPBOX_DISPLAY);
@@ -888,11 +958,11 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 				ChangedAppSettings.WindowHeight = ChangedAppSettings.WindowWidth*9/16;
 				break;
 			case AM_Any :
-#ifdef FEATURE_VIDMODESORT
+#ifdef FEATURE_NOLEGACY_OPTIONS
 				ChangedAppSettings.WindowHeight = ChangedAppSettings.WindowWidth*3/4;
-#else // !FEATURE_VIDMODESORT
+#else // !FEATURE_NOLEGACY_OPTIONS
 				ChangedAppSettings.WindowHeight = ChangedAppSettings.WindowWidth;
-#endif // FEATURE_VIDMODESORT
+#endif // FEATURE_NOLEGACY_OPTIONS
 				break;
 		}
 	}
@@ -1191,7 +1261,11 @@ void __cdecl SE_OptionsDlgUpdate(HWND hwndDlg) {
 
 		// 'Display:' Static
 		if( ChangedAppSettings.FullScreen && ChangedAppSettings.VideoMode )
+#ifdef FEATURE_NOLEGACY_OPTIONS
+			wsprintf(resultString, "%s %dx%d", String_FullScreen, ChangedAppSettings.VideoMode->body.width, ChangedAppSettings.VideoMode->body.height);
+#else // FEATURE_NOLEGACY_OPTIONS
 			wsprintf(resultString, "%s %dx%dx%d", String_FullScreen, ChangedAppSettings.VideoMode->body.width, ChangedAppSettings.VideoMode->body.height, ChangedAppSettings.VideoMode->body.bpp);
+#endif // FEATURE_NOLEGACY_OPTIONS
 		else
 			wsprintf(resultString, "%s %dx%d%s", String_Windowed, ChangedAppSettings.WindowWidth, ChangedAppSettings.WindowHeight, Strings_Aspect[ChangedAppSettings.AspectMode]);
 		SetDlgItemText(hwndDlg, ID_OPTNS_STATIC_DISPLAY, resultString);
@@ -1201,8 +1275,8 @@ void __cdecl SE_OptionsDlgUpdate(HWND hwndDlg) {
 		LPTSTR pResultString = resultString;
 		SE_OptionsStrCat(&pResultString, ChangedAppSettings.ZBuffer, &isNext, String_ZBuffered);
 		SE_OptionsStrCat(&pResultString, ChangedAppSettings.BilinearFiltering, &isNext, String_BilinearFiltered);
-		SE_OptionsStrCat(&pResultString, ChangedAppSettings.Dither, &isNext, String_Dithered);
 #ifndef FEATURE_NOLEGACY_OPTIONS
+		SE_OptionsStrCat(&pResultString, ChangedAppSettings.Dither, &isNext, String_Dithered);
 		SE_OptionsStrCat(&pResultString, ChangedAppSettings.TripleBuffering, &isNext, String_TripleBuffered);
 		SE_OptionsStrCat(&pResultString, ChangedAppSettings.PerspectiveCorrect, &isNext, String_PerspectiveCorrect);
 #endif // FEATURE_NOLEGACY_OPTIONS

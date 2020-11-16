@@ -21,6 +21,7 @@
 
 #include "global/precompiled.h"
 #include "modding/texture_utils.h"
+#include "specific/init_input.h"
 #include "specific/output.h"
 #include "specific/texture.h"
 #include "specific/utils.h"
@@ -31,7 +32,7 @@
 #ifdef FEATURE_HUD_IMPROVED
 #define BTN_SPR_IDX (ARRAY_SIZE(PhdSpriteInfo) - 256)
 
-int JoyHintMode = 0;
+DWORD JoystickButtonStyle = 0;
 
 typedef enum {
 	kbd_esc,
@@ -404,14 +405,33 @@ bool GetTextSpriteByName(const char *name, int nameLen, DWORD *sprite, int *spac
 		return false;
 	}
 	memcpy(mapName, name, nameLen);
-	switch( JoyHintMode ) {
+
+	DWORD buttonStyle = JoystickButtonStyle;
+#ifdef FEATURE_INPUT_IMPROVED
+	if( buttonStyle == 0 ) {
+		switch( GetJoystickType() ) {
+			case JT_XINPUT:
+				buttonStyle = 3;
+				break;
+			case JT_PLAYSTATION:
+				buttonStyle = 2;
+				break;
+			case JT_DIRECTINPUT:
+			case JT_NONE:
+				buttonStyle = 1;
+				break;
+		}
+	}
+#endif // FEATURE_INPUT_IMPROVED
+	switch( buttonStyle ) {
 		case 0:
+		case 1:
 			id = searchMap(mapName, joyMapDI, ARRAY_SIZE(joyMapDI));
 			break;
-		case 1:
+		case 2:
 			id = searchMap(mapName, joyMapPS, ARRAY_SIZE(joyMapPS));
 			break;
-		case 2:
+		case 3:
 			id = searchMap(mapName, joyMapXI, ARRAY_SIZE(joyMapXI));
 			break;
 	}

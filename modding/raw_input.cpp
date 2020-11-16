@@ -340,10 +340,10 @@ bool RawInputGetState(RINPUT_STATE *pState) {
 	pState->btnR3 = RawState.buttons[11];
 	pState->btnPS = RawState.buttons[12];
 
-	if( RawState.rangeX  ) pState->axisLX = (float)(RawState.valueX - RawState.rangeX/2) / (float)RawState.rangeX;
-	if( RawState.rangeY  ) pState->axisLY = (float)(RawState.rangeY/2 - RawState.valueY) / (float)RawState.rangeY;
-	if( RawState.rangeZ  ) pState->axisRX = (float)(RawState.valueZ - RawState.rangeZ/2) / (float)RawState.rangeZ;
-	if( RawState.rangeRZ ) pState->axisRY = (float)(RawState.rangeRZ/2 - RawState.valueRZ) / (float)RawState.rangeRZ;
+	if( RawState.rangeX  ) pState->axisLX = (float)(RawState.valueX*2 - RawState.rangeX) / (float)RawState.rangeX;
+	if( RawState.rangeY  ) pState->axisLY = (float)(RawState.rangeY - RawState.valueY*2) / (float)RawState.rangeY;
+	if( RawState.rangeZ  ) pState->axisRX = (float)(RawState.valueZ*2 - RawState.rangeZ) / (float)RawState.rangeZ;
+	if( RawState.rangeRZ ) pState->axisRY = (float)(RawState.rangeRZ - RawState.valueRZ*2) / (float)RawState.rangeRZ;
 	if( RawState.rangeRX ) pState->axisL2 = (float)RawState.valueRX / (float)RawState.rangeRX;
 	if( RawState.rangeRY ) pState->axisR2 = (float)RawState.valueRY / (float)RawState.rangeRY;
 

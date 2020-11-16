@@ -25,18 +25,102 @@
 #include "game/sound.h"
 #include "game/text.h"
 #include "specific/game.h"
+#include "specific/init_input.h"
 #include "specific/output.h"
 #include "specific/sndpc.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_HUD_IMPROVED
+#include "modding/psx_bar.h"
+
+extern DWORD InvTextBoxMode;
+
+bool JoystickHintsEnabled = true;
+
+CONTROL_LAYOUT Layout[3] = {
+	{	// Joystick Layout
+		0,0,0,0, // directions are not mappable, so they are ignored
+		10, // Step Left
+		11, // Step Right
+		7, // Step
+		5, // Walk
+		3, // Jump
+		2, // Action
+		1, // Roll
+		0, // Draw Weapon
+		6, // Flare
+		4, // Look
+		8, // Inventory
+		9, // Pause
+	},
+	{	// User Keyboard Layout
+		DIK_NUMPAD8, // Run
+		DIK_NUMPAD2, // Back
+		DIK_NUMPAD4, // Left
+		DIK_NUMPAD6, // Right
+		DIK_NUMPAD7, // Step Left
+		DIK_NUMPAD9, // Step Right
+		DIK_DIVIDE, // Step
+		DIK_NUMPAD1, // Walk
+		DIK_ADD, // Jump
+		DIK_NUMPADENTER, // Action
+		DIK_NUMPAD5, // Roll
+		DIK_NUMPAD3, // Draw Weapon
+		DIK_SUBTRACT, // Flare
+		DIK_NUMPAD0, // Look
+		DIK_DECIMAL, // Inventory
+		DIK_MULTIPLY, // Pause
+	},
+	{	// Default Keyboard Layout
+		DIK_UP, // Run
+		DIK_DOWN, // Back
+		DIK_LEFT, // Left
+		DIK_RIGHT, // Right
+		DIK_DELETE, // Step Left
+		DIK_NEXT, // Step Right
+		DIK_PERIOD, // Step
+		DIK_RSHIFT, // Walk
+		DIK_RMENU, // Jump
+		DIK_RCONTROL, // Action
+		DIK_END, // Roll
+		DIK_SPACE, // Draw Weapon
+		DIK_SLASH, // Flare
+		DIK_NUMPAD0, // Look
+		DIK_ESCAPE, // Inventory
+		DIK_P, // Pause
+	},
+};
+
+INVENTORY_ITEM *InvOptionList[5] = {
+	&InvPassportOption,
+	&InvSoundOption,
+	&InvDetailOption,
+	&InvControlOption,
+	&InvPhotoOption,
+};
+
+__int16 InvOptionObjectsCount = ARRAY_SIZE(InvOptionList);
+
+bool ConflictLayout[ARRAY_SIZE(Layout->key)];
+TEXT_STR_INFO *CtrlTextA[ARRAY_SIZE(Layout->key)];
+TEXT_STR_INFO *CtrlTextB[ARRAY_SIZE(Layout->key)];
+TEXT_STR_INFO *CtrlTextC[ARRAY_SIZE(Layout->key)];
+
+static DWORD LayoutPage = CTRL_Joystick;
+#else // FEATURE_HUD_IMPROVED
 static DWORD LayoutPage = CTRL_Default;
+#endif // FEATURE_HUD_IMPROVED
 
 /*
  * Passport option box parameters
  */
 #define PASSPORT_LINE_COUNT	(10)
 // Y coordinates relative to the bottom of the screen
+#ifdef FEATURE_HUD_IMPROVED
+#define PASSPORT_Y_BOX		(-44)
+#else // FEATURE_HUD_IMPROVED
 #define PASSPORT_Y_BOX		(-32)
+#endif
 #define PASSPORT_Y_TITLE	(-16)
 
 /*
@@ -82,33 +166,50 @@ static DWORD LayoutPage = CTRL_Default;
 #define CONTROL_LINE_COUNT	(ARRAY_SIZE(Layout->key)/2)
 #define CONTROL_LN_HEIGHT	(15)
 
-#define CONTROL_WIDTH_LOW	(300)
-#define CONTROL_HEIGHT_LOW	(CONTROL_LN_HEIGHT * CONTROL_LINE_COUNT + 35)
-
 #ifdef FEATURE_HUD_IMPROVED
+#define CONTROL_WIDTH_LOW	(300)
+#define CONTROL_HEIGHT_LOW	(CONTROL_LN_HEIGHT * CONTROL_LINE_COUNT + 26)
+
 #define CONTROL_WIDTH_HIGH	(360)
 #define CONTROL_HEIGHT_HIGH	CONTROL_HEIGHT_LOW
 
-#define CONTROL_COLUMN_B	(4)
+#define CONTROL_COLUMN_C	(15)
+#define CONTROL_COLUMN_B2	(30)
+#define CONTROL_COLUMN_B1	(40)
 #define CONTROL_COLUMN_A	(60)
+
+// Y coordinates relative to the center of the screen
+#define CONTROL_Y_BOX		(-70)
+#define CONTROL_Y_TITLE		(CONTROL_Y_BOX + 4)
+#define CONTROL_Y_LINE1		(CONTROL_LN_HEIGHT * 0 + CONTROL_Y_BOX + 24)
+#define CONTROL_Y_LINE2		(CONTROL_LN_HEIGHT * 1 + CONTROL_Y_BOX + 24)
+#define CONTROL_Y_LINE3		(CONTROL_LN_HEIGHT * 2 + CONTROL_Y_BOX + 24)
+#define CONTROL_Y_LINE4		(CONTROL_LN_HEIGHT * 3 + CONTROL_Y_BOX + 24)
+#define CONTROL_Y_LINE5		(CONTROL_LN_HEIGHT * 4 + CONTROL_Y_BOX + 24)
+#define CONTROL_Y_LINE6		(CONTROL_LN_HEIGHT * 5 + CONTROL_Y_BOX + 24)
+#define CONTROL_Y_LINE7		(CONTROL_LN_HEIGHT * 6 + CONTROL_Y_BOX + 24)
+#define CONTROL_Y_LINE8		(CONTROL_LN_HEIGHT * 7 + CONTROL_Y_BOX + 24)
 #else // FEATURE_HUD_IMPROVED
+#define CONTROL_WIDTH_LOW	(300)
+#define CONTROL_HEIGHT_LOW	(CONTROL_LN_HEIGHT * CONTROL_LINE_COUNT + 35)
+
 #define CONTROL_WIDTH_HIGH	(420)
 #define CONTROL_HEIGHT_HIGH	(CONTROL_LN_HEIGHT * CONTROL_LINE_COUNT + 45)
 
 #define CONTROL_COLUMN_B	(10)
 #define CONTROL_COLUMN_A	(80)
-#endif // FEATURE_HUD_IMPROVED
 
 // Y coordinates relative to the center of the screen
 #define CONTROL_Y_BOX		(-55)
-#define CONTROL_Y_TITLE		(CONTROL_Y_BOX + 2)
-#define CONTROL_Y_LINE1		(CONTROL_LN_HEIGHT * 0 - 25)
-#define CONTROL_Y_LINE2		(CONTROL_LN_HEIGHT * 1 - 25)
-#define CONTROL_Y_LINE3		(CONTROL_LN_HEIGHT * 2 - 25)
-#define CONTROL_Y_LINE4		(CONTROL_LN_HEIGHT * 3 - 25)
-#define CONTROL_Y_LINE5		(CONTROL_LN_HEIGHT * 4 - 25)
-#define CONTROL_Y_LINE6		(CONTROL_LN_HEIGHT * 5 - 25)
-#define CONTROL_Y_LINE7		(CONTROL_LN_HEIGHT * 6 - 25)
+#define CONTROL_Y_TITLE		(CONTROL_Y_BOX + 5)
+#define CONTROL_Y_LINE1		(CONTROL_LN_HEIGHT * 0 + CONTROL_Y_BOX + 30)
+#define CONTROL_Y_LINE2		(CONTROL_LN_HEIGHT * 1 + CONTROL_Y_BOX + 30)
+#define CONTROL_Y_LINE3		(CONTROL_LN_HEIGHT * 2 + CONTROL_Y_BOX + 30)
+#define CONTROL_Y_LINE4		(CONTROL_LN_HEIGHT * 3 + CONTROL_Y_BOX + 30)
+#define CONTROL_Y_LINE5		(CONTROL_LN_HEIGHT * 4 + CONTROL_Y_BOX + 30)
+#define CONTROL_Y_LINE6		(CONTROL_LN_HEIGHT * 5 + CONTROL_Y_BOX + 30)
+#define CONTROL_Y_LINE7		(CONTROL_LN_HEIGHT * 6 + CONTROL_Y_BOX + 30)
+#endif // FEATURE_HUD_IMPROVED
 
 #define CONTROL_NEARZ		(16)
 #define CONTROL_FARZ		(48)
@@ -161,6 +262,197 @@ static LPCSTR ControlKeysText[0x110] = {
 	NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
 	K("joy1"),      K("joy2"),      K("joy3"),      K("joy4"),      K("joy5"),      K("joy6"),      K("joy7"),      K("joy8"),
 	K("joy9"),      K("joy10"),     K("joy11"),     K("joy12"),     K("joy13"),     K("joy14"),     K("joy15"),     K("joy16"),
+};
+
+static TEXT_STR_INFO *SelectHintText, *ContinueHintText, *DeselectHintText;
+
+typedef enum {
+	HINT_HIDDEN,
+	HINT_JOYSTICK,
+	HINT_KEYBOARD,
+} HINT_MODE;
+
+static const char *GetHintText(HINT_MODE mode, KEYMAP joyKeyMap, DWORD kbdKeyCode, const char *message) {
+	static char text[64] = {0};
+	const char *key = NULL;
+	if( mode == HINT_JOYSTICK && Layout[CTRL_Joystick].key[joyKeyMap] < 0x10 ) {
+		key = ControlKeysText[0x100 + Layout[CTRL_Joystick].key[joyKeyMap]];
+	} else {
+		key = ControlKeysText[kbdKeyCode];
+	}
+	snprintf(text, sizeof(text), "%s %s", key, message);
+	return text;
+}
+
+static void UpdateJoystickHintText(HINT_MODE selectMode, HINT_MODE continueMode, HINT_MODE deselectMode) {
+	if( SelectHintText != NULL ) {
+		if( selectMode != HINT_HIDDEN ) {
+			T_ChangeText(SelectHintText, GetHintText(selectMode, KM_Action, DIK_RETURN, "Select"));
+		}
+		T_HideText(SelectHintText, selectMode == HINT_HIDDEN);
+	}
+	if( ContinueHintText != NULL ) {
+		if( continueMode != HINT_HIDDEN ) {
+			T_ChangeText(ContinueHintText, GetHintText(continueMode, KM_Action, DIK_RETURN, "Continue"));
+		}
+		T_HideText(ContinueHintText, continueMode == HINT_HIDDEN);
+	}
+	if( DeselectHintText != NULL ) {
+		if( deselectMode != HINT_HIDDEN ) {
+			T_ChangeText(DeselectHintText, GetHintText(deselectMode, KM_WeaponDraw, DIK_ESCAPE, "Go Back"));
+		}
+		T_HideText(DeselectHintText, deselectMode == HINT_HIDDEN);
+	}
+}
+
+void RemoveJoystickHintText(bool isSelect, bool isContinue, bool isDeselect) {
+	if( isSelect ) {
+		T_RemovePrint(SelectHintText);
+		SelectHintText = NULL;
+	}
+	if( isContinue ) {
+		T_RemovePrint(ContinueHintText);
+		ContinueHintText = NULL;
+	}
+	if( isDeselect ) {
+		T_RemovePrint(DeselectHintText);
+		DeselectHintText = NULL;
+	}
+}
+
+void DisplayJoystickHintText(bool isSelect, bool isContinue, bool isDeselect) {
+	if( !JoystickHintsEnabled ) return;
+#ifdef FEATURE_INPUT_IMPROVED
+	if( GetJoystickType() == JT_NONE ) return;
+#else // FEATURE_INPUT_IMPROVED
+	if( !SavedAppSettings.JoystickEnabled || !SavedAppSettings.PreferredJoystick ) return;
+#endif // FEATURE_INPUT_IMPROVED
+
+	bool isRealignX = false;
+	static int renderWidth = 0;
+	if( renderWidth != GetRenderWidthDownscaled() ) {
+		isRealignX = true;
+		renderWidth = GetRenderWidthDownscaled();
+	}
+	int x = (renderWidth > 325) ? (renderWidth - 320) / 2 : 2;
+
+	if( isSelect && SelectHintText == NULL ) {
+		SelectHintText = T_Print(x, -40, 0, GetHintText(HINT_JOYSTICK, KM_Action, DIK_RETURN, "Select"));
+		T_BottomAlign(SelectHintText, 1);
+	} else if( isRealignX && SelectHintText != NULL ) {
+		SelectHintText->xPos = x;
+	}
+	if( isContinue && ContinueHintText == NULL ) {
+		ContinueHintText = T_Print(0, -40, 0, GetHintText(HINT_JOYSTICK, KM_Action, DIK_RETURN, "Continue"));
+		T_BottomAlign(ContinueHintText, 1);
+		T_CentreH(ContinueHintText, 1);
+	}
+	if( isDeselect && DeselectHintText == NULL ) {
+		DeselectHintText = T_Print(-x, -40, 0, GetHintText(HINT_JOYSTICK, KM_WeaponDraw, DIK_ESCAPE, "Go Back"));
+		T_BottomAlign(DeselectHintText, 1);
+		T_RightAlign(DeselectHintText, 1);
+	} else if( isRealignX && DeselectHintText != NULL ) {
+		DeselectHintText->xPos = -x;
+	}
+}
+
+static void DrawVolumeBar(int x, int y, int percent, int alpha) {
+	// draw at least one percent
+	CLAMP(percent, 1, 100);
+	// coordinates are relative to the center of the screen
+	int width = GetRenderScale(100);
+	int height = GetRenderScale(5);
+	int pixel = GetRenderScale(1);
+	int x0 = PhdWinMinX + GetRenderScale(x) + (GetRenderWidth() - width) / 2;
+	int x1 = x0 + width;
+	int y0 = PhdWinMinY + GetRenderScale(y) + (GetRenderHeight() - height) / 2;
+	int y1 = y0 + height;
+	int bar = width * percent / 100;
+	if( SavedAppSettings.ZBuffer ) {
+		PSX_DrawAirBar(x0, y0, x1, y1, bar, pixel, alpha);
+	} else {
+		PSX_InsertAirBar(x0, y0, x1, y1, bar, pixel, alpha);
+	}
+}
+
+void DisplayVolumeBars(bool isSmooth) {
+	static int soundVolumePos = 0;
+	static int musicVolumePos = 0;
+	if( isSmooth ) {
+		if( musicVolumePos < MusicVolume*10 ) {
+			musicVolumePos += 2;
+		} else if( musicVolumePos > MusicVolume*10 ) {
+			musicVolumePos -= 2;
+		}
+		if( soundVolumePos < SoundVolume*10 ) {
+			soundVolumePos += 2;
+		} else if( soundVolumePos > SoundVolume*10 ) {
+			soundVolumePos -= 2;
+		}
+	} else {
+		musicVolumePos = MusicVolume*10;
+		soundVolumePos = SoundVolume*10;
+	}
+	DrawVolumeBar(10, -5, musicVolumePos, SoundOptionLine ? 100 : 255);
+	DrawVolumeBar(10, 20, soundVolumePos, SoundOptionLine ? 255 : 100);
+	if( SoundOptionLine ) {
+		PlaySoundEffect(113, NULL, SFX_ALWAYS); // ticking clock sound
+	}
+}
+
+static const char *GetEmptyOptState(void) {
+	return "";
+}
+
+static const char *ToggleEmptyOptState(void) {
+	return GetEmptyOptState();
+}
+
+static const char *GetShowHintsOptState(void) {
+	return JoystickHintsEnabled ? GF_SpecificStringTable[SSI_On] : GF_SpecificStringTable[SSI_Off];
+}
+
+static const char *ToggleShowHintsOptState(void) {
+	JoystickHintsEnabled = !JoystickHintsEnabled;
+	if( JoystickHintsEnabled ) {
+		DisplayJoystickHintText(true, false, true);
+	} else {
+		RemoveJoystickHintText(true, false, true);
+	}
+	return GetShowHintsOptState();
+}
+
+#ifdef FEATURE_INPUT_IMPROVED
+extern bool JoystickVibrationEnabled;
+
+static const char *GetVibrationOptState(void) {
+	if( !IsJoyVibrationSupported() ) return GF_GameStringTable[GSI_String_NA];
+	return JoystickVibrationEnabled ? GF_SpecificStringTable[SSI_On] : GF_SpecificStringTable[SSI_Off];
+}
+
+static const char *ToggleVibrationOptState(void) {
+	if( IsJoyVibrationSupported() ) {
+		JoystickVibrationEnabled = !JoystickVibrationEnabled;
+	}
+	return GetVibrationOptState();
+}
+#endif // FEATURE_INPUT_IMPROVED
+
+typedef struct {
+	const char *name;
+	const char *(*getState)(void);
+	const char *(*toggle)(void);
+} JOYOPT;
+
+static JOYOPT JoystickOpts[4] = {
+	{"Show Hints", GetShowHintsOptState, ToggleShowHintsOptState},
+#ifdef FEATURE_INPUT_IMPROVED
+	{"Vibration", GetVibrationOptState, ToggleVibrationOptState},
+#else // FEATURE_INPUT_IMPROVED
+	{"", GetEmptyOptState, ToggleEmptyOptState},
+#endif // FEATURE_INPUT_IMPROVED
+	{"", GetEmptyOptState, ToggleEmptyOptState},
+	{"", GetEmptyOptState, ToggleEmptyOptState},
 };
 #else // FEATURE_HUD_IMPROVED
 static LPCSTR ControlKeysText[0x110] = {
@@ -286,6 +578,18 @@ void __cdecl do_inventory_options(INVENTORY_ITEM *item) {
 	}
 }
 
+#ifdef FEATURE_HUD_IMPROVED
+static void SetPassportTextInfo(GAME_STRING_ID id, bool left, bool right) {
+	if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
+		char text[64] = {0};
+		snprintf(text, sizeof(text), "%c    %s   %c ", left?'\x11':' ', GF_GameStringTable[id], right?'\x12':' ');
+		PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, text);
+	} else {
+		PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[id]);
+	}
+}
+#endif // FEATURE_HUD_IMPROVED
+
 void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 	static int passportMode = 0;
 	int frame, page, select;
@@ -297,11 +601,24 @@ void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 	frame = item->goalFrame - item->openFrame;
 	page = ( (frame % 5) == 0 ) ? (frame / 5) : -1;
 
+#ifdef FEATURE_HUD_IMPROVED
+	bool left = page > 0;
+	bool right = page < 2;
+
+	if( InventoryMode == INV_DeathMode ) {
+		InputDB &= ~IN_DESELECT;
+	}
+#endif // FEATURE_HUD_IMPROVED
+
 	if( InventoryMode == INV_LoadMode ||
 		InventoryMode == INV_SaveMode ||
 		CHK_ANY(GF_GameFlow.flags, GFF_LoadSaveDisabled) )
 	{
 		InputDB &= ~(IN_LEFT|IN_RIGHT);
+#ifdef FEATURE_HUD_IMPROVED
+		left = false;
+		right = false;
+#endif // FEATURE_HUD_IMPROVED
 	}
 
 	switch( page ) {
@@ -332,7 +649,11 @@ void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 					InputDB = IN_RIGHT;
 				} else {
 					if( PassportTextInfo == NULL ) {
+#ifdef FEATURE_HUD_IMPROVED
+						SetPassportTextInfo(GSI_Passport_LoadGame, left, right);
+#else // FEATURE_HUD_IMPROVED
 						PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[GSI_Passport_LoadGame]);
+#endif // FEATURE_HUD_IMPROVED
 						T_BottomAlign(PassportTextInfo, 1);
 						T_CentreH(PassportTextInfo, 1);
 					}
@@ -359,6 +680,9 @@ void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 				SetPassportRequesterSize(requester);
 				select = Display_Requester(requester, TRUE, TRUE);
 				if( select == 0 ) {
+#ifdef FEATURE_HUD_IMPROVED
+					if( SavedGamesCount == 0 ) InputDB &= ~IN_LEFT;
+#endif // FEATURE_HUD_IMPROVED
 					if( CHK_ANY(InputDB, IN_LEFT|IN_RIGHT) ) {
 						Remove_Requester(requester);
 						passportMode = 0;
@@ -378,10 +702,17 @@ void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 					InputDB = ( item->animDirection == -1 ) ? IN_LEFT : IN_RIGHT;
 				} else {
 					if( PassportTextInfo == NULL ) {
+						GAME_STRING_ID textID;
 						if( InventoryMode != INV_TitleMode && CurrentLevel != 0 )
-							PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[GSI_Passport_SaveGame]);
+							textID = GSI_Passport_SaveGame;
 						else
-							PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[GSI_Passport_NewGame]);
+							textID = GSI_Passport_NewGame;
+#ifdef FEATURE_HUD_IMPROVED
+						if( SavedGamesCount == 0 ) left = false;
+						SetPassportTextInfo(textID, left, right);
+#else // FEATURE_HUD_IMPROVED
+						PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[textID]);
+#endif // FEATURE_HUD_IMPROVED
 						T_BottomAlign(PassportTextInfo, 1);
 						T_CentreH(PassportTextInfo, 1);
 					}
@@ -416,15 +747,22 @@ void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 
 		case 2 : // exit game
 			if( PassportTextInfo == NULL ) {
+				GAME_STRING_ID textID;
 				if( InventoryMode == INV_TitleMode ) {
-					PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[GSI_Passport_ExitGame]);
+					textID = GSI_Passport_ExitGame;
 				}
 				else if( CHK_ANY(GF_GameFlow.flags, GFF_DemoVersion) ) {
-					PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[GSI_Passport_ExitDemo]);
+					textID = GSI_Passport_ExitDemo;
 				}
 				else {
-					PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[GSI_Passport_ExitToTitle]);
+					textID = GSI_Passport_ExitToTitle;
 				}
+#ifdef FEATURE_HUD_IMPROVED
+				if( InventoryMode == INV_DeathMode && SavedGamesCount == 0 ) left = false;
+				SetPassportTextInfo(textID, left, right);
+#else // FEATURE_HUD_IMPROVED
+				PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[textID]);
+#endif // FEATURE_HUD_IMPROVED
 				T_BottomAlign(PassportTextInfo, 1);
 				T_CentreH(PassportTextInfo, 1);
 			}
@@ -507,7 +845,8 @@ void __cdecl do_gamma_option(INVENTORY_ITEM *item) {
 }
 
 void __cdecl do_detail_option(INVENTORY_ITEM *item) {
-	int i;
+	static TEXT_STR_INFO *DetailTextInfo[5] = {NULL};
+	DWORD i;
 
 	if( DetailTextInfo[0] == NULL ) {
 		DetailTextInfo[4] = T_Print(0, DETAIL_Y_TITLE, 0, GF_GameStringTable[GSI_Detail_SelectDetail]);
@@ -525,7 +864,7 @@ void __cdecl do_detail_option(INVENTORY_ITEM *item) {
 		T_AddBackground(DetailTextInfo[3], DETAIL_WIDTH_L, DETAIL_HEIGHT, 0, 0, DETAIL_FARZ, ICLR_Black, &ReqBgndGour1, 0);
 		T_AddOutline(DetailTextInfo[3], TRUE, ICLR_Blue, &ReqBgndGour2, 0);
 
-		for( i=0; i<5 ; ++i ) {
+		for( i=0; i<ARRAY_SIZE(DetailTextInfo); ++i ) {
 			T_CentreH(DetailTextInfo[i], 1);
 			T_CentreV(DetailTextInfo[i], 1);
 		}
@@ -562,7 +901,7 @@ void __cdecl do_detail_option(INVENTORY_ITEM *item) {
 	}
 
 	if( CHK_ANY(InputDB, IN_SELECT|IN_DESELECT) ) {
-		for( i=0; i<5 ; ++i ) {
+		for( i=0; i<ARRAY_SIZE(DetailTextInfo); ++i ) {
 			T_RemovePrint(DetailTextInfo[i]);
 			DetailTextInfo[i] = NULL;
 		}
@@ -570,12 +909,35 @@ void __cdecl do_detail_option(INVENTORY_ITEM *item) {
 }
 
 void __cdecl do_sound_option(INVENTORY_ITEM *item) {
-	int i;
+#ifdef FEATURE_HUD_IMPROVED
+	static TEXT_STR_INFO *SoundTextInfo[8] = {NULL};
+#else // FEATURE_HUD_IMPROVED
+	static TEXT_STR_INFO *SoundTextInfo[4] = {NULL};
+#endif // FEATURE_HUD_IMPROVED
 	char volumeString[20];
+	DWORD i;
 
 	if( SoundTextInfo[0] == NULL ) {
 		CLAMP(MusicVolume, 0, 10);
 		CLAMP(SoundVolume, 0, 10);
+#ifdef FEATURE_HUD_IMPROVED
+		if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
+			SoundTextInfo[0] = T_Print(-55, 0, 0, "|"); // Char '|' is musical note picture
+			SoundTextInfo[1] = T_Print(-55, 25, 0, "}"); // Char '}' is dynamic speaker picture
+		} else {
+			SoundTextInfo[0] = T_Print(0, 0, 0, "");
+			SoundTextInfo[1] = T_Print(0, 25, 0, "");
+			SoundTextInfo[4] = T_Print(-15, 0, 0, "|"); // Char '|' is musical note picture
+			SoundTextInfo[5] = T_Print(-15, 25, 0, "}"); // Char '}' is dynamic speaker picture
+			sprintf(volumeString, "%2d", MusicVolume);
+			SoundTextInfo[6] = T_Print(10, 0, 0, volumeString);
+			sprintf(volumeString, "%2d", SoundVolume);
+			SoundTextInfo[7] = T_Print(10, 25, 0, volumeString);
+
+			T_AddBackground(SoundTextInfo[0], SOUND_WIDTH_S, 0, 0, 0, SOUND_NEARZ, ICLR_Black, &ReqSelGour1, 0);
+			T_AddOutline(SoundTextInfo[0], TRUE, ICLR_Orange, &ReqSelGour2, 0);
+		}
+#else // FEATURE_HUD_IMPROVED
 		sprintf(volumeString, "| %2d", MusicVolume); // Char '|' is musical note picture
 		SoundTextInfo[0] = T_Print(0, 0, 0, volumeString);
 		sprintf(volumeString, "} %2d", SoundVolume); // Char '}' is dynamic speaker picture
@@ -583,6 +945,7 @@ void __cdecl do_sound_option(INVENTORY_ITEM *item) {
 
 		T_AddBackground(SoundTextInfo[0], SOUND_WIDTH_S, 0, 0, 0, SOUND_NEARZ, ICLR_Black, &ReqSelGour1, 0);
 		T_AddOutline(SoundTextInfo[0], TRUE, ICLR_Orange, &ReqSelGour2, 0);
+#endif // FEATURE_HUD_IMPROVED
 
 		SoundTextInfo[2] = T_Print(0, SOUND_Y_BOX, 0, " ");
 		T_AddBackground(SoundTextInfo[2], SOUND_WIDTH_L, SOUND_HEIGHT, 0, 0, SOUND_FARZ, ICLR_Black, &ReqBgndGour1, 0);
@@ -592,26 +955,50 @@ void __cdecl do_sound_option(INVENTORY_ITEM *item) {
 		T_AddBackground(SoundTextInfo[3], SOUND_WIDTH_M, 0, 0, 0, SOUND_NEARZ, ICLR_Black, &ReqMainGour1, 0);
 		T_AddOutline(SoundTextInfo[3], TRUE, ICLR_Blue, &ReqMainGour2, 0);
 
-		for( i=0; i<4 ; ++i ) {
+		for( i=0; i<ARRAY_SIZE(SoundTextInfo); ++i ) {
 			T_CentreH(SoundTextInfo[i], 1);
 			T_CentreV(SoundTextInfo[i], 1);
 		}
 	}
 
 	if( CHK_ANY(InputDB, IN_FORWARD) && SoundOptionLine > 0 ) {
+#ifdef FEATURE_HUD_IMPROVED
+		if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
+			--SoundOptionLine;
+		} else {
+			T_RemoveOutline(SoundTextInfo[SoundOptionLine]);
+			T_RemoveBackground(SoundTextInfo[SoundOptionLine]);
+			--SoundOptionLine;
+			T_AddBackground(SoundTextInfo[SoundOptionLine], SOUND_WIDTH_S, 0, 0, 0, SOUND_NEARZ, ICLR_Black, &ReqSelGour1, 0);
+			T_AddOutline(SoundTextInfo[SoundOptionLine], TRUE, ICLR_Orange, &ReqSelGour2, 0);
+		}
+#else // FEATURE_HUD_IMPROVED
 		T_RemoveOutline(SoundTextInfo[SoundOptionLine]);
 		T_RemoveBackground(SoundTextInfo[SoundOptionLine]);
 		--SoundOptionLine;
 		T_AddBackground(SoundTextInfo[SoundOptionLine], SOUND_WIDTH_S, 0, 0, 0, SOUND_NEARZ, ICLR_Black, &ReqSelGour1, 0);
 		T_AddOutline(SoundTextInfo[SoundOptionLine], TRUE, ICLR_Orange, &ReqSelGour2, 0);
+#endif // FEATURE_HUD_IMPROVED
 	}
 
 	if( CHK_ANY(InputDB, IN_BACK) && SoundOptionLine < 1 ) {
+#ifdef FEATURE_HUD_IMPROVED
+		if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
+			++SoundOptionLine;
+		} else {
+			T_RemoveOutline(SoundTextInfo[SoundOptionLine]);
+			T_RemoveBackground(SoundTextInfo[SoundOptionLine]);
+			++SoundOptionLine;
+			T_AddBackground(SoundTextInfo[SoundOptionLine], SOUND_WIDTH_S, 0, 0, 0, SOUND_NEARZ, ICLR_Black, &ReqSelGour1, 0);
+			T_AddOutline(SoundTextInfo[SoundOptionLine], TRUE, ICLR_Orange, &ReqSelGour2, 0);
+		}
+#else // FEATURE_HUD_IMPROVED
 		T_RemoveOutline(SoundTextInfo[SoundOptionLine]);
 		T_RemoveBackground(SoundTextInfo[SoundOptionLine]);
 		++SoundOptionLine;
 		T_AddBackground(SoundTextInfo[SoundOptionLine], SOUND_WIDTH_S, 0, 0, 0, SOUND_NEARZ, ICLR_Black, &ReqSelGour1, 0);
 		T_AddOutline(SoundTextInfo[SoundOptionLine], TRUE, ICLR_Orange, &ReqSelGour2, 0);
+#endif // FEATURE_HUD_IMPROVED
 	}
 
 	switch( SoundOptionLine ) {
@@ -623,12 +1010,21 @@ void __cdecl do_sound_option(INVENTORY_ITEM *item) {
 			else
 				break;
 
-			IsInvOptionsDelay = 1;
-			InvOptionsDelayCounter = 10;
+			IsInvOptionsDelay = TRUE;
+			InvOptionsDelayCounter = 5 * TICKS_PER_FRAME;
+#ifdef FEATURE_HUD_IMPROVED
+			S_CDVolume(( MusicVolume == 0 ) ? 0 : (25 * MusicVolume + 5));
+			if( SavedAppSettings.RenderMode != RM_Hardware || !InvTextBoxMode ) {
+				sprintf(volumeString, "%2d", MusicVolume);
+				T_ChangeText(SoundTextInfo[6], volumeString);
+				PlaySoundEffect(115, NULL, SFX_ALWAYS); // page flip SFX
+			}
+#else // FEATURE_HUD_IMPROVED
 			sprintf(volumeString, "| %2d", MusicVolume); // Char '|' is musical note picture
 			T_ChangeText(SoundTextInfo[0], volumeString);
 			S_CDVolume(( MusicVolume == 0 ) ? 0 : (25 * MusicVolume + 5));
 			PlaySoundEffect(115, NULL, SFX_ALWAYS); // page flip SFX
+#endif // FEATURE_HUD_IMPROVED
 			break;
 
 		case 1 :
@@ -639,25 +1035,37 @@ void __cdecl do_sound_option(INVENTORY_ITEM *item) {
 			else
 				break;
 
-			IsInvOptionsDelay = 1;
-			InvOptionsDelayCounter = 10;
+			IsInvOptionsDelay = TRUE;
+			InvOptionsDelayCounter = 5 * TICKS_PER_FRAME;
+#ifdef FEATURE_HUD_IMPROVED
+			S_SoundSetMasterVolume(( SoundVolume == 0 ) ? 0 : (6 * SoundVolume + 4));
+			if( SavedAppSettings.RenderMode != RM_Hardware || !InvTextBoxMode ) {
+				sprintf(volumeString, "%2d", SoundVolume);
+				T_ChangeText(SoundTextInfo[7], volumeString);
+				PlaySoundEffect(115, NULL, SFX_ALWAYS); // page flip SFX
+			}
+#else // FEATURE_HUD_IMPROVED
 			sprintf(volumeString, "} %2d", SoundVolume); // Char '}' is dynamic speaker picture
 			T_ChangeText(SoundTextInfo[1], volumeString);
 			S_SoundSetMasterVolume(( SoundVolume == 0 ) ? 0 : (6 * SoundVolume + 4));
 			PlaySoundEffect(115, NULL, SFX_ALWAYS); // page flip SFX
+#endif // FEATURE_HUD_IMPROVED
 			break;
 
 		default :
 			break;
 	}
 
+#ifndef FEATURE_HUD_IMPROVED
+	// NOTE: this is leftover from the original code. The code is unused
 	InvSpriteSoundVolume[6].param1 = SoundVolume;
 	InvSpriteSoundVolumeLow[6].param1 = SoundVolume;
 	InvSpriteMusicVolume[6].param1 = MusicVolume;
 	InvSpriteMusicVolumeLow[6].param1 = MusicVolume;
+#endif // FEATURE_HUD_IMPROVED
 
 	if( CHK_ANY(InputDB, IN_SELECT|IN_DESELECT) ) {
-		for( i=0; i<4 ; ++i ) {
+		for( i=0; i<ARRAY_SIZE(SoundTextInfo); ++i ) {
 			T_RemovePrint(SoundTextInfo[i]);
 			SoundTextInfo[i] = NULL;
 		}
@@ -690,12 +1098,18 @@ void __cdecl do_compass_option(INVENTORY_ITEM *item) {
 
 void __cdecl FlashConflicts() {
 	UINT16 key;
+	DWORD skip = 0;
+#ifdef FEATURE_HUD_IMPROVED
+	if( LayoutPage == CTRL_Joystick ) skip = 4;
+#endif // FEATURE_HUD_IMPROVED
 
 	for( DWORD i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
 		key = Layout[LayoutPage].key[i];
 		T_FlashText(CtrlTextB[i], 0, 0);
-
-		for( DWORD j=0; j<CONTROL_LINE_COUNT*2; ++j ) {
+#ifdef FEATURE_HUD_IMPROVED
+		if( i<skip ) continue;
+#endif // FEATURE_HUD_IMPROVED
+		for( DWORD j=skip; j<CONTROL_LINE_COUNT*2; ++j ) {
 			if( (i != j) && (key == Layout[LayoutPage].key[j]) ) {
 				T_FlashText(CtrlTextB[i], 1, 20);
 				break;
@@ -717,11 +1131,28 @@ void __cdecl DefaultConflict() {
 	}
 }
 
+#ifdef FEATURE_HUD_IMPROVED
+static const char *GetControlsHeaderString() {
+	const char *header = (LayoutPage == CTRL_Joystick) ? "Gamepad" : "Keyboard";
+	if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode && KeyCursor < 0 ) {
+		static char text[64] = {0};
+		snprintf(text, sizeof(text), " \x11    %s   \x12  ", header);
+		return text;
+	}
+	return header;
+}
+#endif // FEATURE_HUD_IMPROVED
+
 void __cdecl do_control_option(INVENTORY_ITEM *item) {
 	static int KeySelector = 0;
 	int i;
 
 #ifdef FEATURE_HUD_IMPROVED
+#ifdef FEATURE_INPUT_IMPROVED
+	bool isJoystickUnavailable = ( GetJoystickType() == JT_NONE );
+#else // FEATURE_INPUT_IMPROVED
+	bool isJoystickUnavailable = ( !SavedAppSettings.JoystickEnabled || !SavedAppSettings.PreferredJoystick );
+#endif // FEATURE_INPUT_IMPROVED
 	static int renderWidth = 0;
 	if( renderWidth != GetRenderWidthDownscaled() ) {
 		T_RemovePrint(ControlTextInfo[0]);
@@ -734,14 +1165,36 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 #endif // !FEATURE_HUD_IMPROVED
 
 	if( ControlTextInfo[0] == NULL ) {
-		ControlTextInfo[0] = T_Print(0, -50, 0, GF_SpecificStringTable[(LayoutPage == CTRL_Default) ? SSI_DefaultKeys : SSI_UserKeys]);
+#ifdef FEATURE_HUD_IMPROVED
+		if( isJoystickUnavailable ) {
+			LayoutPage = CTRL_Custom;
+			KeyCursor = 0;
+		} else {
+			KeyCursor = -1;
+		}
+		KeySelector = 0;
+		ControlTextInfo[0] = T_Print(0, CONTROL_Y_TITLE, 0, GetControlsHeaderString());
+#else // FEATURE_HUD_IMPROVED
+		ControlTextInfo[0] = T_Print(0, CONTROL_Y_TITLE, 0, GF_SpecificStringTable[(LayoutPage == CTRL_Default) ? SSI_DefaultKeys : SSI_UserKeys]);
+#endif // FEATURE_HUD_IMPROVED
 		T_CentreH(ControlTextInfo[0], 1);
 		T_CentreV(ControlTextInfo[0], 1);
 
 		S_ShowControls();
+#ifdef FEATURE_HUD_IMPROVED
+		if( KeyCursor == -1 ) {
+			T_AddBackground(ControlTextInfo[0], 0, 0, 0, 0, CONTROL_FARZ, ICLR_Black, &ReqSelGour1, 0);
+			T_AddOutline(ControlTextInfo[0], TRUE, ICLR_Blue, &ReqSelGour2, 0);
+		} else {
+			CtrlTextA[KeyCursor]->zPos = 0;
+			T_AddBackground(CtrlTextA[KeyCursor], 0, 0, 0, 0, 0, ICLR_Black, &ReqSelGour1, 0);
+			T_AddOutline(CtrlTextA[KeyCursor], TRUE, ICLR_Blue, &ReqSelGour2, 0);
+		}
+#else // FEATURE_HUD_IMPROVED
 		KeyCursor = -1;
 		T_AddBackground(ControlTextInfo[0], 0, 0, 0, 0, CONTROL_FARZ, ICLR_Black, &ReqSelGour1, 0);
 		T_AddOutline(ControlTextInfo[0], TRUE, ICLR_Blue, &ReqSelGour2, 0);
+#endif // FEATURE_HUD_IMPROVED
 		FlashConflicts(); // NOTE: this line is absent in the original game
 	}
 
@@ -764,13 +1217,22 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 					} else {
 						KeyCursor = CONTROL_LINE_COUNT;
 					}
+#ifdef FEATURE_HUD_IMPROVED
+					while( KeyCursor >= 0 && !*CtrlTextA[KeyCursor]->pString ) {
+						--KeyCursor;
+					}
+					if( KeyCursor == -1 ) {
+						while( ++KeyCursor < (int)CONTROL_LINE_COUNT*2 && !*CtrlTextA[KeyCursor]->pString ) {}
+					}
 
+					T_ChangeText(ControlTextInfo[0], GetControlsHeaderString());
+#endif // FEATURE_HUD_IMPROVED
 					CtrlTextA[KeyCursor]->zPos = 0;
 					T_AddBackground(CtrlTextA[KeyCursor], 0, 0, 0, 0, 0, ICLR_Black, &ReqSelGour1, 0);
 					T_AddOutline(CtrlTextA[KeyCursor], TRUE, ICLR_Blue, &ReqSelGour2, 0);
 				}
 			}
-			else if( CHK_ANY(InputDB, IN_DESELECT) || (CHK_ANY(InputDB, IN_SELECT) && KeyCursor == -1) ) {
+			else if( (CHK_ANY(InputDB, IN_DESELECT) && !CHK_ANY(InputDB, IN_SELECT)) || (CHK_ANY(InputDB, IN_SELECT) && KeyCursor == -1) ) {
 				T_RemovePrint(ControlTextInfo[0]);
 				ControlTextInfo[0] = NULL;
 				T_RemovePrint(ControlTextInfo[1]);
@@ -780,10 +1242,19 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 				return;
 			}
 
+#ifndef FEATURE_HUD_IMPROVED
 			if( LayoutPage == CTRL_Default )
 				break;
+#endif // FEATURE_HUD_IMPROVED
 
 			if( CHK_ANY(InputDB, IN_SELECT) ) {
+#ifdef FEATURE_HUD_IMPROVED
+				if( LayoutPage == CTRL_Joystick && KeyCursor >= 0 && KeyCursor < 4 ) {
+					T_ChangeText(CtrlTextB[KeyCursor], JoystickOpts[KeyCursor].toggle());
+					break;
+				}
+				UpdateJoystickHintText(HINT_HIDDEN, HINT_KEYBOARD, HINT_KEYBOARD);
+#endif // FEATURE_HUD_IMPROVED
 				KeySelector = 1;
 
 				CtrlTextA[KeyCursor]->zPos = CONTROL_NEARZ;
@@ -808,6 +1279,21 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 					KeyCursor = CONTROL_LINE_COUNT*2 - 1;
 				}
 
+#ifdef FEATURE_HUD_IMPROVED
+				while( KeyCursor >= 0 && !*CtrlTextA[KeyCursor]->pString ) {
+					--KeyCursor;
+				}
+
+				if( isJoystickUnavailable && KeyCursor == -1 ) {
+					KeyCursor = CONTROL_LINE_COUNT*2 - 1;
+					while( KeyCursor >= 0 && !*CtrlTextA[KeyCursor]->pString ) {
+						--KeyCursor;
+					}
+				}
+
+				T_ChangeText(ControlTextInfo[0], GetControlsHeaderString());
+#endif // FEATURE_HUD_IMPROVED
+
 				if( KeyCursor == -1 ) {
 					T_AddBackground(ControlTextInfo[0], 0, 0, 0, 0, 0, ICLR_Black, &ReqSelGour1, 0);
 					T_AddOutline(ControlTextInfo[0], TRUE, ICLR_Blue, &ReqSelGour2, 0);
@@ -827,9 +1313,28 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 					T_RemoveOutline(CtrlTextA[KeyCursor]);
 				}
 
+#ifdef FEATURE_HUD_IMPROVED
+				++KeyCursor;
+				while( KeyCursor < (int)CONTROL_LINE_COUNT*2 && !*CtrlTextA[KeyCursor]->pString ) {
+					++KeyCursor;
+				}
+				if( KeyCursor >= (int)CONTROL_LINE_COUNT*2 ) {
+					if( isJoystickUnavailable ) {
+						KeyCursor = 0;
+						while( KeyCursor < (int)CONTROL_LINE_COUNT*2 && !*CtrlTextA[KeyCursor]->pString ) {
+							++KeyCursor;
+						}
+					} else {
+						KeyCursor = -1;
+					}
+				}
+
+				T_ChangeText(ControlTextInfo[0], GetControlsHeaderString());
+#else // FEATURE_HUD_IMPROVED
 				if( ++KeyCursor >= (int)CONTROL_LINE_COUNT*2 ) {
 					KeyCursor = -1;
 				}
+#endif // FEATURE_HUD_IMPROVED
 
 				if( KeyCursor == -1 ) {
 					T_AddBackground(ControlTextInfo[0], 0, 0, 0, 0, 0, ICLR_Black, &ReqSelGour1, 0);
@@ -850,6 +1355,19 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 			break;
 
 		case 2:
+#ifdef FEATURE_HUD_IMPROVED
+			i = 0;
+			if( LayoutPage == CTRL_Joystick && CHK_ANY(JoyKeys, 0xFFFF) ) {
+				for( i = 0; i < 0x10; ++i ) {
+					if( CHK_ANY((1 << i), JoyKeys) )
+						break;
+				}
+				if( i == 0x10 ) {
+					break;
+				}
+				i += 0x100;
+			} else if( LayoutPage == CTRL_Custom || CHK_ANY(DIKeys[DIK_ESCAPE], 0x80) )
+#else // FEATURE_HUD_IMPROVED
 			if( JoyKeys != 0 ) {
 				for( i = 0; i < 0x20; ++i ) {
 					if( CHK_ANY((1 << i), JoyKeys) )
@@ -859,7 +1377,9 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 					break;
 				}
 				i += 0x100;
-			} else {
+			} else
+#endif // FEATURE_HUD_IMPROVED
+			{
 				for( i = 0; i < 0x100; ++i ) {
 					if( CHK_ANY(DIKeys[i], 0x80) )
 						break;
@@ -873,8 +1393,20 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 				i != DIK_LEFT && i != DIK_RIGHT && i != DIK_UP && i != DIK_DOWN )
 			{
 				if( i != DIK_ESCAPE ) {
+#ifdef FEATURE_HUD_IMPROVED
+					Layout[LayoutPage].key[KeyCursor] = (i >= 0x100) ? i-0x100 : i;
+					if( Layout[LayoutPage].key[KeyCursor] == DIK_LCONTROL )
+						Layout[LayoutPage].key[KeyCursor] = DIK_RCONTROL;
+					if( Layout[LayoutPage].key[KeyCursor] == DIK_LSHIFT )
+						Layout[LayoutPage].key[KeyCursor] = DIK_RSHIFT;
+					if( Layout[LayoutPage].key[KeyCursor] == DIK_LMENU )
+						Layout[LayoutPage].key[KeyCursor] = DIK_RMENU;
+					DefaultConflict();
+					S_ChangeCtrlText();
+#else // FEATURE_HUD_IMPROVED
 					Layout[LayoutPage].key[KeyCursor] = i;
 					T_ChangeText(CtrlTextB[KeyCursor], ControlKeysText[i]);
+#endif // FEATURE_HUD_IMPROVED
 				}
 
 				CtrlTextB[KeyCursor]->zPos = CONTROL_NEARZ;
@@ -891,13 +1423,19 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 			break;
 
 		case 3:
-			if( CHK_ANY(Layout[LayoutPage].key[KeyCursor], 0x100) ) {
+#ifdef FEATURE_HUD_IMPROVED
+			if( LayoutPage == CTRL_Joystick )
+#else // FEATURE_HUD_IMPROVED
+			if( CHK_ANY(Layout[LayoutPage].key[KeyCursor], 0x100) )
+#endif // FEATURE_HUD_IMPROVED
+			{
 				if( !CHK_ANY((1 << Layout[LayoutPage].key[KeyCursor]), JoyKeys) ) {
 					KeySelector = 0;
 				}
 			}
 			else if( !CHK_ANY(DIKeys[Layout[LayoutPage].key[KeyCursor]], 0x80) ) {
 				KeySelector = 0;
+#ifndef FEATURE_HUD_IMPROVED
 				if( Layout[LayoutPage].key[KeyCursor] == DIK_LCONTROL )
 					Layout[LayoutPage].key[KeyCursor] = DIK_RCONTROL;
 				if( Layout[LayoutPage].key[KeyCursor] == DIK_LSHIFT )
@@ -905,7 +1443,13 @@ void __cdecl do_control_option(INVENTORY_ITEM *item) {
 				if( Layout[LayoutPage].key[KeyCursor] == DIK_LMENU )
 					Layout[LayoutPage].key[KeyCursor] = DIK_RMENU;
 				FlashConflicts();
+#endif // FEATURE_HUD_IMPROVED
 			}
+#ifdef FEATURE_HUD_IMPROVED
+			if( KeySelector == 0 ) {
+				UpdateJoystickHintText(HINT_JOYSTICK, HINT_JOYSTICK, HINT_JOYSTICK);
+			}
+#endif // FEATURE_HUD_IMPROVED
 			break;
 	}
 
@@ -921,6 +1465,35 @@ void __cdecl S_ShowControls() {
 #ifdef FEATURE_HUD_IMPROVED
 	xCenter = GetRenderWidthDownscaled() / 2;
 	isCompact = (xCenter < (CONTROL_WIDTH_HIGH + 20) / 2);
+
+	if( CtrlTextC[0] == NULL ) {
+		x1 = CONTROL_COLUMN_C;
+		x0 = x1 - (isCompact ? CONTROL_WIDTH_LOW : CONTROL_WIDTH_HIGH) / 2;
+
+		CtrlTextC[0]  = T_Print(x0, CONTROL_Y_LINE1, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[0]]);
+		CtrlTextC[1]  = T_Print(x0, CONTROL_Y_LINE2, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[1]]);
+		CtrlTextC[2]  = T_Print(x0, CONTROL_Y_LINE3, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[2]]);
+		CtrlTextC[3]  = T_Print(x0, CONTROL_Y_LINE4, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[3]]);
+		CtrlTextC[4]  = T_Print(x0, CONTROL_Y_LINE5, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[4]]);
+		CtrlTextC[5]  = T_Print(x0, CONTROL_Y_LINE6, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[5]]);
+		CtrlTextC[6]  = T_Print(x0, CONTROL_Y_LINE7, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[6]]);
+		CtrlTextC[7]  = T_Print(x0, CONTROL_Y_LINE8, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[7]]);
+
+		CtrlTextC[8]  = T_Print(x1, CONTROL_Y_LINE1, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[8]]);
+		CtrlTextC[9]  = T_Print(x1, CONTROL_Y_LINE2, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[9]]);
+		CtrlTextC[10] = T_Print(x1, CONTROL_Y_LINE3, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[10]]);
+		CtrlTextC[11] = T_Print(x1, CONTROL_Y_LINE4, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[11]]);
+		CtrlTextC[12] = T_Print(x1, CONTROL_Y_LINE5, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[12]]);
+		CtrlTextC[13] = T_Print(x1, CONTROL_Y_LINE6, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[13]]);
+		CtrlTextC[14] = T_Print(x1, CONTROL_Y_LINE7, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[14]]);
+		CtrlTextC[15] = T_Print(x1, CONTROL_Y_LINE8, CONTROL_NEARZ, ControlKeysText[Layout[CTRL_Default].key[15]]);
+
+		for( i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
+			T_CentreV(CtrlTextC[i], 1);
+			T_CentreH(CtrlTextC[i], 1);
+			T_HideText(CtrlTextC[i], (LayoutPage == CTRL_Joystick || ConflictLayout[i]) ? 1 : 0);
+		}
+	}
 #else // !FEATURE_HUD_IMPROVED
 	xCenter = GetRenderWidth() / 2;
 	CLAMPG(xCenter, 320);
@@ -928,6 +1501,47 @@ void __cdecl S_ShowControls() {
 #endif // FEATURE_HUD_IMPROVED
 
 	if( CtrlTextB[0] == NULL ) {
+#ifdef FEATURE_HUD_IMPROVED
+		DWORD base = (LayoutPage == CTRL_Joystick) ? 0x100 : 0;
+
+		x1 = ( LayoutPage == CTRL_Joystick ) ? CONTROL_COLUMN_B2 : CONTROL_COLUMN_B1;
+		x0 = x1 - (isCompact ? CONTROL_WIDTH_LOW : CONTROL_WIDTH_HIGH) / 2;
+
+		if( LayoutPage == CTRL_Joystick ) {
+			CtrlTextB[0]  = T_Print(x0, CONTROL_Y_LINE1, CONTROL_NEARZ, JoystickOpts[0].getState());
+			CtrlTextB[1]  = T_Print(x0, CONTROL_Y_LINE2, CONTROL_NEARZ, JoystickOpts[1].getState());
+			CtrlTextB[2]  = T_Print(x0, CONTROL_Y_LINE3, CONTROL_NEARZ, JoystickOpts[2].getState());
+			CtrlTextB[3]  = T_Print(x0, CONTROL_Y_LINE4, CONTROL_NEARZ, JoystickOpts[3].getState());
+		} else {
+			CtrlTextB[0]  = T_Print(x0, CONTROL_Y_LINE1, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[0]]);
+			CtrlTextB[1]  = T_Print(x0, CONTROL_Y_LINE2, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[1]]);
+			CtrlTextB[2]  = T_Print(x0, CONTROL_Y_LINE3, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[2]]);
+			CtrlTextB[3]  = T_Print(x0, CONTROL_Y_LINE4, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[3]]);
+		}
+		CtrlTextB[4]  = T_Print(x0, CONTROL_Y_LINE5, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[4]]);
+		CtrlTextB[5]  = T_Print(x0, CONTROL_Y_LINE6, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[5]]);
+		CtrlTextB[6]  = T_Print(x0, CONTROL_Y_LINE7, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[6]]);
+		CtrlTextB[7]  = T_Print(x0, CONTROL_Y_LINE8, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[7]]);
+
+		CtrlTextB[8]  = T_Print(x1, CONTROL_Y_LINE1, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[8]]);
+		CtrlTextB[9]  = T_Print(x1, CONTROL_Y_LINE2, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[9]]);
+		CtrlTextB[10] = T_Print(x1, CONTROL_Y_LINE3, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[10]]);
+		CtrlTextB[11] = T_Print(x1, CONTROL_Y_LINE4, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[11]]);
+		CtrlTextB[12] = T_Print(x1, CONTROL_Y_LINE5, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[12]]);
+		CtrlTextB[13] = T_Print(x1, CONTROL_Y_LINE6, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[13]]);
+		CtrlTextB[14] = T_Print(x1, CONTROL_Y_LINE7, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[14]]);
+		CtrlTextB[15] = T_Print(x1, CONTROL_Y_LINE8, CONTROL_NEARZ, ControlKeysText[base + Layout[LayoutPage].key[15]]);
+
+		for( i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
+			x1 = CONTROL_COLUMN_B2;
+			x0 = x1 - (isCompact ? CONTROL_WIDTH_LOW : CONTROL_WIDTH_HIGH) / 2;
+			if( LayoutPage != CTRL_Joystick && ConflictLayout[i] ) {
+				CtrlTextB[i]->xPos = (i < CONTROL_LINE_COUNT) ? x0 : x1;
+			}
+			T_CentreH(CtrlTextB[i], 1);
+			T_CentreV(CtrlTextB[i], 1);
+		}
+#else // FEATURE_HUD_IMPROVED
 		x0 = xCenter - (isCompact ? CONTROL_WIDTH_LOW : CONTROL_WIDTH_HIGH) / 2 + CONTROL_COLUMN_B;
 		x1 = xCenter + CONTROL_COLUMN_B;
 
@@ -952,15 +1566,40 @@ void __cdecl S_ShowControls() {
 		}
 
 		KeyCursor = 0;
+#endif // FEATURE_HUD_IMPROVED
 	}
 
 	if( CtrlTextA[0] == NULL ) {
 		x0 = xCenter - (isCompact ? CONTROL_WIDTH_LOW : CONTROL_WIDTH_HIGH) / 2 + CONTROL_COLUMN_A;
 #ifdef FEATURE_HUD_IMPROVED
 		x1 = xCenter + CONTROL_COLUMN_A;
+
+		if( LayoutPage == CTRL_Joystick ) {
+			CtrlTextA[0]  = T_Print(x0, CONTROL_Y_LINE1, CONTROL_NEARZ, JoystickOpts[0].name);
+			CtrlTextA[1]  = T_Print(x0, CONTROL_Y_LINE2, CONTROL_NEARZ, JoystickOpts[1].name);
+			CtrlTextA[2]  = T_Print(x0, CONTROL_Y_LINE3, CONTROL_NEARZ, JoystickOpts[2].name);
+			CtrlTextA[3]  = T_Print(x0, CONTROL_Y_LINE4, CONTROL_NEARZ, JoystickOpts[3].name);
+		} else {
+			CtrlTextA[0]  = T_Print(x0, CONTROL_Y_LINE1, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Run]);
+			CtrlTextA[1]  = T_Print(x0, CONTROL_Y_LINE2, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Back]);
+			CtrlTextA[2]  = T_Print(x0, CONTROL_Y_LINE3, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Left]);
+			CtrlTextA[3]  = T_Print(x0, CONTROL_Y_LINE4, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Right]);
+		}
+		CtrlTextA[4]  = T_Print(x0, CONTROL_Y_LINE5, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_StepLeft]);
+		CtrlTextA[5]  = T_Print(x0, CONTROL_Y_LINE6, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_StepRight]);
+		CtrlTextA[6]  = T_Print(x0, CONTROL_Y_LINE7, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Step]);
+		CtrlTextA[7]  = T_Print(x0, CONTROL_Y_LINE8, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Walk]);
+
+		CtrlTextA[8]  = T_Print(x1, CONTROL_Y_LINE1, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Jump]);
+		CtrlTextA[9]  = T_Print(x1, CONTROL_Y_LINE2, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Action]);
+		CtrlTextA[10] = T_Print(x1, CONTROL_Y_LINE3, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Roll]);
+		CtrlTextA[11] = T_Print(x1, CONTROL_Y_LINE4, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_DrawWeapon]);
+		CtrlTextA[12] = T_Print(x1, CONTROL_Y_LINE5, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Flare]);
+		CtrlTextA[13] = T_Print(x1, CONTROL_Y_LINE6, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Look]);
+		CtrlTextA[14] = T_Print(x1, CONTROL_Y_LINE7, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Inventory]);
+		CtrlTextA[15] = T_Print(x1, CONTROL_Y_LINE8, CONTROL_NEARZ, "Pause");
 #else // !FEATURE_HUD_IMPROVED
 		x1 = xCenter + CONTROL_COLUMN_A + 10;
-#endif // FEATURE_HUD_IMPROVED
 
 		CtrlTextA[0]  = T_Print(x0, CONTROL_Y_LINE1, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Run]);
 		CtrlTextA[1]  = T_Print(x0, CONTROL_Y_LINE2, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Back]);
@@ -977,7 +1616,7 @@ void __cdecl S_ShowControls() {
 		CtrlTextA[11] = T_Print(x1, CONTROL_Y_LINE5, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Look]);
 		CtrlTextA[12] = T_Print(x1, CONTROL_Y_LINE6, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Roll]);
 		CtrlTextA[13] = T_Print(x1, CONTROL_Y_LINE7, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Inventory]);
-
+#endif // FEATURE_HUD_IMPROVED
 		for( i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
 			T_CentreV(CtrlTextA[i], 1);
 		}
@@ -1005,6 +1644,51 @@ void __cdecl S_ShowControls() {
 
 void __cdecl S_ChangeCtrlText() {
 	UINT16 key;
+#ifdef FEATURE_HUD_IMPROVED
+	T_ChangeText(ControlTextInfo[0], GetControlsHeaderString());
+
+	for( DWORD i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
+		T_HideText(CtrlTextC[i], (LayoutPage == CTRL_Joystick || ConflictLayout[i]) ? 1 : 0);
+	}
+
+	if( LayoutPage == CTRL_Joystick ) {
+		for( DWORD i=0; i<4; ++i ) {
+			T_ChangeText(CtrlTextA[i], JoystickOpts[i].name);
+			T_ChangeText(CtrlTextB[i], JoystickOpts[i].getState());
+		}
+	} else {
+		T_ChangeText(CtrlTextA[0], GF_GameStringTable[GSI_Keymap_Run]);
+		T_ChangeText(CtrlTextA[1], GF_GameStringTable[GSI_Keymap_Back]);
+		T_ChangeText(CtrlTextA[2], GF_GameStringTable[GSI_Keymap_Left]);
+		T_ChangeText(CtrlTextA[3], GF_GameStringTable[GSI_Keymap_Right]);
+	}
+
+	bool isCompact = ( GetRenderWidthDownscaled() < CONTROL_WIDTH_HIGH + 20 );
+	for( DWORD i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
+		int x1 = ( LayoutPage == CTRL_Joystick || ConflictLayout[i] ) ? CONTROL_COLUMN_B2 : CONTROL_COLUMN_B1;
+		int x0 = x1 - (isCompact ? CONTROL_WIDTH_LOW : CONTROL_WIDTH_HIGH) / 2;
+		CtrlTextB[i]->xPos = (i < CONTROL_LINE_COUNT) ? x0 : x1;
+		T_CentreH(CtrlTextB[i], 1);
+	}
+
+	for( DWORD i=(LayoutPage == CTRL_Joystick)? 4 : 0; i<CONTROL_LINE_COUNT*2; ++i ) {
+		key = Layout[LayoutPage].key[i];
+		switch( LayoutPage ) {
+			case CTRL_Joystick:
+				if( key < 0x10 && ControlKeysText[key+0x100] != NULL )
+					T_ChangeText(CtrlTextB[i], ControlKeysText[key+0x100]);
+				else
+					T_ChangeText(CtrlTextB[i], "?");
+				break;
+			case CTRL_Custom:
+				if( key < 0x100 && ControlKeysText[key] != NULL )
+					T_ChangeText(CtrlTextB[i], ControlKeysText[key]);
+				else
+					T_ChangeText(CtrlTextB[i], "?");
+				break;
+		}
+	}
+#else // FEATURE_HUD_IMPROVED
 	char headerStr[40];
 
 	if( LayoutPage == CTRL_Default ) {
@@ -1018,15 +1702,12 @@ void __cdecl S_ChangeCtrlText() {
 	for( DWORD i=0; i<CONTROL_LINE_COUNT*2; ++i ) {
 		key = Layout[LayoutPage].key[i];
 		// NOTE: there was no key range check in the original code
-		if( key < 0x110 && ControlKeysText[key] != 0 )
+		if( key < 0x110 && ControlKeysText[key] != NULL )
 			T_ChangeText(CtrlTextB[i], ControlKeysText[key]);
 		else
-#ifdef FEATURE_HUD_IMPROVED
-			T_ChangeText(CtrlTextB[i], "?");
-#else // !FEATURE_HUD_IMPROVED
 			T_ChangeText(CtrlTextB[i], "BAD");
-#endif // FEATURE_HUD_IMPROVED
 	}
+#endif // FEATURE_HUD_IMPROVED
 }
 
 void __cdecl S_RemoveCtrlText() {
@@ -1035,6 +1716,10 @@ void __cdecl S_RemoveCtrlText() {
 		T_RemovePrint(CtrlTextB[i]);
 		CtrlTextA[i] = NULL;
 		CtrlTextB[i] = NULL;
+#ifdef FEATURE_HUD_IMPROVED
+		T_RemovePrint(CtrlTextC[i]);
+		CtrlTextC[i] = NULL;
+#endif // FEATURE_HUD_IMPROVED
 	}
 }
 

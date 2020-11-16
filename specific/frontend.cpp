@@ -29,6 +29,10 @@
 #include "specific/utils.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_BACKGROUND_IMPROVED
+#include "modding/background_new.h"
+#endif // FEATURE_BACKGROUND_IMPROVED
+
 #ifdef FEATURE_HUD_IMPROVED
 #include "3dsystem/3dinsert.h"
 
@@ -50,7 +54,13 @@ void __cdecl S_DrawScreenLine(int x, int y, int z, int xLen, int yLen, BYTE colo
 void __cdecl S_DrawScreenBox(int sx, int sy, int z, int width, int height, BYTE colorIdx, GOURAUD_OUTLINE *gour, UINT16 flags) {
 	int adder;
 #ifdef FEATURE_HUD_IMPROVED
-	adder = GetRenderScale(2);
+	if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
+		adder = GetRenderScale(1);
+		sx += adder;
+		sy += adder;
+	} else {
+		adder = GetRenderScale(2);
+	}
 #else // !FEATURE_HUD_IMPROVED
 	// NOTE: in the original code there was no adder at all for this function
 	adder = 2;
@@ -144,7 +154,13 @@ void __cdecl S_DrawScreenFBox(int sx, int sy, int z, int width, int height, BYTE
 	int adder;
 	int sz = PhdNearZ + z * 8;
 #ifdef FEATURE_HUD_IMPROVED
-	adder = GetRenderScale(2);
+	if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
+		adder = GetRenderScale(1);
+		sx += adder;
+		sy += adder;
+	} else {
+		adder = GetRenderScale(2);
+	}
 #else // !FEATURE_HUD_IMPROVED
 	// NOTE: in the original code the adder was 1, but 1 is insufficient,
 	// because there was visible gap between FBox and bottom/right Frame
@@ -188,6 +204,13 @@ void __cdecl S_FinishInventory() {
 }
 
 void __cdecl S_FadeToBlack() {
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	if( SavedAppSettings.RenderMode == RM_Hardware ) {
+		S_CopyScreenToBuffer();
+		BGND2_ShowPicture(0, 0, 10, 2, FALSE);
+		return;
+	}
+#endif // FEATURE_BACKGROUND_IMPROVED
 	memset(GamePalette8, 0, sizeof(GamePalette8));
 	FadeToPal(10, GamePalette8);
 	FadeWait();

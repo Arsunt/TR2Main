@@ -19,18 +19,16 @@
  * along with TR2Main.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PSX_BAR_H_INCLUDED
-#define PSX_BAR_H_INCLUDED
+#ifndef PAUSE_H_INCLUDED
+#define PAUSE_H_INCLUDED
 
 #include "global/types.h"
 
 /*
  * Function list
  */
+#ifdef FEATURE_BACKGROUND_IMPROVED
+bool S_Pause();
+#endif // FEATURE_BACKGROUND_IMPROVED
 
-void __cdecl PSX_DrawHealthBar(int x0, int y0, int x1, int y1, int bar, int pixel, int alpha);
-void __cdecl PSX_DrawAirBar(int x0, int y0, int x1, int y1, int bar, int pixel, int alpha);
-void __cdecl PSX_InsertHealthBar(int x0, int y0, int x1, int y1, int bar, int pixel, int alpha);
-void __cdecl PSX_InsertAirBar(int x0, int y0, int x1, int y1, int bar, int pixel, int alpha);
-
-#endif // PSX_BAR_H_INCLUDED
+#endif // PAUSE_H_INCLUDED

@@ -43,6 +43,10 @@ static void setWindowStyle(bool isFullScreen) {
 }
 #endif // FEATURE_WINDOW_STYLE_FIX
 
+#ifdef FEATURE_NOLEGACY_OPTIONS
+bool AvoidInterlacedVideoModes = false;
+#endif // FEATURE_NOLEGACY_OPTIONS
+
 #ifdef FEATURE_INPUT_IMPROVED
 #include "modding/raw_input.h"
 #include "modding/joy_output.h"
@@ -552,7 +556,7 @@ bool __cdecl WinVidGoFullScreen(DISPLAY_MODE *dispMode) {
 		goto FAIL;
 
 	IsGameWindowUpdating = true;
-	rc = DDraw->SetDisplayMode(dispMode->width, dispMode->height, dispMode->bpp, 0, (dispMode->vga == 3));
+	rc = DDraw->SetDisplayMode(dispMode->width, dispMode->height, dispMode->bpp, 0, (dispMode->vga == VGA_Standard) ? DDSDM_STANDARDVGAMODE : 0);
 	IsGameWindowUpdating = false;
 
 	if FAILED(rc)
@@ -645,26 +649,108 @@ void __cdecl WinVidSetDisplayAdapter(DISPLAY_ADAPTER *dispAdapter) {
 }
 
 bool __thiscall CompareVideoModes(DISPLAY_MODE *mode1, DISPLAY_MODE *mode2) {
-#if defined FEATURE_VIDMODESORT
+#ifdef FEATURE_NOLEGACY_OPTIONS
 	if( mode1->bpp < mode2->bpp ) return true;
 	if( mode1->bpp > mode2->bpp ) return false;
 	if( mode1->width < mode2->width ) return true;
 	if( mode1->width > mode2->width ) return false;
 	if( mode1->height < mode2->height ) return true;
 	if( mode1->height > mode2->height ) return false;
-#else // !FEATURE_VIDMODESORT
+#else // !FEATURE_NOLEGACY_OPTIONS
 	DWORD square1 = mode1->width * mode1->height;
 	DWORD square2 = mode2->width * mode2->height;
 	if( square1 < square2 ) return true;
 	if( square1 > square2 ) return false;
 	if( mode1->bpp < mode2->bpp ) return true;
 	if( mode1->bpp > mode2->bpp ) return false;
-#endif // FEATURE_VIDMODESORT
+#endif // FEATURE_NOLEGACY_OPTIONS
 	if( mode1->vga < mode2->vga ) return true;
 	if( mode1->vga > mode2->vga ) return false;
 	// equal state
 	return false;
 }
+
+#ifdef FEATURE_NOLEGACY_OPTIONS
+static void DeleteDisplayMode(DISPLAY_MODE_LIST *modeList, DISPLAY_MODE_NODE *node) {
+	if( !modeList || !node ) return;
+	DISPLAY_MODE_NODE *previous = node->previous;
+	DISPLAY_MODE_NODE *next = node->next;
+	if( previous ) previous->next = next;
+	if( next ) next->previous = previous;
+	if( modeList->head == node ) modeList->head = next;
+	if( modeList->tail == node ) modeList->tail = previous;
+	if( modeList->dwCount ) --modeList->dwCount;
+	delete(node);
+}
+
+static DWORD GetProgressiveDisplayModes(DWORD bpp, DEVMODE *modes, DWORD modeNum) {
+	DWORD idx = 0;
+	DWORD num = 0;
+	if( modes == NULL ) {
+		DEVMODE mode;
+		memset(&mode, 0, sizeof(mode));
+		mode.dmSize = sizeof(mode);
+		while( EnumDisplaySettings(NULL, idx++, &mode) ) {
+			if( mode.dmBitsPerPel == bpp && !CHK_ANY(mode.dmDisplayFlags, DM_INTERLACED) ) {
+				++num;
+			}
+		}
+	} else {
+		memset(modes, 0, sizeof(DEVMODE) * modeNum);
+		while( num < modeNum ) {
+			modes[num].dmSize = sizeof(DEVMODE);
+			if( !EnumDisplaySettings(NULL, idx++, &modes[num]) ) {
+				break;
+			}
+			if( modes[num].dmBitsPerPel == bpp && !CHK_ANY(modes[num].dmDisplayFlags, DM_INTERLACED) ) {
+				++num;
+			}
+		}
+	}
+	return num;
+}
+
+static bool IsModeInList(DISPLAY_MODE *mode, DEVMODE *modes, DWORD modeNum) {
+	if( !mode || !modes || !modeNum ) return false;
+	for( DWORD i = 0; i < modeNum; ++i ) {
+		if( modes[i].dmPelsWidth  == (DWORD)mode->width  &&
+			modes[i].dmPelsHeight == (DWORD)mode->height &&
+			modes[i].dmBitsPerPel == (DWORD)mode->bpp )
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+static void FilterDisplayModes(DISPLAY_MODE_LIST *modeList) {
+	DWORD wlistSize = 0;
+	DEVMODE *whitelist = NULL;
+	DISPLAY_MODE_NODE *mode, *next;
+	int bppMax = 8;
+	for( mode = modeList->head; mode; mode = mode->next ) {
+		CLAMPL(bppMax, mode->body.bpp);
+	}
+	if( AvoidInterlacedVideoModes ) {
+		wlistSize = GetProgressiveDisplayModes(bppMax, NULL, 0);
+		if( wlistSize ) {
+			whitelist = (DEVMODE *)malloc(sizeof(DEVMODE) * wlistSize);
+			if( whitelist ) {
+				GetProgressiveDisplayModes(bppMax, whitelist, wlistSize);
+			}
+		}
+	}
+	for( mode = modeList->head; mode; mode = next ) {
+		next = mode->next;
+		if( mode->body.bpp < bppMax || (whitelist && !IsModeInList(&mode->body, whitelist, wlistSize)) ) {
+			DeleteDisplayMode(modeList, mode);
+		}
+	}
+	if( whitelist ) {
+		free(whitelist);
+	}
+}
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 bool __cdecl WinVidGetDisplayModes() {
 	DISPLAY_ADAPTER_NODE *adapter;
@@ -672,7 +758,12 @@ bool __cdecl WinVidGetDisplayModes() {
 	for( adapter = DisplayAdapterList.head; adapter; adapter = adapter->next ) {
 		DDrawCreate(adapter->body.lpAdapterGuid);
 		ShowDDrawGameWindow(false);
+#ifdef FEATURE_NOLEGACY_OPTIONS
+		DDraw->EnumDisplayModes(0, NULL, (LPVOID)&adapter->body, EnumDisplayModesCallback);
+		FilterDisplayModes(&adapter->body.hwDispModeList);
+#else // FEATURE_NOLEGACY_OPTIONS
 		DDraw->EnumDisplayModes(DDEDM_STANDARDVGAMODES, NULL, (LPVOID)&adapter->body, EnumDisplayModesCallback);
+#endif // FEATURE_NOLEGACY_OPTIONS
 		HideDDrawGameWindow();
 		DDrawRelease();
 	}
@@ -695,23 +786,26 @@ HRESULT WINAPI EnumDisplayModesCallback(LPDDSDESC lpDDSurfaceDesc, LPVOID lpCont
 	if( (lpDDSurfaceDesc->ddpfPixelFormat.dwFlags & DDPF_PALETTEINDEXED8) != 0 &&
 		lpDDSurfaceDesc->ddpfPixelFormat.dwRGBBitCount == 8 )
 	{
-#ifdef FEATURE_VIDMODESORT
+#ifdef FEATURE_NOLEGACY_OPTIONS
 		// Check software renderer requirements for 8 bit display modes
 		if( lpDDSurfaceDesc->dwWidth  % 8 != 0 ||
 			lpDDSurfaceDesc->dwHeight % 4 != 0 ||
-			lpDDSurfaceDesc->dwHeight > 1200 )
+			lpDDSurfaceDesc->dwHeight > 1200 ||
+			CHK_ANY(lpDDSurfaceDesc->ddsCaps.dwCaps, DDSCAPS_MODEX|DDSCAPS_STANDARDVGAMODE) )
 		{
 			return DDENUMRET_OK;
 		}
-#endif // FEATURE_VIDMODESORT
 
-		if( (lpDDSurfaceDesc->ddsCaps.dwCaps & DDSCAPS_MODEX) != 0 ) {
+		vgaMode = VGA_256Color;
+#else // FEATURE_NOLEGACY_OPTIONS
+		if( CHK_ANY(lpDDSurfaceDesc->ddsCaps.dwCaps, DDSCAPS_MODEX) ) {
 			vgaMode = VGA_ModeX;
-		} else if( (lpDDSurfaceDesc->ddsCaps.dwCaps & DDSCAPS_STANDARDVGAMODE) != 0 ) {
+		} else if( CHK_ANY(lpDDSurfaceDesc->ddsCaps.dwCaps, DDSCAPS_STANDARDVGAMODE) ) {
 			vgaMode = VGA_Standard;
 		} else {
 			vgaMode = VGA_256Color;
 		}
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 		if( lpDDSurfaceDesc->dwWidth == 320 &&
 			lpDDSurfaceDesc->dwHeight == 200 &&

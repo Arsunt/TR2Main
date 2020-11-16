@@ -31,7 +31,7 @@
 #include "global/vars.h"
 
 #ifdef FEATURE_INPUT_IMPROVED
-bool WalkToSidestep = true;
+bool WalkToSidestep = false;
 #endif // FEATURE_INPUT_IMPROVED
 
 // Macros
@@ -40,8 +40,14 @@ bool WalkToSidestep = true;
 
 // NOTE: not presented in the original game
 static BOOL JoyKey(KEYMAP keyMap) {
+#ifdef FEATURE_HUD_IMPROVED
+	if( keyMap < 4 ) return FALSE; // ignore direction keys
+	UINT16 key = Layout[CTRL_Joystick].key[keyMap];
+	return CHK_ANY(JoyKeys, (1 << key));
+#else // FEATURE_HUD_IMPROVED
 	UINT16 key = Layout[CTRL_Custom].key[keyMap];
 	return ( key >= 0x100 && CHK_ANY(JoyKeys, (1 << key)) );
+#endif // FEATURE_HUD_IMPROVED
 }
 
 // NOTE: not presented in the original game
@@ -154,6 +160,19 @@ bool __cdecl S_UpdateInput() {
 	}
 
 	// Key combinations and alternatives
+#ifdef FEATURE_HUD_IMPROVED
+	if( Key(KM_Step) ) {
+		if( CHK_ANY(input, IN_LEFT) ) {
+			input &= ~(IN_LEFT|IN_FORWARD|IN_BACK);
+			input |= IN_STEPL;
+		} else if( CHK_ANY(input, IN_RIGHT) ) {
+			input &= ~(IN_RIGHT|IN_FORWARD|IN_BACK);
+			input |= IN_STEPR;
+		} else {
+			input |= IN_SLOW;
+		}
+	}
+#endif // FEATURE_HUD_IMPROVED
 #ifdef FEATURE_INPUT_IMPROVED
 	if( WalkToSidestep && CHK_ANY(input, IN_SLOW) && !CHK_ANY(input, IN_FORWARD|IN_BACK|IN_STEPL|IN_STEPR) ) {
 		if( CHK_ANY(input, IN_LEFT) ) {
@@ -243,6 +262,23 @@ bool __cdecl S_UpdateInput() {
 #endif // FEATURE_CHEAT
 	}
 
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	static bool isPauseKeyPressed = false;
+#ifdef FEATURE_HUD_IMPROVED
+	if( Key(KM_Pause) )
+#else // FEATURE_HUD_IMPROVED
+	if( KEY_DOWN(DIK_P) )
+#endif // FEATURE_HUD_IMPROVED
+	{
+		if( !isPauseKeyPressed ) {
+			isPauseKeyPressed = true;
+			input |= IN_PAUSE;
+		}
+	} else {
+		isPauseKeyPressed = false;
+	}
+#endif // FEATURE_BACKGROUND_IMPROVED
+
 	// Screenshot
 #ifdef FEATURE_SCREENSHOT_IMPROVED
 	if( KEY_DOWN(DIK_BACK) ) { // BackSpace Key instead of S
@@ -275,15 +311,7 @@ bool __cdecl S_UpdateInput() {
 		if( KEY_DOWN(DIK_F7) ) {
 			if( !isF7KeyPressed ) {
 				isF7KeyPressed = true;
-#ifdef FEATURE_NOLEGACY_OPTIONS
-				// Detail Level (F7)
-				if( ++DetailLevel > 2) DetailLevel = 0;
-				switch( DetailLevel ) {
-					case 0: PerspectiveDistance = SW_DETAIL_LOW; break;
-					case 1: PerspectiveDistance = SW_DETAIL_MEDIUM; break;
-					case 2: PerspectiveDistance = SW_DETAIL_HIGH; break;
-				}
-#else
+#ifndef FEATURE_NOLEGACY_OPTIONS
 				if( isShiftKeyPressed ) {
 					// Triple Buffer (Shift + F7)
 					if( SavedAppSettings.FullScreen ) {
@@ -361,10 +389,12 @@ bool __cdecl S_UpdateInput() {
 		if( KEY_DOWN(DIK_F11) ) {
 			if( !isF11KeyPressed ) {
 				isF11KeyPressed = true;
+#ifndef FEATURE_NOLEGACY_OPTIONS
 				// Dithering (F11)
 				newSettings = SavedAppSettings;
 				TOGGLE(newSettings.Dither);
 				GameApplySettings(&newSettings);
+#endif // FEATURE_NOLEGACY_OPTIONS
 			}
 		} else {
 			isF11KeyPressed = false;
@@ -385,12 +415,18 @@ bool __cdecl S_UpdateInput() {
 					if( SavedAppSettings.FullScreen ) {
 
 						// FullScreen to Windowed
-						int winWidth  = ( PhdWinWidth  > 320 ) ? PhdWinWidth  : 320;
-						int winHeight = ( PhdWinHeight > 240 ) ? PhdWinHeight : 240;
+#ifdef FEATURE_NOLEGACY_OPTIONS
+						CLAMPL(newSettings.WindowWidth, 320);
+						CLAMPL(newSettings.WindowHeight, 240);
+						newSettings.WindowWidth = CalculateWindowWidth(newSettings.WindowWidth, newSettings.WindowHeight);
+#else // FEATURE_NOLEGACY_OPTIONS
+						int winWidth  = MAX(PhdWinWidth, 320);
+						int winHeight = MAX(PhdWinHeight, 240);
 
 						newSettings.WindowHeight = winHeight;
 						newSettings.WindowWidth = CalculateWindowWidth(winWidth, winHeight);
 						newSettings.TripleBuffering = false;
+#endif // FEATURE_NOLEGACY_OPTIONS
 						GameApplySettings(&newSettings);
 
 						// Reset inner screen size for windowed mode
@@ -410,6 +446,16 @@ bool __cdecl S_UpdateInput() {
 							targetMode.height = GameVidHeight;
 							targetMode.bpp = GameVidBPP;
 							targetMode.vga = VGA_NoVga;
+#ifdef FEATURE_NOLEGACY_OPTIONS
+							if( SavedAppSettings.VideoMode ) {
+								targetMode.width = SavedAppSettings.VideoMode->body.width;
+								targetMode.height = SavedAppSettings.VideoMode->body.height;
+							}
+							if( modeList->head ) {
+								targetMode.bpp = modeList->head->body.bpp;
+								targetMode.vga = modeList->head->body.vga;
+							}
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 							for( mode = modeList->head; mode != NULL; mode = mode->next ) {
 								if( !CompareVideoModes(&mode->body, &targetMode) )
@@ -444,6 +490,16 @@ bool __cdecl S_UpdateInput() {
 						targetMode.width  = GameVidWidth;
 						targetMode.height = GameVidHeight;
 						targetMode.vga = VGA_NoVga;
+#ifdef FEATURE_NOLEGACY_OPTIONS
+						if( SavedAppSettings.VideoMode ) {
+							targetMode.width = SavedAppSettings.VideoMode->body.width;
+							targetMode.height = SavedAppSettings.VideoMode->body.height;
+						}
+						if( modeList->head ) {
+							targetMode.bpp = modeList->head->body.bpp;
+							targetMode.vga = modeList->head->body.vga;
+						}
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 						for( mode = modeList->head; mode != NULL; mode = mode->next ) {
 							if( !CompareVideoModes(&mode->body, &targetMode) )
@@ -486,6 +542,7 @@ bool __cdecl S_UpdateInput() {
 			// Additional checks for Hardware Renderer
 			if( SavedAppSettings.RenderMode == RM_Hardware ) {
 				for( ; mode != NULL; mode = mode->previous ) {
+#ifndef FEATURE_NOLEGACY_OPTIONS
 					// Decrease depth (Shift + F1)
 					if( isShiftKeyPressed ) {
 						if( mode->body.width  == SavedAppSettings.VideoMode->body.width &&
@@ -495,9 +552,10 @@ bool __cdecl S_UpdateInput() {
 						{
 							break;
 						}
-					}
+					} else
+#endif // FEATURE_NOLEGACY_OPTIONS
 					// Decrease resolution (F1)
-					else {
+					{
 						if( mode->body.vga == SavedAppSettings.VideoMode->body.vga &&
 							mode->body.bpp == SavedAppSettings.VideoMode->body.bpp )
 						{
@@ -529,6 +587,7 @@ bool __cdecl S_UpdateInput() {
 			// Additional checks for Hardware Renderer
 			if( SavedAppSettings.RenderMode == RM_Hardware ) {
 				for( ; mode != NULL; mode = mode->next ) {
+#ifndef FEATURE_NOLEGACY_OPTIONS
 					// Increase depth (Shift + F2)
 					if( isShiftKeyPressed ) {
 						if( mode->body.width  == SavedAppSettings.VideoMode->body.width &&
@@ -538,9 +597,10 @@ bool __cdecl S_UpdateInput() {
 						{
 							break;
 						}
-					}
+					} else
+#endif // FEATURE_NOLEGACY_OPTIONS
 					// Increase resolution (F2)
-					else {
+					{
 						if( mode->body.vga == SavedAppSettings.VideoMode->body.vga &&
 							mode->body.bpp == SavedAppSettings.VideoMode->body.bpp )
 						{
@@ -559,6 +619,37 @@ bool __cdecl S_UpdateInput() {
 		isF2KeyPressed = false;
 	}
 
+#ifdef FEATURE_NOLEGACY_OPTIONS
+	if( SavedAppSettings.RenderMode == RM_Software ) {
+		// Decrease Software Renderer Detail Level
+		if( KEY_DOWN(DIK_F3) ) {
+			if( !isF3KeyPressed && DetailLevel > 0 ) {
+				isF3KeyPressed = true;
+				switch( --DetailLevel ) {
+					case 0: PerspectiveDistance = SW_DETAIL_LOW; break;
+					case 1: PerspectiveDistance = SW_DETAIL_MEDIUM; break;
+					case 2: PerspectiveDistance = SW_DETAIL_HIGH; break;
+				}
+			}
+		} else {
+			isF3KeyPressed = false;
+		}
+
+		// Increase Software Renderer Detail Level
+		if( KEY_DOWN(DIK_F4) ) {
+			if( !isF4KeyPressed && DetailLevel < 2 ) {
+				isF4KeyPressed = true;
+				switch( ++DetailLevel ) {
+					case 0: PerspectiveDistance = SW_DETAIL_LOW; break;
+					case 1: PerspectiveDistance = SW_DETAIL_MEDIUM; break;
+					case 2: PerspectiveDistance = SW_DETAIL_HIGH; break;
+				}
+			}
+		} else {
+			isF4KeyPressed = false;
+		}
+	}
+#else // FEATURE_NOLEGACY_OPTIONS
 	// Decrease inner screen size (F3)
 	if( KEY_DOWN(DIK_F3) ) {
 		if( !isF3KeyPressed ) {
@@ -578,6 +669,8 @@ bool __cdecl S_UpdateInput() {
 	} else {
 		isF4KeyPressed = false;
 	}
+#endif // FEATURE_NOLEGACY_OPTIONS
+
 EXIT :
 	InputStatus = input;
 	return IsGameToExit;

@@ -28,6 +28,13 @@
 #include "specific/output.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_EXTENDED_LIMITS
+LIGHT_INFO DynamicLights[64];
+int BoundRooms[1024];
+__int16 DrawRoomsArray[1024];
+STATIC_INFO StaticObjects[256];
+#endif // FEATURE_EXTENDED_LIMITS
+
 #ifdef FEATURE_VIDEOFX_IMPROVED
 extern DWORD AlphaBlendMode;
 static int GoldenLaraAlpha = 0;

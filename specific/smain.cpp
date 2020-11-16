@@ -47,10 +47,13 @@
 #include "global/vars.h"
 
 #ifdef FEATURE_HUD_IMPROVED
+extern DWORD DemoTextMode;
+extern DWORD JoystickButtonStyle;
 extern DWORD SavegameSlots;
 extern DWORD InvTextBoxMode;
 extern DWORD HealthBarMode;
 extern bool PsxBarPosEnabled;
+extern bool JoystickHintsEnabled;
 extern double GameGUI_Scale;
 extern double InvGUI_Scale;
 #endif // FEATURE_HUD_IMPROVED
@@ -59,6 +62,7 @@ extern double InvGUI_Scale;
 static char PictureSuffix[32];
 extern DWORD InvBackgroundMode;
 extern DWORD StatsBackgroundMode;
+extern DWORD PauseBackgroundMode;
 extern DWORD PictureStretchLimit;
 extern bool LoadingScreensEnabled;
 extern bool RemasteredPixEnabled;
@@ -81,7 +85,6 @@ extern char ScreenshotPath[MAX_PATH];
 #ifdef FEATURE_INPUT_IMPROVED
 #include "modding/joy_output.h"
 extern bool WalkToSidestep;
-extern DWORD JoystickMovement;
 extern bool JoystickVibrationEnabled;
 extern bool JoystickLedColorEnabled;
 #endif // FEATURE_INPUT_IMPROVED
@@ -515,8 +518,20 @@ void __cdecl S_SaveSettings() {
 	SetRegistryDwordValue(REG_MUSIC_VOLUME, MusicVolume);
 	SetRegistryDwordValue(REG_SOUND_VOLUME, SoundVolume);
 	SetRegistryDwordValue(REG_DETAIL_LEVEL, DetailLevel);
+
+#ifndef FEATURE_NOLEGACY_OPTIONS
 	SetRegistryFloatValue(REG_GAME_SIZER, GameSizer);
+#endif // FEATURE_NOLEGACY_OPTIONS
+#ifdef FEATURE_HUD_IMPROVED
+	SetRegistryBinaryValue(REG_GAME_JOY_LAYOUT, Layout[CTRL_Joystick].key, sizeof(CONTROL_LAYOUT));
+	SetRegistryBinaryValue(REG_GAME_KBD_LAYOUT, Layout[CTRL_Custom].key, sizeof(CONTROL_LAYOUT));
+	SetRegistryBoolValue(REG_JOYSTICK_HINTS, JoystickHintsEnabled);
+#else // FEATURE_HUD_IMPROVED
 	SetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)Layout[CTRL_Custom].key, sizeof(CONTROL_LAYOUT));
+#endif // FEATURE_HUD_IMPROVED
+#ifdef FEATURE_INPUT_IMPROVED
+	SetRegistryBoolValue(REG_JOYSTICK_VIBRATION, JoystickVibrationEnabled);
+#endif // FEATURE_INPUT_IMPROVED
 	CloseGameRegistryKey();
 
 #ifdef FEATURE_VIEW_IMPROVED
@@ -538,30 +553,56 @@ void __cdecl S_LoadSettings() {
 	GetRegistryDwordValue(REG_MUSIC_VOLUME, &musicVol, 10); // NOTE: There was bug in the original code. 165 instead of 10.
 	GetRegistryDwordValue(REG_SOUND_VOLUME, &soundVol, 10);
 	GetRegistryDwordValue(REG_DETAIL_LEVEL, &DetailLevel, 1);
+
+#ifdef FEATURE_NOLEGACY_OPTIONS
+	GameSizer = 1.0;
+#else // FEATURE_NOLEGACY_OPTIONS
 	GetRegistryFloatValue(REG_GAME_SIZER, &GameSizer, 1.0);
-	GetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)Layout[CTRL_Custom].key, sizeof(CONTROL_LAYOUT), NULL);
-#ifdef FEATURE_INPUT_IMPROVED
-	GetRegistryBoolValue(REG_WALK_TO_SIDESTEP, &WalkToSidestep, true);
-	GetRegistryDwordValue(REG_JOYSTICK_MOVEMENT, &JoystickMovement, 0);
-	GetRegistryBoolValue(REG_JOYSTICK_VIBRATION, &JoystickVibrationEnabled, true);
-	GetRegistryBoolValue(REG_JOYSTICK_LED_COLOR, &JoystickLedColorEnabled, true);
-#endif // FEATURE_INPUT_IMPROVED
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 #ifdef FEATURE_HUD_IMPROVED
+	GetRegistryBinaryValue(REG_GAME_JOY_LAYOUT, Layout[CTRL_Joystick].key, sizeof(CONTROL_LAYOUT), NULL);
+	if( !GetRegistryBinaryValue(REG_GAME_KBD_LAYOUT, Layout[CTRL_Custom].key, sizeof(CONTROL_LAYOUT), NULL) ) {
+		UINT16 legacy[14];
+		if( GetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)legacy, sizeof(legacy), NULL) ) {
+			// migrate the legacy keyboard Layout to the new one
+			UINT16 remap[14] = {0,1,2,3,4,5, 7,8,9, 11,12,13, 10,14};
+			for( int i=0; i<14; ++i ) {
+				if( legacy[i] < 0x100 ) {
+					Layout[CTRL_Custom].key[remap[i]] = legacy[i];
+				}
+			}
+		}
+	}
+	GetRegistryDwordValue(REG_DEMOTEXT_MODE, &DemoTextMode, 0);
+	GetRegistryDwordValue(REG_JOYSTICK_BTN_STYLE, &JoystickButtonStyle, 0);
 	GetRegistryDwordValue(REG_SAVEGAME_SLOTS, &SavegameSlots, 0);
 	GetRegistryDwordValue(REG_INVTEXTBOX_MODE, &InvTextBoxMode, 0);
 	GetRegistryDwordValue(REG_HEALTHBAR_MODE, &HealthBarMode, 0);
 	GetRegistryBoolValue(REG_PSXBARPOS_ENABLE, &PsxBarPosEnabled, false);
+	GetRegistryBoolValue(REG_JOYSTICK_HINTS, &JoystickHintsEnabled, true);
 	GetRegistryFloatValue(REG_GAME_GUI_SCALE, &GameGUI_Scale, 1.0);
 	GetRegistryFloatValue(REG_INV_GUI_SCALE, &InvGUI_Scale, 1.0);
+	if( JoystickButtonStyle > 3 ) {
+		JoystickButtonStyle = 0;
+	}
 	CLAMP(SavegameSlots, 16, 24);
 	CLAMP(GameGUI_Scale, 0.5, 2.0);
 	CLAMP(InvGUI_Scale, 0.5, 2.0);
+#else // FEATURE_HUD_IMPROVED
+	GetRegistryBinaryValue(REG_GAME_LAYOUT, (LPBYTE)Layout[CTRL_Custom].key, sizeof(CONTROL_LAYOUT), NULL);
 #endif // FEATURE_HUD_IMPROVED
+
+#ifdef FEATURE_INPUT_IMPROVED
+	GetRegistryBoolValue(REG_WALK_TO_SIDESTEP, &WalkToSidestep, false);
+	GetRegistryBoolValue(REG_JOYSTICK_VIBRATION, &JoystickVibrationEnabled, true);
+	GetRegistryBoolValue(REG_JOYSTICK_LED_COLOR, &JoystickLedColorEnabled, true);
+#endif // FEATURE_INPUT_IMPROVED
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	GetRegistryDwordValue(REG_INVBGND_MODE, &InvBackgroundMode, 1);
 	GetRegistryDwordValue(REG_STATSBGND_MODE, &StatsBackgroundMode, 0);
+	GetRegistryDwordValue(REG_PAUSEBGND_MODE, &PauseBackgroundMode, 1);
 	GetRegistryDwordValue(REG_PICTURE_STRETCH, &PictureStretchLimit, 10);
 	GetRegistryBoolValue(REG_REMASTER_PIX_ENABLE, &RemasteredPixEnabled, true);
 	GetRegistryBoolValue(REG_LOADING_SCREENS, &LoadingScreensEnabled, false);

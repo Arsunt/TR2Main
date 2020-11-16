@@ -55,11 +55,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added possibility to hold up/down keys to quickly scroll through game menus.
 - Added a configurable number of saved game slots (16-24).
 - Joystick support completely migrated from WinAPI to DirectInput. Added XInput controllers support. Added DualShock 4 support.
-- Added a setting to select the movement method for GamePads: D-Pad or Left Stick.
+- Joystick controls redesigned to use thumb sticks and D-Pad at the same time.
 - Added vibration feedback support for XInput gamepads and DualShock 4.
 - Added the light bar color feedback support for DualShock 4. The color changes depending from health and oxygen.
 - Passport text box height is adjusted depending from HUD scale.
-- Some legacy options are removed (Triple Buffer, Perspective Correction, Texel Adjustment, Disable 16 bit textures, Don't sort transparent polys).
+- Some legacy options are removed (Triple Buffer, Dither, Perspective Correction, Texel Adjustment, Disable 16 bit textures, Don't sort transparent polys).
+- Screen resolution settings reworked, now the game automatically selects between True Color / High Color.
+- Now the game correctly keeps proper resolutions when it switches between Windowed / Full Screen.
+- Implemented embedded textures for Keyboard/Joystick button sprites. There are 3 styles for Joystick buttons: Numeric, XBox, PlayStation.
+- Added arrows to PlayStation styled inventory text boxes.
+- Sound/Music volumes presented as gradient bars if PlayStation styled inventory text boxes are enabled. Also there are PlayStation styled SFX for changing volume.
+- Added PlayStation styled Joystick button hints for inventory (optional feature).
+- Added Pause feature (P key). Two styles are available: transparent and 50% darkened.
+- Controls text box completely redesigned. Now you can view both default and custom keyboard layouts on the same page. Joystick layout is now independent from the custom keyboard layout.
+- Fade out to black implemented for levels, demos, cut scenes and statistics.
+- Added an option to select Demo Mode text style: none, PC or PlayStation.
+- Now the inventory stopwatch (statistics item) position depends from HUD scale and Field of View options. So it looks both PlayStation and PC authentic.
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.
@@ -82,6 +93,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a bug that caused the harpoon gun to reload every single shot in *"New Game+"* after a weapon cheat was used.
 - Fixed a bug due to which none of the joystick buttons allowed returning to the previous menu. Now the button assigned to "Draw weapon" is used for this.
 - Fixed a bug due to which the accuracy of the M16 did not decrease while running.
+- Fixed a wrong inventory text position if the game window size is changed. 
+- Fixed a flashing "Demo Mode" text while demo is playing. 
 
 ### TR2Main bugfixes
 - Background capture is optimized even more, now it is 3-4 times faster than v0.8.2. No lags anymore (broken since v0.8.0).

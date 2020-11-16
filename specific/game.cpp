@@ -57,6 +57,11 @@ extern bool IsGold();
 extern void ResetGoldenLaraAlpha();
 #endif // FEATURE_VIDEOFX_IMPROVED
 
+#ifdef FEATURE_HUD_IMPROVED
+extern void RemoveJoystickHintText(bool isSelect, bool isContinue, bool isDeselect);
+extern void DisplayJoystickHintText(bool isSelect, bool isContinue, bool isDeselect);
+#endif // FEATURE_HUD_IMPROVED
+
 #ifdef FEATURE_SUBFOLDERS
 #include "modding/file_utils.h"
 
@@ -196,6 +201,9 @@ int __cdecl LevelStats(int levelID) {
 	while( CHK_ANY(InputStatus, IN_SELECT) )
 		S_UpdateInput();
 
+#ifdef FEATURE_HUD_IMPROVED
+	DisplayJoystickHintText(false, true, false);
+#endif // FEATURE_HUD_IMPROVED
 	while( !CHK_ANY(InputStatus, IN_SELECT) ) {
 		S_InitialisePolyList(FALSE);
 		S_CopyBufferToScreen();
@@ -213,6 +221,9 @@ int __cdecl LevelStats(int levelID) {
 		S_OutputPolyList();
 		S_DumpScreen();
 	}
+#ifdef FEATURE_HUD_IMPROVED
+	RemoveJoystickHintText(false, true, false);
+#endif // FEATURE_HUD_IMPROVED
 
 	// NOTE: This LevelStats bonusFlag activation is not presented in the original game.
 	// If the level is final, but there no GFE_GAMECOMPLETE in the script, just activate Game+ here.
@@ -238,6 +249,9 @@ int __cdecl GameStats(int levelID) {
 	while( CHK_ANY(InputStatus, IN_SELECT) )
 		S_UpdateInput();
 
+#ifdef FEATURE_HUD_IMPROVED
+	DisplayJoystickHintText(false, true, false);
+#endif // FEATURE_HUD_IMPROVED
 	while( !CHK_ANY(InputStatus, IN_SELECT) ) {
 		S_InitialisePolyList(FALSE);
 		S_CopyBufferToScreen();
@@ -255,6 +269,9 @@ int __cdecl GameStats(int levelID) {
 		S_OutputPolyList();
 		S_DumpScreen();
 	}
+#ifdef FEATURE_HUD_IMPROVED
+	RemoveJoystickHintText(false, true, false);
+#endif // FEATURE_HUD_IMPROVED
 
 	// NOTE: in the original game, there is slightly different bonusFlag activation.
 	// Here removed bonuses initialization, and added the check that the level is final
@@ -262,6 +279,9 @@ int __cdecl GameStats(int levelID) {
 		SaveGame.bonusFlag = true;
 	}
 
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	BGND2_ShowPicture(0, 0, 10, 2, FALSE);
+#endif // FEATURE_BACKGROUND_IMPROVED
 	S_DontDisplayPicture();
 	TempVideoRemove(); // NOTE: this line was not in the original code
 	return 0;
@@ -333,7 +353,7 @@ void __cdecl DisplayCredits() {
 	char fileName[64] = "data\\credit0?.pcx";
 #endif // FEATURE_BACKGROUND_IMPROVED
 
-	S_FadeToBlack(); // fade out 12 frames / 0.4 seconds (software renderer only)
+	S_FadeToBlack(); // fade out 12 frames / 0.4 seconds
 	S_UnloadLevelFile();
 	TempVideoAdjust(HiRes, 1.0); // NOTE: this line was not in the original code
 

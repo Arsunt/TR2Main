@@ -76,6 +76,7 @@ typedef struct {
 
 // AI values
 #define HP_DONT_TARGET		(0xC000)
+#define RANDOM_SEED			(0xD371F947)
 
 // Angle values
 #define PHD_360				(PHD_ONE)
@@ -148,7 +149,7 @@ typedef struct {
 #define TIF_RotateV					(0x0008)
 #define TIF_CentreH					(0x0010)
 #define TIF_CentreV					(0x0020)
-#define TIF_Unused					(0x0040)
+#define TIF_Hide					(0x0040)
 #define TIF_Right					(0x0080)
 #define TIF_Bottom					(0x0100)
 #define TIF_Bgnd					(0x0200)
@@ -651,8 +652,14 @@ typedef enum {
 } TEX_ADJUST_MODE;
 
 typedef enum {
+#ifdef FEATURE_HUD_IMPROVED
+	CTRL_Joystick,
+	CTRL_Custom,
+	CTRL_Default,
+#else // FEATURE_HUD_IMPROVED
 	CTRL_Default,
 	CTRL_Custom,
+#endif // FEATURE_HUD_IMPROVED
 } CONTROL_LAYOUT_PAGE;
 
 typedef enum {
@@ -662,6 +669,7 @@ typedef enum {
 	INV_SaveMode,
 	INV_LoadMode,
 	INV_DeathMode,
+	INV_PauseMode, // NOTE: not presented in the original game
 } INVENTORY_MODE;
 
 typedef enum {
@@ -709,14 +717,26 @@ typedef enum {
 	KM_Right,
 	KM_StepLeft,
 	KM_StepRight,
+#ifdef FEATURE_HUD_IMPROVED
+	KM_Step,
+#endif // FEATURE_HUD_IMPROVED
 	KM_Slow,
 	KM_Jump,
 	KM_Action,
+#ifdef FEATURE_HUD_IMPROVED
+	KM_Roll,
+	KM_WeaponDraw,
+	KM_Flare,
+	KM_Look,
+	KM_Option,
+	KM_Pause,
+#else // FEATURE_HUD_IMPROVED
 	KM_WeaponDraw,
 	KM_Flare,
 	KM_Look,
 	KM_Roll,
 	KM_Option,
+#endif // FEATURE_HUD_IMPROVED
 } KEYMAP;
 
 typedef enum {
@@ -1937,7 +1957,11 @@ typedef struct CineFrameInfo_t {
 } CINE_FRAME_INFO;
 
 typedef struct ControlLayout_t {
+#ifdef FEATURE_HUD_IMPROVED
+	BYTE key[16];
+#else // FEATURE_HUD_IMPROVED
 	UINT16 key[14];
+#endif // FEATURE_HUD_IMPROVED
 } CONTROL_LAYOUT;
 
 typedef struct InventorySprite_t {

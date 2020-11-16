@@ -236,7 +236,7 @@ x function is unused / included in another function
 
 	game/demo.cpp
 0x004168E0:	 *	DoDemoSequence
-0x00416940:	 *	StartDemo
+0x00416940:	+	StartDemo
 0x00416AF0:	 *	LoadLaraDemoPos
 0x00416BC0:	 *	GetDemoInput
 

@@ -69,7 +69,6 @@
 			<Add option="-DFEATURE_SCREENSHOT_IMPROVED" />
 			<Add option="-DFEATURE_SUBFOLDERS" />
 			<Add option="-DFEATURE_VIDEOFX_IMPROVED" />
-			<Add option="-DFEATURE_VIDMODESORT" />
 			<Add option="-DFEATURE_VIEW_IMPROVED" />
 			<Add option="-DFEATURE_WINDOW_STYLE_FIX" />
 			<Add directory="." />
@@ -380,6 +379,9 @@
 
 		<Unit filename="modding/mod_utils.cpp" />
 		<Unit filename="modding/mod_utils.h" />
+
+		<Unit filename="modding/pause.cpp" />
+		<Unit filename="modding/pause.h" />
 
 		<Unit filename="modding/psx_bar.cpp" />
 		<Unit filename="modding/psx_bar.h" />

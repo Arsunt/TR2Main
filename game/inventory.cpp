@@ -43,6 +43,15 @@
 #include "modding/joy_output.h"
 #endif // FEATURE_INPUT_IMPROVED
 
+#ifdef FEATURE_HUD_IMPROVED
+extern void RemoveJoystickHintText(bool isSelect, bool isContinue, bool isDeselect);
+extern void DisplayJoystickHintText(bool isSelect, bool isContinue, bool isDeselect);
+extern void DisplayVolumeBars(bool isSmooth);
+
+extern bool PsxFovEnabled;
+extern DWORD InvTextBoxMode;
+#endif // FEATURE_HUD_IMPROVED
+
 typedef enum {
 	RINGSTATE_OPENING,
 	RINGSTATE_OPEN,
@@ -306,6 +315,20 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 
 		DrawModeInfo();
 		T_DrawText();
+#ifdef FEATURE_HUD_IMPROVED
+		if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode &&
+			ring.itemList[ring.currentObj]->objectID == ID_SOUND_OPTION )
+		{
+			static bool isSoundSelected = false;
+			if( motion.status == RINGSTATE_SELECTING && isSoundSelected ) {
+				isSoundSelected = false;
+			}
+			if( motion.status == RINGSTATE_SELECTED ) {
+				DisplayVolumeBars(isSoundSelected);
+				if( !isSoundSelected ) isSoundSelected = true;
+			}
+		}
+#endif // FEATURE_HUD_IMPROVED
 		S_OutputPolyList();
 		SOUND_EndScene();
 
@@ -318,6 +341,10 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 		if( !ring.isRotating ) {
 			switch( motion.status ) {
 				case RINGSTATE_OPEN :
+#ifdef FEATURE_HUD_IMPROVED
+					DisplayJoystickHintText(true, false, InventoryMode != INV_TitleMode && InventoryMode != INV_DeathMode);
+#endif // FEATURE_HUD_IMPROVED
+
 					if( CHK_ANY(InputStatus, IN_RIGHT) && ring.objCount > 1 ) {
 						Inv_RingRotateLeft(&ring);
 						PlaySoundEffect(108, 0, SFX_ALWAYS);
@@ -527,6 +554,9 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 					ring.ringPos.rotY = motion.rotateTarget - PHD_180;
 					break;
 				case RINGSTATE_SELECTED :
+#ifdef FEATURE_HUD_IMPROVED
+					DisplayJoystickHintText(true, false, InventoryMode != INV_DeathMode);
+#endif // FEATURE_HUD_IMPROVED
 					item = ring.itemList[ring.currentObj];
 
 					if( item->objectID == ID_PASSPORT_CLOSED ) {
@@ -582,6 +612,9 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 					}
 					break;
 				case RINGSTATE_DESELECT :
+#ifdef FEATURE_HUD_IMPROVED
+					RemoveJoystickHintText(false, false, InventoryMode == INV_TitleMode || InventoryMode == INV_DeathMode);
+#endif // FEATURE_HUD_IMPROVED
 					PlaySoundEffect(112, 0, SFX_ALWAYS);
 					Inv_RingMotionSetup(&ring, RINGSTATE_DESELECTING, RINGSTATE_OPEN, 16);
 					Inv_RingMotionRotation(&ring, 0, -PHD_90 - ring.angleAdder * ring.currentObj);
@@ -602,7 +635,15 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 						}
 					}
 					break;
+				case RINGSTATE_CLOSING :
+#ifdef FEATURE_HUD_IMPROVED
+					RemoveJoystickHintText(true, false, true);
+#endif // FEATURE_HUD_IMPROVED
+					break;
 				case RINGSTATE_EXITING_INVENTORY :
+#ifdef FEATURE_HUD_IMPROVED
+					RemoveJoystickHintText(true, false, true);
+#endif // FEATURE_HUD_IMPROVED
 					if( !motion.framesCount ) {
 						if( InventoryMode == INV_TitleMode ) {
 							S_FadeOutInventory(FALSE);
@@ -622,6 +663,9 @@ int __cdecl Display_Inventory(INVENTORY_MODE invMode) {
 #endif // FEATURE_INPUT_IMPROVED
 	} while( motion.status != RINGSTATE_DONE );
 
+#ifdef FEATURE_HUD_IMPROVED
+	RemoveJoystickHintText(true, false, true);
+#endif // FEATURE_HUD_IMPROVED
 	RemoveInventoryText();
 	S_FinishInventory();
 	IsInventoryActive = 0;
@@ -714,7 +758,7 @@ void __cdecl Construct_Inventory() {
 
 	IsInventoryActive = 1;
 	InventoryChosen = 0;
-	InvOptionObjectsCount = (InventoryMode == INV_TitleMode) ? 4 : 3;
+	InvOptionObjectsCount = ARRAY_SIZE(InvOptionList) - ((InventoryMode == INV_TitleMode) ? 0 : 1);
 
 	for( int i = 0; i < InvMainObjectsCount; ++i ) {
 		InvMainList[i]->currentFrame = 0;
@@ -733,13 +777,24 @@ void __cdecl Construct_Inventory() {
 
 	InvMainCurrent = 0;
 	if( GymInvOpenEnabled && InventoryMode == INV_TitleMode && !CHK_ANY(GF_GameFlow.flags, GFF_LoadSaveDisabled) && CHK_ANY(GF_GameFlow.flags, GFF_GymEnabled) ) {
-		InvOptionCurrent = 3;
+		InvOptionCurrent = ARRAY_SIZE(InvOptionList) - 1;
 	} else {
 		InvOptionCurrent = 0;
 		GymInvOpenEnabled = FALSE;
 	}
 
 	SoundOptionLine = 0;
+
+#ifdef FEATURE_HUD_IMPROVED
+	double scale = (double)GetRenderScale(480) / (double)GetRenderHeight();
+	if( scale < 1.5 ) {
+		InvCompassOption.yTransSel = PsxFovEnabled ? -140 : -170;
+	} else if( scale < 1.7) {
+		InvCompassOption.yTransSel = -15 - (scale - 1.5) * 35.0;
+	} else {
+		InvCompassOption.yTransSel = -22 - (scale - 1.7) / 0.0075;
+	}
+#endif // FEATURE_HUD_IMPROVED
 }
 
 void __cdecl SelectMeshes(INVENTORY_ITEM *invItem) {

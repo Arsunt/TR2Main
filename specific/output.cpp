@@ -63,6 +63,8 @@ extern bool BGND_IsCaptured;
 
 extern DWORD InvBackgroundMode;
 extern DWORD StatsBackgroundMode;
+
+DWORD PauseBackgroundMode = 1;
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 typedef struct ShadowInfo_t {
@@ -617,9 +619,9 @@ void __cdecl S_DrawHealthBar(int percent) {
 
 	if( HealthBarMode != 0 && SavedAppSettings.RenderMode == RM_Hardware ) {
 		if( SavedAppSettings.ZBuffer ) {
-			PSX_DrawHealthBar(x0, y0, x1, y1, bar, pixel);
+			PSX_DrawHealthBar(x0, y0, x1, y1, bar, pixel, 255);
 		} else {
-			PSX_InsertHealthBar(x0, y0, x1, y1, bar, pixel);
+			PSX_InsertHealthBar(x0, y0, x1, y1, bar, pixel, 255);
 		}
 		return;
 	}
@@ -690,9 +692,9 @@ void __cdecl S_DrawAirBar(int percent) {
 
 	if( HealthBarMode != 0 && SavedAppSettings.RenderMode == RM_Hardware ) {
 		if( SavedAppSettings.ZBuffer ) {
-			PSX_DrawAirBar(x0, y0, x1, y1, bar, pixel);
+			PSX_DrawAirBar(x0, y0, x1, y1, bar, pixel, 255);
 		} else {
-			PSX_InsertAirBar(x0, y0, x1, y1, bar, pixel);
+			PSX_InsertAirBar(x0, y0, x1, y1, bar, pixel, 255);
 		}
 		return;
 	}
@@ -958,8 +960,12 @@ void __cdecl S_CopyScreenToBuffer() {
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 		PictureBufferSurface->Blt(NULL, RenderBufferSurface, &GameVidRect, DDBLT_WAIT, NULL);
-
-		if SUCCEEDED(WinVidBufferLock(PictureBufferSurface, &desc, DDLOCK_WRITEONLY|DDLOCK_WAIT)) {
+		if(
+#ifdef FEATURE_BACKGROUND_IMPROVED
+			(InventoryMode != INV_PauseMode || PauseBackgroundMode != 0) &&
+#endif // FEATURE_BACKGROUND_IMPROVED
+			SUCCEEDED(WinVidBufferLock(PictureBufferSurface, &desc, DDLOCK_WRITEONLY|DDLOCK_WAIT)) )
+		{
 			BYTE *surface = (BYTE *)desc.lpSurface;
 
 			for( DWORD i = 0; i < height; ++i ) {
@@ -1012,7 +1018,11 @@ void __cdecl S_CopyBufferToScreen() {
 		BGND2_CalculatePictureRect(&rect);
 		BGND2_DrawTextures(&rect, color);
 		if( BGND_IsCaptured ) {
-			BGND2_FadeTo(128, -12); // the captured background image fades out to 50%
+			if( InventoryMode != INV_PauseMode ) {
+				BGND2_FadeTo(128, -12); // the captured background image fades out to 50%
+			} else if( PauseBackgroundMode != 0 ) {
+				BGND2_FadeTo(128, -128); // the captured background image instantly gets 50%
+			}
 		}
 
 #else // !FEATURE_BACKGROUND_IMPROVED

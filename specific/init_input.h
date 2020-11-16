@@ -24,6 +24,19 @@
 
 #include "global/types.h"
 
+#ifdef FEATURE_INPUT_IMPROVED
+typedef enum {
+	JT_NONE,
+	JT_DIRECTINPUT,
+	JT_PLAYSTATION,
+	JT_XINPUT,
+} JOYTYPE;
+
+JOYTYPE GetJoystickType();
+bool IsJoyVibrationSupported();
+bool IsJoyLedColorSupported();
+#endif // FEATURE_INPUT_IMPROVED
+
 /*
  * Function list
  */

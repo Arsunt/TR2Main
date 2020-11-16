@@ -49,4 +49,8 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo); // 0x00440B60
 DWORD __cdecl GetTextScaleH(DWORD baseScale); // 0x00440F40
 DWORD __cdecl GetTextScaleV(DWORD baseScale); // 0x00440F80
 
+#ifdef FEATURE_HUD_IMPROVED
+void T_HideText(TEXT_STR_INFO *textInfo, __int16 state);
+#endif // FEATURE_HUD_IMPROVED
+
 #endif // TEXT_H_INCLUDED

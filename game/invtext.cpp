@@ -30,11 +30,22 @@
 #define REQ_MIDZ		(16)
 #define REQ_FARZ		(48)
 
-#define REQ_LN_HEIGHT	(16) /* NOTE: original value is 18, but it looks wrong with low resolutions */
 #define STATS_LN_COUNT	(7)
-// Y coordinates relative to the bottom of the screen
-#define STATS_Y_POS		(-32)
 #define STATS_WIDTH		(304)
+
+// Y coordinates relative to the bottom of the screen
+#ifdef FEATURE_HUD_IMPROVED
+#define STATS_Y_POS		(-44)
+#define REQ_LN_HEIGHT (15)
+
+extern DWORD InvTextBoxMode;
+
+static const char MoreDownString[]	= " \x0F                                        \x0F ";
+static const char MoreUpString[]	= " \x10                                        \x10 ";
+#else // FEATURE_HUD_IMPROVED
+#define STATS_Y_POS		(-32)
+#define REQ_LN_HEIGHT	(18)
+#endif // FEATURE_HUD_IMPROVED
 
 // NOTE: gouraud arrays have been taken from PlayStation version of the game.
 // These arrays are not used in the original PC version of the game.
@@ -141,43 +152,61 @@ void __cdecl ReqItemCentreAlign(REQUEST_INFO *req, TEXT_STR_INFO *textInfo) {
 }
 
 void __cdecl ReqItemLeftAlign(REQUEST_INFO *req, TEXT_STR_INFO *textInfo) {
-	DWORD scaleH;
 	int bgndOffX;
 
 	if( textInfo == NULL )
 		return;
 
-	scaleH = GetTextScaleH(textInfo->scaleH);
+#ifdef FEATURE_HUD_IMPROVED
+	bgndOffX = (req->pixWidth - T_GetTextWidth(textInfo)) / 2 - 8;
+#else // FEATURE_HUD_IMPROVED
+	DWORD scaleH = GetTextScaleH(textInfo->scaleH);
 	bgndOffX = (req->pixWidth * scaleH / PHD_ONE) / 2 - T_GetTextWidth(textInfo) / 2 - (8 * scaleH / PHD_ONE);
+#endif // FEATURE_HUD_IMPROVED
 	textInfo->xPos = req->xPos - bgndOffX;
 	textInfo->bgndOffX = bgndOffX;
 }
 
 void __cdecl ReqItemRightAlign(REQUEST_INFO *req, TEXT_STR_INFO *textInfo) {
-	DWORD scaleH;
 	int bgndOffX;
 
 	if( textInfo == NULL )
 		return;
 
-	scaleH = GetTextScaleH(textInfo->scaleH);
+#ifdef FEATURE_HUD_IMPROVED
+	bgndOffX = (req->pixWidth - T_GetTextWidth(textInfo)) / 2 - 8;
+#else // FEATURE_HUD_IMPROVED
+	DWORD scaleH = GetTextScaleH(textInfo->scaleH);
 	bgndOffX = (req->pixWidth * scaleH / PHD_ONE) / 2 - T_GetTextWidth(textInfo) / 2 - (8 * scaleH / PHD_ONE);
+#endif // FEATURE_HUD_IMPROVED
 	textInfo->xPos = req->xPos + bgndOffX;
 	textInfo->bgndOffX = -bgndOffX;
 }
 
 int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isBackground) {
-	int i, linesCount, linesHeight, linesOff;
+	int i, linesCount, boxHeight, boxOff, linesOff;
 	DWORD renderWidth, renderHeight;
 
 	linesCount = req->visibleCount;
-	linesHeight = req->lineHeight * linesCount + 10;
-	linesOff = req->yPos - linesHeight;
 
 #ifdef FEATURE_HUD_IMPROVED
+	if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
+		boxHeight = req->lineHeight * linesCount + 42;
+		boxOff = req->yPos - boxHeight + 2;
+		linesOff = boxOff + 30;
+	} else {
+		boxHeight = req->lineHeight * (linesCount + 1) + 22;
+		boxOff = req->yPos - boxHeight + 2;
+		linesOff = boxOff + req->lineHeight + 10;
+	}
+
 	renderWidth = GetRenderWidthDownscaled();
 	renderHeight = GetRenderHeightDownscaled();
 #else // !FEATURE_HUD_IMPROVED
+	boxHeight = req->lineHeight * (linesCount + 1) + 22;
+	boxOff = req->yPos - boxHeight + 2;
+	linesOff = boxOff + req->lineHeight + 10;
+
 	renderWidth = GetRenderWidth();
 	renderHeight = GetRenderHeight();
 #endif // FEATURE_HUD_IMPROVED
@@ -198,7 +227,7 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 	// Heading 1
 	if( CHK_ANY(req->headingFlags1, REQFLAG_ACTIVE) ) {
 		if( req->headingText1 == NULL ) {
-			req->headingText1 = T_Print(req->xPos, (linesOff - req->lineHeight - 10), req->zPos, req->headingString1);
+			req->headingText1 = T_Print(req->xPos, boxOff, req->zPos, req->headingString1);
 			T_CentreH(req->headingText1, 1);
 			T_BottomAlign(req->headingText1, 1);
 			if( isBackground ) {
@@ -217,7 +246,7 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 	// Heading 2
 	if( CHK_ANY(req->headingFlags2, REQFLAG_ACTIVE) ) {
 		if( req->headingText2 == NULL ) {
-			req->headingText2 = T_Print(req->xPos, (linesOff - req->lineHeight - 10), req->zPos, req->headingString2);
+			req->headingText2 = T_Print(req->xPos, boxOff, req->zPos, req->headingString2);
 			T_CentreH(req->headingText2, 1);
 			T_BottomAlign(req->headingText2, 1);
 			if( isBackground ) {
@@ -235,10 +264,10 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 
 	// Background
 	if( isBackground && req->backgroundText == NULL && CHK_ANY(req->backgroundFlags, REQFLAG_ACTIVE) ) {
-		req->backgroundText = T_Print(req->xPos, (linesOff - req->lineHeight - 12), 0, " ");
+		req->backgroundText = T_Print(req->xPos, boxOff - 2, 0, " ");
 		T_CentreH(req->backgroundText, 1);
 		T_BottomAlign(req->backgroundText, 1);
-		T_AddBackground(req->backgroundText, req->pixWidth, (req->lineHeight + linesHeight + 12), 0, 0, REQ_FARZ, ICLR_Black, &ReqBgndGour1, 1);
+		T_AddBackground(req->backgroundText, req->pixWidth, boxHeight, 0, 0, REQ_FARZ, ICLR_Black, &ReqBgndGour1, 1);
 		T_AddOutline(req->backgroundText, TRUE, ICLR_Blue, &ReqBgndGour2, 0);
 	}
 
@@ -248,6 +277,11 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 		req->moreupText = NULL;
 	}
 	else if( req->moreupText == NULL && CHK_ANY(req->moreupFlags, REQFLAG_ACTIVE) ) {
+#ifdef FEATURE_HUD_IMPROVED
+		if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
+			req->moreupText = T_Print(req->xPos, boxOff + 15, 0, MoreUpString);
+		}
+#endif // FEATURE_HUD_IMPROVED
 		T_CentreH(req->moreupText, 1);
 		T_BottomAlign(req->moreupText, 1);
 	}
@@ -258,6 +292,11 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 		req->moredownText = 0;
 	}
 	else if( req->moredownText == NULL && CHK_ANY(req->moredownFlags, REQFLAG_ACTIVE) ) {
+#ifdef FEATURE_HUD_IMPROVED
+		if( SavedAppSettings.RenderMode == RM_Hardware && InvTextBoxMode ) {
+			req->moredownText = T_Print(req->xPos, req->yPos - 12, 0, MoreDownString);
+		}
+#endif // FEATURE_HUD_IMPROVED
 		T_CentreH(req->moredownText, 1);
 		T_BottomAlign(req->moredownText, 1);
 	}
@@ -266,15 +305,18 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 	for( i = 0; i < linesCount; ++i ) {
 		if( CHK_ANY(req->lpItemFlags1[req->lineOffset + i], REQFLAG_ACTIVE) ) {
 			if( req->itemTexts1[i] == NULL ) {
-				req->itemTexts1[i] = T_Print(0, (linesOff + req->lineHeight * i), 0, &req->lpItemStrings1[(req->lineOffset + i) * req->itemStringLen]);
+				// NOTE: here was 0 instead of REQ_NEARZ in the original game
+				req->itemTexts1[i] = T_Print(0, (linesOff + req->lineHeight * i), REQ_NEARZ, &req->lpItemStrings1[(req->lineOffset + i) * req->itemStringLen]);
 				T_CentreH(req->itemTexts1[i], 1);
 				T_BottomAlign(req->itemTexts1[i], 1);
 			}
 
 			if( CHK_ANY(req->reqFlags, REQFLAG_NOCURSOR) || (req->lineOffset + i != req->selected) ) {
+				req->itemTexts1[i]->zPos = REQ_NEARZ; // NOTE: this line is absent in the original game
 				T_RemoveBackground(req->itemTexts1[i]);
 				T_RemoveOutline(req->itemTexts1[i]);
 			} else {
+				req->itemTexts1[i]->zPos = 0; // NOTE: this line is absent in the original game
 				T_AddBackground(req->itemTexts1[i], (req->pixWidth - 12), 0, 0, 0, REQ_MIDZ, ICLR_Black, &ReqSelGour1, 1);
 				T_AddOutline(req->itemTexts1[i], TRUE, ICLR_Orange, &ReqSelGour2, 0);
 			}
@@ -297,9 +339,17 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 
 		if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], REQFLAG_ACTIVE) ) {
 			if( req->itemTexts2[i] == NULL ) {
-				req->itemTexts2[i] = T_Print(0, (linesOff + req->lineHeight * i), 0, &req->lpItemStrings2[(req->lineOffset + i) * req->itemStringLen]);
+				// NOTE: here was 0 instead of REQ_NEARZ in the original game
+				req->itemTexts2[i] = T_Print(0, (linesOff + req->lineHeight * i), REQ_NEARZ, &req->lpItemStrings2[(req->lineOffset + i) * req->itemStringLen]);
 				T_CentreH(req->itemTexts2[i], 1);
 				T_BottomAlign(req->itemTexts2[i], 1);
+			}
+
+			// NOTE: this code block is absent in the original game
+			if( CHK_ANY(req->reqFlags, REQFLAG_NOCURSOR) || (req->lineOffset + i != req->selected) ) {
+				req->itemTexts2[i]->zPos = REQ_NEARZ;
+			} else {
+				req->itemTexts2[i]->zPos = 0;
 			}
 
 			if( CHK_ANY(req->lpItemFlags2[req->lineOffset + i], REQFLAG_LEFT) ) {

@@ -52,7 +52,6 @@ static XINPUT_CAPABILITIES XInputCaps;
 static DIDEVCAPS JoyCaps;
 static JOY_AXIS_RANGE JoyRanges[JoyAxisNumber];
 
-DWORD JoystickMovement = 0;
 bool JoystickVibrationEnabled = true;
 bool JoystickLedColorEnabled = true;
 
@@ -277,6 +276,21 @@ void SetJoystickOutput(WORD leftMotor, WORD rightMotor, DWORD ledColor) {
 	}
 }
 
+JOYTYPE GetJoystickType() {
+	if( SavedAppSettings.JoystickEnabled && SavedAppSettings.PreferredJoystick ) {
+		if( IsRawInput ) {
+			return JT_PLAYSTATION;
+		}
+		if( XInputIndex >= 0 ) {
+			return JT_XINPUT;
+		}
+		if( IDID_SysJoystick != NULL ) {
+			return JT_DIRECTINPUT;
+		}
+	}
+	return JT_NONE;
+}
+
 bool IsJoyVibrationSupported() {
 	if( IsRawInput ) {
 		return true;
@@ -328,78 +342,118 @@ void __cdecl WinInReadKeyboard(LPVOID lpInputData) {
 	}
 }
 
-DWORD __cdecl WinInReadJoystick(int *xPos, int *yPos) {
 #ifdef FEATURE_INPUT_IMPROVED
-	*yPos = 0;
-	*xPos = 0;
+static void PovToPos(int *xPos, int *yPos, DWORD pov) {
+	int x=0, y=0;
+	// Check if D-PAD is not centered
+	if( LOWORD(pov) != 0xFFFF ) {
+		// We need here cyclic quadrilateral with a side 32.
+		// The radius of circumscribed circle is approx 23 = 16 * SQRT(2)
+		x = +23 * phd_sin(pov * PHD_360 / 36000) / PHD_IONE;
+		y = -23 * phd_cos(pov * PHD_360 / 36000) / PHD_IONE;
+		CLAMP(x, -16, 16);
+		CLAMP(y, -16, 16);
+	}
+	if( xPos ) *xPos = x;
+	if( yPos ) *yPos = y;
+}
+
+static int SelectJoyDirection(int dp, int ls, int rs, int threshold) {
+	// D-Pad has priority
+	if( ABS(dp) > threshold ) return dp;
+	// if sticks have opposite directions, just sum them
+	if( (ls^rs) < 0 ) return ls + rs;
+	// or just select the one with max value
+	if( ABS(rs) > ABS(ls) ) return rs;
+	return ls;
+}
+
+static DWORD XInputReadJoystick(int *xPos, int *yPos) {
+	if( !xPos || !yPos || XInputIndex < 0 ) return 0;
+	*xPos = *yPos = 0;
 	DWORD buttonStatus = 0;
-	if( !SavedAppSettings.JoystickEnabled ) return 0;
+	XINPUT_STATE state;
 
-	if( XInputIndex >= 0 ) {
-		XInputEnable(TRUE);
-		XINPUT_STATE state;
-		if( ERROR_SUCCESS != XInputGetStateExt(XInputIndex, &state) ) {
-			return 0;
-		}
-		if( (JoystickMovement || !XINPUT_DPAD(XInputCaps.Gamepad.wButtons)) && XInputCaps.Gamepad.sThumbLX && XInputCaps.Gamepad.sThumbLY ) {
-			*xPos += 32 * state.Gamepad.sThumbLX / PHD_ONE;
-			*yPos -= 32 * state.Gamepad.sThumbLY / PHD_ONE;
-		} else if( XINPUT_DPAD(XInputCaps.Gamepad.wButtons) ) {
-			*xPos += CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_DPAD_RIGHT) ? 16 : 0;
-			*xPos -= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_DPAD_LEFT) ? 16 : 0;
-			*yPos += CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_DPAD_DOWN) ? 16 : 0;
-			*yPos -= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_DPAD_UP) ? 16 : 0;
-		}
-		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_Y) ? 0x001 : 0;
-		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_B) ? 0x002 : 0;
-		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_A) ? 0x004 : 0;
-		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_X) ? 0x008 : 0;
-		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_LEFT_SHOULDER) ? 0x010 : 0;
-		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_RIGHT_SHOULDER) ? 0x020 : 0;
-		buttonStatus |= (state.Gamepad.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ? 0x040 : 0;
-		buttonStatus |= (state.Gamepad.bRightTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ? 0x080 : 0;
-		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_BACK) ? 0x100 : 0;
-		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_START) ? 0x200 : 0;
-		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_LEFT_THUMB) ? 0x400 : 0;
-		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_RIGHT_THUMB) ? 0x800 : 0;
-		buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_GUIDE) ? 0x1000 : 0;
-		return buttonStatus;
+	XInputEnable(TRUE);
+	if( ERROR_SUCCESS != XInputGetStateExt(XInputIndex, &state) ) {
+		return 0;
 	}
 
-	if( IsRawInput ) {
-		RINPUT_STATE state;
-		if( !RawInputGetState(&state) ) {
-			return 0;
-		}
-		if( JoystickMovement ) {
-			*xPos = (int)(+32.0 * state.axisLX);
-			*yPos = (int)(-32.0 * state.axisLY);
-		} else {
-			DWORD pov = state.dPad;
-			// Check if D-PAD is not centered
-			if( LOWORD(pov) != 0xFFFF ) {
-				*xPos = +16 * phd_sin(pov * PHD_360 / 36000) / PHD_IONE;
-				*yPos = -16 * phd_cos(pov * PHD_360 / 36000) / PHD_IONE;
-			}
-		}
-		buttonStatus |= state.btnTriangle ? 0x0001 : 0;
-		buttonStatus |= state.btnCircle ? 0x0002 : 0;
-		buttonStatus |= state.btnCross ? 0x0004 : 0;
-		buttonStatus |= state.btnSquare ? 0x0008 : 0;
-		buttonStatus |= state.btnL1 ? 0x0010 : 0;
-		buttonStatus |= state.btnR1 ? 0x0020 : 0;
-		buttonStatus |= state.btnL2 ? 0x0040 : 0;
-		buttonStatus |= state.btnR2 ? 0x0080 : 0;
-		buttonStatus |= state.btnShare ? 0x0100 : 0;
-		buttonStatus |= state.btnOptions ? 0x0200 : 0;
-		buttonStatus |= state.btnL3 ? 0x0400 : 0;
-		buttonStatus |= state.btnR3 ? 0x0800 : 0;
-		buttonStatus |= state.btnPS ? 0x1000 : 0;
-		return buttonStatus;
+	int dx=0, dy=0, lx=0, ly=0, rx=0, ry=0;
+	if( XINPUT_DPAD(XInputCaps.Gamepad.wButtons) ) {
+		dx += CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_DPAD_RIGHT) ? 16 : 0;
+		dx -= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_DPAD_LEFT) ? 16 : 0;
+		dy += CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_DPAD_DOWN) ? 16 : 0;
+		dy -= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_DPAD_UP) ? 16 : 0;
+	}
+	if( XInputCaps.Gamepad.sThumbLX && XInputCaps.Gamepad.sThumbLY ) {
+		lx = 16 * state.Gamepad.sThumbLX / 0x8000;
+		ly = -16 * state.Gamepad.sThumbLY / 0x8000;
+	}
+	if( XInputCaps.Gamepad.sThumbRX && XInputCaps.Gamepad.sThumbRY ) {
+		rx = 16 * state.Gamepad.sThumbRX / 0x8000;
+		ry = -16 * state.Gamepad.sThumbRY / 0x8000;
+	}
+	*xPos = SelectJoyDirection(dx, lx, rx, 8);
+	*yPos = SelectJoyDirection(dy, ly, ry, 8);
+
+	buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_Y) ? 0x001 : 0;
+	buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_B) ? 0x002 : 0;
+	buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_A) ? 0x004 : 0;
+	buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_X) ? 0x008 : 0;
+	buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_LEFT_SHOULDER) ? 0x010 : 0;
+	buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_RIGHT_SHOULDER) ? 0x020 : 0;
+	buttonStatus |= (state.Gamepad.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ? 0x040 : 0;
+	buttonStatus |= (state.Gamepad.bRightTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ? 0x080 : 0;
+	buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_BACK) ? 0x100 : 0;
+	buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_START) ? 0x200 : 0;
+	buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_LEFT_THUMB) ? 0x400 : 0;
+	buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_RIGHT_THUMB) ? 0x800 : 0;
+	buttonStatus |= CHK_ANY(state.Gamepad.wButtons, XINPUT_GAMEPAD_GUIDE) ? 0x1000 : 0;
+	return buttonStatus;
+}
+
+static DWORD RawInputReadJoystick(int *xPos, int *yPos) {
+	if( !xPos || !yPos || !IsRawInput ) return 0;
+	*xPos = *yPos = 0;
+	DWORD buttonStatus = 0;
+	RINPUT_STATE state;
+
+	if( !RawInputGetState(&state) ) {
+		return 0;
 	}
 
-	if( !IDID_SysJoystick ) return 0;
+	int dx=0, dy=0, lx=0, ly=0, rx=0, ry=0;
+	PovToPos(&dx, &dy, state.dPad);
+	lx = (int)(+16.0 * state.axisLX);
+	ly = (int)(-16.0 * state.axisLY);
+	rx = (int)(+16.0 * state.axisRX);
+	ry = (int)(-16.0 * state.axisRY);
+	*xPos = SelectJoyDirection(dx, lx, rx, 8);
+	*yPos = SelectJoyDirection(dy, ly, ry, 8);
+
+	buttonStatus |= state.btnTriangle ? 0x0001 : 0;
+	buttonStatus |= state.btnCircle ? 0x0002 : 0;
+	buttonStatus |= state.btnCross ? 0x0004 : 0;
+	buttonStatus |= state.btnSquare ? 0x0008 : 0;
+	buttonStatus |= state.btnL1 ? 0x0010 : 0;
+	buttonStatus |= state.btnR1 ? 0x0020 : 0;
+	buttonStatus |= state.btnL2 ? 0x0040 : 0;
+	buttonStatus |= state.btnR2 ? 0x0080 : 0;
+	buttonStatus |= state.btnShare ? 0x0100 : 0;
+	buttonStatus |= state.btnOptions ? 0x0200 : 0;
+	buttonStatus |= state.btnL3 ? 0x0400 : 0;
+	buttonStatus |= state.btnR3 ? 0x0800 : 0;
+	buttonStatus |= state.btnPS ? 0x1000 : 0;
+	return buttonStatus;
+}
+
+static DWORD DInputReadJoystick(int *xPos, int *yPos) {
+	if( !xPos || !yPos || !IDID_SysJoystick ) return 0;
+	*xPos = *yPos = 0;
+	DWORD buttonStatus = 0;
 	DIJOYSTATE joyState;
+
 #if (DIRECTINPUT_VERSION >= 0x700)
 	while( FAILED(IDID_SysJoystick->Poll()) || FAILED(IDID_SysJoystick->GetDeviceState(sizeof(joyState), &joyState)) )
 #else // (DIRECTINPUT_VERSION >= 0x700)
@@ -408,21 +462,48 @@ DWORD __cdecl WinInReadJoystick(int *xPos, int *yPos) {
 	{
 		if FAILED(IDID_SysJoystick->Acquire()) return 0;
 	}
-	if( (JoystickMovement || !JoyCaps.dwPOVs) && JoyCaps.dwAxes && HAS_AXIS(JoyX) && HAS_AXIS(JoyY) ) {
-		*xPos = 32 * joyState.lX / (JoyRanges[JoyX].lMax - JoyRanges[JoyX].lMin) - 16;
-		*yPos = 32 * joyState.lY / (JoyRanges[JoyY].lMax - JoyRanges[JoyY].lMin) - 16;
-	} else if( JoyCaps.dwPOVs ) {
-		DWORD pov = joyState.rgdwPOV[0];
-		// Check if D-PAD is not centered
-		if( LOWORD(pov) != 0xFFFF ) {
-			*xPos = +16 * phd_sin(pov * PHD_360 / 36000) / PHD_IONE;
-			*yPos = -16 * phd_cos(pov * PHD_360 / 36000) / PHD_IONE;
-		}
+
+	int dx=0, dy=0, lx=0, ly=0, rx=0, ry=0;
+	if( JoyCaps.dwPOVs ) {
+		PovToPos(&dx, &dy, joyState.rgdwPOV[0]);
 	}
+	if( HAS_AXIS(JoyX) && HAS_AXIS(JoyY) ) {
+		lx = 32 * joyState.lX / (JoyRanges[JoyX].lMax - JoyRanges[JoyX].lMin) - 16;
+		ly = 32 * joyState.lY / (JoyRanges[JoyY].lMax - JoyRanges[JoyY].lMin) - 16;
+	}
+	if( HAS_AXIS(JoyZ) && HAS_AXIS(JoyRZ) ) {
+		rx = 32 * joyState.lZ  / (JoyRanges[JoyZ].lMax  - JoyRanges[JoyZ].lMin)  - 16;
+		ry = 32 * joyState.lRz / (JoyRanges[JoyRZ].lMax - JoyRanges[JoyRZ].lMin) - 16;
+	} else if( HAS_AXIS(JoyRX) && HAS_AXIS(JoyRY) ) {
+		rx = 32 * joyState.lRx / (JoyRanges[JoyRX].lMax - JoyRanges[JoyRX].lMin) - 16;
+		ry = 32 * joyState.lRy / (JoyRanges[JoyRY].lMax - JoyRanges[JoyRY].lMin) - 16;
+	}
+	*xPos = SelectJoyDirection(dx, lx, rx, 8);
+	*yPos = SelectJoyDirection(dy, ly, ry, 8);
+
 	for( DWORD i=0; i<MIN(JoyCaps.dwButtons, 32); ++i ) {
 		buttonStatus |= CHK_ANY(joyState.rgbButtons[i], 0x80) ? 1<<i : 0;
 	}
 	return buttonStatus;
+}
+#endif // FEATURE_INPUT_IMPROVED
+
+DWORD __cdecl WinInReadJoystick(int *xPos, int *yPos) {
+#ifdef FEATURE_INPUT_IMPROVED
+	*yPos = 0;
+	*xPos = 0;
+	if( !SavedAppSettings.JoystickEnabled ) return 0;
+	switch( GetJoystickType() ) {
+		case JT_XINPUT:
+			return XInputReadJoystick(xPos, yPos);
+		case JT_PLAYSTATION:
+			return RawInputReadJoystick(xPos, yPos);
+		case JT_DIRECTINPUT:
+			return DInputReadJoystick(xPos, yPos);
+		case JT_NONE:
+			break;
+	}
+	return 0;
 #else // FEATURE_INPUT_IMPROVED
 	static bool joyNeedCaps = true;
 	static JOYCAPS joyCaps;

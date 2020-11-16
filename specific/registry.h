@@ -61,9 +61,11 @@
 #define REG_INVTEXTBOX_MODE		"InvTextBoxMode"
 #define REG_HEALTHBAR_MODE		"HealthBarMode"
 #define REG_PICKUPITEM_MODE		"PickupItemMode"
+#define REG_DEMOTEXT_MODE		"DemoTextMode"
 #define REG_SAVEGAME_SLOTS		"SavegameSlots"
 #define REG_SCREENSHOT_FORMAT	"ScreenshotFormat"
-#define REG_JOYSTICK_MOVEMENT	"JoystickMovement"
+#define REG_JOYSTICK_BTN_STYLE	"JoystickButtonStyle"
+#define REG_PAUSEBGND_MODE		"PauseBackgroundMode"
 
 // BOOL value names
 #define REG_PERSPECTIVE			"PerspectiveCorrect"
@@ -86,6 +88,8 @@
 #define REG_WALK_TO_SIDESTEP	"WalkToSidestep"
 #define REG_JOYSTICK_VIBRATION	"JoystickVibration"
 #define REG_JOYSTICK_LED_COLOR	"JoystickLedColor"
+#define REG_JOYSTICK_HINTS		"JoystickHints"
+#define REG_AVOID_INTERLACED	"AvoidInterlacedVideoModes"
 
 // FLOAT value names
 #define REG_GAME_SIZER		"Sizer"
@@ -101,6 +105,8 @@
 
 // BINARY value names
 #define REG_GAME_LAYOUT		"Layout"
+#define REG_GAME_KBD_LAYOUT	"KeyboardLayout"
+#define REG_GAME_JOY_LAYOUT	"JoystickLayout"
 #define REG_GAME_ASSAULT	"Assault"
 
 // STRING value names

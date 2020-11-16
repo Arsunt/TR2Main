@@ -71,7 +71,11 @@
 #define CineTargetAngle				VAR_I_(0x00464310, __int16,			PHD_90)
 #define OverlayStatus				VAR_I_(0x004644E0, int,				1)
 #define InvMainObjectsCount			VAR_I_(0x004654E0, __int16,			8)
+#ifdef FEATURE_HUD_IMPROVED
+extern __int16 InvOptionObjectsCount;
+#else // FEATURE_HUD_IMPROVED
 #define InvOptionObjectsCount		VAR_I_(0x00465604, __int16,			4)
+#endif // FEATURE_HUD_IMPROVED
 #define GymInvOpenEnabled			VAR_I_(0x00465618, BOOL,			TRUE)
 #define InventoryChosen				VAR_I_(0x00465A50, __int16,			-1)
 #define InventoryMode				VAR_I_(0x00465A54, INVENTORY_MODE,	INV_TitleMode)
@@ -83,8 +87,8 @@
 #define FadeValue					VAR_I_(0x00466490, int,				0x100000)
 #define FadeLimit					VAR_I_(0x00466494, int,				0x100000)
 #define FadeAdder					VAR_I_(0x00466498, int,				0x8000)
-#define RandomControl				VAR_I_(0x00466BB0, int,				0xD371F947)
-#define RandomDraw					VAR_I_(0x00466BB4, int,				0xD371F947)
+#define RandomControl				VAR_I_(0x00466BB0, int,				RANDOM_SEED)
+#define RandomDraw					VAR_I_(0x00466BB4, int,				RANDOM_SEED)
 #define PaletteIndex				VAR_I_(0x00466BDC, int,				-1)
 #define DumpX						VAR_I_(0x00466BE4, __int16,			25)
 #define DumpY						VAR_I_(0x00466BE6, __int16,			25)
@@ -493,6 +497,9 @@ extern DISPLAY_ADAPTER CurrentDisplayAdapter;
 	},
 }; */
 #define SaveSlotFlags				ARRAY_(0x00466B80, __int16, [16]) /* = {-1, 0}; */
+#ifdef FEATURE_HUD_IMPROVED
+extern CONTROL_LAYOUT Layout[3];
+#else // FEATURE_HUD_IMPROVED
 #define Layout						ARRAY_(0x00466F58, CONTROL_LAYOUT, [2]) /* = {
 	{	// Default Layout
 		DIK_UP,
@@ -527,6 +534,7 @@ extern DISPLAY_ADAPTER CurrentDisplayAdapter;
 		DIK_DECIMAL,
 	},
 }; */
+#endif // FEATURE_HUD_IMPROVED
 
 // Uninitialized arrays
 #define GouraudTable				ARRAY_(0x0046C300, GOURAUD_ENTRY, [256])
@@ -596,10 +604,12 @@ extern int HWR_TexturePageIndexes[128];
 #define HWR_PageHandles				ARRAY_(0x00519ED0, HWR_TEXHANDLE, [32])
 #define HWR_TexturePageIndexes		ARRAY_(0x00519F68, int, [32])
 #endif // FEATURE_EXTENDED_LIMITS
+#ifdef FEATURE_HUD_IMPROVED
+extern bool ConflictLayout[ARRAY_SIZE(Layout->key)];
+#else // FEATURE_HUD_IMPROVED
 #define ConflictLayout				ARRAY_(0x0051A0C0, BOOL, [14])
+#endif // FEATURE_HUD_IMPROVED
 #define DIKeys						ARRAY_(0x0051A0F8, BYTE, [256])
-#define DetailTextInfo				ARRAY_(0x0051A2C8, TEXT_STR_INFO*, [5])
-#define SoundTextInfo				ARRAY_(0x0051A2E0, TEXT_STR_INFO*, [4])
 #define ControlTextInfo				ARRAY_(0x0051A2F0, TEXT_STR_INFO*, [2])
 #define RoomLightTables				ARRAY_(0x0051A2F8, ROOM_LIGHT_TABLE, [32])
 #define WaterPalette				ARRAY_(0x0051B2F8, RGB888, [256])
@@ -626,10 +636,17 @@ extern LPDIRECTDRAWPALETTE DDrawPalettes[256];
 #define SaveGameItemFlags1			ARRAY_(0x00521C40, DWORD, [24])
 #define PickupInfos					ARRAY_(0x00521CA0, PICKUP_INFO, [12])
 #define Objects						ARRAY_(0x00522000, OBJECT_INFO, [265])
+#ifdef FEATURE_EXTENDED_LIMITS
+extern LIGHT_INFO DynamicLights[64];
+extern int BoundRooms[1024];
+extern __int16 DrawRoomsArray[1024];
+extern STATIC_INFO StaticObjects[256];
+#else // FEATURE_EXTENDED_LIMITS
 #define DynamicLights				ARRAY_(0x005251C0, LIGHT_INFO, [10])
 #define BoundRooms					ARRAY_(0x00525900, int, [128])
 #define DrawRoomsArray				ARRAY_(0x00525B20, __int16, [100])
 #define StaticObjects				ARRAY_(0x00525C00, STATIC_INFO, [50])
+#endif // FEATURE_EXTENDED_LIMITS
 #define GroundZones					ARRAY_(0x005263A0, __int16*, [8])
 #define FlyZones					ARRAY_(0x005263C0, __int16*, [2])
 
@@ -751,6 +768,11 @@ extern LPDIRECTDRAWPALETTE DDrawPalettes[256];
 	&InvPickup2Option,
 	NULL,
 }; */
+#ifdef FEATURE_HUD_IMPROVED
+extern INVENTORY_ITEM *InvOptionList[5];
+extern TEXT_STR_INFO *CtrlTextA[ARRAY_SIZE(Layout->key)];
+extern TEXT_STR_INFO *CtrlTextB[ARRAY_SIZE(Layout->key)];
+#else // FEATURE_HUD_IMPROVED
 #define InvOptionList				ARRAY_(0x00465608, INVENTORY_ITEM*, [4]) /* = {
 	&InvPassportOption,
 	&InvControlOption,
@@ -759,6 +781,7 @@ extern LPDIRECTDRAWPALETTE DDrawPalettes[256];
 }; */
 #define CtrlTextA					ARRAY_(0x0051A248, TEXT_STR_INFO*, [14])
 #define CtrlTextB					ARRAY_(0x0051A280, TEXT_STR_INFO*, [14])
+#endif // FEATURE_HUD_IMPROVED
 #define GF_ScriptTable				ARRAY_(0x00521EE0, __int16*, [24])
 #define GF_DemoLevels				ARRAY_(0x00521F60, UINT16, [24])
 #define GF_SecretInvItems			ARRAY_(0x00521FA0, char, [27])
