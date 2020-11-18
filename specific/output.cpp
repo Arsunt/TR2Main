@@ -63,6 +63,7 @@ extern bool BGND_IsCaptured;
 
 extern DWORD InvBackgroundMode;
 extern DWORD StatsBackgroundMode;
+extern bool IsFadeToBlack;
 
 DWORD PauseBackgroundMode = 1;
 #endif // FEATURE_BACKGROUND_IMPROVED
@@ -928,7 +929,9 @@ void __cdecl S_CopyScreenToBuffer() {
 	DDSDESC desc;
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	DWORD bgndMode = 0;
-	if( IsInventoryActive ) {
+	if( IsFadeToBlack ) {
+		bgndMode = 0;
+	} else if( IsInventoryActive ) {
 		bgndMode = InvBackgroundMode;
 	} else if( GF_CurrentEvent() == GFE_LEVCOMPLETE ) {
 		bgndMode = StatsBackgroundMode;
@@ -989,7 +992,9 @@ void __cdecl S_CopyBufferToScreen() {
 	DWORD color = 0xFFFFFFFF; // vertex color (ARGB white)
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	DWORD bgndMode = 0;
-	if( IsInventoryActive ) {
+	if( IsFadeToBlack ) {
+		bgndMode = 0;
+	} else if( IsInventoryActive ) {
 		bgndMode = InvBackgroundMode;
 	} else if( GF_CurrentEvent() == GFE_LEVCOMPLETE ) {
 		bgndMode = StatsBackgroundMode;

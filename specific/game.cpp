@@ -43,6 +43,7 @@
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
 #include "modding/background_new.h"
+extern DWORD StatsBackgroundMode;
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 #ifdef FEATURE_INPUT_IMPROVED
@@ -191,12 +192,43 @@ int __cdecl LevelStats(int levelID) {
 	hours   = SaveGame.statistics.timer / 30 / 60 / 60;
 	sprintf(timeString, "%02d:%02d:%02d", hours, minutes, seconds);
 
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	TempVideoAdjust(HiRes, 1.0);
+	if( SavedAppSettings.RenderMode == RM_Software ) {
+		S_CopyScreenToBuffer();
+		RGB888 gamePal[256];
+		memcpy(gamePal, GamePalette8, sizeof(gamePal));
+		for( int i = 0; i<256; ++i ) {
+			GamePalette8[i] = gamePal[DepthQIndex[i]];
+		}
+		FadeToPal(10, GamePalette8);
+		memcpy(GamePalette8, gamePal, sizeof(gamePal));
+		FadeToPal(0, GamePalette8);
+	} else if( !StatsBackgroundMode ) {
+		S_CopyScreenToBuffer();
+		while( !IsGameToExit && BGND2_FadeTo(128, 0) > 128 ) {
+			S_InitialisePolyList(FALSE);
+			S_CopyBufferToScreen();
+			if( S_UpdateInput() || IsResetFlag ) {
+				break;
+			}
+			S_OutputPolyList();
+			S_DumpScreen();
+		}
+	} else {
+		S_FadeToBlack();
+	}
+	T_InitPrint();
+
+	S_CDPlay(GF_GameFlow.levelCompleteTrack, FALSE);
+#else // // FEATURE_BACKGROUND_IMPROVED
 	S_CDPlay(GF_GameFlow.levelCompleteTrack, FALSE);
 
 	TempVideoAdjust(HiRes, 1.0);
 	FadeToPal(30, GamePalette8);
 	T_InitPrint();
 	S_CopyScreenToBuffer();
+#endif // FEATURE_BACKGROUND_IMPROVED
 
 	while( CHK_ANY(InputStatus, IN_SELECT) )
 		S_UpdateInput();

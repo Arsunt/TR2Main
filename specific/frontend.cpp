@@ -31,6 +31,7 @@
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
 #include "modding/background_new.h"
+bool IsFadeToBlack = false;
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 #ifdef FEATURE_HUD_IMPROVED
@@ -206,8 +207,10 @@ void __cdecl S_FinishInventory() {
 void __cdecl S_FadeToBlack() {
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	if( SavedAppSettings.RenderMode == RM_Hardware ) {
+		IsFadeToBlack = true;
 		S_CopyScreenToBuffer();
 		BGND2_ShowPicture(0, 0, 10, 2, FALSE);
+		IsFadeToBlack = false;
 		return;
 	}
 #endif // FEATURE_BACKGROUND_IMPROVED
