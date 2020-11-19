@@ -31,6 +31,7 @@
 #define REG_SYSTEM_KEY			"System"
 #define REG_GAME_KEY			"Game"
 #define REG_VIEW_KEY			"View"
+#define REG_BUGS_KEY			"Bugs"
 
 // DWORD value names
 #define REG_DISPLAY_ADAPTER		"PreferredDisplayAdapterGUID"
@@ -90,6 +91,7 @@
 #define REG_JOYSTICK_LED_COLOR	"JoystickLedColor"
 #define REG_JOYSTICK_HINTS		"JoystickHints"
 #define REG_AVOID_INTERLACED	"AvoidInterlacedVideoModes"
+#define REG_RUNNING_M16_FIX		"RunningM16fix"
 
 // FLOAT value names
 #define REG_GAME_SIZER		"Sizer"

@@ -38,6 +38,10 @@
 #include "modding/joy_output.h"
 #endif // FEATURE_INPUT_IMPROVED
 
+#ifdef FEATURE_GAMEPLAY_FIXES
+bool IsRunningM16fix = true;
+#endif // FEATURE_GAMEPLAY_FIXES
+
 void __cdecl RifleHandler(int weaponType) {
 	WEAPON_INFO *weapon = &Weapons[weaponType];
 
@@ -99,13 +103,16 @@ void __cdecl FireM16(BOOL isRunning) {
 	angles[1] = Lara.left_arm.x_rot;
 
 	// NOTE: Ther was a bug in the original game - ID_LARA_M16 instead of LGT_M16
-	if( isRunning ) {
+#ifdef FEATURE_GAMEPLAY_FIXES
+	if( IsRunningM16fix && isRunning ) {
 		Weapons[LGT_M16].shotAccuracy = 12*PHD_DEGREE;
 		Weapons[LGT_M16].damage = 1;
 	} else {
 		Weapons[LGT_M16].shotAccuracy = 4*PHD_DEGREE;
 		Weapons[LGT_M16].damage = 3;
 	}
+#endif // FEATURE_GAMEPLAY_FIXES
+
 	if( FireWeapon(LGT_M16, Lara.target, LaraItem, angles) ) {
 		Lara.right_arm.flash_gun = Weapons[LGT_M16].flashTime;
 #ifdef FEATURE_INPUT_IMPROVED

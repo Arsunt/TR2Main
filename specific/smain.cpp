@@ -107,6 +107,10 @@ extern double WaterFogBeginFactor;
 extern double WaterFogEndFactor;
 #endif // FEATURE_VIEW_IMPROVED
 
+#ifdef FEATURE_GAMEPLAY_FIXES
+extern bool IsRunningM16fix;
+#endif // FEATURE_GAMEPLAY_FIXES
+
 #ifdef FEATURE_GOLD
 extern bool IsGold();
 #endif
@@ -671,6 +675,12 @@ void __cdecl S_LoadSettings() {
 	MusicVolume = (musicVol > 10) ? 10 : musicVol;
 	S_SoundSetMasterVolume(6 * SoundVolume + 4);	// 4,  10,  16,  22,  28,  34,  40,  46,  52,  58,  64
 	S_CDVolume(MusicVolume ? MusicVolume*25+5 : 0);	// 0,  30,  55,  80, 105, 130, 155, 180, 205, 230, 255
+
+#ifdef FEATURE_GAMEPLAY_FIXES
+	OpenGameRegistryKey(REG_BUGS_KEY);
+	GetRegistryBoolValue(REG_RUNNING_M16_FIX, &IsRunningM16fix, true);
+	CloseGameRegistryKey();
+#endif // FEATURE_GAMEPLAY_FIXES
 
 #ifdef FEATURE_VIEW_IMPROVED
 	OpenGameRegistryKey(REG_VIEW_KEY);

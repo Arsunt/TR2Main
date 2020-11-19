@@ -92,7 +92,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - "Run Control Panel" button in the setup dialog now opens the current DirectInput joystick configuration from Control Panel instead of Control Panel itself.
 - Fixed a bug that caused the harpoon gun to reload every single shot in *"New Game+"* after a weapon cheat was used.
 - Fixed a bug due to which none of the joystick buttons allowed returning to the previous menu. Now the button assigned to "Draw weapon" is used for this.
-- Fixed a bug due to which the accuracy of the M16 did not decrease while running.
+- Fixed a bug due to which the accuracy of the M16 did not decrease while running (optional fix).
 - Fixed a wrong inventory text position if the game window size is changed. 
 - Fixed a flashing "Demo Mode" text while demo is playing. 
 
