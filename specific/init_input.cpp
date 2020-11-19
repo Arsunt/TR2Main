@@ -91,6 +91,7 @@ static const char *GetRawInputName(DWORD dwVendorId, DWORD dwProductId) {
 			case 0x05C4: return "Sony DualShock 4 (1st gen)";
 			case 0x09CC: return "Sony DualShock 4 (2nd gen)";
 			case 0x0BA0: return "Sony DualShock 4 (wireless)";
+			case 0x0CE6: return "Sony DualSense";
 		}
 	}
 	return NULL;
