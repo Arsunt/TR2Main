@@ -344,6 +344,58 @@ int __cdecl BGND2_FadeTo(int target, int delta) {
 	return current;
 }
 
+static int __cdecl BGND2_FadeToPal(int fadeValue, RGB888 *palette, int inputCheck) {
+	int i, j;
+	int palStartIdx = 0;
+	int palEndIdx = 256;
+	int palSize = 256;
+	bool fadeFaster = false;
+	PALETTEENTRY fadePal[256];
+
+	if( !GameVid_IsVga )
+		return fadeValue;
+
+	if( GameVid_IsWindowedVga ) {
+		palStartIdx += 10;
+		palEndIdx -= 10;
+		palSize -= 20;
+	}
+
+	if( fadeValue <= 1 ) {
+		for( i=palStartIdx; i<palEndIdx; ++i ) {
+			WinVidPalette[i].peRed   = palette[i].red;
+			WinVidPalette[i].peGreen = palette[i].green;
+			WinVidPalette[i].peBlue  = palette[i].blue;
+		}
+		DDrawPalette->SetEntries(0, palStartIdx, palSize, &WinVidPalette[palStartIdx]);
+		return fadeValue;
+	}
+
+	for( i=palStartIdx; i<palEndIdx; ++i ) {
+		fadePal[i] = WinVidPalette[i];
+	}
+
+	for( j=0; j<=fadeValue; ++j ) {
+		if( S_UpdateInput() ) return fadeValue;
+		if( inputCheck && InputStatus ) {
+			if( inputCheck == 1 ) {
+				return fadeValue - j + 1;
+			} else if( inputCheck == 2 ) {
+				fadeFaster = true;
+			}
+			if( fadeFaster && j < fadeValue ) ++j;
+		}
+		for( i=palStartIdx; i<palEndIdx; ++i ) {
+			WinVidPalette[i].peRed   = fadePal[i].peRed   + (palette[i].red   - fadePal[i].peRed)   * j / fadeValue;
+			WinVidPalette[i].peGreen = fadePal[i].peGreen + (palette[i].green - fadePal[i].peGreen) * j / fadeValue;
+			WinVidPalette[i].peBlue  = fadePal[i].peBlue  + (palette[i].blue  - fadePal[i].peBlue)  * j / fadeValue;
+		}
+		DDrawPalette->SetEntries(0, palStartIdx, palSize, &WinVidPalette[palStartIdx]);
+		S_DumpScreen();
+	}
+	return fadeFaster ? 1 : 0;
+}
+
 static void BGND2_CustomBlt(LPDDSDESC dst, DWORD dstX, DWORD dstY, LPDDSDESC src, LPRECT srcRect) {
 	DWORD srcBpp = src->ddpfPixelFormat.dwRGBBitCount/8;
 	DWORD dstBpp = dst->ddpfPixelFormat.dwRGBBitCount/8;
@@ -655,6 +707,7 @@ FAIL :
 
 int __cdecl BGND2_ShowPicture(DWORD fadeIn, DWORD waitIn, DWORD fadeOut, DWORD waitOut, BOOL inputCheck) {
 	if( SavedAppSettings.RenderMode == RM_Software ) {
+		int skip = 0;
 		RGB888 blackPal[256];
 		memset(blackPal, 0, sizeof(blackPal));
 
@@ -667,9 +720,16 @@ int __cdecl BGND2_ShowPicture(DWORD fadeIn, DWORD waitIn, DWORD fadeOut, DWORD w
 		// fade in
 		if( fadeIn > 0 ) {
 			memset(WinVidPalette, 0, sizeof(WinVidPalette));
-			FadeToPal(fadeIn, GamePalette8);
+			skip = BGND2_FadeToPal(fadeIn, GamePalette8, inputCheck ? 1 : 0);
 		}
-		if( waitIn > 0) {
+		if( IsGameToExit ) {
+			return -1;
+		}
+		if( skip ) {
+			inputCheck = FALSE;
+			fadeOut /= 2;
+			waitOut /= 2;
+		} else if( waitIn > 0 ) {
 			S_Wait(waitIn * TICKS_PER_FRAME, inputCheck);
 		}
 		if( IsGameToExit ) {
@@ -678,7 +738,11 @@ int __cdecl BGND2_ShowPicture(DWORD fadeIn, DWORD waitIn, DWORD fadeOut, DWORD w
 
 		// fade out
 		if( fadeOut > 0 ) {
-			FadeToPal(fadeOut, blackPal);
+			skip = BGND2_FadeToPal(fadeOut, blackPal, inputCheck ? 2 : 0);
+			if( skip ) waitOut /= 2;
+		}
+		if( IsGameToExit ) {
+			return -1;
 		}
 		if( fadeOut > 0 || waitOut > 0 ) {
 			ScreenClear(false); ScreenDump();

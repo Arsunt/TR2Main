@@ -31,6 +31,7 @@
 #include "specific/hwr.h"
 #include "specific/init.h"
 #include "specific/init_display.h"
+#include "specific/input.h"
 #include "specific/texture.h"
 #include "specific/utils.h"
 #include "specific/winvid.h"
@@ -906,6 +907,9 @@ void __cdecl FadeToPal(int fadeValue, RGB888 *palette) {
 	}
 
 	for( j=0; j<=fadeValue; ++j ) {
+#ifdef FEATURE_BACKGROUND_IMPROVED
+		if( S_UpdateInput() ) return;
+#endif // FEATURE_BACKGROUND_IMPROVED
 		for( i=palStartIdx; i<palEndIdx; ++i ) {
 			WinVidPalette[i].peRed   = fadePal[i].peRed   + (palette[i].red   - fadePal[i].peRed)   * j / fadeValue;
 			WinVidPalette[i].peGreen = fadePal[i].peGreen + (palette[i].green - fadePal[i].peGreen) * j / fadeValue;
