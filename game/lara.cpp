@@ -40,7 +40,7 @@ void __cdecl lara_col_jumper(ITEM_INFO *item, COLL_INFO *coll) {
 
 	// NOTE: Low ceiling check must be skipped because it produces the bug
 	// Core Design removed this check in later game releases
-#ifndef FEATURE_JUMP_COLLISION_FIX
+#ifndef FEATURE_GAMEPLAY_FIXES
 	if( ABS(coll->sideMid.ceiling - coll->sideMid.floor) < 0x02FA ) {
 		item->currentAnimState = AS_FASTFALL;
 		item->goalAnimState = AS_FASTFALL;
@@ -51,7 +51,7 @@ void __cdecl lara_col_jumper(ITEM_INFO *item, COLL_INFO *coll) {
 		if( item->fallSpeed <= 0 )
 			item->fallSpeed = 1;
 	}
-#endif // !FEATURE_JUMPCOLLISION_FIX
+#endif // !FEATURE_GAMEPLAY_FIXES
 }
 
 /*

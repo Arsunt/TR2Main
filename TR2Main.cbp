@@ -58,10 +58,10 @@
 			<Add option="-DFEATURE_BACKGROUND_IMPROVED" />
 			<Add option="-DFEATURE_CHEAT" />
 			<Add option="-DFEATURE_EXTENDED_LIMITS" />
+			<Add option="-DFEATURE_GAMEPLAY_FIXES" />
 			<Add option="-DFEATURE_GOLD" />
 			<Add option="-DFEATURE_HUD_IMPROVED" />
 			<Add option="-DFEATURE_INPUT_IMPROVED" />
-			<Add option="-DFEATURE_JUMP_COLLISION_FIX" />
 			<Add option="-DFEATURE_MOD_CONFIG" />
 			<Add option="-DFEATURE_NOCD_DATA" />
 			<Add option="-DFEATURE_NOLEGACY_OPTIONS" />
