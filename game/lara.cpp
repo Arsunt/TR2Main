@@ -23,6 +23,10 @@
 #include "game/lara.h"
 #include "global/vars.h"
 
+#ifdef FEATURE_GAMEPLAY_FIXES
+bool IsLowCeilingJumpFix = true;
+#endif // FEATURE_GAMEPLAY_FIXES
+
 void __cdecl lara_col_jumper(ITEM_INFO *item, COLL_INFO *coll) {
 	coll->badPos = 0x7F00;
 	coll->badNeg = -0x0180;
@@ -40,7 +44,9 @@ void __cdecl lara_col_jumper(ITEM_INFO *item, COLL_INFO *coll) {
 
 	// NOTE: Low ceiling check must be skipped because it produces the bug
 	// Core Design removed this check in later game releases
-#ifndef FEATURE_GAMEPLAY_FIXES
+#ifdef FEATURE_GAMEPLAY_FIXES
+	if( IsLowCeilingJumpFix ) return;
+#endif // FEATURE_GAMEPLAY_FIXES
 	if( ABS(coll->sideMid.ceiling - coll->sideMid.floor) < 0x02FA ) {
 		item->currentAnimState = AS_FASTFALL;
 		item->goalAnimState = AS_FASTFALL;
@@ -51,7 +57,6 @@ void __cdecl lara_col_jumper(ITEM_INFO *item, COLL_INFO *coll) {
 		if( item->fallSpeed <= 0 )
 			item->fallSpeed = 1;
 	}
-#endif // !FEATURE_GAMEPLAY_FIXES
 }
 
 /*

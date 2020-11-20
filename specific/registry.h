@@ -92,6 +92,7 @@
 #define REG_JOYSTICK_HINTS		"JoystickHints"
 #define REG_AVOID_INTERLACED	"AvoidInterlacedVideoModes"
 #define REG_RUNNING_M16_FIX		"RunningM16fix"
+#define REG_LOWCEILING_JUMP_FIX	"LowCeilingJumpFix"
 
 // FLOAT value names
 #define REG_GAME_SIZER		"Sizer"

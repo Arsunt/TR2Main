@@ -109,6 +109,7 @@ extern double WaterFogEndFactor;
 
 #ifdef FEATURE_GAMEPLAY_FIXES
 extern bool IsRunningM16fix;
+extern bool IsLowCeilingJumpFix;
 #endif // FEATURE_GAMEPLAY_FIXES
 
 #ifdef FEATURE_GOLD
@@ -679,6 +680,7 @@ void __cdecl S_LoadSettings() {
 #ifdef FEATURE_GAMEPLAY_FIXES
 	OpenGameRegistryKey(REG_BUGS_KEY);
 	GetRegistryBoolValue(REG_RUNNING_M16_FIX, &IsRunningM16fix, true);
+	GetRegistryBoolValue(REG_LOWCEILING_JUMP_FIX, &IsLowCeilingJumpFix, true);
 	CloseGameRegistryKey();
 #endif // FEATURE_GAMEPLAY_FIXES
 

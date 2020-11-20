@@ -95,6 +95,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a bug due to which the accuracy of the M16 did not decrease while running (optional fix).
 - Fixed a wrong inventory text position if the game window size is changed. 
 - Fixed a flashing "Demo Mode" text while demo is playing. 
+- The *low ceiling jump* bugfix is optional now.
 
 ### TR2Main bugfixes
 - Background capture is optimized even more, now it is 3-4 times faster than v0.8.2. No lags anymore (broken since v0.8.0).
