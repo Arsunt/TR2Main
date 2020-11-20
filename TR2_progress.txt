@@ -132,7 +132,7 @@ x function is unused / included in another function
 0x0040D7A0:		BoatUserControl
 0x0040D930:		BoatAnimation
 0x0040DAA0:		BoatControl
-0x0040E0D0:		GondolaControl
+0x0040E0D0:	+	GondolaControl
 
 	game/box.cpp
 0x0040E190:	 *	InitialiseCreature
@@ -897,7 +897,7 @@ x function is unused / included in another function
 0x0043FA60:		TestCollision
 0x0043FB90:		GetSpheres
 0x0043FE70:	 *	GetJointAbsPosition
-0x00440010:		BaddieBiteEffect
+0x00440010:	 *	BaddieBiteEffect
 
 	game/spider.cpp
 0x00440070:		SpiderLeap
@@ -929,16 +929,16 @@ x function is unused / included in another function
 
 	game/traps.cpp
 0x00440FC0:	+	MineControl
-0x004411C0:		ControlSpikeWall
-0x00441300:		ControlCeilingSpikes
-0x00441420:		HookControl
+0x004411C0:	+	ControlSpikeWall
+0x00441300:	+	ControlCeilingSpikes
+0x00441420:	+	HookControl
 0x004414B0:		PropellerControl
-0x00441640:		SpinningBlade
-0x004417C0:		IcicleControl
-0x004418C0:		InitialiseBlade
-0x00441900:		BladeControl
-0x004419A0:		InitialiseKillerStatue
-0x004419F0:		KillerStatueControl
+0x00441640:	+	SpinningBlade
+0x004417C0:	+	IcicleControl
+0x004418C0:	+	InitialiseBlade
+0x00441900:	+	BladeControl
+0x004419A0:	+	InitialiseKillerStatue
+0x004419F0:	+	KillerStatueControl
 0x00441B00:		SpringBoardControl
 0x00441BE0:		InitialiseRollingBall
 0x00441C20:		RollingBallControl
@@ -948,15 +948,15 @@ x function is unused / included in another function
 0x00442370:		TrapDoorFloor
 0x004423B0:		TrapDoorCeiling
 0x004423F0:		OnTrapDoor
-0x004424A0:		Pendulum
+0x004424A0:	+	Pendulum
 0x004425B0:		FallingBlock
 0x004426C0:		FallingBlockFloor
 0x00442700:		FallingBlockCeiling
-0x00442750:		TeethTrap
-0x00442810:		FallingCeiling
-0x004428F0:		DartEmitterControl
-0x00442A30:		DartsControl
-0x00442B90:		DartEffectControl
+0x00442750:	+	TeethTrap
+0x00442810:	+	FallingCeiling
+0x004428F0:	+	DartEmitterControl
+0x00442A30:	+	DartsControl
+0x00442B90:	+	DartEffectControl
 0x00442BE0:	+	FlameEmitterControl
 0x00442C70:	+	FlameControl
 0x00442DE0:	+	LaraBurn
