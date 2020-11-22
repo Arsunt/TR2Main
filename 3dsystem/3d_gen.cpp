@@ -268,10 +268,6 @@ static void phd_PutEnvmapPolygons(__int16 *ptrEnv) {
 				 PhdMatrixPtr->_11 * ptrObj[1] +
 				 PhdMatrixPtr->_12 * ptrObj[2]) >> W2V_SHIFT;
 
-		// mirror X coordinate if such option is enabled
-		if( ReflectionMode == 2 ) {
-			x = -x;
-		}
 		CLAMP(x, -PHD_IONE, PHD_IONE);
 		CLAMP(y, -PHD_IONE, PHD_IONE);
 		uv[i].u = PHD_ONE/PHD_IONE * (x + PHD_IONE)/2;

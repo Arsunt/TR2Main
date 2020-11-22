@@ -42,7 +42,6 @@ LPDIRECTDRAWPALETTE DDrawPalettes[256];
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
 DWORD ReflectionMode = 0;
-DWORD ReflectionBlur = 2;
 
 extern LPDDS EnvmapBufferSurface;
 extern LPDDS CaptureBufferSurface;
@@ -53,14 +52,13 @@ static LPDIRECT3DTEXTURE2 EnvmapTexture = NULL;
 static HWR_TEXHANDLE EnvmapTextureHandle = 0;
 
 static int __cdecl CreateEnvmapBuffer() {
+	static const DWORD mapside[] = {64, 256, 1024};
 	DDSDESC dsp;
 
-	if( !ReflectionMode ) return -1;
-	DWORD side = 1;
+	if( ReflectionMode < 1 || ReflectionMode > 3 ) return -1;
+	DWORD side = MIN(mapside[3 - ReflectionMode], GetMaxTextureSize());
 	DWORD sideLimit = MIN(GameVidBufWidth, GameVidBufHeight);
-	while( side<<ReflectionBlur <= sideLimit ) side <<= 1;
-	CLAMPG(side, GetMaxTextureSize());
-
+	while( side > sideLimit ) side >>= 1;
 	memset(&dsp, 0, sizeof(dsp));
 	dsp.dwSize = sizeof(dsp);
 	dsp.dwFlags = DDSD_WIDTH|DDSD_HEIGHT|DDSD_CAPS;

@@ -72,7 +72,6 @@ extern bool RemasteredPixEnabled;
 extern DWORD ShadowMode;
 extern DWORD AlphaBlendMode;
 extern DWORD ReflectionMode;
-extern DWORD ReflectionBlur;
 extern DWORD PickupItemMode;
 extern bool CustomWaterColorEnabled;
 #endif // FEATURE_VIDEOFX_IMPROVED
@@ -618,12 +617,10 @@ void __cdecl S_LoadSettings() {
 	GetRegistryDwordValue(REG_SHADOW_MODE, &ShadowMode, 0);
 	GetRegistryDwordValue(REG_ALPHABLEND_MODE, &AlphaBlendMode, 0);
 	GetRegistryDwordValue(REG_REFLECTION_MODE, &ReflectionMode, 0);
-	GetRegistryDwordValue(REG_REFLECTION_BLUR, &ReflectionBlur, 2);
 	GetRegistryDwordValue(REG_PICKUPITEM_MODE, &PickupItemMode, 1);
 	GetRegistryBoolValue(REG_CUSTOM_WATER_COLOR, &CustomWaterColorEnabled, false);
 	CLAMPG(AlphaBlendMode, 2);
-	CLAMPG(ReflectionMode, 2);
-	CLAMPG(ReflectionBlur, 7);
+	CLAMPG(ReflectionMode, 3);
 #endif // FEATURE_VIDEOFX_IMPROVED
 
 #ifdef FEATURE_SCREENSHOT_IMPROVED
