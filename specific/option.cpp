@@ -400,12 +400,20 @@ void DisplayVolumeBars(bool isSmooth) {
 	}
 }
 
+static const char *GetEmptyOptName(void) {
+	return "";
+}
+
 static const char *GetEmptyOptState(void) {
 	return "";
 }
 
 static const char *ToggleEmptyOptState(void) {
 	return GetEmptyOptState();
+}
+
+static const char *GetShowHintsOptName(void) {
+	return "Show Hints";
 }
 
 static const char *GetShowHintsOptState(void) {
@@ -424,6 +432,11 @@ static const char *ToggleShowHintsOptState(void) {
 
 #ifdef FEATURE_INPUT_IMPROVED
 extern bool JoystickVibrationEnabled;
+extern bool JoystickLedColorEnabled;
+
+static const char *GetVibrationOptName(void) {
+	return "Vibration";
+}
 
 static const char *GetVibrationOptState(void) {
 	if( !IsJoyVibrationSupported() ) return GF_GameStringTable[GSI_String_NA];
@@ -436,23 +449,40 @@ static const char *ToggleVibrationOptState(void) {
 	}
 	return GetVibrationOptState();
 }
+
+static const char *GetLightbarOptName(void) {
+	return IsJoyLedColorSupported() ? "Light Bar" : "";
+}
+
+static const char *GetLightbarOptState(void) {
+	if( !IsJoyLedColorSupported() ) return "";
+	return JoystickLedColorEnabled ? GF_SpecificStringTable[SSI_On] : GF_SpecificStringTable[SSI_Off];
+}
+
+static const char *ToggleLightbarOptState(void) {
+	if( IsJoyLedColorSupported() ) {
+		JoystickLedColorEnabled = !JoystickLedColorEnabled;
+	}
+	return GetLightbarOptState();
+}
 #endif // FEATURE_INPUT_IMPROVED
 
 typedef struct {
-	const char *name;
+	const char *(*getName)(void);
 	const char *(*getState)(void);
 	const char *(*toggle)(void);
 } JOYOPT;
 
 static JOYOPT JoystickOpts[4] = {
-	{"Show Hints", GetShowHintsOptState, ToggleShowHintsOptState},
+	{GetShowHintsOptName, GetShowHintsOptState, ToggleShowHintsOptState},
 #ifdef FEATURE_INPUT_IMPROVED
-	{"Vibration", GetVibrationOptState, ToggleVibrationOptState},
+	{GetVibrationOptName, GetVibrationOptState, ToggleVibrationOptState},
+	{GetLightbarOptName, GetLightbarOptState, ToggleLightbarOptState},
 #else // FEATURE_INPUT_IMPROVED
-	{"", GetEmptyOptState, ToggleEmptyOptState},
+	{GetEmptyOptName, GetEmptyOptState, ToggleEmptyOptState},
+	{GetEmptyOptName, GetEmptyOptState, ToggleEmptyOptState},
 #endif // FEATURE_INPUT_IMPROVED
-	{"", GetEmptyOptState, ToggleEmptyOptState},
-	{"", GetEmptyOptState, ToggleEmptyOptState},
+	{GetEmptyOptName, GetEmptyOptState, ToggleEmptyOptState},
 };
 #else // FEATURE_HUD_IMPROVED
 static LPCSTR ControlKeysText[0x110] = {
@@ -1575,10 +1605,10 @@ void __cdecl S_ShowControls() {
 		x1 = xCenter + CONTROL_COLUMN_A;
 
 		if( LayoutPage == CTRL_Joystick ) {
-			CtrlTextA[0]  = T_Print(x0, CONTROL_Y_LINE1, CONTROL_NEARZ, JoystickOpts[0].name);
-			CtrlTextA[1]  = T_Print(x0, CONTROL_Y_LINE2, CONTROL_NEARZ, JoystickOpts[1].name);
-			CtrlTextA[2]  = T_Print(x0, CONTROL_Y_LINE3, CONTROL_NEARZ, JoystickOpts[2].name);
-			CtrlTextA[3]  = T_Print(x0, CONTROL_Y_LINE4, CONTROL_NEARZ, JoystickOpts[3].name);
+			CtrlTextA[0]  = T_Print(x0, CONTROL_Y_LINE1, CONTROL_NEARZ, JoystickOpts[0].getName());
+			CtrlTextA[1]  = T_Print(x0, CONTROL_Y_LINE2, CONTROL_NEARZ, JoystickOpts[1].getName());
+			CtrlTextA[2]  = T_Print(x0, CONTROL_Y_LINE3, CONTROL_NEARZ, JoystickOpts[2].getName());
+			CtrlTextA[3]  = T_Print(x0, CONTROL_Y_LINE4, CONTROL_NEARZ, JoystickOpts[3].getName());
 		} else {
 			CtrlTextA[0]  = T_Print(x0, CONTROL_Y_LINE1, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Run]);
 			CtrlTextA[1]  = T_Print(x0, CONTROL_Y_LINE2, CONTROL_NEARZ, GF_GameStringTable[GSI_Keymap_Back]);
@@ -1653,7 +1683,7 @@ void __cdecl S_ChangeCtrlText() {
 
 	if( LayoutPage == CTRL_Joystick ) {
 		for( DWORD i=0; i<4; ++i ) {
-			T_ChangeText(CtrlTextA[i], JoystickOpts[i].name);
+			T_ChangeText(CtrlTextA[i], JoystickOpts[i].getName());
 			T_ChangeText(CtrlTextB[i], JoystickOpts[i].getState());
 		}
 	} else {
