@@ -201,7 +201,7 @@ static void MarkSemitransTextureRanges() {
 #endif // FEATURE_VIDEOFX_IMPROVED
 
 #if defined(FEATURE_MOD_CONFIG)
-bool BarefootSfxEnabled = false;
+bool BarefootSfxEnabled = true;
 
 static void LoadBareFootSFX(int *sampleIndexes, int sampleCount) {
 	if( !BarefootSfxEnabled || !IsModBarefoot() || !sampleIndexes || sampleCount < 1 ) return;

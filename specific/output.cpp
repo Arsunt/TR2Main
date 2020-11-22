@@ -40,8 +40,8 @@
 #ifdef FEATURE_HUD_IMPROVED
 #include "modding/psx_bar.h"
 
-DWORD HealthBarMode;
-bool PsxBarPosEnabled;
+DWORD HealthBarMode = 2;
+bool PsxBarPosEnabled = true;
 double GameGUI_Scale = 1.0;
 double InvGUI_Scale = 1.0;
 #endif // FEATURE_HUD_IMPROVED
@@ -51,7 +51,7 @@ extern int CalculateFogShade(int depth);
 #endif // FEATURE_VIEW_IMPROVED
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
-DWORD ShadowMode = 0;
+DWORD ShadowMode = 1;
 void FreeEnvmapTexture();
 #endif // FEATURE_VIDEOFX_IMPROVED
 

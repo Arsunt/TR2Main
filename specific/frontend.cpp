@@ -37,7 +37,7 @@ bool IsFadeToBlack = false;
 #ifdef FEATURE_HUD_IMPROVED
 #include "3dsystem/3dinsert.h"
 
-DWORD InvTextBoxMode = 0;
+DWORD InvTextBoxMode = 1;
 #endif // FEATURE_HUD_IMPROVED
 
 static void FadeWait() {

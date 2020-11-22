@@ -55,11 +55,11 @@ D3DTLVERTEX HWR_VertexBuffer[0x8000];
 bool PsxFovEnabled;
 
 // view distance
-double ViewDistanceFactor = 1.0;
+double ViewDistanceFactor = 6.0;
 
 // regular fog
-double FogBeginFactor = 0.6;
-double FogEndFactor = 1.0;
+double FogBeginFactor = 1.0;
+double FogEndFactor = 6.0;
 int FogBeginDepth = DEPTHQ_START;
 int FogEndDepth = DEPTHQ_END;
 

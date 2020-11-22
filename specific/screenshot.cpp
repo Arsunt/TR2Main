@@ -30,7 +30,7 @@
 
 extern LPDDS CaptureBufferSurface;
 
-DWORD ScreenshotFormat = 0;
+DWORD ScreenshotFormat = 1;
 char ScreenshotPath[MAX_PATH];
 
 typedef struct {

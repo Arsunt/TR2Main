@@ -581,9 +581,9 @@ void __cdecl S_LoadSettings() {
 	GetRegistryDwordValue(REG_DEMOTEXT_MODE, &DemoTextMode, 0);
 	GetRegistryDwordValue(REG_JOYSTICK_BTN_STYLE, &JoystickButtonStyle, 0);
 	GetRegistryDwordValue(REG_SAVEGAME_SLOTS, &SavegameSlots, 0);
-	GetRegistryDwordValue(REG_INVTEXTBOX_MODE, &InvTextBoxMode, 0);
-	GetRegistryDwordValue(REG_HEALTHBAR_MODE, &HealthBarMode, 0);
-	GetRegistryBoolValue(REG_PSXBARPOS_ENABLE, &PsxBarPosEnabled, false);
+	GetRegistryDwordValue(REG_INVTEXTBOX_MODE, &InvTextBoxMode, 1);
+	GetRegistryDwordValue(REG_HEALTHBAR_MODE, &HealthBarMode, 2);
+	GetRegistryBoolValue(REG_PSXBARPOS_ENABLE, &PsxBarPosEnabled, true);
 	GetRegistryBoolValue(REG_JOYSTICK_HINTS, &JoystickHintsEnabled, true);
 	GetRegistryFloatValue(REG_GAME_GUI_SCALE, &GameGUI_Scale, 1.0);
 	GetRegistryFloatValue(REG_INV_GUI_SCALE, &InvGUI_Scale, 1.0);
@@ -604,27 +604,27 @@ void __cdecl S_LoadSettings() {
 #endif // FEATURE_INPUT_IMPROVED
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
-	GetRegistryDwordValue(REG_INVBGND_MODE, &InvBackgroundMode, 1);
+	GetRegistryDwordValue(REG_INVBGND_MODE, &InvBackgroundMode, 2);
 	GetRegistryDwordValue(REG_STATSBGND_MODE, &StatsBackgroundMode, 0);
 	GetRegistryDwordValue(REG_PAUSEBGND_MODE, &PauseBackgroundMode, 1);
 	GetRegistryDwordValue(REG_PICTURE_STRETCH, &PictureStretchLimit, 10);
 	GetRegistryBoolValue(REG_REMASTER_PIX_ENABLE, &RemasteredPixEnabled, true);
-	GetRegistryBoolValue(REG_LOADING_SCREENS, &LoadingScreensEnabled, false);
+	GetRegistryBoolValue(REG_LOADING_SCREENS, &LoadingScreensEnabled, true);
 	GetRegistryStringValue(REG_PICTURE_SUFFIX, PictureSuffix, sizeof(PictureSuffix), "");
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
-	GetRegistryDwordValue(REG_SHADOW_MODE, &ShadowMode, 0);
-	GetRegistryDwordValue(REG_ALPHABLEND_MODE, &AlphaBlendMode, 0);
-	GetRegistryDwordValue(REG_REFLECTION_MODE, &ReflectionMode, 0);
+	GetRegistryDwordValue(REG_SHADOW_MODE, &ShadowMode, 1);
+	GetRegistryDwordValue(REG_ALPHABLEND_MODE, &AlphaBlendMode, 2);
+	GetRegistryDwordValue(REG_REFLECTION_MODE, &ReflectionMode, 2);
 	GetRegistryDwordValue(REG_PICKUPITEM_MODE, &PickupItemMode, 1);
-	GetRegistryBoolValue(REG_CUSTOM_WATER_COLOR, &CustomWaterColorEnabled, false);
+	GetRegistryBoolValue(REG_CUSTOM_WATER_COLOR, &CustomWaterColorEnabled, true);
 	CLAMPG(AlphaBlendMode, 2);
 	CLAMPG(ReflectionMode, 3);
 #endif // FEATURE_VIDEOFX_IMPROVED
 
 #ifdef FEATURE_SCREENSHOT_IMPROVED
-	GetRegistryDwordValue(REG_SCREENSHOT_FORMAT, &ScreenshotFormat, 0);
+	GetRegistryDwordValue(REG_SCREENSHOT_FORMAT, &ScreenshotFormat, 1);
 	GetRegistryStringValue(REG_SCREENSHOT_PATH, ScreenshotPath, sizeof(ScreenshotPath), ".\\screenshots");
 #endif // FEATURE_SCREENSHOT_IMPROVED
 
@@ -636,8 +636,8 @@ void __cdecl S_LoadSettings() {
 #endif // FEATURE_ASSAULT_SAVE
 
 #ifdef FEATURE_AUDIO_IMPROVED
-	GetRegistryFloatValue(REG_INV_MUSIC_MUTE, &InventoryMusicMute, 1.0);
-	GetRegistryFloatValue(REG_UW_MUSIC_MUTE, &UnderwaterMusicMute, 1.0);
+	GetRegistryFloatValue(REG_INV_MUSIC_MUTE, &InventoryMusicMute, 0.8);
+	GetRegistryFloatValue(REG_UW_MUSIC_MUTE, &UnderwaterMusicMute, 0.8);
 	CLAMP(InventoryMusicMute, 0.0, 1.0);
 	CLAMP(UnderwaterMusicMute, 0.0, 1.0);
 #endif // FEATURE_AUDIO_IMPROVED
@@ -647,7 +647,7 @@ void __cdecl S_LoadSettings() {
 #endif // FEATURE_VIEW_IMPROVED
 
 #ifdef FEATURE_MOD_CONFIG
-	GetRegistryBoolValue(REG_BAREFOOT_SFX_ENABLE, &BarefootSfxEnabled, false);
+	GetRegistryBoolValue(REG_BAREFOOT_SFX_ENABLE, &BarefootSfxEnabled, true);
 #endif // FEATURE_MOD_CONFIG
 
 #ifdef FEATURE_GOLD
@@ -683,9 +683,9 @@ void __cdecl S_LoadSettings() {
 
 #ifdef FEATURE_VIEW_IMPROVED
 	OpenGameRegistryKey(REG_VIEW_KEY);
-	GetRegistryFloatValue(REG_DRAW_DISTANCE, &ViewDistanceFactor, 1.0);
-	GetRegistryFloatValue(REG_FOG_BEGIN, &FogBeginFactor, 0.6);
-	GetRegistryFloatValue(REG_FOG_END, &FogEndFactor, 1.0);
+	GetRegistryFloatValue(REG_DRAW_DISTANCE, &ViewDistanceFactor, 6.0);
+	GetRegistryFloatValue(REG_FOG_BEGIN, &FogBeginFactor, 1.0);
+	GetRegistryFloatValue(REG_FOG_END, &FogEndFactor, 6.0);
 	GetRegistryFloatValue(REG_UW_FOG_BEGIN, &WaterFogBeginFactor, 0.6);
 	GetRegistryFloatValue(REG_UW_FOG_END, &WaterFogEndFactor, 1.0);
 	CloseGameRegistryKey();

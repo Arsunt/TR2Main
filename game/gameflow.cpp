@@ -35,7 +35,7 @@
 #ifdef FEATURE_BACKGROUND_IMPROVED
 #include "modding/background_new.h"
 
-bool LoadingScreensEnabled = false;
+bool LoadingScreensEnabled = true;
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 static int CurrentEvent = GFE_END_SEQ; // NOTE: not presented in the original game

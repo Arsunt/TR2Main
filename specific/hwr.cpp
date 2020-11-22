@@ -32,7 +32,7 @@
 #ifdef FEATURE_VIDEOFX_IMPROVED
 extern HWR_TEXHANDLE GetEnvmapTextureHandle();
 
-DWORD AlphaBlendMode = 0;
+DWORD AlphaBlendMode = 2;
 
 typedef struct {
 	D3DBLEND src;

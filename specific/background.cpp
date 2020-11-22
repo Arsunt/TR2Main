@@ -31,7 +31,7 @@
 #ifdef FEATURE_BACKGROUND_IMPROVED
 #include "modding/background_new.h"
 
-DWORD InvBackgroundMode = 1;
+DWORD InvBackgroundMode = 2;
 DWORD StatsBackgroundMode = 0;
 #endif // FEATURE_BACKGROUND_IMPROVED
 

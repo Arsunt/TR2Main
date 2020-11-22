@@ -31,7 +31,7 @@ extern DWORD ShadowMode;
 extern DWORD AlphaBlendMode;
 extern HWR_TEXHANDLE GetEnvmapTextureHandle();
 
-bool CustomWaterColorEnabled = false;
+bool CustomWaterColorEnabled = true;
 #endif // FEATURE_VIDEOFX_IMPROVED
 
 static VERTEX_INFO VBuffer[40]; // NOTE: original size was 20

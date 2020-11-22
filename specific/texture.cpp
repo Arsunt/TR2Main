@@ -41,7 +41,7 @@ LPDIRECTDRAWPALETTE DDrawPalettes[256];
 #endif // defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_BACKGROUND_IMPROVED)
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
-DWORD ReflectionMode = 0;
+DWORD ReflectionMode = 2;
 
 extern LPDDS EnvmapBufferSurface;
 extern LPDDS CaptureBufferSurface;

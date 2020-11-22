@@ -29,8 +29,8 @@
 #include "global/vars.h"
 
 #ifdef FEATURE_AUDIO_IMPROVED
-double InventoryMusicMute = 1.0;
-double UnderwaterMusicMute = 1.0;
+double InventoryMusicMute = 0.8;
+double UnderwaterMusicMute = 0.8;
 #endif // FEATURE_AUDIO_IMPROVED
 
 #ifdef FEATURE_PAULD_CDAUDIO
