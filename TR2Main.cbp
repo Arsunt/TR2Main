@@ -19,7 +19,19 @@
 					<Add option="-g" />
 					<Add option="-Wall" />
 					<Add option="-D_DEBUG" />
+					<Add option="-DDIRECTDRAW_VERSION=0x500" />
+					<Add option="-DDIRECT3D_VERSION=0x500" />
+					<Add option="-DDIRECTINPUT_VERSION=0x500" />
+					<Add option="-DDIRECTSOUND_VERSION=0x500" />
+					<Add directory="../DX7_SDK/include" />
 				</Compiler>
+				<Linker>
+					<Add library="../DX7_SDK/lib/dxguid.lib" />
+					<Add library="../DX7_SDK/lib/ddraw.lib" />
+					<Add library="../DX7_SDK/lib/d3dx.lib" />
+					<Add library="../DX7_SDK/lib/dinput.lib" />
+					<Add library="../DX7_SDK/lib/dsound.lib" />
+				</Linker>
 			</Target>
 			<Target title="Release">
 				<Option output="bin/Release/TR2Main" prefix_auto="1" extension_auto="1" />
@@ -37,9 +49,19 @@
 					<Add option="-Wextra" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-D_RELEASE" />
+					<Add option="-DDIRECTDRAW_VERSION=0x500" />
+					<Add option="-DDIRECT3D_VERSION=0x500" />
+					<Add option="-DDIRECTINPUT_VERSION=0x500" />
+					<Add option="-DDIRECTSOUND_VERSION=0x500" />
+					<Add directory="../DX7_SDK/include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add library="../DX7_SDK/lib/dxguid.lib" />
+					<Add library="../DX7_SDK/lib/ddraw.lib" />
+					<Add library="../DX7_SDK/lib/d3dx.lib" />
+					<Add library="../DX7_SDK/lib/dinput.lib" />
+					<Add library="../DX7_SDK/lib/dsound.lib" />
 				</Linker>
 			</Target>
 		</Build>
@@ -49,10 +71,6 @@
 			<Add option="-Wno-unknown-pragmas" />
 			<Add option="-DBUILD_DLL" />
 			<Add option="-D_WIN32_WINNT=0x501" />
-			<Add option="-DDIRECTDRAW_VERSION=0x500" />
-			<Add option="-DDIRECT3D_VERSION=0x500" />
-			<Add option="-DDIRECTINPUT_VERSION=0x500" />
-			<Add option="-DDIRECTSOUND_VERSION=0x500" />
 			<Add option="-DFEATURE_ASSAULT_SAVE" />
 			<Add option="-DFEATURE_AUDIO_IMPROVED" />
 			<Add option="-DFEATURE_BACKGROUND_IMPROVED" />
@@ -71,7 +89,6 @@
 			<Add option="-DFEATURE_VIDEOFX_IMPROVED" />
 			<Add option="-DFEATURE_VIEW_IMPROVED" />
 			<Add option="-DFEATURE_WINDOW_STYLE_FIX" />
-			<Add directory="../DX7_SDK/include" />
 		</Compiler>
 		<Linker>
 			<Add option="-static-libstdc++" />
@@ -90,11 +107,6 @@
 			<Add library="ole32" />
 			<Add library="oleaut32" />
 			<Add library="xinput" />
-			<Add library="../DX7_SDK/lib/dxguid.lib" />
-			<Add library="../DX7_SDK/lib/ddraw.lib" />
-			<Add library="../DX7_SDK/lib/d3dx.lib" />
-			<Add library="../DX7_SDK/lib/dinput.lib" />
-			<Add library="../DX7_SDK/lib/dsound.lib" />
 		</Linker>
 		<ExtraCommands>
 			<Add after='cmd /c copy &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_FILE)&quot; &quot;$(TR2_DIR)&quot;' />
