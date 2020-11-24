@@ -64,6 +64,65 @@
 					<Add library="../DX7_SDK/lib/dsound.lib" />
 				</Linker>
 			</Target>
+			<Target title="DX7-Debug">
+				<Option output="bin/DX7-Debug/TR2Main" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="%TR2_DIR%/" />
+				<Option object_output="obj/DX7-Debug/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option host_application="%TR2_DIR%/tomb2.exe" />
+				<Option run_host_application_in_terminal="0" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-Wall" />
+					<Add option="-D_DEBUG" />
+					<Add option="-DDIRECTDRAW_VERSION=0x700" />
+					<Add option="-DDIRECT3D_VERSION=0x700" />
+					<Add option="-DDIRECTINPUT_VERSION=0x700" />
+					<Add option="-DDIRECTSOUND_VERSION=0x700" />
+					<Add directory="../DX7_SDK/include" />
+				</Compiler>
+				<Linker>
+					<Add library="../DX7_SDK/lib/dxguid.lib" />
+					<Add library="../DX7_SDK/lib/ddraw.lib" />
+					<Add library="../DX7_SDK/lib/d3dx.lib" />
+					<Add library="../DX7_SDK/lib/dinput.lib" />
+					<Add library="../DX7_SDK/lib/dsound.lib" />
+				</Linker>
+			</Target>
+			<Target title="DX7-Release">
+				<Option output="bin/DX7-Release/TR2Main" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="%TR2_DIR%/" />
+				<Option object_output="obj/DX7-Release/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option host_application="%TR2_DIR%/tomb2.exe" />
+				<Option run_host_application_in_terminal="0" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-O3" />
+					<Add option="-Wall" />
+					<Add option="-Wextra" />
+					<Add option="-Wno-unused-parameter" />
+					<Add option="-D_RELEASE" />
+					<Add option="-DDIRECTDRAW_VERSION=0x700" />
+					<Add option="-DDIRECT3D_VERSION=0x700" />
+					<Add option="-DDIRECTINPUT_VERSION=0x700" />
+					<Add option="-DDIRECTSOUND_VERSION=0x700" />
+					<Add directory="../DX7_SDK/include" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="../DX7_SDK/lib/dxguid.lib" />
+					<Add library="../DX7_SDK/lib/ddraw.lib" />
+					<Add library="../DX7_SDK/lib/d3dx.lib" />
+					<Add library="../DX7_SDK/lib/dinput.lib" />
+					<Add library="../DX7_SDK/lib/dsound.lib" />
+				</Linker>
+			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-m32" />
