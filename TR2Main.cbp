@@ -71,8 +71,6 @@
 			<Add option="-DFEATURE_VIDEOFX_IMPROVED" />
 			<Add option="-DFEATURE_VIEW_IMPROVED" />
 			<Add option="-DFEATURE_WINDOW_STYLE_FIX" />
-			<Add directory="." />
-			<Add directory="./main" />
 			<Add directory="../DX7_SDK/include" />
 		</Compiler>
 		<Linker>
