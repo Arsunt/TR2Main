@@ -5,10 +5,10 @@
 		<Option title="TR2Main" />
 		<Option compiler="gcc" />
 		<Build>
-			<Target title="Debug">
-				<Option output="bin/Debug/TR2Main" prefix_auto="1" extension_auto="1" />
+			<Target title="DX5-Debug">
+				<Option output="bin/DX5-Debug/TR2Main" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="%TR2_DIR%/" />
-				<Option object_output="obj/Debug/" />
+				<Option object_output="obj/DX5-Debug/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option host_application="%TR2_DIR%/tomb2.exe" />
@@ -33,10 +33,10 @@
 					<Add library="../DX7_SDK/lib/dsound.lib" />
 				</Linker>
 			</Target>
-			<Target title="Release">
-				<Option output="bin/Release/TR2Main" prefix_auto="1" extension_auto="1" />
+			<Target title="DX5-Release">
+				<Option output="bin/DX5-Release/TR2Main" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="%TR2_DIR%/" />
-				<Option object_output="obj/Release/" />
+				<Option object_output="obj/DX5-Release/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option host_application="%TR2_DIR%/tomb2.exe" />
