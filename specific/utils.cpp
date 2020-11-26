@@ -23,22 +23,26 @@
 #include "specific/utils.h"
 #include "global/vars.h"
 
+static LONGLONG TIME_Ticks, TIME_Start_us;
+static double TIME_Frequency, TIME_Period_us;
+
 DWORD __cdecl SyncTicks(DWORD skip) {
 	double target = (double)skip;
-	double lastTicks = TIME_Ticks;
 	double elapsed = 0.0;
+	LONGLONG lastTicks = TIME_Ticks;
 	do {
 		UpdateTicks();
-		elapsed = TIME_Ticks - lastTicks;
+		elapsed = (double)(TIME_Ticks - lastTicks) / TIME_Frequency;
 	} while( elapsed < target );
 	return (DWORD)elapsed;
 }
 
+// NOTE: redesigned to make it more accurate
 void __cdecl UpdateTicks() {
 	LARGE_INTEGER counter;
 
 	QueryPerformanceCounter(&counter);
-	TIME_Ticks = (double)counter.QuadPart / TIME_Frequency;
+	TIME_Ticks = counter.QuadPart;
 }
 
 bool __cdecl TIME_Init() {
@@ -52,11 +56,11 @@ bool __cdecl TIME_Init() {
 	return true;
 }
 
+// NOTE: redesigned to make it more accurate
 DWORD __cdecl Sync() {
-	DWORD lastTicks = (DWORD)TIME_Ticks;
+	LONGLONG lastTicks = TIME_Ticks;
 	UpdateTicks();
-	DWORD currentTicks = (DWORD)TIME_Ticks;
-	return currentTicks - lastTicks;
+	return (DWORD)((double)(TIME_Ticks - lastTicks) / TIME_Frequency);
 }
 
 LPVOID __cdecl UT_LoadResource(LPCTSTR lpName, LPCTSTR lpType) {
@@ -71,28 +75,25 @@ LPVOID __cdecl UT_LoadResource(LPCTSTR lpName, LPCTSTR lpType) {
 	return LockResource(hGlb);;
 }
 
+// NOTE: redesigned to make it more accurate
 void __cdecl UT_InitAccurateTimer() {
-	LARGE_INTEGER frequency;
-
-	TIME_Period_us = 0.0;
-	TIME_Start_us = 0.0;
-	TIME_Start = 0;
-
+	LARGE_INTEGER frequency, counter;
 	if( QueryPerformanceFrequency(&frequency) ) {
 		TIME_Period_us = 1.0 / (double)frequency.QuadPart; // Tick period for one microsecond
-		TIME_Start_us = UT_Microseconds();
+		QueryPerformanceCounter(&counter);
+		TIME_Start_us = counter.QuadPart;
 	} else {
-		TIME_Start = timeGetTime();
+		TIME_Period_us = 0.0;
+		TIME_Start_us = 0;
 	}
 }
 
+// NOTE: redesigned to make it more accurate
 double __cdecl UT_Microseconds() {
 	LARGE_INTEGER counter;
 
-	if( QueryPerformanceCounter(&counter) )
-		return (double)counter.QuadPart * TIME_Period_us - TIME_Start_us; // NOTE: Here was formula bug in the original code: (counter-start_us)*period
-	else
-		return (double)(timeGetTime() - TIME_Start) * 0.001;
+	QueryPerformanceCounter(&counter);
+	return (double)(counter.QuadPart - TIME_Start_us) * TIME_Period_us;
 }
 
 BOOL __cdecl UT_CenterWindow(HWND hWnd) {
