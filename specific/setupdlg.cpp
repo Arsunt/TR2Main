@@ -839,7 +839,7 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 	ShowWindow(hItem, SW_HIDE);
 #else // FEATURE_NOLEGACY_OPTIONS
 	EnableWindow(hItem, perspectiveCorrectAvailable);
-	SendMessage(hItem, BM_SETCHECK3, ChangedAppSettings.PerspectiveCorrect, 0);
+	SendMessage(hItem, BM_SETCHECK, ChangedAppSettings.PerspectiveCorrect, 0);
 #endif // FEATURE_NOLEGACY_OPTIONS
 
 	// 'Dither' CheckBox

@@ -612,13 +612,6 @@ extern bool ConflictLayout[ARRAY_SIZE(Layout->key)];
 #define RoomLightShades				ARRAY_(0x0051B8F8, int, [4])
 #define GamePalette8				ARRAY_(0x0051B920, RGB888, [256])
 #define StringToShow				ARRAY_(0x0051BD10, char, [128])
-#if defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_BACKGROUND_IMPROVED)
-extern TEXPAGE_DESC TexturePages[256];
-extern LPDIRECTDRAWPALETTE DDrawPalettes[256];
-#else // defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_BACKGROUND_IMPROVED)
-#define TexturePages				ARRAY_(0x0051BDA8, TEXPAGE_DESC, [32])
-#define DDrawPalettes				ARRAY_(0x0051C200, LPDIRECTDRAWPALETTE, [16])
-#endif // defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_BACKGROUND_IMPROVED)
 #define TextInfoTable				ARRAY_(0x0051C820, TEXT_STR_INFO, [64])
 #define TheStrings					ARRAY_(0x0051D6C0, STRING_FIXED64, [64])
 #define SampleLut					ARRAY_(0x0051E6E0, __int16, [370])

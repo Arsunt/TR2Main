@@ -38,6 +38,7 @@
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
 extern LPDDS CaptureBufferSurface;
+extern TEXPAGE_DESC TexturePages[256];
 
 #ifdef FEATURE_INPUT_IMPROVED
 #include "modding/joy_output.h"
@@ -246,7 +247,7 @@ static int CreateCaptureTexture(DWORD index, DWORD side) {
 }
 
 static int MakeBgndTextures(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmpPal) {
-	DWORD side = GetMaxTextureSize();
+	DWORD side = MIN(2048, GetMaxTextureSize());
 	S_DontDisplayPicture(); // clean up previous textures
 
 	if( bmpPal != NULL && (SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16) ) {
@@ -466,8 +467,6 @@ int __cdecl BGND2_CapturePicture() {
 		return -1;
 	}
 
-	LPDDS surface = CaptureBufferSurface ? CaptureBufferSurface : PrimaryBufferSurface;
-
 	BGND_PictureIsReady = false;
 	BGND_IsCaptured = false;
 
@@ -476,13 +475,14 @@ int __cdecl BGND2_CapturePicture() {
 		return -1;
 	}
 
+	LPDDS surface = CaptureBufferSurface ? CaptureBufferSurface : PrimaryBufferSurface;
 	if( surface == PrimaryBufferSurface ) {
 		MapWindowPoints(HGameWindow, GetParent(HGameWindow), (LPPOINT)&rect, 2);
 	}
 	width = ABS(rect.right - rect.left);
 	height = ABS(rect.bottom - rect.top);
 
-	DWORD side = GetMaxTextureSize();
+	DWORD side = MIN(2048, GetMaxTextureSize());
 
 	DWORD nx = (width + side - 1) / side;
 	DWORD ny = (height + side - 1) / side;
@@ -492,16 +492,16 @@ int __cdecl BGND2_CapturePicture() {
 	}
 
 	int x[ARRAY_SIZE(BGND_TexturePageIndexes) + 1];
+	x[nx] = rect.right - rect.left;
 	for( DWORD i = 0; i < nx; ++i ) {
-		x[i] = i * side * (rect.right - rect.left) / width + rect.left;
+		x[i] = i * side * x[nx] / width;
 	}
-	x[nx] = rect.right;
 
 	int y[ARRAY_SIZE(BGND_TexturePageIndexes) + 1];
+	y[ny] = rect.bottom - rect.top;
 	for( DWORD i = 0; i < ny; ++i ) {
-		y[i] = i * side * (rect.bottom - rect.top) / height + rect.top;
+		y[i] = i * side * y[ny] / height;
 	}
-	y[ny] = rect.bottom;
 
 	for( DWORD j = 0; j < ny; ++j ) {
 		for( DWORD i = 0; i < nx; ++i ) {
@@ -763,7 +763,7 @@ int __cdecl BGND2_ShowPicture(DWORD fadeIn, DWORD waitIn, DWORD fadeOut, DWORD w
 			switch( phase ) {
 				case 0 :
 					if( frame < fadeIn ) {
-						BGND_TextureAlpha = 255 * frame / fadeIn;
+						BGND_TextureAlpha = 255 * frame / (fadeIn - 1);
 						break;
 					}
 					++phase;

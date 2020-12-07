@@ -25,11 +25,11 @@
 #include "global/vars.h"
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
+#include "specific/texture.h"
 #include "modding/mod_utils.h"
 
 extern DWORD ShadowMode;
 extern DWORD AlphaBlendMode;
-extern HWR_TEXHANDLE GetEnvmapTextureHandle();
 
 bool CustomWaterColorEnabled = true;
 #endif // FEATURE_VIDEOFX_IMPROVED

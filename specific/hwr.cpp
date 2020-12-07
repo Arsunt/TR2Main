@@ -30,8 +30,6 @@
 #endif // FEATURE_HUD_IMPROVED
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
-extern HWR_TEXHANDLE GetEnvmapTextureHandle();
-
 DWORD AlphaBlendMode = 2;
 
 typedef struct {

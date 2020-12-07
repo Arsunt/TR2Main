@@ -27,7 +27,12 @@
 /*
  * Function list
  */
-DWORD __cdecl GetMaxTextureSize(); // NOTE: this function is not presented in the original game
+// NOTE: these functions are not presented in the original game
+void FreeEnvmapTexture();
+bool SetEnvmapTexture(LPDDS surface);
+HWR_TEXHANDLE GetEnvmapTextureHandle();
+DWORD GetMaxTextureSize();
+
 void __cdecl CopyBitmapPalette(RGB888 *srcPal, BYTE *srcBitmap, int bitmapSize, RGB888 *destPal); // 0x00455990
 BYTE __cdecl FindNearestPaletteEntry(RGB888 *palette, int red, int green, int blue, bool ignoreSysPalette); // 0x00455AD0
 void __cdecl SyncSurfacePalettes(void *srcData, int width, int height, int srcPitch, RGB888 *srcPalette, void *dstData, int dstPitch, RGB888 *dstPalette, bool preserveSysPalette); // 0x00455BA0

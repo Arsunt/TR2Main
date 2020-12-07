@@ -37,7 +37,14 @@ int HWR_TexturePageIndexes[128];
 
 #if defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_BACKGROUND_IMPROVED)
 TEXPAGE_DESC TexturePages[256];
-LPDIRECTDRAWPALETTE DDrawPalettes[256];
+#else // defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_BACKGROUND_IMPROVED)
+TEXPAGE_DESC TexturePages[32];
+#endif // defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_BACKGROUND_IMPROVED)
+
+#if defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_BACKGROUND_IMPROVED)
+LPDIRECTDRAWPALETTE TexturePalettes[256];
+#else // defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_BACKGROUND_IMPROVED)
+LPDIRECTDRAWPALETTE TexturePalettes[16];
 #endif // defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_BACKGROUND_IMPROVED)
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
@@ -51,14 +58,21 @@ static LPDIRECT3DTEXTURE2 EnvmapTexture = NULL;
 #endif // (DIRECT3D_VERSION < 0x700)
 static HWR_TEXHANDLE EnvmapTextureHandle = 0;
 
-static int __cdecl CreateEnvmapBuffer() {
+static DWORD GetEnvmapSide() {
 	static const DWORD mapside[] = {64, 256, 1024};
-	DDSDESC dsp;
-
-	if( ReflectionMode < 1 || ReflectionMode > 3 ) return -1;
+	if( ReflectionMode < 1 || ReflectionMode > 3 ) return 0;
 	DWORD side = MIN(mapside[3 - ReflectionMode], GetMaxTextureSize());
 	DWORD sideLimit = MIN(GameVidBufWidth, GameVidBufHeight);
 	while( side > sideLimit ) side >>= 1;
+	return side;
+}
+
+static bool __cdecl CreateEnvmapBufferSurface() {
+	DWORD side = GetEnvmapSide();
+	if( !side ) return false;
+	if( EnvmapBufferSurface ) return true;
+
+	DDSDESC dsp;
 	memset(&dsp, 0, sizeof(dsp));
 	dsp.dwSize = sizeof(dsp);
 	dsp.dwFlags = DDSD_WIDTH|DDSD_HEIGHT|DDSD_CAPS;
@@ -90,52 +104,46 @@ void FreeEnvmapTexture() {
 	EnvmapTextureHandle = 0;
 }
 
-HWR_TEXHANDLE GetEnvmapTextureHandle() {
-	if( EnvmapTextureHandle ) {
-		return EnvmapTextureHandle;
-	}
+bool SetEnvmapTexture(LPDDS surface) {
+	EnvmapTextureHandle = 0;
 
+	// Getting centred square area of the screen
+	int side = MIN(GameVidWidth, GameVidHeight);
+	int x = (GameVidWidth - side) / 2;
+	int y = (GameVidHeight - side) / 2;
+	RECT srcRect = {
+		.left	= GameVidRect.left + x,
+		.top	= GameVidRect.top  + y,
+		.right	= GameVidRect.left + x + side,
+		.bottom	= GameVidRect.top  + y + side,
+	};
+
+	if( !CreateEnvmapBufferSurface() ) return false;
 #if (DIRECT3D_VERSION < 0x700)
-	if( !EnvmapTexture ) {
+	if( EnvmapTexture ) FreeEnvmapTexture();
 #endif // (DIRECT3D_VERSION < 0x700)
-		if( !EnvmapBufferSurface && CreateEnvmapBuffer() ) {
-			return 0;
-		}
-
-		// Getting centred square area of the screen
-		int side = MIN(GameVidWidth, GameVidHeight);
-		int x = (GameVidWidth - side) / 2;
-		int y = (GameVidHeight - side) / 2;
-		RECT srcRect = {
-			.left	= GameVidRect.left + x,
-			.top	= GameVidRect.top  + y,
-			.right	= GameVidRect.left + x + side,
-			.bottom	= GameVidRect.top  + y + side,
-		};
-
-		EnvmapBufferSurface->Blt(NULL, CaptureBufferSurface ? CaptureBufferSurface : PrimaryBufferSurface, &srcRect, DDBLT_WAIT, NULL);
+	EnvmapBufferSurface->Blt(NULL, surface, &srcRect, DDBLT_WAIT, NULL);
 #if (DIRECT3D_VERSION >= 0x700)
-		EnvmapTextureHandle = EnvmapBufferSurface;
+	EnvmapTextureHandle = EnvmapBufferSurface;
 #else // (DIRECT3D_VERSION >= 0x700)
-		EnvmapTexture = Create3DTexture(EnvmapBufferSurface);
-		if( !EnvmapTexture ) return 0;
-	}
-
-	if FAILED(EnvmapTexture->GetHandle(D3DDev, &EnvmapTextureHandle)) {
-		FreeEnvmapTexture();
-		return 0;
+	EnvmapTexture = Create3DTexture(EnvmapBufferSurface);
+	if( EnvmapTexture ) {
+		EnvmapTexture->GetHandle(D3DDev, &EnvmapTextureHandle);
 	}
 #endif // (DIRECT3D_VERSION >= 0x700)
 
+	return ( EnvmapTextureHandle != 0 );
+}
+
+HWR_TEXHANDLE GetEnvmapTextureHandle() {
+	if( EnvmapTextureHandle ) return EnvmapTextureHandle;
+	SetEnvmapTexture(CaptureBufferSurface ? CaptureBufferSurface : PrimaryBufferSurface);
 	return EnvmapTextureHandle;
 }
 #endif // FEATURE_VIDEOFX_IMPROVED
 
-DWORD __cdecl GetMaxTextureSize() {
-	DWORD side = 2048; // NOTE: It is better to limit old DirectX texture size;
-	CLAMPG(side, CurrentDisplayAdapter.D3DHWDeviceDesc.dwMaxTextureWidth);
-	CLAMPG(side, CurrentDisplayAdapter.D3DHWDeviceDesc.dwMaxTextureHeight);
-	return side;
+DWORD GetMaxTextureSize() {
+	return MIN(CurrentDisplayAdapter.D3DHWDeviceDesc.dwMaxTextureWidth, CurrentDisplayAdapter.D3DHWDeviceDesc.dwMaxTextureHeight);
 }
 
 void __cdecl CopyBitmapPalette(RGB888 *srcPal, BYTE *srcBitmap, int bitmapSize, RGB888 *destPal) {
@@ -244,30 +252,30 @@ int __cdecl CreateTexturePalette(RGB888 *pal) {
 		return -1;
 
 	for( int i=0; i<256; ++i ) {
-		palEntries[i].peRed	 = pal[i].red;
+		palEntries[i].peRed   = pal[i].red;
 		palEntries[i].peGreen = pal[i].green;
-		palEntries[i].peBlue	= pal[i].blue;
+		palEntries[i].peBlue  = pal[i].blue;
 		palEntries[i].peFlags = 0;
 	}
 
-	if FAILED(DDraw->CreatePalette(DDPCAPS_ALLOW256|DDPCAPS_8BIT, palEntries, &DDrawPalettes[palIndex], NULL))
+	if FAILED(DDraw->CreatePalette(DDPCAPS_ALLOW256|DDPCAPS_8BIT, palEntries, &TexturePalettes[palIndex], NULL))
 		return -1;
 
 	return palIndex;
 }
 
 int __cdecl GetFreePaletteIndex() {
-	for( DWORD i=0; i<ARRAY_SIZE(DDrawPalettes); ++i ) {
-		if( DDrawPalettes[i] == NULL )
+	for( DWORD i=0; i<ARRAY_SIZE(TexturePalettes); ++i ) {
+		if( TexturePalettes[i] == NULL )
 			return i;
 	}
 	return -1;
 }
 
 void __cdecl FreePalette(int paletteIndex) {
-	if( DDrawPalettes[paletteIndex] != NULL ) {
-		DDrawPalettes[paletteIndex]->Release();
-		DDrawPalettes[paletteIndex] = NULL;
+	if( TexturePalettes[paletteIndex] != NULL ) {
+		TexturePalettes[paletteIndex]->Release();
+		TexturePalettes[paletteIndex] = NULL;
 	}
 }
 
@@ -496,7 +504,7 @@ int __cdecl AddTexturePage8(int width, int height, BYTE *pageBuffer, int palInde
 	if( palIndex < 0 )
 		return -1;
 
-	pageIndex = CreateTexturePage(width, height, DDrawPalettes[palIndex]);
+	pageIndex = CreateTexturePage(width, height, TexturePalettes[palIndex]);
 	if( pageIndex < 0 )
 		return -1;
 
@@ -624,15 +632,15 @@ HRESULT __cdecl EnumerateTextureFormats() {
 
 void __cdecl CleanupTextures() {
 	FreeTexturePages();
-	for( DWORD i=0; i<ARRAY_SIZE(DDrawPalettes); ++i ) {
-		if( DDrawPalettes[i] != NULL )
+	for( DWORD i=0; i<ARRAY_SIZE(TexturePalettes); ++i ) {
+		if( TexturePalettes[i] != NULL )
 			FreePalette(i);
 	}
 }
 
 bool __cdecl InitTextures() {
 	memset(TexturePages,  0, sizeof(TexturePages));
-	memset(DDrawPalettes, 0, sizeof(DDrawPalettes));
+	memset(TexturePalettes, 0, sizeof(TexturePalettes));
 	return true;
 }
 

@@ -52,7 +52,6 @@ extern int CalculateFogShade(int depth);
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
 DWORD ShadowMode = 1;
-void FreeEnvmapTexture();
 #endif // FEATURE_VIDEOFX_IMPROVED
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
