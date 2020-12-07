@@ -479,10 +479,10 @@ bool __cdecl RenderInit() {
 }
 
 void __cdecl RenderStart(bool isReset) {
-	signed int minWidth;
-	signed int minHeight;
-	bool is16bitTextures;
+	int minWidth;
+	int minHeight;
 	DISPLAY_MODE dispMode;
+	bool is16bitTextures;
 	DDPIXELFORMAT pixelFormat;
 
 	if( isReset )
@@ -509,7 +509,7 @@ void __cdecl RenderStart(bool isReset) {
 		GameVidBufWidth  = dispMode.width;
 		GameVidBufHeight = dispMode.height;
 		GameVidBPP = dispMode.bpp;
-		GameVid_IsVga = ( dispMode.vga != 0 );
+		GameVid_IsVga = ( dispMode.vga != VGA_NoVga );
 		GameVid_IsWindowedVga = false;
 		GameVid_IsFullscreenVga = ( dispMode.vga == VGA_Standard );
 	} else {
@@ -532,7 +532,7 @@ void __cdecl RenderStart(bool isReset) {
 		GameVidBufHeight = (dispMode.height + 0x1F) & ~0x1F;
 		GameVidBPP = dispMode.bpp;
 		GameVid_IsVga = ( dispMode.vga != 0 );
-		GameVid_IsWindowedVga = ( dispMode.vga != 0 );
+		GameVid_IsWindowedVga = ( dispMode.vga != VGA_NoVga );
 		GameVid_IsFullscreenVga = false;
 
 		CreatePrimarySurface();
