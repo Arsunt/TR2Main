@@ -27,6 +27,9 @@
 /*
  * Function list
  */
+// NOTE: this function is absent in the original code
+HRESULT HWR_DrawPrimitive(D3DPRIMITIVETYPE primitiveType, LPVOID vertices, DWORD vertexCount, bool isNoClip);
+
 void __cdecl HWR_InitState(); // 0x0044D0B0
 void __cdecl HWR_ResetTexSource(); // 0x0044D1E0
 void __cdecl HWR_ResetColorKey(); // 0x0044D210

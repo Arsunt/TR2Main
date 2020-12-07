@@ -1370,7 +1370,7 @@ void __cdecl InsertGT3_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2,
 #endif // !FEATURE_VIDEOFX_IMPROVED
 			HWR_EnableColorKey(texture->drawtype != DRAW_Opaque);
 
-			D3DDev->DrawPrimitive(D3DPT_TRIANGLELIST, D3D_TLVERTEX, VBufferD3D, 3, D3D_DRAWFLAGS);
+			HWR_DrawPrimitive(D3DPT_TRIANGLELIST, VBufferD3D, 3, true);
 			return;
 		}
 
@@ -1469,7 +1469,7 @@ void __cdecl DrawClippedPoly_Textured(int vtxCount) {
 		VBufferD3D[i].tv = tv;
 	}
 
-	D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, VBufferD3D, vtxCount, D3D_DRAWFLAGS);
+	HWR_DrawPrimitive(D3DPT_TRIANGLEFAN, VBufferD3D, vtxCount, true);
 }
 
 void __cdecl InsertGT4_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PHD_VBUF *vtx3, PHD_TEXTURE *texture) {
@@ -1521,7 +1521,7 @@ void __cdecl InsertGT4_ZBuffered(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2,
 #endif // !FEATURE_VIDEOFX_IMPROVED
 		HWR_EnableColorKey(texture->drawtype != DRAW_Opaque);
 
-		D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, VBufferD3D, 4, D3D_DRAWFLAGS);
+		HWR_DrawPrimitive(D3DPT_TRIANGLEFAN, VBufferD3D, 4, true);
 	}
 	else if( (clipOR < 0 && visible_zclip(vtx0, vtx1, vtx2)) ||
 			 (clipOR > 0 && VBUF_VISIBLE(*vtx0, *vtx1, *vtx2)) )
@@ -1702,7 +1702,7 @@ void __cdecl DrawPoly_Gouraud(int vtxCount, int red, int green, int blue) {
 		VBufferD3D[i].color = color;
 	}
 
-	D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, VBufferD3D, vtxCount, D3D_DRAWFLAGS);
+	HWR_DrawPrimitive(D3DPT_TRIANGLEFAN, VBufferD3D, vtxCount, true);
 }
 
 __int16 *__cdecl InsertObjectG3_ZBuffered(__int16 *ptrObj, int number, SORTTYPE sortType) {
@@ -1842,7 +1842,7 @@ void __cdecl InsertFlatRect_ZBuffered(int x0, int y0, int x1, int y1, int z, BYT
 
 	HWR_TexSource(0);
 	HWR_EnableColorKey(false);
-	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3D_TLVERTEX, VBufferD3D, 4, D3D_DRAWFLAGS);
+	HWR_DrawPrimitive(D3DPT_TRIANGLESTRIP, VBufferD3D, 4, true);
 }
 
 void __cdecl InsertLine_ZBuffered(int x0, int y0, int x1, int y1, int z, BYTE colorIdx) {
@@ -1873,7 +1873,7 @@ void __cdecl InsertLine_ZBuffered(int x0, int y0, int x1, int y1, int z, BYTE co
 
 	HWR_TexSource(0);
 	HWR_EnableColorKey(false);
-	D3DDev->DrawPrimitive(D3DPT_LINESTRIP, D3D_TLVERTEX, VBufferD3D, 2, D3D_DRAWFLAGS);
+	HWR_DrawPrimitive(D3DPT_LINESTRIP, VBufferD3D, 2, true);
 }
 
 void __cdecl InsertGT3_Sorted(PHD_VBUF *vtx0, PHD_VBUF *vtx1, PHD_VBUF *vtx2, PHD_TEXTURE *texture, PHD_UV *uv0, PHD_UV *uv1, PHD_UV *uv2, SORTTYPE sortType) {

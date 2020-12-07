@@ -83,7 +83,7 @@ static void __cdecl DrawCololoredRect(float sx0, float sy0, float sx1, float sy1
 
 	HWR_TexSource(0);
 	HWR_EnableColorKey(true);
-	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3D_TLVERTEX, &vertex, 4, D3D_DRAWFLAGS);
+	HWR_DrawPrimitive(D3DPT_TRIANGLESTRIP, &vertex, 4, true);
 }
 
 static void PSX_DrawBar(int x0, int y0, int x1, int y1, int bar, int pixel, D3DCOLOR *left, D3DCOLOR *right, D3DCOLOR *frame, BYTE alpha) {

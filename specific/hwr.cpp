@@ -57,17 +57,35 @@ static void SetBlendMode(D3DTLVERTEX *vtxPtr, DWORD vtxCount, DWORD mode) {
 static void DrawAlphaBlended(D3DTLVERTEX *vtxPtr, DWORD vtxCount, DWORD mode) {
 	// do basic blending
 	SetBlendMode(vtxPtr, vtxCount, mode);
-	D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3D_DRAWFLAGS);
+	HWR_DrawPrimitive(D3DPT_TRIANGLEFAN, vtxPtr, vtxCount, true);
 	// do advanced blending
 	if( AlphaBlendMode == 2 && mode == 0 ) {
 		SetBlendMode(vtxPtr, vtxCount, 3); // additional quarter-additive blending pass
-		D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3D_DRAWFLAGS);
+		HWR_DrawPrimitive(D3DPT_TRIANGLEFAN, vtxPtr, vtxCount, true);
 	}
 	// return render states to default values
 	D3DDev->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
 	D3DDev->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 }
 #endif // FEATURE_VIDEOFX_IMPROVED
+
+// NOTE: this function is absent in the original code
+HRESULT HWR_DrawPrimitive(D3DPRIMITIVETYPE primitiveType, LPVOID vertices, DWORD vertexCount, bool isNoClip) {
+#if (DIRECT3D_VERSION >= 0x700)
+	if( !isNoClip ) {
+		D3DDev->SetRenderState(D3DRENDERSTATE_CLIPPING, TRUE);
+		D3DDev->SetRenderState(D3DRENDERSTATE_EXTENTS, TRUE);
+	}
+	HRESULT res = D3DDev->DrawPrimitive(primitiveType, D3DFVF_TLVERTEX, vertices, vertexCount, 0);
+	if( !isNoClip ) {
+		D3DDev->SetRenderState(D3DRENDERSTATE_CLIPPING, FALSE);
+		D3DDev->SetRenderState(D3DRENDERSTATE_EXTENTS, FALSE);
+	}
+	return res;
+#else // (DIRECT3D_VERSION >= 0x700)
+	return D3DDev->DrawPrimitive(primitiveType, D3DVT_TLVERTEX, vertices, vertexCount, isNoClip ? D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP : 0);
+#endif // (DIRECT3D_VERSION >= 0x700)
+}
 
 void __cdecl HWR_InitState() {
 	D3DDev->SetRenderState(D3DRENDERSTATE_FILLMODE, D3DFILL_SOLID);
@@ -240,14 +258,14 @@ void __cdecl HWR_DrawPolyList() {
 				HWR_TexSource(texPage == (UINT16)~0 ? GetEnvmapTextureHandle() : HWR_PageHandles[texPage]);
 				HWR_EnableColorKey(polyType != POLY_HWR_GTmap);
 				if( TextureFormat.bpp < 16 || AlphaBlendMode == 0 || polyType == POLY_HWR_GTmap || polyType == POLY_HWR_WGTmap ) {
-					D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3D_DRAWFLAGS);
+					HWR_DrawPrimitive(D3DPT_TRIANGLEFAN, vtxPtr, vtxCount, true);
 				} else {
 					DrawAlphaBlended(vtxPtr, vtxCount, polyType-POLY_HWR_WGTmapHalf);
 				}
 #else // !FEATURE_VIDEOFX_IMPROVED
 				HWR_TexSource(HWR_PageHandles[texPage]);
 				HWR_EnableColorKey(polyType == POLY_HWR_WGTmap);
-				D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3D_DRAWFLAGS);
+				HWR_DrawPrimitive(D3DPT_TRIANGLEFAN, vtxPtr, vtxCount, true);
 #endif // !FEATURE_VIDEOFX_IMPROVED
 				break;
 
@@ -260,28 +278,28 @@ void __cdecl HWR_DrawPolyList() {
 				HWR_TexSource(0);
 				HWR_EnableColorKey(polyType != POLY_HWR_gouraud);
 				if( TextureFormat.bpp < 16 || AlphaBlendMode == 0 || polyType == POLY_HWR_gouraud ) {
-					D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3D_DRAWFLAGS);
+					HWR_DrawPrimitive(D3DPT_TRIANGLEFAN, vtxPtr, vtxCount, true);
 				} else {
 					DrawAlphaBlended(vtxPtr, vtxCount, polyType-POLY_HWR_half);
 				}
 #else // !FEATURE_VIDEOFX_IMPROVED
 				HWR_TexSource(0);
 				HWR_EnableColorKey(false);
-				D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3D_DRAWFLAGS);
+				HWR_DrawPrimitive(D3DPT_TRIANGLEFAN, vtxPtr, vtxCount, true);
 #endif // !FEATURE_VIDEOFX_IMPROVED
 				break;
 
 			case POLY_HWR_line: // line strip (color)
 				HWR_TexSource(0);
 				HWR_EnableColorKey(false);
-				D3DDev->DrawPrimitive(D3DPT_LINESTRIP, D3D_TLVERTEX, vtxPtr, vtxCount, D3D_DRAWFLAGS);
+				HWR_DrawPrimitive(D3DPT_LINESTRIP, vtxPtr, vtxCount, true);
 				break;
 
 			case POLY_HWR_trans: // triangle fan (color + semitransparent)
 				HWR_TexSource(0);
 				D3DDev->GetRenderState(AlphaBlendEnabler, &alphaState);
 				D3DDev->SetRenderState(AlphaBlendEnabler, TRUE);
-				D3DDev->DrawPrimitive(D3DPT_TRIANGLEFAN, D3D_TLVERTEX, vtxPtr, vtxCount, D3D_DRAWFLAGS);
+				HWR_DrawPrimitive(D3DPT_TRIANGLEFAN, vtxPtr, vtxCount, true);
 				D3DDev->SetRenderState(AlphaBlendEnabler, alphaState);
 				break;
 		}
