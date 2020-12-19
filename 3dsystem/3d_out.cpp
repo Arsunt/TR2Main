@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -91,6 +91,30 @@ typedef struct {
 
 #pragma pack(pop)
 
+#ifdef FEATURE_NOLEGACY_OPTIONS
+static int SwrPitch = 0;
+static int SwrHeight = 0;
+static void *XBuffer = NULL;
+
+int GetPitchSWR() {
+    return SwrPitch;
+}
+
+void PrepareSWR(int pitch, int height) {
+	if( pitch != 0 ) {
+		SwrPitch = pitch;
+	}
+    if( height != 0 && (XBuffer == NULL || SwrHeight != height) ) {
+		SwrHeight = height;
+		if( XBuffer != NULL ) free(XBuffer);
+		XBuffer = malloc(sizeof(XBUF_XGUVP) * height);
+	}
+}
+#else // FEATURE_NOLEGACY_OPTIONS
+#define SwrPitch PhdScreenWidth // NOTE: this is the original game bug!
+static int XBuffer[1200 * sizeof(XBUF_XGUVP) / sizeof(int)]; // maximum safe resolution is 1200 pixels
+#endif // FEATURE_NOLEGACY_OPTIONS
+
 void __cdecl draw_poly_line(__int16 *bufPtr) {
 	int i, j;
 	int x0, y0, x1, y1;
@@ -141,7 +165,7 @@ void __cdecl draw_poly_line(__int16 *bufPtr) {
 		y1 = PhdWinMaxY;
 	}
 
-	drawPtr = PrintSurfacePtr + (PhdScreenWidth * y0 + x0);
+	drawPtr = PrintSurfacePtr + (SwrPitch * y0 + x0);
 
 	xSize = x1 - x0;
 	ySize = y1 - y0;
@@ -160,9 +184,9 @@ void __cdecl draw_poly_line(__int16 *bufPtr) {
 
 	if( ySize < 0 ) {
 		ySize = -ySize;
-		yAdd = -PhdScreenWidth;
+		yAdd = -SwrPitch;
 	} else {
-		yAdd = PhdScreenWidth;
+		yAdd = SwrPitch;
 	}
 
 	if( xSize >= ySize ) {
@@ -551,9 +575,9 @@ void __cdecl gtmap_persp32_fp(int y0, int y1, BYTE *texPage) {
 		return;
 
 	xbuf = (XBUF_XGUVP *)XBuffer + y0;
-	drawPtr = PrintSurfacePtr + y0 * PhdScreenWidth;
+	drawPtr = PrintSurfacePtr + y0 * SwrPitch;
 
-	for( ; ySize > 0; --ySize, ++xbuf, drawPtr += PhdScreenWidth ) {
+	for( ; ySize > 0; --ySize, ++xbuf, drawPtr += SwrPitch ) {
 		x = xbuf->x0 / PHD_ONE;
 		xSize = (xbuf->x1 / PHD_ONE) - x;
 		if( xSize <= 0 )
@@ -669,9 +693,9 @@ void __cdecl wgtmap_persp32_fp(int y0, int y1, BYTE *texPage) {
 		return;
 
 	xbuf = (XBUF_XGUVP *)XBuffer + y0;
-	drawPtr = PrintSurfacePtr + y0 * PhdScreenWidth;
+	drawPtr = PrintSurfacePtr + y0 * SwrPitch;
 
-	for( ; ySize > 0; --ySize, ++xbuf, drawPtr += PhdScreenWidth ) {
+	for( ; ySize > 0; --ySize, ++xbuf, drawPtr += SwrPitch ) {
 		x = xbuf->x0 / PHD_ONE;
 		xSize = (xbuf->x1 / PHD_ONE) - x;
 		if( xSize <= 0 )
@@ -807,9 +831,9 @@ void __fastcall flatA(int y0, int y1, BYTE colorIdx) {
 		return;
 
 	xbuf = (XBUF_X *)XBuffer + y0;
-	drawPtr = PrintSurfacePtr + y0 * PhdScreenWidth;
+	drawPtr = PrintSurfacePtr + y0 * SwrPitch;
 
-	for( ; ySize > 0; --ySize, ++xbuf, drawPtr += PhdScreenWidth ) {
+	for( ; ySize > 0; --ySize, ++xbuf, drawPtr += SwrPitch ) {
 		x = xbuf->x0 / PHD_ONE;
 		xSize = (xbuf->x1 / PHD_ONE) - x;
 		if( xSize > 0 ) {
@@ -829,10 +853,10 @@ void __fastcall transA(int y0, int y1, BYTE depthQ) {
 		return;
 
 	xbuf = (XBUF_X *)XBuffer + y0;
-	drawPtr = PrintSurfacePtr + y0 * PhdScreenWidth;
+	drawPtr = PrintSurfacePtr + y0 * SwrPitch;
 	qt = DepthQTable + depthQ;
 
-	for( ; ySize > 0; --ySize, ++xbuf, drawPtr += PhdScreenWidth ) {
+	for( ; ySize > 0; --ySize, ++xbuf, drawPtr += SwrPitch ) {
 		x = xbuf->x0 / PHD_ONE;
 		xSize = (xbuf->x1 / PHD_ONE) - x;
 		if( xSize <= 0 )
@@ -858,10 +882,10 @@ void __fastcall gourA(int y0, int y1, BYTE colorIdx) {
 		return;
 
 	xbuf = (XBUF_XG *)XBuffer + y0;
-	drawPtr = PrintSurfacePtr + y0 * PhdScreenWidth;
+	drawPtr = PrintSurfacePtr + y0 * SwrPitch;
 	gt = GouraudTable + colorIdx;
 
-	for( ; ySize > 0; --ySize, ++xbuf, drawPtr += PhdScreenWidth ) {
+	for( ; ySize > 0; --ySize, ++xbuf, drawPtr += SwrPitch ) {
 		x = xbuf->x0 / PHD_ONE;
 		xSize = (xbuf->x1 / PHD_ONE) - x;
 		if( xSize <= 0 )
@@ -890,9 +914,9 @@ void __fastcall gtmapA(int y0, int y1, BYTE *texPage) {
 		return;
 
 	xbuf = (XBUF_XGUV *)XBuffer + y0;
-	drawPtr = PrintSurfacePtr + y0 * PhdScreenWidth;
+	drawPtr = PrintSurfacePtr + y0 * SwrPitch;
 
-	for( ; ySize > 0; --ySize, ++xbuf, drawPtr += PhdScreenWidth ) {
+	for( ; ySize > 0; --ySize, ++xbuf, drawPtr += SwrPitch ) {
 		x = xbuf->x0 / PHD_ONE;
 		xSize = (xbuf->x1 / PHD_ONE) - x;
 		if( xSize <= 0 )
@@ -928,9 +952,9 @@ void __fastcall wgtmapA(int y0, int y1, BYTE *texPage) {
 		return;
 
 	xbuf = (XBUF_XGUV *)XBuffer + y0;
-	drawPtr = PrintSurfacePtr + y0 * PhdScreenWidth;
+	drawPtr = PrintSurfacePtr + y0 * SwrPitch;
 
-	for( ; ySize > 0; --ySize, ++xbuf, drawPtr += PhdScreenWidth ) {
+	for( ; ySize > 0; --ySize, ++xbuf, drawPtr += SwrPitch ) {
 		x = xbuf->x0 / PHD_ONE;
 		xSize = (xbuf->x1 / PHD_ONE) - x;
 		if( xSize <= 0 )

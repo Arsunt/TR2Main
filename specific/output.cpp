@@ -189,6 +189,10 @@ void __cdecl S_OutputPolyList() {
 		// Software renderer
 		phd_SortPolyList();
 		if SUCCEEDED(WinVidBufferLock(RenderBufferSurface, &desc, DDLOCK_WRITEONLY|DDLOCK_WAIT)) {
+#ifdef FEATURE_NOLEGACY_OPTIONS
+			extern void PrepareSWR(int pitch, int height);
+			PrepareSWR(desc.lPitch, desc.dwHeight);
+#endif // FEATURE_NOLEGACY_OPTIONS
 			phd_PrintPolyList((BYTE *)desc.lpSurface);
 			WinVidBufferUnlock(RenderBufferSurface, &desc);
 		}

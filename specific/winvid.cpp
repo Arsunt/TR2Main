@@ -788,9 +788,7 @@ HRESULT WINAPI EnumDisplayModesCallback(LPDDSDESC lpDDSurfaceDesc, LPVOID lpCont
 	{
 #ifdef FEATURE_NOLEGACY_OPTIONS
 		// Check software renderer requirements for 8 bit display modes
-		if( lpDDSurfaceDesc->dwWidth  % 8 != 0 ||
-			lpDDSurfaceDesc->dwHeight % 4 != 0 ||
-			lpDDSurfaceDesc->dwHeight > 1200 ||
+		if( lpDDSurfaceDesc->dwHeight % 4 != 0 ||
 			CHK_ANY(lpDDSurfaceDesc->ddsCaps.dwCaps, DDSCAPS_MODEX|DDSCAPS_STANDARDVGAMODE) )
 		{
 			return DDENUMRET_OK;

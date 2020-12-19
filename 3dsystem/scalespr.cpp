@@ -237,6 +237,12 @@ void __cdecl S_DrawScreenSprite(int sx, int sy, int sz, int scaleH, int scaleV, 
 }
 
 void __cdecl draw_scaled_spriteC(__int16 *ptrObj) {
+#ifdef FEATURE_NOLEGACY_OPTIONS
+	extern int GetPitchSWR();
+	int pitch = GetPitchSWR();
+#else // FEATURE_NOLEGACY_OPTIONS
+	int pitch = PhdScreenWidth; // NOTE: this is the original game bug!
+#endif // FEATURE_NOLEGACY_OPTIONS
 	int i, j;
 	int x1, y1, x2, y2, width, height;
 	int u, uBase, vBase, uAdd, vAdd;
@@ -283,8 +289,8 @@ void __cdecl draw_scaled_spriteC(__int16 *ptrObj) {
 	height = y2 - y1;
 
 	srcBase = (BYTE *)TexturePageBuffer8[sprite->texPage] + sprite->offset;
-	dst = PrintSurfacePtr + (PhdWinMinY + y1) * PhdScreenWidth + (PhdWinMinX + x1);
-	dstAdd = PhdScreenWidth - width;
+	dst = PrintSurfacePtr + (PhdWinMinY + y1) * pitch + (PhdWinMinX + x1);
+	dstAdd = pitch - width;
 
 	isDepthQ = (GameVid_IsWindowedVga || depthQ != &DepthQTable[15]); // NOTE: index was 16 in the original code, this was wrong
 
