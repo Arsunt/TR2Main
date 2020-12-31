@@ -455,12 +455,22 @@ void __cdecl DisplayCredits() {
 #endif // !FEATURE_GOLD
 		DecompPCX(fileData[i], fileSize[i], bitmapData, PicPalette);
 
-		if( SavedAppSettings.RenderMode == RM_Software )
+		if( SavedAppSettings.RenderMode == RM_Software ) {
+#if (DIRECT3D_VERSION >= 0x900)
+			if( PictureBuffer.bitmap != NULL)
+				memcpy(PictureBuffer.bitmap, bitmapData, PictureBuffer.width * PictureBuffer.height);
+#else // (DIRECT3D_VERSION >= 0x900)
 			WinVidCopyBitmapToBuffer(PictureBufferSurface, bitmapData);
-		else
+#endif // (DIRECT3D_VERSION >= 0x900)
+		} else {
 			BGND_Make640x480(bitmapData, PicPalette);
+		}
 
+#if (DIRECT3D_VERSION >= 0x900)
+		memcpy(GamePalette8, PicPalette, sizeof(GamePalette8));
+#else // (DIRECT3D_VERSION >= 0x900)
 		CopyBitmapPalette(PicPalette, bitmapData, bitmapSize, GamePalette8);
+#endif // (DIRECT3D_VERSION >= 0x900)
 		S_InitialisePolyList(FALSE);
 		S_CopyBufferToScreen();
 		S_OutputPolyList();

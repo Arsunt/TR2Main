@@ -313,6 +313,11 @@ void __cdecl SE_DefaultGraphicsSettings() {
 	for( adapter = DisplayAdapterList.head; adapter; adapter = adapter->next ) {
 		if( adapter->body.lpAdapterGuid == NULL )
 			swAdapter = adapter;
+#if (DIRECT3D_VERSION >= 0x900)
+			hwAdapter = adapter;
+			ChangedAppSettings.ZBuffer = true;
+			ChangedAppSettings.BilinearFiltering = true;
+#else // (DIRECT3D_VERSION >= 0x900)
 		if( adapter->body.hwRenderSupported && (hwAdapter == NULL || adapter != swAdapter) )
 		{
 			hwAdapter = adapter;
@@ -323,6 +328,7 @@ void __cdecl SE_DefaultGraphicsSettings() {
 			ChangedAppSettings.ZBuffer = adapter->body.zBufferSupported;
 			ChangedAppSettings.BilinearFiltering = adapter->body.linearFilterSupported;
 		}
+#endif // (DIRECT3D_VERSION >= 0x900)
 	}
 
 	if( hwAdapter != NULL ) {
@@ -647,7 +653,11 @@ void __cdecl SE_GraphicsDlgFullScreenModesUpdate(HWND hwndDlg) {
 		modeList = &ChangedAppSettings.PreferredDisplayAdapter->body.hwDispModeList;
 	} else {
 		modeList = &ChangedAppSettings.PreferredDisplayAdapter->body.swDispModeList;
+#if (DIRECT3D_VERSION >= 0x900)
+		SE_FullScreenMode.bpp = 32;
+#else // (DIRECT3D_VERSION >= 0x900)
 		SE_FullScreenMode.bpp = 8;
+#endif // (DIRECT3D_VERSION >= 0x900)
 	}
 	SE_FullScreenMode.vga = VGA_NoVga;
 
@@ -737,8 +747,13 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 	bool windowedModeListAvailable;
 	DWORD fullScreenVideoModesCount;
 	DISPLAY_ADAPTER *preferred = &ChangedAppSettings.PreferredDisplayAdapter->body;
+#if (DIRECT3D_VERSION >= 0x900)
+	bool isSWSupported = true;
+	bool isHWSupported = true;
+#else // (DIRECT3D_VERSION >= 0x900)
 	bool isSWSupported = ( preferred->swDispModeList.dwCount > 0 || preferred->swWindowedSupported );
 	bool isHWSupported = ( preferred->hwDispModeList.dwCount > 0 || preferred->hwWindowedSupported );
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 	if( (ChangedAppSettings.RenderMode == RM_Software && !isSWSupported) ||
 		(ChangedAppSettings.RenderMode == RM_Hardware && !isHWSupported) )
@@ -764,7 +779,11 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 #endif // FEATURE_NOLEGACY_OPTIONS
 		zBufferAvailable = false;
 		bilinearFilteringAvailable = false;
+#if (DIRECT3D_VERSION >= 0x900)
+		windowedModeAvailable = true;
+#else // (DIRECT3D_VERSION >= 0x900)
 		windowedModeAvailable = preferred->swWindowedSupported;
+#endif // (DIRECT3D_VERSION >= 0x900)
 		fullScreenModeAvailable = ( preferred->swDispModeList.dwCount > 0 );
 		fullScreenVideoModesCount = preferred->swDispModeList.dwCount;
 	} else if( ChangedAppSettings.RenderMode == RM_Hardware ) {
@@ -774,9 +793,15 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 		ditherAvailable = preferred->ditherSupported;
 		tripleBufferingAvailable = true;
 #endif // FEATURE_NOLEGACY_OPTIONS
+#if (DIRECT3D_VERSION >= 0x900)
+		zBufferAvailable = true;
+		bilinearFilteringAvailable = true;
+		windowedModeAvailable = true;
+#else // (DIRECT3D_VERSION >= 0x900)
 		zBufferAvailable = preferred->zBufferSupported;
 		bilinearFilteringAvailable = preferred->linearFilterSupported;
 		windowedModeAvailable = preferred->hwWindowedSupported;
+#endif // (DIRECT3D_VERSION >= 0x900)
 		fullScreenModeAvailable = ( preferred->hwDispModeList.dwCount > 0 );
 		fullScreenVideoModesCount = preferred->hwDispModeList.dwCount;
 	} else {

@@ -630,13 +630,18 @@ BOOL __cdecl LoadItems(HANDLE hFile) {
 BOOL __cdecl LoadDepthQ(HANDLE hFile) {
 	int i, j;
 	DWORD bytesRead;
+#if (DIRECT3D_VERSION < 0x900)
 	RGB888 paletteBuffer[256];
+#endif // (DIRECT3D_VERSION < 0x900)
 
 	ReadFileSync(hFile, DepthQTable, 32*sizeof(DEPTHQ_ENTRY), &bytesRead, NULL);
 
 	for( i=0; i<32; ++i )
 		DepthQTable[i].index[0] = 0;
 
+#if (DIRECT3D_VERSION >= 0x900)
+	memcpy(DepthQIndex, &DepthQTable[24], sizeof(DEPTHQ_ENTRY));
+#else // (DIRECT3D_VERSION >= 0x900)
 	if( GameVid_IsWindowedVga ) {
 		CopyBitmapPalette(GamePalette8, DepthQTable[0].index, 32*sizeof(DEPTHQ_ENTRY), paletteBuffer);
 		SyncSurfacePalettes(DepthQTable, 256, 32, 256, GamePalette8, DepthQTable, 256, paletteBuffer, true);
@@ -645,8 +650,9 @@ BOOL __cdecl LoadDepthQ(HANDLE hFile) {
 			DepthQIndex[i] = S_COLOUR(GamePalette8[i].red, GamePalette8[i].green, GamePalette8[i].blue);
 		}
 	} else {
-		memcpy(DepthQIndex, &DepthQTable[24], 256);
+		memcpy(DepthQIndex, &DepthQTable[24], sizeof(DEPTHQ_ENTRY));
 	}
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 	for( i=0; i<32; ++i ) {
 		for( j=0; j<256; ++j ) {

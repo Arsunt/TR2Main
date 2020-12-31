@@ -23,19 +23,26 @@
 #include "specific/init_3d.h"
 #include "global/vars.h"
 
+#if (DIRECT3D_VERSION >= 0x900)
+LPDIRECT3DVERTEXBUFFER9 D3DVtx = NULL;
+#endif // (DIRECT3D_VERSION >= 0x900)
+
+#if (DIRECT3D_VERSION < 0x900)
 void __cdecl Enumerate3DDevices(DISPLAY_ADAPTER *adapter) {
 	if( D3DCreate() ) {
 		D3D->EnumDevices(Enum3DDevicesCallback, (LPVOID)adapter);
 		D3DRelease();
 	}
 }
+#endif // (DIRECT3D_VERSION < 0x900)
 
 bool __cdecl D3DCreate() {
-#if (DIRECT3D_VERSION >= 0x700)
-	return SUCCEEDED(DDraw->QueryInterface(IID_IDirect3D7, (LPVOID *)&D3D));
-#else // (DIRECT3D_VERSION >= 0x700)
+#if (DIRECT3D_VERSION >= 0x900)
+	D3D = Direct3DCreate9(D3D_SDK_VERSION);
+	return ( D3D != NULL );
+#else // (DIRECT3D_VERSION >= 0x900)
 	return SUCCEEDED(DDraw->QueryInterface(IID_IDirect3D2, (LPVOID *)&D3D));
-#endif // (DIRECT3D_VERSION >= 0x700)
+#endif // (DIRECT3D_VERSION >= 0x900)
 }
 
 void __cdecl D3DRelease() {
@@ -45,33 +52,7 @@ void __cdecl D3DRelease() {
 	}
 }
 
-#if (DIRECT3D_VERSION >= 0x700)
-HRESULT CALLBACK Enum3DDevicesCallback(LPTSTR lpDeviceDescription, LPTSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpContext) {
-	DISPLAY_ADAPTER *adapter = (DISPLAY_ADAPTER *)lpContext;
-
-	if( lpD3DDeviceDesc && D3DIsSupported(lpD3DDeviceDesc) ) {
-		adapter->hwRenderSupported = true;
-		adapter->deviceGuid = lpD3DDeviceDesc->deviceGUID;
-		adapter->D3DHWDeviceDesc = *lpD3DDeviceDesc;
-
-		adapter->perspectiveCorrectSupported = (lpD3DDeviceDesc->dpcTriCaps.dwTextureCaps & D3DPTEXTURECAPS_PERSPECTIVE)? true:false;
-		adapter->ditherSupported = (lpD3DDeviceDesc->dpcTriCaps.dwRasterCaps & D3DPRASTERCAPS_DITHER)? true:false;
-		adapter->zBufferSupported = (lpD3DDeviceDesc->dwDeviceZBufferBitDepth)? true:false;
-		adapter->linearFilterSupported = (lpD3DDeviceDesc->dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_LINEAR)? true:false;
-		adapter->shadeRestricted = (lpD3DDeviceDesc->dpcTriCaps.dwShadeCaps & (D3DPSHADECAPS_ALPHAGOURAUDBLEND|D3DPSHADECAPS_ALPHAFLATBLEND))? false:true;
-	}
-	return D3DENUMRET_OK;
-}
-
-bool __cdecl D3DIsSupported(LPD3DDEVICEDESC7 desc) {
-	if( (desc->dpcTriCaps.dwShadeCaps & D3DPSHADECAPS_COLORGOURAUDRGB) &&
-		(desc->dpcTriCaps.dwTextureBlendCaps & D3DPTBLENDCAPS_MODULATE) )
-	{
-		return true;
-	}
-	return false;
-}
-#else // (DIRECT3D_VERSION >= 0x700)
+#if (DIRECT3D_VERSION < 0x900)
 HRESULT CALLBACK Enum3DDevicesCallback(GUID FAR* lpGuid, LPTSTR lpDeviceDescription, LPTSTR lpDeviceName, LPD3DDEVICEDESC lpD3DHWDeviceDesc, LPD3DDEVICEDESC lpD3DHELDeviceDesc, LPVOID lpContext) {
 	DISPLAY_ADAPTER *adapter = (DISPLAY_ADAPTER *)lpContext;
 
@@ -100,12 +81,8 @@ bool __cdecl D3DIsSupported(LPD3DDEVICEDESC desc) {
 	}
 	return false;
 }
-#endif // (DIRECT3D_VERSION >= 0x700)
 
 bool __cdecl D3DSetViewport() {
-#if (DIRECT3D_VERSION >= 0x700)
-	D3DVIEWPORT7 viewPort;
-#else // (DIRECT3D_VERSION >= 0x700)
 	D3DVIEWPORT2 viewPort;
 
 	viewPort.dwSize = sizeof(D3DVIEWPORT2);
@@ -113,7 +90,6 @@ bool __cdecl D3DSetViewport() {
 	viewPort.dvClipY = 0.0;
 	viewPort.dvClipWidth = (float)GameVidWidth;
 	viewPort.dvClipHeight = (float)GameVidHeight;
-#endif // (DIRECT3D_VERSION >= 0x700)
 
 	viewPort.dwX = 0;
 	viewPort.dwY = 0;
@@ -123,36 +99,56 @@ bool __cdecl D3DSetViewport() {
 	viewPort.dvMinZ = 0.0;
 	viewPort.dvMaxZ = 1.0;
 
-#if (DIRECT3D_VERSION >= 0x700)
-	return SUCCEEDED(D3DDev->SetViewport(&viewPort));
-#else // (DIRECT3D_VERSION >= 0x700)
 	if FAILED(D3DView->SetViewport2(&viewPort)) {
 		D3DView->GetViewport2(&viewPort);
 		return false;
 	}
 
 	return SUCCEEDED(D3DDev->SetCurrentViewport(D3DView));
-#endif // (DIRECT3D_VERSION >= 0x700)
+
 }
+#endif // (DIRECT3D_VERSION < 0x900)
 
 void __cdecl D3DDeviceCreate(LPDDS lpBackBuffer) {
 	if( D3D == NULL && !D3DCreate() )
 		throw ERR_D3D_Create;
 
-#if (DIRECT3D_VERSION >= 0x700)
-	if FAILED(D3D->CreateDevice(IID_IDirect3DHALDevice, lpBackBuffer, &D3DDev))
+#if (DIRECT3D_VERSION >= 0x900)
+	D3DPRESENT_PARAMETERS d3dpp;
+	memset(&d3dpp, 0, sizeof(d3dpp));
+
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	d3dpp.hDeviceWindow = HGameWindow;
+	d3dpp.EnableAutoDepthStencil = TRUE;
+
+	D3DCAPS9 *caps = &SavedAppSettings.PreferredDisplayAdapter->body.caps;
+	if SUCCEEDED(D3D->CheckDepthStencilMatch(caps->AdapterOrdinal, caps->DeviceType, D3DFMT_X8R8G8B8, D3DFMT_X8R8G8B8, D3DFMT_D24S8)) {
+		d3dpp.AutoDepthStencilFormat = D3DFMT_D24S8;
+	} else if SUCCEEDED(D3D->CheckDepthStencilMatch(caps->AdapterOrdinal, caps->DeviceType, D3DFMT_X8R8G8B8, D3DFMT_X8R8G8B8, D3DFMT_D24X8)) {
+		d3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
+	} else {
+		d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
+	}
+
+	d3dpp.Windowed = !SavedAppSettings.FullScreen;
+	if( SavedAppSettings.FullScreen ) {
+		d3dpp.BackBufferFormat = D3DFMT_X8R8G8B8;
+		d3dpp.BackBufferWidth = FullScreenWidth;
+		d3dpp.BackBufferHeight = FullScreenHeight;
+	}
+
+	if( D3DDev ) {
+		if FAILED(D3DDev->Reset(&d3dpp)) {
+			throw ERR_CreateDevice;
+		}
+	} else if FAILED(D3D->CreateDevice(CurrentDisplayAdapter.index, D3DDEVTYPE_HAL, HGameWindow, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &D3DDev)) {
+		throw ERR_CreateDevice;
+	}
+
+	if( !D3DVtx && FAILED(D3DDev->CreateVertexBuffer(32*sizeof(D3DTLVERTEX), 0, D3DFVF_TLVERTEX, D3DPOOL_MANAGED, &D3DVtx, NULL)) )
 		throw ERR_CreateDevice;
 
-	if FAILED(!D3DSetViewport())
-		throw ERR_SetViewport2;
-
-	D3DMATERIAL7 matData;
-	memset(&matData, 0, sizeof(matData));
-
-	if FAILED(D3DDev->SetMaterial(&matData))
-		throw ERR_CreateViewport;
-
-#else // (DIRECT3D_VERSION >= 0x700)
+#else // (DIRECT3D_VERSION >= 0x900)
 	if FAILED(D3D->CreateDevice(IID_IDirect3DHALDevice, (LPDIRECTDRAWSURFACE)lpBackBuffer, &D3DDev))
 		throw ERR_CreateDevice;
 
@@ -181,11 +177,16 @@ void __cdecl D3DDeviceCreate(LPDDS lpBackBuffer) {
 
 	if FAILED(D3DView->SetBackground(matHandle))
 		throw ERR_CreateViewport;
-#endif // (DIRECT3D_VERSION >= 0x700)
+#endif // (DIRECT3D_VERSION >= 0x900)
 }
 
 void __cdecl Direct3DRelease() {
-#if (DIRECT3D_VERSION < 0x700)
+#if (DIRECT3D_VERSION >= 0x900)
+	if( D3DVtx != NULL ) {
+		D3DVtx->Release();
+		D3DVtx = NULL;
+	}
+#else // (DIRECT3D_VERSION >= 0x900)
 	if( D3DMaterial != NULL ) {
 		D3DMaterial->Release();
 		D3DMaterial = NULL;
@@ -194,7 +195,7 @@ void __cdecl Direct3DRelease() {
 		D3DView->Release();
 		D3DView = NULL;
 	}
-#endif // (DIRECT3D_VERSION < 0x700)
+#endif // (DIRECT3D_VERSION >= 0x900)
 	if( D3DDev != NULL ) {
 		D3DDev->Release();
 		D3DDev = NULL;
@@ -210,12 +211,16 @@ bool __cdecl Direct3DInit() {
  * Inject function
  */
 void Inject_Init3d() {
+#if (DIRECT3D_VERSION < 0x900)
 	INJECT(0x004445F0, Enumerate3DDevices);
+#endif // (DIRECT3D_VERSION < 0x900)
 	INJECT(0x00444620, D3DCreate);
 	INJECT(0x00444640, D3DRelease);
+#if (DIRECT3D_VERSION < 0x900)
 	INJECT(0x00444660, Enum3DDevicesCallback);
 	INJECT(0x00444720, D3DIsSupported);
 	INJECT(0x00444760, D3DSetViewport);
+#endif // (DIRECT3D_VERSION < 0x900)
 	INJECT(0x00444820, D3DDeviceCreate);
 	INJECT(0x004449E0, Direct3DRelease);
 	INJECT(0x00444A30, Direct3DInit);

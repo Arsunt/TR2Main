@@ -287,7 +287,11 @@ bool __cdecl S_UpdateInput() {
 #endif // FEATURE_SCREENSHOT_IMPROVED
 		if( !isScreenShotKeyPressed ) {
 			isScreenShotKeyPressed = true;
+#if (DIRECT3D_VERSION >= 0x900)
+			ScreenShot(NULL);
+#else // (DIRECT3D_VERSION >= 0x900)
 			ScreenShot(PrimaryBufferSurface);
+#endif // (DIRECT3D_VERSION >= 0x900)
 		}
 	} else {
 		isScreenShotKeyPressed = false;
@@ -510,7 +514,9 @@ bool __cdecl S_UpdateInput() {
 						}
 
 						newSettings.VideoMode = mode;
+#if (DIRECT3D_VERSION < 0x900)
 						newSettings.FullScreen = true;
+#endif // (DIRECT3D_VERSION < 0x900)
 						GameApplySettings(&newSettings);
 					}
 				}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -27,6 +27,7 @@
 /*
  * Function list
  */
+#if (DIRECT3D_VERSION < 0x900)
 void __cdecl CreateScreenBuffers(); // 0x004484E0
 void __cdecl CreatePrimarySurface(); // 0x00448620
 void __cdecl CreateBackBuffer(); // 0x004486C0
@@ -34,12 +35,17 @@ void __cdecl CreateClipper(); // 0x00448760
 void __cdecl CreateWindowPalette(); // 0x00448800
 void __cdecl CreateZBuffer(); // 0x004488E0
 DWORD __cdecl GetZBufferDepth(); // 0x004489A0
+#endif // (DIRECT3D_VERSION < 0x900)
 void __cdecl CreateRenderBuffer(); // 0x004489D0
 void __cdecl CreatePictureBuffer(); // 0x00448A80
 void __cdecl ClearBuffers(DWORD flags, DWORD fillColor); // 0x00448AF0
+#if (DIRECT3D_VERSION < 0x900)
 void __cdecl RestoreLostBuffers(); // 0x00448CA0
+#endif // (DIRECT3D_VERSION < 0x900)
 void __cdecl UpdateFrame(bool needRunMessageLoop, LPRECT rect); // 0x00448DE0
+#if (DIRECT3D_VERSION < 0x900)
 void __cdecl WaitPrimaryBufferFlip(); // 0x00448EB0
+#endif // (DIRECT3D_VERSION < 0x900)
 bool __cdecl RenderInit(); // 0x00448EF0
 void __cdecl RenderStart(bool isReset); // 0x00448F00
 void __cdecl RenderFinish(bool needToClearTextures); // 0x004492B0

@@ -229,7 +229,11 @@ void PSX_Background(HWR_TEXHANDLE texSource, int tu, int tv, int t_width, int t_
 static int CreateCaptureTexture(DWORD index, DWORD side) {
 	int pageIndex = BGND_TexturePageIndexes[index];
 	if( pageIndex < 0 || !TexturePages[pageIndex].status ) {
+#if (DIRECT3D_VERSION >= 0x900)
+		pageIndex = CreateTexturePage(side, side);
+#else // (DIRECT3D_VERSION >= 0x900)
 		pageIndex = CreateTexturePage(side, side, NULL);
+#endif // (DIRECT3D_VERSION >= 0x900)
 		if( pageIndex < 0 ) {
 			return -1;
 		}
@@ -341,10 +345,16 @@ static int __cdecl BGND2_FadeToPal(int fadeValue, RGB888 *palette, int inputChec
 	int i, j;
 	int palStartIdx = 0;
 	int palEndIdx = 256;
+#if (DIRECT3D_VERSION < 0x900)
 	int palSize = 256;
+#endif // (DIRECT3D_VERSION < 0x900)
 	bool fadeFaster = false;
 	PALETTEENTRY fadePal[256];
 
+#if (DIRECT3D_VERSION >= 0x900)
+	if( SavedAppSettings.RenderMode != RM_Software )
+		return fadeValue;
+#else // (DIRECT3D_VERSION >= 0x900)
 	if( !GameVid_IsVga )
 		return fadeValue;
 
@@ -353,6 +363,7 @@ static int __cdecl BGND2_FadeToPal(int fadeValue, RGB888 *palette, int inputChec
 		palEndIdx -= 10;
 		palSize -= 20;
 	}
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 	if( fadeValue <= 1 ) {
 		for( i=palStartIdx; i<palEndIdx; ++i ) {
@@ -360,7 +371,12 @@ static int __cdecl BGND2_FadeToPal(int fadeValue, RGB888 *palette, int inputChec
 			WinVidPalette[i].peGreen = palette[i].green;
 			WinVidPalette[i].peBlue  = palette[i].blue;
 		}
+#if (DIRECT3D_VERSION >= 0x900)
+		S_InitialisePolyList(FALSE);
+		S_OutputPolyList();
+#else // (DIRECT3D_VERSION >= 0x900)
 		DDrawPalette->SetEntries(0, palStartIdx, palSize, &WinVidPalette[palStartIdx]);
+#endif // (DIRECT3D_VERSION >= 0x900)
 		return fadeValue;
 	}
 
@@ -383,24 +399,43 @@ static int __cdecl BGND2_FadeToPal(int fadeValue, RGB888 *palette, int inputChec
 			WinVidPalette[i].peGreen = fadePal[i].peGreen + (palette[i].green - fadePal[i].peGreen) * j / fadeValue;
 			WinVidPalette[i].peBlue  = fadePal[i].peBlue  + (palette[i].blue  - fadePal[i].peBlue)  * j / fadeValue;
 		}
+#if (DIRECT3D_VERSION >= 0x900)
+		S_InitialisePolyList(FALSE);
+		S_OutputPolyList();
+#else // (DIRECT3D_VERSION >= 0x900)
 		DDrawPalette->SetEntries(0, palStartIdx, palSize, &WinVidPalette[palStartIdx]);
+#endif // (DIRECT3D_VERSION >= 0x900)
 		S_DumpScreen();
 	}
 	return fadeFaster ? 1 : 0;
 }
 
 static void BGND2_CustomBlt(LPDDSDESC dst, DWORD dstX, DWORD dstY, LPDDSDESC src, LPRECT srcRect) {
+	DWORD srcX = srcRect->left;
+	DWORD srcY = srcRect->top;
+	DWORD width = srcRect->right - srcRect->left;
+	DWORD height = srcRect->bottom - srcRect->top;
+
+#if (DIRECT3D_VERSION >= 0x900)
+	BYTE *srcLine = (BYTE *)src->pBits + srcY * src->Pitch  + srcX * 4;
+	BYTE *dstLine = (BYTE *)dst->pBits + dstY * dst->Pitch  + dstX * 4;
+
+	for( DWORD j = 0; j < height; ++j ) {
+		DWORD *srcPtr = (DWORD *)srcLine;
+		DWORD *dstPtr = (DWORD *)dstLine;
+		for( DWORD i = 0; i < width; ++i ) {
+			dstPtr[i] = RGBA_SETALPHA(srcPtr[i], 0xFF);
+		}
+		srcLine += src->Pitch;
+		dstLine += dst->Pitch;
+	}
+#else // (DIRECT3D_VERSION >= 0x900)
 	DWORD srcBpp = src->ddpfPixelFormat.dwRGBBitCount/8;
 	DWORD dstBpp = dst->ddpfPixelFormat.dwRGBBitCount/8;
 	COLOR_BIT_MASKS srcMask, dstMask;
 
 	WinVidGetColorBitMasks(&srcMask, &src->ddpfPixelFormat);
 	WinVidGetColorBitMasks(&dstMask, &dst->ddpfPixelFormat);
-
-	DWORD srcX = srcRect->left;
-	DWORD srcY = srcRect->top;
-	DWORD width = srcRect->right - srcRect->left;
-	DWORD height = srcRect->bottom - srcRect->top;
 
 	BYTE *srcLine = (BYTE *)src->lpSurface + srcY * src->lPitch  + srcX * srcBpp;
 	BYTE *dstLine = (BYTE *)dst->lpSurface + dstY * dst->lPitch  + dstX * dstBpp;
@@ -445,6 +480,7 @@ static void BGND2_CustomBlt(LPDDSDESC dst, DWORD dstX, DWORD dstY, LPDDSDESC src
 		srcLine += src->lPitch;
 		dstLine += dst->lPitch;
 	}
+#endif // (DIRECT3D_VERSION >= 0x900)
 }
 
 int __cdecl BGND2_CapturePicture() {
@@ -467,10 +503,14 @@ int __cdecl BGND2_CapturePicture() {
 		return -1;
 	}
 
+#if (DIRECT3D_VERSION >= 0x900)
+	MapWindowPoints(HGameWindow, GetParent(HGameWindow), (LPPOINT)&rect, 2);
+#else // (DIRECT3D_VERSION >= 0x900)
 	LPDDS surface = CaptureBufferSurface ? CaptureBufferSurface : PrimaryBufferSurface;
 	if( surface == PrimaryBufferSurface ) {
 		MapWindowPoints(HGameWindow, GetParent(HGameWindow), (LPPOINT)&rect, 2);
 	}
+#endif // (DIRECT3D_VERSION >= 0x900)
 	width = ABS(rect.right - rect.left);
 	height = ABS(rect.bottom - rect.top);
 
@@ -495,6 +535,20 @@ int __cdecl BGND2_CapturePicture() {
 		y[i] = i * side * y[ny] / height;
 	}
 
+#if (DIRECT3D_VERSION >= 0x900)
+	DISPLAY_MODE mode;
+	LPDDS surface = NULL;
+	if( CaptureBufferSurface != NULL ) {
+		surface = CaptureBufferSurface;
+	} else if( !WinVidGetDisplayMode(&mode)
+		|| FAILED(D3DDev->CreateOffscreenPlainSurface(mode.width, mode.height, D3DFMT_A8R8G8B8, D3DPOOL_SYSTEMMEM, &surface, NULL))
+		|| FAILED(D3DDev->GetFrontBufferData(0, surface)) )
+	{
+		ret = -1;
+		goto CLEANUP;
+	}
+#endif // (DIRECT3D_VERSION >= 0x900)
+
 	for( DWORD j = 0; j < ny; ++j ) {
 		for( DWORD i = 0; i < nx; ++i ) {
 			RECT r = {x[i], y[j], x[i+1], y[j+1]};
@@ -508,6 +562,9 @@ int __cdecl BGND2_CapturePicture() {
 			if( !isSrcLock ) {
 				HRESULT rc;
 				memset(&srcDesc, 0, sizeof(srcDesc));
+#if (DIRECT3D_VERSION >= 0x900)
+				rc = surface->LockRect(&srcDesc, &rect, D3DLOCK_READONLY);
+#else // (DIRECT3D_VERSION >= 0x900)
 				srcDesc.dwSize = sizeof(srcDesc);
 				do {
 					rc = surface->Lock(&rect, &srcDesc, DDLOCK_READONLY|DDLOCK_WAIT, NULL);
@@ -515,12 +572,21 @@ int __cdecl BGND2_CapturePicture() {
 				if( rc == DDERR_SURFACELOST ) {
 					rc = surface->Restore();
 				}
+#endif // (DIRECT3D_VERSION >= 0x900)
 				if FAILED(rc) {
 					ret = -1;
 					goto CLEANUP;
 				}
 				isSrcLock = true;
 			}
+#if (DIRECT3D_VERSION >= 0x900)
+			if FAILED(TexturePages[pageIndex].texture->LockRect(0, &dstDesc, NULL, D3DLOCK_DISCARD)) {
+				ret = -1;
+				goto CLEANUP;
+			}
+			BGND2_CustomBlt(&dstDesc, 0, 0, &srcDesc, &r);
+			TexturePages[pageIndex].texture->UnlockRect(0);
+#else // (DIRECT3D_VERSION >= 0x900)
 			if FAILED(WinVidBufferLock(TexturePages[pageIndex].sysMemSurface, &dstDesc, DDLOCK_WRITEONLY|DDLOCK_WAIT)) {
 				ret = -1;
 				goto CLEANUP;
@@ -532,6 +598,7 @@ int __cdecl BGND2_CapturePicture() {
 				ret = -1;
 				goto CLEANUP;
 			}
+#endif // (DIRECT3D_VERSION >= 0x900)
 		}
 	}
 
@@ -543,13 +610,20 @@ int __cdecl BGND2_CapturePicture() {
 	BGND_IsCaptured = true;
 
 CLEANUP :
-	if( isSrcLock ) {
-#if (DIRECT3D_VERSION >= 0x700)
-		surface->Unlock(&rect);
-#else // (DIRECT3D_VERSION >= 0x700)
-		surface->Unlock(srcDesc.lpSurface);
-#endif // (DIRECT3D_VERSION >= 0x700)
+#if (DIRECT3D_VERSION >= 0x900)
+	if( surface != NULL ) {
+		if( isSrcLock ) {
+			surface->UnlockRect();
+		}
+		if( surface != CaptureBufferSurface ) {
+			surface->Release();
+		}
 	}
+#else // (DIRECT3D_VERSION >= 0x900)
+	if( isSrcLock ) {
+		surface->Unlock(srcDesc.lpSurface);
+	}
+#endif // (DIRECT3D_VERSION >= 0x900)
 	return ret;
 }
 
@@ -648,6 +722,20 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 		goto FAIL;
 	}
 
+#if (DIRECT3D_VERSION >= 0x900)
+	if( PictureBuffer.bitmap == NULL ||
+		PictureBuffer.width != width ||
+		PictureBuffer.height != height )
+	{
+		BGND_PictureWidth = width;
+		BGND_PictureHeight = height;
+		try {
+			CreatePictureBuffer();
+		} catch(...) {
+			goto FAIL;
+		}
+	}
+#else // (DIRECT3D_VERSION >= 0x900)
 	if( PictureBufferSurface != NULL &&
 		(BGND_PictureWidth != width || BGND_PictureHeight != height) )
 	{
@@ -663,14 +751,25 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 			goto FAIL;
 		}
 	}
+#endif // (DIRECT3D_VERSION >= 0x900)
 
-	if( SavedAppSettings.RenderMode == RM_Software )
+	if( SavedAppSettings.RenderMode == RM_Software ) {
+#if (DIRECT3D_VERSION >= 0x900)
+		if( PictureBuffer.bitmap != NULL)
+			memcpy(PictureBuffer.bitmap, bitmapData, PictureBuffer.width * PictureBuffer.height);
+#else // (DIRECT3D_VERSION >= 0x900)
 		WinVidCopyBitmapToBuffer(PictureBufferSurface, bitmapData);
-	else
+#endif // (DIRECT3D_VERSION >= 0x900)
+	} else {
 		MakeBgndTextures(width, height, bitmapData, isPCX ? PicPalette : NULL);
+	}
 
 	if( !isTitle && isPCX ) {
+#if (DIRECT3D_VERSION >= 0x900)
+		memcpy(GamePalette8, PicPalette, sizeof(GamePalette8));
+#else // (DIRECT3D_VERSION >= 0x900)
 		CopyBitmapPalette(PicPalette, bitmapData, bitmapSize, GamePalette8);
+#endif // (DIRECT3D_VERSION >= 0x900)
 	}
 	if( bitmapData != NULL ) {
 		free(bitmapData);
@@ -682,10 +781,17 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 	return 0;
 
 FAIL :
+#if (DIRECT3D_VERSION >= 0x900)
+	if( PictureBuffer.bitmap != NULL ) {
+		free(PictureBuffer.bitmap);
+		PictureBuffer.bitmap = NULL;
+	}
+#else // (DIRECT3D_VERSION >= 0x900)
 	if( PictureBufferSurface != NULL ) {
 		PictureBufferSurface->Release();
 		PictureBufferSurface = NULL;
 	}
+#endif // (DIRECT3D_VERSION >= 0x900)
 	if( bitmapData != NULL ) {
 		free(bitmapData);
 	}
@@ -707,7 +813,6 @@ int __cdecl BGND2_ShowPicture(DWORD fadeIn, DWORD waitIn, DWORD fadeOut, DWORD w
 		S_InitialisePolyList(FALSE);
 		S_CopyBufferToScreen();
 		S_OutputPolyList();
-		S_DumpScreen();
 
 		// fade in
 		if( fadeIn > 0 ) {
@@ -737,8 +842,13 @@ int __cdecl BGND2_ShowPicture(DWORD fadeIn, DWORD waitIn, DWORD fadeOut, DWORD w
 			return -1;
 		}
 		if( fadeOut > 0 || waitOut > 0 ) {
+#if (DIRECT3D_VERSION >= 0x900)
+			ScreenClear(false);
+			S_Wait(2 * TICKS_PER_FRAME, FALSE);
+#else // (DIRECT3D_VERSION >= 0x900)
 			ScreenClear(false); ScreenDump();
 			ScreenClear(false); ScreenDump();
+#endif // (DIRECT3D_VERSION >= 0x900)
 		}
 		if( waitOut > 2 ) {
 			S_Wait((waitOut - 2) * TICKS_PER_FRAME, inputCheck);

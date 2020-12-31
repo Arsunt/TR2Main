@@ -64,6 +64,10 @@ static bool InsertDisplayModeInListSorted(DISPLAY_MODE_LIST *modeList, DISPLAY_M
 		if( CompareVideoModes(srcMode, &node->body) ) {
 			dstMode = InsertDisplayMode(modeList, node);
 			goto FILL;
+#if (DIRECT3D_VERSION >= 0x900)
+		} else if( !memcmp(srcMode, &node->body, sizeof(DISPLAY_MODE)) ) {
+			return false;
+#endif // (DIRECT3D_VERSION >= 0x900)
 		}
 	}
 	dstMode = InsertDisplayModeInListTail(modeList);
@@ -112,17 +116,13 @@ bool FlaggedStringCopy(STRING_FLAGGED *dst, STRING_FLAGGED *src) {
 	return true;
 }
 
+#if (DIRECT3D_VERSION < 0x900)
 bool __cdecl DDrawCreate(LPGUID lpGUID) {
-#if (DIRECT3D_VERSION >= 0x700)
-	if FAILED(DirectDrawCreateEx(lpGUID, (LPVOID *)&DDraw, IID_IDirectDraw7, 0))
-		return false;
-#else // (DIRECT3D_VERSION >= 0x700)
 	if FAILED(DirectDrawCreate(lpGUID, &DDrawInterface, 0))
 		return false;
 
 	if FAILED(DDrawInterface->QueryInterface(IID_IDirectDraw2, (LPVOID *)&DDraw))
 		return false;
-#endif // (DIRECT3D_VERSION >= 0x700)
 
 	DDraw->SetCooperativeLevel(HGameWindow, DDSCL_NORMAL);
 	return true;
@@ -133,13 +133,12 @@ void __cdecl DDrawRelease() {
 		DDraw->Release();
 		DDraw = NULL;
 	}
-#if (DIRECT3D_VERSION < 0x700)
 	if( DDrawInterface ) {
 		DDrawInterface->Release();
 		DDrawInterface = NULL;
 	}
-#endif // (DIRECT3D_VERSION < 0x700)
 }
+#endif // (DIRECT3D_VERSION < 0x900)
 
 void __cdecl GameWindowCalculateSizeFromClient(int *width, int *height) {
 	DWORD style, styleEx;
@@ -312,6 +311,12 @@ void __cdecl WinVidHideGameWindow() {
 	}
 }
 
+void __cdecl WinVidSetGameWindowSize(int width, int height) {
+	GameWindowCalculateSizeFromClient(&width, &height);
+	SetWindowPos(HGameWindow, NULL, 0, 0, width, height, SWP_NOCOPYBITS|SWP_NOACTIVATE|SWP_NOZORDER|SWP_NOMOVE);
+}
+
+#if (DIRECT3D_VERSION < 0x900)
 bool __cdecl ShowDDrawGameWindow(bool active) {
 	DWORD flags;
 	HRESULT rc;
@@ -367,15 +372,7 @@ bool __cdecl HideDDrawGameWindow() {
 	return result;
 }
 
-void __cdecl WinVidSetGameWindowSize(int width, int height) {
-	GameWindowCalculateSizeFromClient(&width, &height);
-	SetWindowPos(HGameWindow, NULL, 0, 0, width, height, SWP_NOCOPYBITS|SWP_NOACTIVATE|SWP_NOZORDER|SWP_NOMOVE);
-}
-
 HRESULT __cdecl DDrawSurfaceCreate(LPDDSDESC dsp, LPDDS *surface) {
-#if (DIRECT3D_VERSION >= 0x700)
-	return DDraw->CreateSurface(dsp, surface, NULL);
-#else // (DIRECT3D_VERSION >= 0x700)
 	LPDIRECTDRAWSURFACE subSurface;
 	HRESULT rc = DDraw->CreateSurface(dsp, &subSurface, NULL);
 
@@ -385,7 +382,6 @@ HRESULT __cdecl DDrawSurfaceCreate(LPDDSDESC dsp, LPDDS *surface) {
 	}
 
 	return rc;
-#endif // (DIRECT3D_VERSION >= 0x700)
 }
 
 HRESULT __cdecl DDrawSurfaceRestoreLost(LPDDS surface1, LPDDS surface2, bool blank) {
@@ -428,11 +424,7 @@ HRESULT __cdecl WinVidBufferLock(LPDDS surface, LPDDSDESC desc, DWORD flags) {
 }
 
 HRESULT __cdecl WinVidBufferUnlock(LPDDS surface, LPDDSDESC desc) {
-#if (DIRECT3D_VERSION >= 0x700)
-	HRESULT result = surface->Unlock(NULL);
-#else // (DIRECT3D_VERSION >= 0x700)
 	HRESULT result = surface->Unlock(desc->lpSurface);
-#endif // (DIRECT3D_VERSION >= 0x700)
 	if SUCCEEDED(result) {
 		--LockedBufferCount;
 	}
@@ -512,8 +504,27 @@ DWORD __cdecl CalculateCompatibleColor(COLOR_BIT_MASKS *mask, int red, int green
 			(blue	>> (8 - mask->dwBBitDepth)			<< mask->dwBBitOffset) |
 			(alpha	>> (8 - mask->dwRGBAlphaBitDepth)	<< mask->dwRGBAlphaBitOffset);
 }
+#endif // (DIRECT3D_VERSION < 0x900)
 
 bool __cdecl WinVidGetDisplayMode(DISPLAY_MODE *dispMode) {
+#if (DIRECT3D_VERSION >= 0x900)
+	bool d3dClean = false;
+	if( D3D == NULL ) {
+		if( !D3DCreate() ) return false;
+		d3dClean = true;
+	}
+	D3DDISPLAYMODE mode;
+	HRESULT res = D3D->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &mode);
+	if( d3dClean ) D3DRelease();
+	if( SUCCEEDED(res) && mode.Format == D3DFMT_X8R8G8B8 ) {
+		dispMode->width = mode.Width;
+		dispMode->height = mode.Height;
+		dispMode->bpp = 32;
+		dispMode->vga = VGA_NoVga;
+		return true;
+	}
+	return false;
+#else // (DIRECT3D_VERSION >= 0x900)
 	DDSDESC dsp;
 
 	memset(&dsp, 0, sizeof(dsp));
@@ -538,11 +549,10 @@ bool __cdecl WinVidGetDisplayMode(DISPLAY_MODE *dispMode) {
 	}
 
 	return false;
+#endif // (DIRECT3D_VERSION >= 0x900)
 }
 
 bool __cdecl WinVidGoFullScreen(DISPLAY_MODE *dispMode) {
-	HRESULT rc;
-
 	FullScreenWidth = dispMode->width;
 	FullScreenHeight = dispMode->height;
 	FullScreenBPP = dispMode->bpp;
@@ -552,6 +562,8 @@ bool __cdecl WinVidGoFullScreen(DISPLAY_MODE *dispMode) {
 	setWindowStyle(true);
 #endif // FEATURE_WINDOW_STYLE_FIX
 
+#if (DIRECT3D_VERSION < 0x900)
+	HRESULT rc;
 	if( !ShowDDrawGameWindow(true) )
 		goto FAIL;
 
@@ -561,23 +573,31 @@ bool __cdecl WinVidGoFullScreen(DISPLAY_MODE *dispMode) {
 
 	if FAILED(rc)
 		goto FAIL;
+#endif // (DIRECT3D_VERSION < 0x900)
 
 	IsGameFullScreen = true;
 	return true;
 
+#if (DIRECT3D_VERSION < 0x900)
 FAIL :
 #ifdef FEATURE_WINDOW_STYLE_FIX
 	setWindowStyle(false);
 #endif // FEATURE_WINDOW_STYLE_FIX
 	return false;
+#endif // (DIRECT3D_VERSION < 0x900)
 }
 
 bool __cdecl WinVidGoWindowed(int width, int height, DISPLAY_MODE *dispMode) {
 	int maxWidth, maxHeight;
 	RECT rect;
 
+#if (DIRECT3D_VERSION >= 0x900)
+	if( !WinVidGetDisplayMode(dispMode) )
+		return false;
+#else // (DIRECT3D_VERSION >= 0x900)
 	if( !HideDDrawGameWindow() || !WinVidGetDisplayMode(dispMode) )
 		return false;
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 #ifdef FEATURE_WINDOW_STYLE_FIX
 	setWindowStyle(false);
@@ -623,6 +643,7 @@ void __cdecl WinVidSetDisplayAdapter(DISPLAY_ADAPTER *dispAdapter) {
 	DISPLAY_MODE dispMode;
 
 	dispAdapter->screenWidth = 0;
+#if (DIRECT3D_VERSION < 0x900)
 	dispAdapter->swWindowedSupported = false;
 	dispAdapter->hwWindowedSupported = false;
 
@@ -631,8 +652,11 @@ void __cdecl WinVidSetDisplayAdapter(DISPLAY_ADAPTER *dispAdapter) {
 		return;
 
 	if( !DDrawCreate(NULL) ) return;
+#endif // (DIRECT3D_VERSION < 0x900)
 	rc = WinVidGetDisplayMode(&dispMode);
+#if (DIRECT3D_VERSION < 0x900)
 	DDrawRelease();
+#endif // (DIRECT3D_VERSION < 0x900)
 	if( !rc ) return;
 
 	dispMode.width &= ~0x1F;
@@ -640,12 +664,12 @@ void __cdecl WinVidSetDisplayAdapter(DISPLAY_ADAPTER *dispAdapter) {
 		dispMode.width = (dispMode.height*4/3) & ~0x1F;
 
 	dispAdapter->screenWidth = dispMode.width;
+#if (DIRECT3D_VERSION < 0x900)
 	dispAdapter->swWindowedSupported = ( dispMode.vga == VGA_256Color );
 	dispAdapter->hwWindowedSupported = ( dispAdapter->hwRenderSupported &&
-#if (DIRECT3D_VERSION < 0x700)
 		((dispAdapter->D3DHWDeviceDesc.dwFlags & D3DDD_DEVICERENDERBITDEPTH) != 0) &&
-#endif // (DIRECT3D_VERSION < 0x700)
 		((GetRenderBitDepth(dispMode.bpp) & dispAdapter->D3DHWDeviceDesc.dwDeviceRenderBitDepth) != 0) );
+#endif // (DIRECT3D_VERSION < 0x900)
 }
 
 bool __thiscall CompareVideoModes(DISPLAY_MODE *mode1, DISPLAY_MODE *mode2) {
@@ -754,7 +778,25 @@ static void FilterDisplayModes(DISPLAY_MODE_LIST *modeList) {
 
 bool __cdecl WinVidGetDisplayModes() {
 	DISPLAY_ADAPTER_NODE *adapter;
-
+#if (DIRECT3D_VERSION >= 0x900)
+	bool d3dClean = false;
+	if( D3D == NULL ) {
+		if( !D3DCreate() ) return false;
+		d3dClean = true;
+	}
+	for( adapter = DisplayAdapterList.head; adapter; adapter = adapter->next ) {
+		UINT num = D3D->GetAdapterModeCount(adapter->body.index, D3DFMT_X8R8G8B8);
+		for( UINT i = 0; i < num; ++i ) {
+			D3DDISPLAYMODE mode;
+			if FAILED(D3D->EnumAdapterModes(adapter->body.index, D3DFMT_X8R8G8B8, i, &mode)) continue;
+			DISPLAY_MODE videoMode = {(int)mode.Width, (int)mode.Height, 32, VGA_NoVga};
+			InsertDisplayModeInListSorted(&adapter->body.hwDispModeList, &videoMode);
+			InsertDisplayModeInListSorted(&adapter->body.swDispModeList, &videoMode);
+		}
+		FilterDisplayModes(&adapter->body.hwDispModeList);
+	}
+	if( d3dClean ) D3DRelease();
+#else // (DIRECT3D_VERSION >= 0x900)
 	for( adapter = DisplayAdapterList.head; adapter; adapter = adapter->next ) {
 		DDrawCreate(adapter->body.lpAdapterGuid);
 		ShowDDrawGameWindow(false);
@@ -767,9 +809,11 @@ bool __cdecl WinVidGetDisplayModes() {
 		HideDDrawGameWindow();
 		DDrawRelease();
 	}
+#endif // (DIRECT3D_VERSION >= 0x900)
 	return true;
 }
 
+#if (DIRECT3D_VERSION < 0x900)
 HRESULT WINAPI EnumDisplayModesCallback(LPDDSDESC lpDDSurfaceDesc, LPVOID lpContext) {
 	DISPLAY_ADAPTER *adapter = (DISPLAY_ADAPTER *)lpContext;
 	DISPLAY_MODE videoMode;
@@ -844,6 +888,7 @@ HRESULT WINAPI EnumDisplayModesCallback(LPDDSDESC lpDDSurfaceDesc, LPVOID lpCont
 
 	return DDENUMRET_OK;
 }
+#endif // (DIRECT3D_VERSION < 0x900)
 
 bool __cdecl WinVidInit() {
 	AppResultCode = 0;
@@ -906,6 +951,10 @@ bool __cdecl WinVidGetDisplayAdapters() {
 	if( !EnumerateDisplayAdapters(&DisplayAdapterList) )
 		return false;
 
+#if (DIRECT3D_VERSION >= 0x900)
+	PrimaryDisplayAdapter = DisplayAdapterList.head;
+	return ( PrimaryDisplayAdapter != NULL );
+#else // (DIRECT3D_VERSION >= 0x900)
 	for( node = DisplayAdapterList.head; node; node = node->next ) {
 		if( node->body.lpAdapterGuid == NULL ) { // Primary adapter GUID is NULL
 			PrimaryDisplayAdapter = node;
@@ -913,6 +962,7 @@ bool __cdecl WinVidGetDisplayAdapters() {
 		}
 	}
 	return false;
+#endif // (DIRECT3D_VERSION >= 0x900)
 }
 
 void __thiscall FlaggedStringDelete(STRING_FLAGGED *item) {
@@ -924,9 +974,55 @@ void __thiscall FlaggedStringDelete(STRING_FLAGGED *item) {
 }
 
 bool __cdecl EnumerateDisplayAdapters(DISPLAY_ADAPTER_LIST *displayAdapterList) {
+#if (DIRECT3D_VERSION >= 0x900)
+	bool d3dClean = false;
+	if( D3D == NULL ) {
+		if( !D3DCreate() ) return false;
+		d3dClean = true;
+	}
+	UINT num = D3D->GetAdapterCount();
+	for( UINT i = 0; i < num; ++i ) {
+		D3DADAPTER_IDENTIFIER9 id;
+		D3DCAPS9 caps;
+		if( FAILED(D3D->GetAdapterIdentifier(i, 0, &id)) || FAILED(D3D->GetDeviceCaps(i, D3DDEVTYPE_HAL, &caps)) ) {
+			continue;
+		}
+		DISPLAY_ADAPTER_NODE *listNode = new DISPLAY_ADAPTER_NODE;
+		if( listNode == NULL ) break;
+
+		listNode->next = NULL;
+		listNode->previous = displayAdapterList->tail;
+
+		FlaggedStringsCreate(&listNode->body);
+		DisplayModeListInit(&listNode->body.hwDispModeList);
+		DisplayModeListInit(&listNode->body.swDispModeList);
+
+		if( !displayAdapterList->head )
+			displayAdapterList->head = listNode;
+
+		if( displayAdapterList->tail )
+			displayAdapterList->tail->next = listNode;
+
+		displayAdapterList->tail = listNode;
+		displayAdapterList->dwCount++;
+
+		listNode->body.adapterGuid = id.DeviceIdentifier;
+		listNode->body.lpAdapterGuid = &listNode->body.adapterGuid;
+
+		lstrcpy(listNode->body.driverDescription.lpString, id.Description);
+		lstrcpy(listNode->body.driverName.lpString, id.DeviceName);
+
+		listNode->body.index = i;
+		listNode->body.caps = caps;
+	}
+	if( d3dClean ) D3DRelease();
+	return true;
+#else // (DIRECT3D_VERSION >= 0x900)
 	return SUCCEEDED(DirectDrawEnumerate(EnumDisplayAdaptersCallback, (LPVOID)displayAdapterList));
+#endif // (DIRECT3D_VERSION >= 0x900)
 }
 
+#if (DIRECT3D_VERSION < 0x900)
 BOOL WINAPI EnumDisplayAdaptersCallback(GUID FAR *lpGUID, LPTSTR lpDriverDescription, LPTSTR lpDriverName, LPVOID lpContext) {
 	DDCAPS driverCaps;
 	DDCAPS helCaps;
@@ -989,6 +1085,7 @@ CLEANUP :
 	DDrawRelease();
 	return TRUE;
 }
+#endif // (DIRECT3D_VERSION < 0x900)
 
 void __thiscall FlaggedStringsCreate(DISPLAY_ADAPTER *adapter) {
 	LPTSTR lpDriverDescription = new char[256];
@@ -1024,7 +1121,9 @@ bool __cdecl WinVidRegisterGameWindowClass() {
 
 LRESULT CALLBACK WinVidGameWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
 	HDC hdc;
+#if (DIRECT3D_VERSION < 0x900)
 	LPDDS surface;
+#endif // (DIRECT3D_VERSION < 0x900)
 	HBRUSH hBrush;
 	PAINTSTRUCT paint;
 #ifdef FEATURE_AUDIO_IMPROVED
@@ -1110,6 +1209,15 @@ LRESULT CALLBACK WinVidGameWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
 
 		case WM_PAINT :
 			hdc = BeginPaint(hWnd, &paint);
+#if (DIRECT3D_VERSION >= 0x900)
+			if( IsGameFullScreen || D3DDev == NULL ) {
+				hBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
+				FillRect(hdc, &paint.rcPaint, hBrush);
+			} else {
+				D3DDev->Clear(0, NULL, D3DCLEAR_TARGET, 0, 1.0, 0);
+				D3DDev->Present(NULL, NULL, NULL, NULL);
+			}
+#else // (DIRECT3D_VERSION >= 0x900)
 			surface = ( SavedAppSettings.RenderMode == RM_Software ) ? RenderBufferSurface : BackBufferSurface;
 			if( IsGameFullScreen || !PrimaryBufferSurface || !surface ) {
 				hBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
@@ -1124,12 +1232,15 @@ LRESULT CALLBACK WinVidGameWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
 				}
 				UpdateFrame(false, NULL);
 			}
+#endif // (DIRECT3D_VERSION >= 0x900)
 			EndPaint(hWnd, &paint);
 			return 0;
 
 		case WM_ACTIVATE :
+#if (DIRECT3D_VERSION < 0x900)
 			if( LOWORD(wParam) && DDrawPalette && PrimaryBufferSurface )
 				PrimaryBufferSurface->SetPalette(DDrawPalette);
+#endif // (DIRECT3D_VERSION < 0x900)
 			break;
 
 		case WM_ERASEBKGND :
@@ -1203,10 +1314,13 @@ LRESULT CALLBACK WinVidGameWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
 			IsGameWindowChanging = false;
 			break;
 
+#if (DIRECT3D_VERSION < 0x900)
 		case WM_PALETTECHANGED :
 			if( hWnd != (HWND)wParam && !IsGameFullScreen && DDrawPalette )
 				InvalidateRect(hWnd, NULL, FALSE);
 			break;
+#endif // (DIRECT3D_VERSION < 0x900)
+
 #ifdef FEATURE_INPUT_IMPROVED
 		case WM_INPUT :
 			if( wParam == RIM_INPUT ) {
@@ -1366,7 +1480,11 @@ DISPLAY_ADAPTER_NODE *__cdecl WinVidGetDisplayAdapter(GUID *lpGuid) {
 
 void __cdecl WinVidStart() {
 	if( SavedAppSettings.PreferredDisplayAdapter == NULL )
+#if (DIRECT3D_VERSION >= 0x900)
+		throw ERR_CantInitRenderer;
+#else // (DIRECT3D_VERSION >= 0x900)
 		throw ERR_CantCreateDirectDraw;
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 	DISPLAY_ADAPTER *preferred = &SavedAppSettings.PreferredDisplayAdapter->body;
 	CurrentDisplayAdapter = *preferred;
@@ -1380,14 +1498,18 @@ void __cdecl WinVidStart() {
 	DisplayModeListInit(&CurrentDisplayAdapter.swDispModeList);
 	DisplayModeListCopy(&CurrentDisplayAdapter.swDispModeList, &preferred->swDispModeList);
 
+#if (DIRECT3D_VERSION < 0x900)
 	if( !DDrawCreate(CurrentDisplayAdapter.lpAdapterGuid) )
 		throw ERR_CantCreateDirectDraw;
+#endif // (DIRECT3D_VERSION < 0x900)
 }
 
 void __cdecl WinVidFinish() {
+#if (DIRECT3D_VERSION < 0x900)
 	if( IsDDrawGameWindowShow )
 		HideDDrawGameWindow();
 	DDrawRelease();
+#endif // (DIRECT3D_VERSION < 0x900)
 }
 
 void __thiscall DisplayModeListInit(DISPLAY_MODE_LIST *pList) {
@@ -1467,8 +1589,10 @@ DISPLAY_MODE *__thiscall InsertDisplayModeInListTail(DISPLAY_MODE_LIST *modeList
  * Inject function
  */
 void Inject_WinVid() {
+#if (DIRECT3D_VERSION < 0x900)
 	INJECT(0x00444C80, DDrawCreate);
 	INJECT(0x00444CE0, DDrawRelease);
+#endif // (DIRECT3D_VERSION < 0x900)
 	INJECT(0x00444D20, GameWindowCalculateSizeFromClient);
 	INJECT(0x00444DA0, GameWindowCalculateSizeFromClientByZero);
 	INJECT(0x00444E10, WinVidSetMinWindowSize);
@@ -1483,6 +1607,7 @@ void Inject_WinVid() {
 	INJECT(0x00445170, WinVidShowGameWindow);
 	INJECT(0x004451C0, WinVidHideGameWindow);
 	INJECT(0x00445200, WinVidSetGameWindowSize);
+#if (DIRECT3D_VERSION < 0x900)
 	INJECT(0x00445240, ShowDDrawGameWindow);
 	INJECT(0x004452F0, HideDDrawGameWindow);
 	INJECT(0x00445380, DDrawSurfaceCreate);
@@ -1495,18 +1620,23 @@ void Inject_WinVid() {
 	INJECT(0x00445600, WinVidGetColorBitMasks);
 	INJECT(0x00445680, BitMaskGetNumberOfBits);
 	INJECT(0x004456D0, CalculateCompatibleColor);
+#endif // (DIRECT3D_VERSION < 0x900)
 	INJECT(0x00445740, WinVidGetDisplayMode);
 	INJECT(0x004457D0, WinVidGoFullScreen);
 	INJECT(0x00445860, WinVidGoWindowed);
 	INJECT(0x00445970, WinVidSetDisplayAdapter);
 	INJECT(0x00445A50, CompareVideoModes);
 	INJECT(0x00445AA0, WinVidGetDisplayModes);
+#if (DIRECT3D_VERSION < 0x900)
 	INJECT(0x00445B00, EnumDisplayModesCallback);
+#endif // (DIRECT3D_VERSION < 0x900)
 	INJECT(0x00445EC0, WinVidInit);
 	INJECT(0x00445F00, WinVidGetDisplayAdapters);
 	INJECT(0x00445FB0, FlaggedStringDelete);
 	INJECT(0x00445FD0, EnumerateDisplayAdapters);
+#if (DIRECT3D_VERSION < 0x900)
 	INJECT(0x00445FF0, EnumDisplayAdaptersCallback);
+#endif // (DIRECT3D_VERSION < 0x900)
 	INJECT(0x004461B0, FlaggedStringsCreate);
 	INJECT(0x004461F0, WinVidRegisterGameWindowClass);
 	INJECT(0x00446260, WinVidGameWindowProc);

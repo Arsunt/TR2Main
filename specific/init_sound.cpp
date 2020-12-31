@@ -261,7 +261,11 @@ void __cdecl WinSndStart(HWND hWnd) {
 }
 
 bool __cdecl DSoundCreate(GUID *lpGuid) {
+#if (DIRECTSOUND_VERSION >= 0x800)
+	return SUCCEEDED(DirectSoundCreate8(lpGuid, &DSound, NULL));
+#else // (DIRECTSOUND_VERSION >= 0x800)
 	return SUCCEEDED(DirectSoundCreate(lpGuid, &DSound, NULL));
+#endif // (DIRECTSOUND_VERSION >= 0x800)
 }
 
 bool __cdecl DSoundBufferTest() {

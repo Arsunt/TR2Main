@@ -27,8 +27,10 @@
 /*
  * Function list
  */
+#if (DIRECT3D_VERSION < 0x900)
 bool __cdecl DDrawCreate(LPGUID lpGUID); // 0x00444C80
 void __cdecl DDrawRelease(); // 0x00444CE0
+#endif // (DIRECT3D_VERSION < 0x900)
 void __cdecl GameWindowCalculateSizeFromClient(int *width, int *height); // 0x00444D20
 void __cdecl GameWindowCalculateSizeFromClientByZero(int *width, int *height); // 0x00444DA0
 void __cdecl WinVidSetMinWindowSize(int width, int height); // 0x00444E10
@@ -43,6 +45,7 @@ bool __cdecl WinVidSpinMessageLoop(bool needWait); // 0x00445080
 void __cdecl WinVidShowGameWindow(int nCmdShow); // 0x00445170
 void __cdecl WinVidHideGameWindow(); // 0x004451C0
 void __cdecl WinVidSetGameWindowSize(int width, int height); // 0x00445200
+#if (DIRECT3D_VERSION < 0x900)
 bool __cdecl ShowDDrawGameWindow(bool active); // 0x00445240
 bool __cdecl HideDDrawGameWindow(); // 0x004452F0
 HRESULT __cdecl DDrawSurfaceCreate(LPDDSDESC dsp, LPDDS *surface); // 0x00445380
@@ -55,18 +58,23 @@ DWORD __cdecl GetRenderBitDepth(DWORD dwRGBBitCount); // 0x00445570
 void __thiscall WinVidGetColorBitMasks(COLOR_BIT_MASKS *bm, LPDDPIXELFORMAT pixelFormat); // 0x00445600
 void __cdecl BitMaskGetNumberOfBits(DWORD bitMask, DWORD *bitDepth, DWORD *bitOffset); // 0x00445680
 DWORD __cdecl CalculateCompatibleColor(COLOR_BIT_MASKS *mask, int red, int green, int blue, int alpha); // 0x004456D0
+#endif // (DIRECT3D_VERSION < 0x900)
 bool __cdecl WinVidGetDisplayMode(DISPLAY_MODE *dispMode); // 0x00445740
 bool __cdecl WinVidGoFullScreen(DISPLAY_MODE *dispMode); // 0x004457D0
 bool __cdecl WinVidGoWindowed(int width, int height, DISPLAY_MODE *dispMode); // 0x00445860
 void __cdecl WinVidSetDisplayAdapter(DISPLAY_ADAPTER *dispAdapter); // 0x00445970
 bool __thiscall CompareVideoModes(DISPLAY_MODE *mode1, DISPLAY_MODE *mode2); // 0x00445A50
 bool __cdecl WinVidGetDisplayModes(); // 0x00445AA0
+#if (DIRECT3D_VERSION < 0x900)
 HRESULT WINAPI EnumDisplayModesCallback(LPDDSDESC lpDDSurfaceDesc, LPVOID lpContext); // 0x00445B00
+#endif // (DIRECT3D_VERSION < 0x900)
 bool __cdecl WinVidInit(); // 0x00445EC0
 bool __cdecl WinVidGetDisplayAdapters(); // 0x00445F00
 void __thiscall FlaggedStringDelete(STRING_FLAGGED *item); // 0x00445FB0
 bool __cdecl EnumerateDisplayAdapters(DISPLAY_ADAPTER_LIST *displayAdapterList); // 0x00445FD0
+#if (DIRECT3D_VERSION < 0x900)
 BOOL WINAPI EnumDisplayAdaptersCallback(GUID FAR *lpGUID, LPTSTR lpDriverDescription, LPTSTR lpDriverName, LPVOID lpContext); // 0x00445FF0
+#endif // (DIRECT3D_VERSION < 0x900)
 void __thiscall FlaggedStringsCreate(DISPLAY_ADAPTER *adapter); // 0x004461B0
 bool __cdecl WinVidRegisterGameWindowClass(); // 0x004461F0
 LRESULT CALLBACK WinVidGameWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam); // 0x00446260

@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### New features
+- Added DirectX 9 support. However, TR2Main can be compiled for DirectX 5 too.
 - Into TR2Main.dll added information about the current version. Now it will be easier to find out which DLL is which version.
 - The number of secrets in the script is taken into account when calculating the total number of secrets in the final statistics. Now it is calculated correctly, regardless of the total number of levels, bonus levels, and even mod levels.
 - Additional checks have been implemented to prevent Lara from getting weapons that are not supported by current level. Thus, a number of problems associated with the "Nightmare in Vegas" level are fixed.
