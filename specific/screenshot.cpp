@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -88,13 +88,9 @@ static void __cdecl ScreenShotPNG(LPDDS screen) {
 		HBITMAP bitmap;
 		LPVOID lpBits;
 
-#if (DIRECT3D_VERSION >= 0x900)
-		MapWindowPoints(HGameWindow, GetParent(HGameWindow), (LPPOINT)&rect, 2);
-#else // (DIRECT3D_VERSION >= 0x900)
-		if( screen == PrimaryBufferSurface ) {
+		if( CaptureBufferSurface == NULL ) {
 			MapWindowPoints(HGameWindow, GetParent(HGameWindow), (LPPOINT)&rect, 2);
 		}
-#endif // (DIRECT3D_VERSION >= 0x900)
 
 		bitmap = CreateBitmapFromDC(dc, &rect, &lpBits, WinVidPalette);
 		if( bitmap != NULL ) {
@@ -171,13 +167,9 @@ static void __cdecl ScreenShotTGA(LPDDS screen, BYTE tgaBpp) {
 
 	// do game window screenshot, not the whole screen
 	if( GetClientRect(HGameWindow, &rect) ) {
-#if (DIRECT3D_VERSION >= 0x900)
-		MapWindowPoints(HGameWindow, GetParent(HGameWindow), (LPPOINT)&rect, 2);
-#else // (DIRECT3D_VERSION >= 0x900)
-		if( screen == PrimaryBufferSurface ) {
+		if( CaptureBufferSurface == NULL ) {
 			MapWindowPoints(HGameWindow, GetParent(HGameWindow), (LPPOINT)&rect, 2);
 		}
-#endif // (DIRECT3D_VERSION >= 0x900)
 		width = ABS(rect.right - rect.left);
 		height = ABS(rect.bottom - rect.top);
 	}
