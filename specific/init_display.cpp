@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -674,7 +674,11 @@ void __cdecl RenderStart(bool isReset) {
 	CreateCaptureBuffer();
 #endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
 
-	if( SavedAppSettings.RenderMode == RM_Software ) {
+	if( SavedAppSettings.RenderMode == RM_Hardware ) {
+#if defined(FEATURE_BACKGROUND_IMPROVED)
+		BGND2_PrepareCaptureTextures();
+#endif // defined(FEATURE_BACKGROUND_IMPROVED)
+	} else {
 		CreateRenderBuffer();
 		if( !PictureBuffer.bitmap ) {
 			CreatePictureBuffer();
@@ -696,6 +700,9 @@ void __cdecl RenderStart(bool isReset) {
 		}
 		D3DDeviceCreate(BackBufferSurface);
 		EnumerateTextureFormats();
+#if defined(FEATURE_BACKGROUND_IMPROVED)
+		BGND2_PrepareCaptureTextures();
+#endif // defined(FEATURE_BACKGROUND_IMPROVED)
 	} else {
 		CreateRenderBuffer();
 		if( PictureBufferSurface == NULL ) {

@@ -48,8 +48,9 @@ extern TEXPAGE_DESC TexturePages[256];
 extern bool IsGold();
 #endif
 
-int BGND_TexturePageIndexes[128];
-HWR_TEXHANDLE BGND_PageHandles[128];
+static int BGND_CapturePageIndexes[64];
+int BGND_TexturePageIndexes[64];
+HWR_TEXHANDLE BGND_PageHandles[64];
 
 DWORD BGND_PictureWidth  = 640;
 DWORD BGND_PictureHeight = 480;
@@ -226,20 +227,52 @@ void PSX_Background(HWR_TEXHANDLE texSource, int tu, int tv, int t_width, int t_
 	free(vertices);
 }
 
-static int CreateCaptureTexture(DWORD index, DWORD side) {
-	int pageIndex = BGND_TexturePageIndexes[index];
-	if( pageIndex < 0 || !TexturePages[pageIndex].status ) {
+static int CreateCaptureTexture(DWORD index, int side) {
+	int pageIndex = BGND_CapturePageIndexes[index];
+	if( pageIndex >= 0 && TexturePages[pageIndex].width != side ) {
+		SafeFreeTexturePage(pageIndex);
+		pageIndex = -1;
+	}
+	if( pageIndex < 0 || !CHK_ANY(TexturePages[pageIndex].status, 1) ) {
+		DDSDESC desc;
 #if (DIRECT3D_VERSION >= 0x900)
 		pageIndex = CreateTexturePage(side, side);
+		if SUCCEEDED(TexturePages[pageIndex].texture->LockRect(0, &desc, NULL, D3DLOCK_DISCARD)) {
+			TexturePages[pageIndex].texture->UnlockRect(0);
+		}
 #else // (DIRECT3D_VERSION >= 0x900)
 		pageIndex = CreateTexturePage(side, side, NULL);
+		if SUCCEEDED(WinVidBufferLock(TexturePages[pageIndex].sysMemSurface, &desc, DDLOCK_WRITEONLY|DDLOCK_WAIT)) {
+			WinVidBufferUnlock(TexturePages[pageIndex].sysMemSurface, &desc);
+		}
 #endif // (DIRECT3D_VERSION >= 0x900)
 		if( pageIndex < 0 ) {
 			return -1;
 		}
-		BGND_TexturePageIndexes[index] = pageIndex;
+		BGND_CapturePageIndexes[index] = pageIndex;
 	}
 	return pageIndex;
+}
+
+int BGND2_PrepareCaptureTextures() {
+	static bool once = false;
+	if( !once ) {
+		for( DWORD i=0; i<ARRAY_SIZE(BGND_CapturePageIndexes); ++i ) {
+			BGND_CapturePageIndexes[i] = -1;
+		}
+		once = true;
+	}
+	DWORD side = MIN(2048, GetMaxTextureSize());
+	DWORD nx = (GameVidWidth + side - 1) / side;
+	DWORD ny = (GameVidHeight + side - 1) / side;
+	for( DWORD i=0; i<ARRAY_SIZE(BGND_CapturePageIndexes); ++i ) {
+		if( i < nx*ny ) {
+			CreateCaptureTexture(i, side);
+		} else {
+			SafeFreeTexturePage(BGND_CapturePageIndexes[i]);
+		}
+	}
+	return 0;
 }
 
 static int MakeBgndTextures(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmpPal) {
@@ -517,17 +550,17 @@ int __cdecl BGND2_CapturePicture() {
 	DWORD nx = (width + side - 1) / side;
 	DWORD ny = (height + side - 1) / side;
 
-	if( nx*ny >= ARRAY_SIZE(BGND_TexturePageIndexes) ) {
+	if( nx*ny >= ARRAY_SIZE(BGND_CapturePageIndexes) ) {
 		return -1; // It seems image is too big
 	}
 
-	int x[ARRAY_SIZE(BGND_TexturePageIndexes) + 1];
+	int x[ARRAY_SIZE(BGND_CapturePageIndexes) + 1];
 	x[nx] = rect.right - rect.left;
 	for( DWORD i = 0; i < nx; ++i ) {
 		x[i] = i * side * x[nx] / width;
 	}
 
-	int y[ARRAY_SIZE(BGND_TexturePageIndexes) + 1];
+	int y[ARRAY_SIZE(BGND_CapturePageIndexes) + 1];
 	y[ny] = rect.bottom - rect.top;
 	for( DWORD i = 0; i < ny; ++i ) {
 		y[i] = i * side * y[ny] / height;
@@ -550,8 +583,8 @@ int __cdecl BGND2_CapturePicture() {
 	for( DWORD j = 0; j < ny; ++j ) {
 		for( DWORD i = 0; i < nx; ++i ) {
 			RECT r = {x[i], y[j], x[i+1], y[j+1]};
-			int pageIndex = CreateCaptureTexture(i + j*nx, side);
-			if( pageIndex < 0 ) {
+			int pageIndex = BGND_CapturePageIndexes[i + j*nx];
+			if( pageIndex < 0 || !CHK_ANY(TexturePages[pageIndex].status, 1) ) {
 				ret = -1;
 				goto CLEANUP;
 			}
@@ -1001,8 +1034,6 @@ void __cdecl BGND2_DrawTextures(RECT *rect, D3DCOLOR color) {
 		return; // It seems image is too big
 	}
 
-	BGND_GetPageHandles();
-
 	int x[ARRAY_SIZE(BGND_TexturePageIndexes) + 1];
 	for( DWORD i = 0; i < nx; ++i ) {
 		x[i] = i * side * (rect->right - rect->left) / width + rect->left;
@@ -1022,7 +1053,9 @@ void __cdecl BGND2_DrawTextures(RECT *rect, D3DCOLOR color) {
 			if( i == nx - 1 && width % side ) w = width % side;
 			if( j == ny - 1 && height % side ) h = height % side;
 			RECT r = {x[i], y[j], x[i+1], y[j+1]};
-			BGND2_DrawTexture(&r, BGND_PageHandles[i + j*nx], 0, 0, w, h, side, color, color, color, color);
+
+			int *index = BGND_IsCaptured ? BGND_CapturePageIndexes : BGND_TexturePageIndexes;
+			BGND2_DrawTexture(&r, GetTexturePageHandle(index[i + j*nx]), 0, 0, w, h, side, color, color, color, color);
 		}
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -582,8 +582,8 @@ extern BYTE *TexturePageBuffer8[128];
 #define InventoryExtraData			ARRAY_(0x004D7970, int, [8])
 #define SfxInfos					ARRAY_(0x004D7C68, SFX_INFO, [32])
 #ifdef FEATURE_BACKGROUND_IMPROVED
-extern int BGND_TexturePageIndexes[128];
-extern HWR_TEXHANDLE BGND_PageHandles[128];
+extern int BGND_TexturePageIndexes[64];
+extern HWR_TEXHANDLE BGND_PageHandles[64];
 #else // FEATURE_BACKGROUND_IMPROVED
 #define BGND_TexturePageIndexes		ARRAY_(0x004D7E80, int, [5])
 #define BGND_PageHandles			ARRAY_(0x004D7E98, HWR_TEXHANDLE, [5])
