@@ -243,6 +243,11 @@ typedef struct {
 #define GLOW_M16_COLOR		(0x7F701F) // M16 gunfire
 #define GLOW_GUNSHOT_COLOR	(0x7F701F) // Skidoo/Enemy gunfire
 
+// Collision types
+#define COLL_FRONT	(0x01)
+#define COLL_LEFT	(0x02)
+#define COLL_RIGHT	(0x04)
+#define COLL_TOP	(0x08)
 /*
  * DirectX type definitions
  */
@@ -1752,6 +1757,9 @@ typedef struct CollInfo_t {
 	int badCeiling;
 	PHD_VECTOR shift;
 	PHD_VECTOR old;
+	__int16 oldAnimState;
+	__int16 oldAnimNumber;
+	__int16 oldFrameNumber;
 	__int16 facing;
 	__int16 quadrant;
 	__int16 collType;
