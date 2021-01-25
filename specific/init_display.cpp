@@ -985,9 +985,14 @@ void __cdecl GameApplySettings(APP_SETTINGS *newSettings) {
 		return;
 	}
 
+#if (DIRECT3D_VERSION >= 0x900)
+	if( newSettings->ZBuffer != SavedAppSettings.ZBuffer ||
+		newSettings->BilinearFiltering != SavedAppSettings.BilinearFiltering )
+#else // (DIRECT3D_VERSION >= 0x900)
 	if( newSettings->PerspectiveCorrect != SavedAppSettings.PerspectiveCorrect ||
 		newSettings->Dither != SavedAppSettings.Dither ||
 		newSettings->BilinearFiltering != SavedAppSettings.BilinearFiltering )
+#endif // (DIRECT3D_VERSION >= 0x900)
 	{
 		needInitRenderState = true;
 	}
@@ -996,11 +1001,17 @@ void __cdecl GameApplySettings(APP_SETTINGS *newSettings) {
 		needAdjustTexel = true;
 	}
 
+#if (DIRECT3D_VERSION >= 0x900)
+	if( newSettings->RenderMode != SavedAppSettings.RenderMode ||
+		newSettings->VideoMode  != SavedAppSettings.VideoMode ||
+		newSettings->FullScreen != SavedAppSettings.FullScreen )
+#else // (DIRECT3D_VERSION >= 0x900)
 	if( newSettings->RenderMode != SavedAppSettings.RenderMode ||
 		newSettings->VideoMode  != SavedAppSettings.VideoMode ||
 		newSettings->FullScreen != SavedAppSettings.FullScreen ||
 		newSettings->ZBuffer    != SavedAppSettings.ZBuffer ||
 		newSettings->TripleBuffering != SavedAppSettings.TripleBuffering )
+#endif // (DIRECT3D_VERSION >= 0x900)
 	{
 		ApplySettings(newSettings);
 		S_AdjustTexelCoordinates();
@@ -1041,9 +1052,15 @@ void __cdecl GameApplySettings(APP_SETTINGS *newSettings) {
 	}
 
 	if( needInitRenderState ) {
+#if (DIRECT3D_VERSION >= 0x900)
+		SavedAppSettings.ZBuffer = newSettings->ZBuffer;
+		SavedAppSettings.BilinearFiltering = newSettings->BilinearFiltering;
+		setup_screen_size();
+#else // (DIRECT3D_VERSION >= 0x900)
 		SavedAppSettings.PerspectiveCorrect = newSettings->PerspectiveCorrect;
 		SavedAppSettings.Dither = newSettings->Dither;
 		SavedAppSettings.BilinearFiltering = newSettings->BilinearFiltering;
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 		if( SavedAppSettings.RenderMode == RM_Hardware ) {
 			HWR_InitState();
