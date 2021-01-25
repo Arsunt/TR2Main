@@ -30,6 +30,8 @@
 void PSX_Background(HWR_TEXHANDLE texSource, int tu, int tv, int t_width, int t_height, int halfRowCount,
 					__int16 amplitude, __int16 deformWavePhase, __int16 shortWavePhase, __int16 longWavePhase);
 
+void BGND2_CleanupCaptureTextures();
+
 int BGND2_PrepareCaptureTextures();
 
 int __cdecl BGND2_FadeTo(int target, int delta);

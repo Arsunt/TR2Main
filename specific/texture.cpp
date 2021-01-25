@@ -27,6 +27,10 @@
 #include "global/vars.h"
 #include <limits.h>
 
+#ifdef FEATURE_BACKGROUND_IMPROVED
+#include "modding/background_new.h"
+#endif // FEATURE_BACKGROUND_IMPROVED
+
 #ifdef FEATURE_EXTENDED_LIMITS
 PHD_TEXTURE PhdTextureInfo[0x2000];
 BYTE LabTextureUVFlags[0x2000];
@@ -495,6 +499,9 @@ void __cdecl FreeTexturePages() {
 #ifdef FEATURE_VIDEOFX_IMPROVED
 	FreeEnvmapTexture();
 #endif // FEATURE_VIDEOFX_IMPROVED
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	BGND2_CleanupCaptureTextures();
+#endif // FEATURE_BACKGROUND_IMPROVED
 	for( DWORD i=0; i<ARRAY_SIZE(TexturePages); ++i ) {
 		if( (TexturePages[i].status & 1) != 0 )
 			FreeTexturePage(i);

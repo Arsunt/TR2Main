@@ -254,12 +254,16 @@ static int CreateCaptureTexture(DWORD index, int side) {
 	return pageIndex;
 }
 
+void BGND2_CleanupCaptureTextures() {
+	for( DWORD i=0; i<ARRAY_SIZE(BGND_CapturePageIndexes); ++i ) {
+		BGND_CapturePageIndexes[i] = -1;
+	}
+}
+
 int BGND2_PrepareCaptureTextures() {
 	static bool once = false;
 	if( !once ) {
-		for( DWORD i=0; i<ARRAY_SIZE(BGND_CapturePageIndexes); ++i ) {
-			BGND_CapturePageIndexes[i] = -1;
-		}
+		BGND2_CleanupCaptureTextures();
 		once = true;
 	}
 	DWORD side = MIN(2048, GetMaxTextureSize());
@@ -270,6 +274,7 @@ int BGND2_PrepareCaptureTextures() {
 			CreateCaptureTexture(i, side);
 		} else {
 			SafeFreeTexturePage(BGND_CapturePageIndexes[i]);
+			BGND_CapturePageIndexes[i] = -1;
 		}
 	}
 	return 0;
@@ -583,8 +588,8 @@ int __cdecl BGND2_CapturePicture() {
 	for( DWORD j = 0; j < ny; ++j ) {
 		for( DWORD i = 0; i < nx; ++i ) {
 			RECT r = {x[i], y[j], x[i+1], y[j+1]};
-			int pageIndex = BGND_CapturePageIndexes[i + j*nx];
-			if( pageIndex < 0 || !CHK_ANY(TexturePages[pageIndex].status, 1) ) {
+			int pageIndex = CreateCaptureTexture(i + j*nx, side);
+			if( pageIndex < 0 ) {
 				ret = -1;
 				goto CLEANUP;
 			}
