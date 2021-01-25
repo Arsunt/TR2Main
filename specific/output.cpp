@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -285,7 +285,7 @@ void __cdecl S_OutputPolyList() {
 #if (DIRECT3D_VERSION >= 0x900)
 		// prefetch surface lock
 		extern LPDDS CaptureBufferSurface;
-		HRESULT rc = CaptureBufferSurface->LockRect(&desc, NULL, D3DLOCK_DISCARD|D3DLOCK_DONOTWAIT);
+		HRESULT rc = CaptureBufferSurface->LockRect(&desc, NULL, D3DLOCK_DONOTWAIT);
 		if( FAILED(rc) && rc != D3DERR_WASSTILLDRAWING ) {
 			return;
 		}
@@ -294,7 +294,7 @@ void __cdecl S_OutputPolyList() {
 		PrepareSWR(RenderBuffer.width, RenderBuffer.height);
 		phd_PrintPolyList(RenderBuffer.bitmap);
 		// finish surface lock
-		if( rc == D3DERR_WASSTILLDRAWING && FAILED(CaptureBufferSurface->LockRect(&desc, NULL, D3DLOCK_DISCARD)) ) {
+		if( rc == D3DERR_WASSTILLDRAWING && FAILED(CaptureBufferSurface->LockRect(&desc, NULL, 0)) ) {
 			return;
 		}
 		// copy bitmap to surface

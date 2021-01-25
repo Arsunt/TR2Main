@@ -237,7 +237,7 @@ static int CreateCaptureTexture(DWORD index, int side) {
 		DDSDESC desc;
 #if (DIRECT3D_VERSION >= 0x900)
 		pageIndex = CreateTexturePage(side, side);
-		if SUCCEEDED(TexturePages[pageIndex].texture->LockRect(0, &desc, NULL, D3DLOCK_DISCARD)) {
+		if SUCCEEDED(TexturePages[pageIndex].texture->LockRect(0, &desc, NULL, 0)) {
 			TexturePages[pageIndex].texture->UnlockRect(0);
 		}
 #else // (DIRECT3D_VERSION >= 0x900)
@@ -611,7 +611,7 @@ int __cdecl BGND2_CapturePicture() {
 				isSrcLock = true;
 			}
 #if (DIRECT3D_VERSION >= 0x900)
-			if FAILED(TexturePages[pageIndex].texture->LockRect(0, &dstDesc, NULL, D3DLOCK_DISCARD)) {
+			if FAILED(TexturePages[pageIndex].texture->LockRect(0, &dstDesc, NULL, 0)) {
 				ret = -1;
 				goto CLEANUP;
 			}
