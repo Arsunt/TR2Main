@@ -72,6 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fade out to black implemented for levels, demos, cut scenes and statistics.
 - Added an option to select Demo Mode text style: none, PC or PlayStation.
 - Now the inventory stopwatch (statistics item) position depends from HUD scale and Field of View options. So it looks both PlayStation and PC authentic.
+- The message is displayed when Bilinear Filter or Z-Buffer is toggled with F7/F8 hotkey (DirectX 9 only).
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.

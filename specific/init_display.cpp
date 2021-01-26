@@ -988,14 +988,26 @@ void __cdecl GameApplySettings(APP_SETTINGS *newSettings) {
 #if (DIRECT3D_VERSION >= 0x900)
 	if( newSettings->ZBuffer != SavedAppSettings.ZBuffer ||
 		newSettings->BilinearFiltering != SavedAppSettings.BilinearFiltering )
+	{
+		char msg[32] = {0};
+		if( newSettings->ZBuffer != SavedAppSettings.ZBuffer ) {
+			snprintf(msg, sizeof(msg), "Z Buffer: %s",
+				newSettings->ZBuffer ? GF_SpecificStringTable[SSI_On] : GF_SpecificStringTable[SSI_Off]);
+		} else if( newSettings->BilinearFiltering != SavedAppSettings.BilinearFiltering ) {
+			snprintf(msg, sizeof(msg), "Bilinear Filter: %s",
+				newSettings->BilinearFiltering ? GF_SpecificStringTable[SSI_On] : GF_SpecificStringTable[SSI_Off]);
+		}
+		if( *msg ) DisplayModeInfo(msg);
+		needInitRenderState = true;
+	}
 #else // (DIRECT3D_VERSION >= 0x900)
 	if( newSettings->PerspectiveCorrect != SavedAppSettings.PerspectiveCorrect ||
 		newSettings->Dither != SavedAppSettings.Dither ||
 		newSettings->BilinearFiltering != SavedAppSettings.BilinearFiltering )
-#endif // (DIRECT3D_VERSION >= 0x900)
 	{
 		needInitRenderState = true;
 	}
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 	if( newSettings->BilinearFiltering != SavedAppSettings.BilinearFiltering ) {
 		needAdjustTexel = true;
