@@ -21,6 +21,7 @@
 
 #include "global/precompiled.h"
 #include "specific/input.h"
+#include "game/health.h"
 #include "game/invfunc.h"
 #include "game/laramisc.h"
 #include "specific/display.h"
@@ -528,6 +529,12 @@ bool __cdecl S_UpdateInput() {
 
 #ifdef FEATURE_NOLEGACY_OPTIONS
 	if( SavedAppSettings.RenderMode == RM_Software ) {
+		char msg[32] = {0};
+		const char *levels[3] = {
+			GF_GameStringTable[GSI_Detail_Low],
+			GF_GameStringTable[GSI_Detail_Medium],
+			GF_GameStringTable[GSI_Detail_High],
+		};
 		// Decrease Software Renderer Detail Level
 		if( KEY_DOWN(DIK_F3) ) {
 			if( !isF3KeyPressed && DetailLevel > 0 ) {
@@ -537,6 +544,7 @@ bool __cdecl S_UpdateInput() {
 					case 1: PerspectiveDistance = SW_DETAIL_MEDIUM; break;
 					case 2: PerspectiveDistance = SW_DETAIL_HIGH; break;
 				}
+				snprintf(msg, sizeof(msg), "Detail Level: %s", levels[DetailLevel]);
 			}
 		} else {
 			isF3KeyPressed = false;
@@ -551,10 +559,12 @@ bool __cdecl S_UpdateInput() {
 					case 1: PerspectiveDistance = SW_DETAIL_MEDIUM; break;
 					case 2: PerspectiveDistance = SW_DETAIL_HIGH; break;
 				}
+				snprintf(msg, sizeof(msg), "Detail Level: %s", levels[DetailLevel]);
 			}
 		} else {
 			isF4KeyPressed = false;
 		}
+		if( *msg ) DisplayModeInfo(msg);
 	}
 #endif // FEATURE_NOLEGACY_OPTIONS
 
