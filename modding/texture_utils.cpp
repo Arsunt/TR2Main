@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -324,6 +324,23 @@ static bool ParseButtonSprites(json_value *root) {
 	return true;
 }
 
+static BYTE FindPaletteEntry(RGB888 *palette, int red, int green, int blue) {
+	UINT16 result = 0;
+	int diffMin = INT_MAX;
+	// skip index 0 as it is reserved as semitransparent
+	for( int i=1; i<256; ++i ) {
+		int diffRed   = red   - GamePalette8[i].red;
+		int diffGreen = green - GamePalette8[i].green;
+		int diffBlue  = blue  - GamePalette8[i].blue;
+		int diffTotal = SQR(diffRed) + SQR(diffGreen) + SQR(diffBlue);
+		if( diffTotal < diffMin ) {
+			diffMin = diffTotal;
+			result = i;
+		}
+	}
+	return result;
+}
+
 static void AdaptToPalette(void *srcData, int width, int height, int srcPitch, RGB888 *srcPalette, void *dstData, int dstPitch, RGB888 *dstPalette) {
 	int i, j;
 	BYTE *src, *dst;
@@ -331,7 +348,7 @@ static void AdaptToPalette(void *srcData, int width, int height, int srcPitch, R
 
 	// skip index 0 as it is reserved as semitransparent
 	for( i=1; i<256; ++i ) {
-		bufPalette[i] = FindNearestPaletteEntry(dstPalette, srcPalette[i].red, srcPalette[i].green, srcPalette[i].blue, false);
+		bufPalette[i] = FindPaletteEntry(dstPalette, srcPalette[i].red, srcPalette[i].green, srcPalette[i].blue);
 	}
 
 	src = (BYTE *)srcData;

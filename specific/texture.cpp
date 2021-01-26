@@ -225,22 +225,14 @@ BYTE __cdecl FindNearestPaletteEntry(RGB888 *palette, int red, int green, int bl
 	int diffMin = INT_MAX;
 	int palStartIdx = 0;
 	int palEndIdx = 256;
-	int palSize = 256;
 	BYTE result = 0;
 
-#if (DIRECT3D_VERSION >= 0x900)
-	ignoreSysPalette = false;
-#endif // (DIRECT3D_VERSION >= 0x900)
-
+#if (DIRECT3D_VERSION < 0x900)
 	if( ignoreSysPalette ) {
 		palStartIdx += 10;
 		palEndIdx -= 10;
-		palSize -= 20;
-	} else {
-		// NOTE: index 0 is transparent color key, it must be skipped!
-		++palStartIdx;
-		--palSize;
 	}
+#endif // (DIRECT3D_VERSION < 0x900)
 
 	for( i=palStartIdx; i<palEndIdx; ++i ) {
 		diffRed   = red   - palette[i].red;
