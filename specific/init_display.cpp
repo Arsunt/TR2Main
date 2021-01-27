@@ -751,8 +751,6 @@ void __cdecl RenderFinish(bool needToClearTextures) {
 			HWR_FreeTexturePages();
 			CleanupTextures();
 		}
-		Direct3DRelease();
-
 #if (DIRECT3D_VERSION >= 0x900)
 	} else {
 		// Software Renderer
@@ -769,6 +767,8 @@ void __cdecl RenderFinish(bool needToClearTextures) {
 	FreeEnvmapTexture();
 #endif // FEATURE_VIDEOFX_IMPROVED
 #else // (DIRECT3D_VERSION >= 0x900)
+		Direct3DRelease();
+
 		if( ZBufferSurface != NULL ) {
 			ZBufferSurface->Release();
 			ZBufferSurface = NULL;
