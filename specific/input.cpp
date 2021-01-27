@@ -340,6 +340,21 @@ bool __cdecl S_UpdateInput() {
 		} else {
 			isF7KeyPressed = false;
 		}
+
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		// Software Renderer F11 key
+		if( KEY_DOWN(DIK_F11) ) {
+			if( !isF11KeyPressed ) {
+				isF11KeyPressed = true;
+				// Lighting Contrast (F11)
+				newSettings = SavedAppSettings;
+				newSettings.LightingMode = newSettings.LightingMode ? 0 : 1;
+				GameApplySettings(&newSettings);
+			}
+		} else {
+			isF11KeyPressed = false;
+		}
+#endif // FEATURE_VIDEOFX_IMPROVED
 	} else {
 
 		// Hardware Renderer F7 key
@@ -394,7 +409,14 @@ bool __cdecl S_UpdateInput() {
 		if( KEY_DOWN(DIK_F11) ) {
 			if( !isF11KeyPressed ) {
 				isF11KeyPressed = true;
-#ifndef FEATURE_NOLEGACY_OPTIONS
+#ifdef FEATURE_NOLEGACY_OPTIONS
+#if defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
+				// Lighting Contrast (F11)
+				newSettings = SavedAppSettings;
+				newSettings.LightingMode = newSettings.LightingMode ? 0 : 1;
+				GameApplySettings(&newSettings);
+#endif // defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
+#else // FEATURE_NOLEGACY_OPTIONS
 				// Dithering (F11)
 				newSettings = SavedAppSettings;
 				TOGGLE(newSettings.Dither);

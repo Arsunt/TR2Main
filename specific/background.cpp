@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -126,7 +126,7 @@ void __cdecl DrawQuad(float sx, float sy, float width, float height, D3DCOLOR co
 	for( int i=0; i<4; ++i ) {
 		vertex[i].sz = 0;
 		vertex[i].rhw = FltRhwONearZ;
-		vertex[i].color = color | 0xFF000000;
+		vertex[i].color = RGBA_SETALPHA(color, 0xFF);
 		vertex[i].specular = 0;
 	}
 
@@ -312,6 +312,10 @@ D3DCOLOR __cdecl BGND_CenterLighting(int x, int y, int width, int height) {
 	xDist = (double)(x - (width/2)) / (double)width; // xDist range will be: -0.5..0.5
 	yDist = (double)(y - (height/2)) / (double)height; // yDist range will be: -0.5..0.5
 	light = 256 - (sqrt(xDist * xDist + yDist * yDist) * 300.0); // light range will be: 44..256
+
+#if defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
+	if( SavedAppSettings.LightingMode ) light /= 2;
+#endif // defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
 
 	// Do light range checks just in case
 	CLAMP(light, 0, 255);

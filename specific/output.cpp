@@ -1193,7 +1193,11 @@ void __cdecl S_CopyScreenToBuffer() {
 }
 
 void __cdecl S_CopyBufferToScreen() {
+#if defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
+	DWORD color = SavedAppSettings.LightingMode ? 0xFF808080 : 0xFFFFFFFF;
+#else // defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
 	DWORD color = 0xFFFFFFFF; // vertex color (ARGB white)
+#endif // defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	DWORD bgndMode = 0;
 	if( IsFadeToBlack ) {

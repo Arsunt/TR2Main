@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -31,6 +31,10 @@
 #include "global/resource.h"
 #include "global/vars.h"
 #include <commctrl.h>
+
+#if defined(FEATURE_NOLEGACY_OPTIONS) || defined(FEATURE_VIDEOFX_IMPROVED)
+APP_SETTINGS ChangedAppSettings, SavedAppSettings;
+#endif // defined(FEATURE_NOLEGACY_OPTIONS) || defined(FEATURE_VIDEOFX_IMPROVED)
 
 static LPCTSTR String_Software3d = "Software (256 Colors)";
 static LPCTSTR String_Hardware3d = "Hardware 3D Acceleration";
@@ -141,6 +145,10 @@ bool __cdecl SE_WriteAppSettings(APP_SETTINGS *settings) {
 	SetRegistryBoolValue(REG_JOY_ENABLE,		settings->JoystickEnabled);
 	SetRegistryBoolValue(REG_FMV_DISABLE,		settings->DisableFMV);
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	SetRegistryDwordValue(REG_LIGHTING_MODE,	settings->LightingMode);
+#endif // FEATURE_VIDEOFX_IMPROVED
+
 	CloseGameRegistryKey();
 	return true;
 }
@@ -248,6 +256,10 @@ int __cdecl SE_ReadAppSettings(APP_SETTINGS *settings) {
 	GetRegistryBoolValue(REG_LARA_MIC,		&settings->LaraMic,					false);
 	GetRegistryBoolValue(REG_JOY_ENABLE,	&settings->JoystickEnabled,			true);
 	GetRegistryBoolValue(REG_FMV_DISABLE,	&settings->DisableFMV,				false);
+
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	GetRegistryDwordValue(REG_LIGHTING_MODE, (DWORD *)&settings->LightingMode, true);
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 	CloseGameRegistryKey();
 	return IsNewRegistryKeyCreated() ? 2 : 1;

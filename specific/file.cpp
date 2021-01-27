@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -195,6 +195,21 @@ static void MarkSemitransTextureRanges() {
 				// all animated room textures with colorkey are supposed to be semitransparent
 				PhdTextureInfo[*ptr].drawtype = DRAW_Semitrans;
 			}
+		}
+	}
+}
+
+void UpdateDepthQ(bool isReset) {
+	static DEPTHQ_ENTRY depthQBackup[15];
+	if( isReset ) {
+		memcpy(depthQBackup, DepthQTable, sizeof(DEPTHQ_ENTRY) * 15);
+	} else if( SavedAppSettings.LightingMode ) {
+		memcpy(DepthQTable, depthQBackup, sizeof(DEPTHQ_ENTRY) * 15);
+	}
+	// no "else if" here!
+	if( !SavedAppSettings.LightingMode ) {
+		for( DWORD i = 0; i < 15; ++i ) {
+			DepthQTable[i] = DepthQTable[15];
 		}
 	}
 }
@@ -653,6 +668,10 @@ BOOL __cdecl LoadDepthQ(HANDLE hFile) {
 		memcpy(DepthQIndex, &DepthQTable[24], sizeof(DEPTHQ_ENTRY));
 	}
 #endif // (DIRECT3D_VERSION >= 0x900)
+
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	UpdateDepthQ(true);
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 	for( i=0; i<32; ++i ) {
 		for( j=0; j<256; ++j ) {

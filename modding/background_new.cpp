@@ -196,6 +196,9 @@ void PSX_Background(HWR_TEXHANDLE texSource, int tu, int tv, int t_width, int t_
 			int shortWave = phd_sin(shortWaveRowPhase)*32/0x4000;
 			int longWave = phd_sin(longWaveRowPhase)*32/0x4000;
 			light = 128 + shortWave + longWave;
+#if defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
+			if( SavedAppSettings.LightingMode ) light /= 2;
+#endif // defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
 			vtx->color = RGBA_MAKE(light, light, light, 0xFFu);
 			vtx->y = ((float)(baseY + tileSize*j + phd_sin(deformWaveRowPhase)*tileRadius/0x4000)) / PIXEL_ACCURACY;
 			vtx->x = ((float)(baseX + tileSize*i + phd_cos(deformWaveRowPhase)*tileRadius/0x4000)) / PIXEL_ACCURACY;

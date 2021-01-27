@@ -1030,6 +1030,16 @@ void __cdecl GameApplySettings(APP_SETTINGS *newSettings) {
 		return;
 	}
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	if( newSettings->LightingMode != SavedAppSettings.LightingMode ) {
+		char msg[32] = {0};
+		snprintf(msg, sizeof(msg), "Lighting: %s", newSettings->LightingMode ? "High Contrast" : "Low Contrast");
+		DisplayModeInfo(msg);
+		needInitRenderState = true;
+	}
+#endif // FEATURE_VIDEOFX_IMPROVED
+
+
 	if( !newSettings->FullScreen ) {
 		if( newSettings->WindowWidth != SavedAppSettings.WindowWidth || newSettings->WindowHeight != SavedAppSettings.WindowHeight ) {
 			if( !WinVidGoWindowed(newSettings->WindowWidth, newSettings->WindowHeight, &dispMode) ) {
@@ -1073,6 +1083,14 @@ void __cdecl GameApplySettings(APP_SETTINGS *newSettings) {
 		SavedAppSettings.Dither = newSettings->Dither;
 		SavedAppSettings.BilinearFiltering = newSettings->BilinearFiltering;
 #endif // (DIRECT3D_VERSION >= 0x900)
+
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		SavedAppSettings.LightingMode = newSettings->LightingMode;
+		if( SavedAppSettings.RenderMode == RM_Software ) {
+			extern void UpdateDepthQ(bool isReset);
+			UpdateDepthQ(false);
+		}
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 		if( SavedAppSettings.RenderMode == RM_Hardware ) {
 			HWR_InitState();
