@@ -29,6 +29,7 @@
 #include "specific/init_display.h"
 #include "specific/init_input.h"
 #include "specific/init_sound.h"
+#include "specific/registry.h"
 #include "specific/setupdlg.h"
 #include "specific/smain.h"
 #include "specific/sndpc.h"
@@ -41,6 +42,10 @@
 #if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
 #include "modding/gdi_utils.h"
 #endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+
+#ifdef FEATURE_NOLEGACY_OPTIONS
+extern bool AvoidInterlacedVideoModes;
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 #if defined(_MSC_VER)
 #include <se.h>
@@ -157,6 +162,13 @@ int __cdecl Init(bool skipCDInit) {
 		return 2;
 
 	UT_InitAccurateTimer();
+
+#ifdef FEATURE_NOLEGACY_OPTIONS
+	if( OpenGameRegistryKey(REG_SYSTEM_KEY) ) {
+		GetRegistryBoolValue(REG_AVOID_INTERLACED, &AvoidInterlacedVideoModes, false);
+		CloseGameRegistryKey();
+	}
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 	if(
 #if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
