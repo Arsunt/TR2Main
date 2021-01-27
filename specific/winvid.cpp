@@ -1210,7 +1210,7 @@ LRESULT CALLBACK WinVidGameWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
 		case WM_PAINT :
 			hdc = BeginPaint(hWnd, &paint);
 #if (DIRECT3D_VERSION >= 0x900)
-			if( IsGameFullScreen || D3DDev == NULL ) {
+			if( IsGameFullScreen || D3DDev == NULL || FAILED(D3DDev->TestCooperativeLevel()) ) {
 				hBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
 				FillRect(hdc, &paint.rcPaint, hBrush);
 			} else {
