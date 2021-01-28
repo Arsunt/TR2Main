@@ -462,11 +462,7 @@ static void BGND2_CustomBlt(LPDDSDESC dst, DWORD dstX, DWORD dstY, LPDDSDESC src
 	BYTE *dstLine = (BYTE *)dst->pBits + dstY * dst->Pitch  + dstX * 4;
 
 	for( DWORD j = 0; j < height; ++j ) {
-		DWORD *srcPtr = (DWORD *)srcLine;
-		DWORD *dstPtr = (DWORD *)dstLine;
-		for( DWORD i = 0; i < width; ++i ) {
-			dstPtr[i] = RGBA_SETALPHA(srcPtr[i], 0xFF);
-		}
+		memcpy(dstLine, srcLine, sizeof(DWORD) * width);
 		srcLine += src->Pitch;
 		dstLine += dst->Pitch;
 	}

@@ -124,7 +124,7 @@ static void FreeCaptureBuffer() {
 static int CreateCaptureBuffer() {
 	FreeCaptureBuffer();
 
-	if FAILED(D3DDev->CreateRenderTarget(GameVidWidth, GameVidHeight, D3DFMT_A8R8G8B8, D3DMULTISAMPLE_NONE, 0, TRUE, &CaptureBufferSurface, NULL))
+	if FAILED(D3DDev->CreateRenderTarget(GameVidWidth, GameVidHeight, D3DFMT_X8R8G8B8, D3DMULTISAMPLE_NONE, 0, TRUE, &CaptureBufferSurface, NULL))
 		return -1;
 
 	D3DDev->ColorFill(CaptureBufferSurface, NULL, 0);

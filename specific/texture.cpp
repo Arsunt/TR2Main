@@ -80,7 +80,7 @@ static bool __cdecl CreateEnvmapTexture() {
 	DWORD side = GetEnvmapSide();
 	if( !side ) return false;
 	if( EnvmapTexture ) return true;
-	return SUCCEEDED(D3DDev->CreateTexture(side, side, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &EnvmapTexture, 0));
+	return SUCCEEDED(D3DDev->CreateTexture(side, side, 1, D3DUSAGE_RENDERTARGET, D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, &EnvmapTexture, 0));
 }
 #else // (DIRECT3D_VERSION >= 0x900)
 static bool __cdecl CreateEnvmapBufferSurface() {

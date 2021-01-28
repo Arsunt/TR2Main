@@ -306,7 +306,7 @@ void __cdecl S_OutputPolyList() {
 					BYTE r = WinVidPalette[*src].peRed;
 					BYTE g = WinVidPalette[*src].peGreen;
 					BYTE b = WinVidPalette[*src].peBlue;
-					*dst++ = RGBA_MAKE(r, g, b, 0xFF);
+					*dst++ = RGB_MAKE(r, g, b);
 				} else {
 					*dst++ = 0;
 				}
