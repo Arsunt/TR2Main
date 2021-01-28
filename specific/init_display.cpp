@@ -112,7 +112,6 @@ static bool SWRBufferClear(SWR_BUFFER *buffer, BYTE value) {
 	return true;
 }
 
-#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
 LPDDS CaptureBufferSurface = NULL;
 
 static void FreeCaptureBuffer() {
@@ -139,7 +138,6 @@ static int CreateCaptureBuffer() {
 	CaptureBufferSurface->UnlockRect();
 	return 0;
 }
-#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
 #else // (DIRECT3D_VERSION >= 0x900)
 #if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED) || defined(FEATURE_VIDEOFX_IMPROVED)
 LPDDS CaptureBufferSurface = NULL; // used for screen capture in windowed mode
@@ -367,10 +365,8 @@ void __cdecl ClearBuffers(DWORD flags, DWORD fillColor) {
 	if( CHK_ANY(flags, CLRB_PictureBuffer) )
 		SWRBufferClear(&PictureBuffer, 0);
 
-#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
 	if( CHK_ANY(flags, CLRB_PrimaryBuffer) && CaptureBufferSurface != NULL )
 		D3DDev->ColorFill(CaptureBufferSurface, NULL, 0);
-#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
 
 	if( CHK_ANY(flags, CLRB_BackBuffer|CLRB_PrimaryBuffer) )
 		d3dClearFlags |= D3DCLEAR_TARGET;
@@ -536,9 +532,7 @@ void __cdecl UpdateFrame(bool needRunMessageLoop, LPRECT rect) {
 		if( SavedAppSettings.RenderMode == RM_Hardware ) {
 			HWR_InitState();
 		}
-#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
 		CreateCaptureBuffer();
-#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
 	}
 #else // (DIRECT3D_VERSION >= 0x900)
 	RECT dstRect;
@@ -591,10 +585,10 @@ void __cdecl RenderStart(bool isReset) {
 #if (DIRECT3D_VERSION < 0x900)
 	bool is16bitTextures;
 	DDPIXELFORMAT pixelFormat;
-#endif // (DIRECT3D_VERSION < 0x900)
 
 	if( isReset )
 		NeedToReloadTextures = false;
+#endif // (DIRECT3D_VERSION < 0x900)
 
 	if( SavedAppSettings.FullScreen ) {
 		// FullScreen mode
@@ -740,7 +734,9 @@ void __cdecl RenderStart(bool isReset) {
 	DumpHeight = GameVidHeight;
 
 	setup_screen_size();
+#if (DIRECT3D_VERSION < 0x900)
 	NeedToReloadTextures = true;
+#endif // (DIRECT3D_VERSION < 0x900)
 }
 
 void __cdecl RenderFinish(bool needToClearTextures) {
@@ -823,10 +819,10 @@ void __cdecl RenderFinish(bool needToClearTextures) {
 		PrimaryBufferSurface->Release();
 		PrimaryBufferSurface = NULL;
 	}
-#endif // (DIRECT3D_VERSION >= 0x900)
 
 	if( needToClearTextures )
 		NeedToReloadTextures = false;
+#endif // (DIRECT3D_VERSION >= 0x900)
 }
 
 bool __cdecl ApplySettings(APP_SETTINGS *newSettings) {
