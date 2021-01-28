@@ -1505,13 +1505,11 @@ void __cdecl WinVidStart() {
 }
 
 void __cdecl WinVidFinish() {
-#if (DIRECT3D_VERSION >= 0x900)
-	Direct3DRelease();
-#else // (DIRECT3D_VERSION >= 0x900)
+#if (DIRECT3D_VERSION < 0x900)
 	if( IsDDrawGameWindowShow )
 		HideDDrawGameWindow();
 	DDrawRelease();
-#endif // (DIRECT3D_VERSION >= 0x900)
+#endif // (DIRECT3D_VERSION < 0x900)
 }
 
 void __thiscall DisplayModeListInit(DISPLAY_MODE_LIST *pList) {

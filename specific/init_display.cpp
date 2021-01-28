@@ -766,6 +766,8 @@ void __cdecl RenderFinish(bool needToClearTextures) {
 #if FEATURE_VIDEOFX_IMPROVED
 	FreeEnvmapTexture();
 #endif // FEATURE_VIDEOFX_IMPROVED
+	Direct3DRelease();
+
 #else // (DIRECT3D_VERSION >= 0x900)
 		Direct3DRelease();
 
