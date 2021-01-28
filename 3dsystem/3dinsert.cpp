@@ -57,6 +57,11 @@ static D3DCOLOR shadeColor(DWORD red, DWORD green, DWORD blue, DWORD alpha, DWOR
 
 #if defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
 	if( SavedAppSettings.LightingMode && isTextured ) shade = 0x1000 + shade/2;
+	if( !SavedAppSettings.LightingMode && !isTextured ) CLAMPL(shade, 0x1000);
+#else // defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
+	// NOTE: The original game bugfix. We need to limit brightness of untextured faces for DirectX 5
+	// because brightness of textured faces is limited by D3DTBLEND_MODULATEALPHA or D3DTBLEND_MODULATE
+	if( !isTextured ) CLAMPL(shade, 0x1000);
 #endif // defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
 
 	if( shade != 0x1000 ) {
