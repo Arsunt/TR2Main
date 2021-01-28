@@ -77,6 +77,7 @@ typedef struct {
 // AI values
 #define HP_DONT_TARGET		(0xC000)
 #define RANDOM_SEED			(0xD371F947)
+#define SUNSET_TIMEOUT		(TICKS_PER_SECOND*60*20) // sunset sets in 20 minutes
 
 // Angle values
 #define PHD_360				(PHD_ONE)

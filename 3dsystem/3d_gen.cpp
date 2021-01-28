@@ -591,9 +591,15 @@ __int16 *__cdecl calc_background_light(__int16 *ptrObj) {
 		ptrObj += vtxCount;
 	}
 
-	// SkyBox top has 50% brightness
+	// Skybox has normal brightness
+	int shade = 0x0FFF;
+
+	// NOTE: Sunset did not change the skybox brightness in the original game
+	if( GF_SunsetEnabled )
+		shade += 0x400 * SunsetTimer / SUNSET_TIMEOUT;
+
 	for( int i = 0; i < vtxCount; ++i )
-		PhdVBuf[i].g = 0x0FFF;
+		PhdVBuf[i].g = shade;
 
 	return ptrObj;
 }
