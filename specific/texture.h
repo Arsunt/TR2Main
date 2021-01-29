@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -43,7 +43,7 @@ int __cdecl GetFreePaletteIndex(); // 0x00455CE0
 void __cdecl FreePalette(int paletteIndex); // 0x00455D00
 void __cdecl SafeFreePalette(int paletteIndex); // 0x00455D30
 #if (DIRECT3D_VERSION >= 0x900)
-int __cdecl CreateTexturePage(int width, int height);
+int __cdecl CreateTexturePage(int width, int height, bool alpha);
 #else // (DIRECT3D_VERSION >= 0x900)
 int __cdecl CreateTexturePage(int width, int height, LPDIRECTDRAWPALETTE palette); // 0x00455D80
 #endif // (DIRECT3D_VERSION >= 0x900)

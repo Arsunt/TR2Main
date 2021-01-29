@@ -328,7 +328,7 @@ void __cdecl SafeFreePalette(int paletteIndex) {
 }
 
 #if (DIRECT3D_VERSION >= 0x900)
-int __cdecl CreateTexturePage(int width, int height)
+int __cdecl CreateTexturePage(int width, int height, bool alpha)
 #else // (DIRECT3D_VERSION >= 0x900)
 int __cdecl CreateTexturePage(int width, int height, LPDIRECTDRAWPALETTE palette)
 #endif // (DIRECT3D_VERSION >= 0x900)
@@ -342,7 +342,7 @@ int __cdecl CreateTexturePage(int width, int height, LPDIRECTDRAWPALETTE palette
 	TexturePages[pageIndex].width = width;
 	TexturePages[pageIndex].height = height;
 #if (DIRECT3D_VERSION >= 0x900)
-	if FAILED(D3DDev->CreateTexture(width, height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &TexturePages[pageIndex].texture, 0))
+	if FAILED(D3DDev->CreateTexture(width, height, 1, 0, alpha ? D3DFMT_A8R8G8B8 : D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, &TexturePages[pageIndex].texture, 0))
 		return -1;
 #else // (DIRECT3D_VERSION >= 0x900)
 	TexturePages[pageIndex].palette = palette;
@@ -552,7 +552,7 @@ HWR_TEXHANDLE __cdecl GetTexturePageHandle(int pageIndex) {
 
 int __cdecl AddTexturePage8(int width, int height, BYTE *pageBuffer, int palIndex) {
 #if (DIRECT3D_VERSION >= 0x900)
-	int pageIndex = CreateTexturePage(width, height);
+	int pageIndex = CreateTexturePage(width, height, true);
 	if( pageIndex < 0 )
 		return -1;
 
@@ -609,7 +609,7 @@ int __cdecl AddTexturePage8(int width, int height, BYTE *pageBuffer, int palInde
 
 int __cdecl AddTexturePage16(int width, int height, BYTE *pageBuffer) {
 #if (DIRECT3D_VERSION >= 0x900)
-	int pageIndex = CreateTexturePage(width, height);
+	int pageIndex = CreateTexturePage(width, height, true);
 	if( pageIndex < 0 )
 		return -1;
 
