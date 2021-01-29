@@ -740,6 +740,18 @@ void __cdecl RenderStart(bool isReset) {
 }
 
 void __cdecl RenderFinish(bool needToClearTextures) {
+#if (DIRECT3D_VERSION >= 0x900)
+	S_DontDisplayPicture();
+	HWR_FreeTexturePages();
+	CleanupTextures();
+	SWRBufferFree(&PictureBuffer);
+	SWRBufferFree(&RenderBuffer);
+	FreeCaptureBuffer();
+#if FEATURE_VIDEOFX_IMPROVED
+	FreeEnvmapTexture();
+#endif // FEATURE_VIDEOFX_IMPROVED
+	Direct3DRelease();
+#else // (DIRECT3D_VERSION >= 0x900)
 	if( SavedAppSettings.RenderMode == RM_Hardware ) {
 		// Hardware Renderer
 		if( needToClearTextures ) {
@@ -747,24 +759,6 @@ void __cdecl RenderFinish(bool needToClearTextures) {
 			HWR_FreeTexturePages();
 			CleanupTextures();
 		}
-#if (DIRECT3D_VERSION >= 0x900)
-	} else {
-		// Software Renderer
-		if( needToClearTextures ) {
-			SWRBufferFree(&PictureBuffer);
-		}
-		SWRBufferFree(&RenderBuffer);
-	}
-
-#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
-	FreeCaptureBuffer();
-#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
-#if FEATURE_VIDEOFX_IMPROVED
-	FreeEnvmapTexture();
-#endif // FEATURE_VIDEOFX_IMPROVED
-	Direct3DRelease();
-
-#else // (DIRECT3D_VERSION >= 0x900)
 		Direct3DRelease();
 
 		if( ZBufferSurface != NULL ) {
