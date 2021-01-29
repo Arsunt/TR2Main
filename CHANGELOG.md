@@ -103,6 +103,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a flashing "Demo Mode" text while demo is playing. 
 - The *low ceiling jump* bugfix is optional now.
 - Fixed a bug due to which non-textured surfaces could appear brighter than textured ones with the same lighting settings.
+- Fixed a bug that reset timer of sunset effect in Bartoli's Hideout after saved game is loaded.
 
 ### TR2Main bugfixes
 - Background capture is optimized even more, now it is 3-4 times faster than v0.8.2. No lags anymore (broken since v0.8.0).

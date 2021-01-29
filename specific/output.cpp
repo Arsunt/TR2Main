@@ -923,7 +923,9 @@ void __cdecl S_AnimateTextures(int nTicks) {
 	RoomLightShades[2] = (WIBBLE_SIZE-1) * (phd_sin(WibbleOffset * PHD_360 / WIBBLE_SIZE) + PHD_IONE) / 2 / PHD_IONE;
 
 	if( GF_SunsetEnabled ) {
-		SunsetTimer += nTicks;
+		// NOTE: in the original game there was: SunsetTimer += nTicks;
+		// so the timer was reset every time when the saved game is loaded
+		SunsetTimer = SaveGame.statistics.timer * TICKS_PER_FRAME;
 		CLAMPG(SunsetTimer, SUNSET_TIMEOUT);
 		RoomLightShades[3] = (WIBBLE_SIZE-1) * SunsetTimer / SUNSET_TIMEOUT;
 	}
