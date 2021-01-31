@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -86,7 +86,7 @@ GOURAUD_OUTLINE ReqSelGour2 = {
 	0xFF000000, 0xFF38F080, 0xFF000000,
 };
 
-extern __cdecl GF_GetNumSecrets(DWORD levelID);
+extern int GF_GetNumSecrets(DWORD levelID);
 
 #ifdef FEATURE_ASSAULT_SAVE
 extern void SaveAssault();

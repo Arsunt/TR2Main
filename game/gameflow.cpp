@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -41,7 +41,7 @@ bool LoadingScreensEnabled = true;
 static int CurrentEvent = GFE_END_SEQ; // NOTE: not presented in the original game
 
 // NOTE: there is no such function in the original code
-static bool __cdecl GF_GetSequenceValue(DWORD levelID, GF_EVENTS event, __int16 *pValue, __int16 defValue) {
+static bool GF_GetSequenceValue(DWORD levelID, GF_EVENTS event, __int16 *pValue, __int16 defValue) {
 	if( levelID >= GF_GameFlow.num_Levels ) {
 		return false;
 	}
@@ -104,7 +104,7 @@ static bool __cdecl GF_GetSequenceValue(DWORD levelID, GF_EVENTS event, __int16 
 }
 
 // NOTE: there is no such function in the original code
-int __cdecl GF_GetNumSecrets(DWORD levelID) {
+int GF_GetNumSecrets(DWORD levelID) {
 	__int16 result = 3;
 	GF_GetSequenceValue(levelID, GFE_NUMSECRETS, &result, result);
 	return result;
