@@ -59,6 +59,7 @@ extern void ResetGoldenLaraAlpha();
 #endif // FEATURE_VIDEOFX_IMPROVED
 
 #ifdef FEATURE_HUD_IMPROVED
+extern bool GF_IsFinalLevel(DWORD levelID);
 extern void RemoveJoystickHintText(bool isSelect, bool isContinue, bool isDeselect);
 extern void DisplayJoystickHintText(bool isSelect, bool isContinue, bool isDeselect);
 #endif // FEATURE_HUD_IMPROVED
@@ -138,7 +139,18 @@ __int16 __cdecl StartGame(int levelID, GF_LEVEL_TYPE levelType) {
 		return GF_START_SAVEDGAME | InventoryExtraData[1]; // saveGame slot
 	}
 
-	if( InventoryExtraData[0] == 1 ) { // passport page (New game)
+	if( InventoryExtraData[0] == 1 ) { // passport page (New game | Restart Level)
+#ifdef FEATURE_HUD_IMPROVED
+		if( InventoryMode == INV_DeathMode ) {
+			// check if previous level is not Assault and not a final one (before bonus level)
+			if( CurrentLevel > 1 && !GF_IsFinalLevel(CurrentLevel-1) ) {
+				SaveGame.start[CurrentLevel] = SaveGame.start[CurrentLevel-1];
+			} else {
+				ModifyStartInfo(CurrentLevel);
+			}
+			return GF_START_GAME | CurrentLevel;
+		}
+#endif // FEATURE_HUD_IMPROVED
 		if( (GF_GameFlow.flags & GFF_SelectAnyLevel) != 0 )
 			return GF_START_GAME | (InventoryExtraData[1] + 1); // selected level
 		else
@@ -185,6 +197,7 @@ int __cdecl LevelStats(int levelID) {
 	int hours, minutes, seconds;
 	char timeString[100] = {0};
 
+	CreateStartInfo(levelID); // NOTE: this line is absent in the original code, but it's required for "Restart Level" feature
 	SaveGame.start[levelID].statistics = SaveGame.statistics;
 
 	seconds = SaveGame.statistics.timer / 30 % 60;

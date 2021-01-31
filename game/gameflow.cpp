@@ -110,6 +110,11 @@ int GF_GetNumSecrets(DWORD levelID) {
 	return result;
 }
 
+// NOTE: there is no such function in the original code
+bool GF_IsFinalLevel(DWORD levelID) {
+	return GF_GetSequenceValue(levelID, GFE_GAMECOMPLETE, NULL, 0);
+}
+
 BOOL __cdecl GF_LoadScriptFile(LPCTSTR fileName) {
 	GF_SunsetEnabled = 0;
 

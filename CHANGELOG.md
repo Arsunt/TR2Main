@@ -77,6 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added low contrast lighting (Classic PC Hardware style) for Software Renderer.
 - Added F11 hotkey to toggle low/high contrast lighting (in the original game F11 was used to toggle Dither).
 - Sunset effect in Bartoli's Hideout now makes skybox a little darker.
+- Added "Restart Level" option (available only in case of Lara's death).
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.
