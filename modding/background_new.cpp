@@ -240,6 +240,9 @@ static int CreateCaptureTexture(DWORD index, int side) {
 		DDSDESC desc;
 #if (DIRECT3D_VERSION >= 0x900)
 		pageIndex = CreateTexturePage(side, side, false);
+		if( pageIndex < 0 ) {
+			return -1;
+		}
 		if SUCCEEDED(TexturePages[pageIndex].texture->LockRect(0, &desc, NULL, 0)) {
 			TexturePages[pageIndex].texture->UnlockRect(0);
 		}
