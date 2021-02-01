@@ -77,6 +77,7 @@ static DWORD GetEnvmapSide() {
 
 #if (DIRECT3D_VERSION >= 0x900)
 static bool __cdecl CreateEnvmapTexture() {
+	if( EnvmapTexture != NULL ) FreeEnvmapTexture();
 	DWORD side = GetEnvmapSide();
 	if( !side ) return false;
 	if( EnvmapTexture ) return true;
@@ -127,7 +128,7 @@ bool SetEnvmapTexture(LPDDS surface) {
 	};
 
 #if (DIRECT3D_VERSION >= 0x900)
-	if( !CreateEnvmapTexture() ) return false;
+	if( EnvmapTexture == NULL && !CreateEnvmapTexture() ) return false;
 	LPDDS texSurface = NULL;
 
 	if SUCCEEDED(EnvmapTexture->GetSurfaceLevel(0, &texSurface)) {
