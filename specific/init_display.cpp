@@ -522,9 +522,7 @@ void __cdecl UpdateFrame(bool needRunMessageLoop, LPRECT rect) {
 	}
 	HRESULT res = D3DDev->Present(NULL, NULL, NULL, NULL);
 	if( res == D3DERR_DEVICELOST && !IsGameToExit ) {
-#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
 		FreeCaptureBuffer();
-#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
 #if FEATURE_VIDEOFX_IMPROVED
 		FreeEnvmapTexture();
 #endif // FEATURE_VIDEOFX_IMPROVED
@@ -747,9 +745,6 @@ void __cdecl RenderFinish(bool needToClearTextures) {
 	SWRBufferFree(&PictureBuffer);
 	SWRBufferFree(&RenderBuffer);
 	FreeCaptureBuffer();
-#if FEATURE_VIDEOFX_IMPROVED
-	FreeEnvmapTexture();
-#endif // FEATURE_VIDEOFX_IMPROVED
 	Direct3DRelease();
 #else // (DIRECT3D_VERSION >= 0x900)
 	if( SavedAppSettings.RenderMode == RM_Hardware ) {
