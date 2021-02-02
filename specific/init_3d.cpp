@@ -122,12 +122,12 @@ void __cdecl D3DDeviceCreate(LPDDS lpBackBuffer) {
 	d3dpp.EnableAutoDepthStencil = TRUE;
 
 	D3DCAPS9 *caps = &SavedAppSettings.PreferredDisplayAdapter->body.caps;
-	if SUCCEEDED(D3D->CheckDepthStencilMatch(caps->AdapterOrdinal, caps->DeviceType, D3DFMT_X8R8G8B8, D3DFMT_X8R8G8B8, D3DFMT_D24S8)) {
-		d3dpp.AutoDepthStencilFormat = D3DFMT_D24S8;
+	if SUCCEEDED(D3D->CheckDepthStencilMatch(caps->AdapterOrdinal, caps->DeviceType, D3DFMT_X8R8G8B8, D3DFMT_X8R8G8B8, D3DFMT_D16)) {
+		d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
 	} else if SUCCEEDED(D3D->CheckDepthStencilMatch(caps->AdapterOrdinal, caps->DeviceType, D3DFMT_X8R8G8B8, D3DFMT_X8R8G8B8, D3DFMT_D24X8)) {
 		d3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
 	} else {
-		d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
+		throw ERR_CreateDevice;
 	}
 
 	d3dpp.Windowed = !SavedAppSettings.FullScreen;
