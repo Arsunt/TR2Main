@@ -356,28 +356,14 @@ void __cdecl CreatePictureBuffer() {
 }
 
 void __cdecl ClearBuffers(DWORD flags, DWORD fillColor) {
-	DWORD d3dClearFlags = 0;
-
 #if (DIRECT3D_VERSION >= 0x900)
 	if( CHK_ANY(flags, CLRB_RenderBuffer) )
 		SWRBufferClear(&RenderBuffer, 0);
 
 	if( CHK_ANY(flags, CLRB_PictureBuffer) )
 		SWRBufferClear(&PictureBuffer, 0);
-
-	if( CHK_ANY(flags, CLRB_PrimaryBuffer) && CaptureBufferSurface != NULL )
-		D3DDev->ColorFill(CaptureBufferSurface, NULL, 0);
-
-	if( CHK_ANY(flags, CLRB_BackBuffer|CLRB_PrimaryBuffer) )
-		d3dClearFlags |= D3DCLEAR_TARGET;
-
-	if( CHK_ANY(flags, CLRB_ZBuffer) )
-		d3dClearFlags |= D3DCLEAR_ZBUFFER;
-
-	if( d3dClearFlags )
-		D3DDev->Clear(0, NULL, d3dClearFlags, fillColor, 1.0, 0);
-
 #else // (DIRECT3D_VERSION >= 0x900)
+	DWORD d3dClearFlags = 0;
 	D3DRECT d3dRect;
 	RECT winRect;
 
@@ -532,6 +518,7 @@ void __cdecl UpdateFrame(bool needRunMessageLoop, LPRECT rect) {
 		}
 		CreateCaptureBuffer();
 	}
+	D3DDev->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, 0, 1.0, 0);
 #else // (DIRECT3D_VERSION >= 0x900)
 	RECT dstRect;
 	LPRECT pSrcRect = rect ? rect : &GameVidRect;
