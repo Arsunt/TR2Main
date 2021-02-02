@@ -56,6 +56,7 @@ static D3DCOLOR shadeColor(DWORD red, DWORD green, DWORD blue, DWORD alpha, DWOR
 	}
 
 #if defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
+	if( SavedAppSettings.LightingMode == 1 ) CLAMPL(shade, 0x800);
 	if( SavedAppSettings.LightingMode && isTextured ) shade = 0x1000 + shade/2;
 	if( !SavedAppSettings.LightingMode && !isTextured ) CLAMPL(shade, 0x1000);
 #else // defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)

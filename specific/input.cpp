@@ -348,7 +348,7 @@ bool __cdecl S_UpdateInput() {
 				isF11KeyPressed = true;
 				// Lighting Contrast (F11)
 				newSettings = SavedAppSettings;
-				newSettings.LightingMode = newSettings.LightingMode ? 0 : 1;
+				newSettings.LightingMode = (newSettings.LightingMode + 1) % 3;
 				GameApplySettings(&newSettings);
 			}
 		} else {
@@ -413,7 +413,7 @@ bool __cdecl S_UpdateInput() {
 #if defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
 				// Lighting Contrast (F11)
 				newSettings = SavedAppSettings;
-				newSettings.LightingMode = newSettings.LightingMode ? 0 : 1;
+				newSettings.LightingMode = (newSettings.LightingMode + 1) % 3;
 				GameApplySettings(&newSettings);
 #endif // defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
 #else // FEATURE_NOLEGACY_OPTIONS

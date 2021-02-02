@@ -259,6 +259,7 @@ int __cdecl SE_ReadAppSettings(APP_SETTINGS *settings) {
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
 	GetRegistryDwordValue(REG_LIGHTING_MODE, (DWORD *)&settings->LightingMode, true);
+	CLAMPG(settings->LightingMode, 2);
 #endif // FEATURE_VIDEOFX_IMPROVED
 
 	CloseGameRegistryKey();

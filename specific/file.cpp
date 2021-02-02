@@ -203,14 +203,23 @@ void UpdateDepthQ(bool isReset) {
 	static DEPTHQ_ENTRY depthQBackup[15];
 	if( isReset ) {
 		memcpy(depthQBackup, DepthQTable, sizeof(DEPTHQ_ENTRY) * 15);
-	} else if( SavedAppSettings.LightingMode ) {
-		memcpy(DepthQTable, depthQBackup, sizeof(DEPTHQ_ENTRY) * 15);
+		return;
 	}
-	// no "else if" here!
-	if( !SavedAppSettings.LightingMode ) {
+	switch( SavedAppSettings.LightingMode ) {
+	case 0:
 		for( DWORD i = 0; i < 15; ++i ) {
 			DepthQTable[i] = DepthQTable[15];
 		}
+		break;
+	case 1:
+		memcpy(&DepthQTable[7], &depthQBackup[7], sizeof(DEPTHQ_ENTRY) * 8);
+		for( DWORD i = 0; i < 7; ++i ) {
+			DepthQTable[i] = DepthQTable[7];
+		}
+		break;
+	case 2:
+		memcpy(DepthQTable, depthQBackup, sizeof(DEPTHQ_ENTRY) * 15);
+		break;
 	}
 }
 #endif // FEATURE_VIDEOFX_IMPROVED

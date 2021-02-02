@@ -1006,8 +1006,13 @@ void __cdecl GameApplySettings(APP_SETTINGS *newSettings) {
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
 	if( newSettings->LightingMode != SavedAppSettings.LightingMode ) {
+		const char *levels[3] = {
+			"Low",
+			"Medium",
+			"High",
+		};
 		char msg[32] = {0};
-		snprintf(msg, sizeof(msg), "Lighting: %s", newSettings->LightingMode ? "High Contrast" : "Low Contrast");
+		snprintf(msg, sizeof(msg), "Lighting Contrast: %s", levels[newSettings->LightingMode]);
 		DisplayModeInfo(msg);
 		needInitRenderState = true;
 	}
