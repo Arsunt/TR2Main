@@ -96,13 +96,20 @@ HRESULT HWR_DrawPrimitive(D3DPRIMITIVETYPE primitiveType, LPVOID vertices, DWORD
 	if( primitiveCount <= 0 ) {
 		return D3DERR_INVALIDCALL;
 	}
+	static DWORD vertexIndex = 0;
+	DWORD flags = D3DLOCK_NOOVERWRITE;
+	if( vertexIndex + vertexCount > 256 ) {
+		vertexIndex = 0;
+		flags = D3DLOCK_DISCARD;
+	}
 	LPVOID ptr = NULL;
-	D3DVtx->Lock(0, 0, &ptr, 0);
+	HRESULT res = D3DVtx->Lock(sizeof(D3DTLVERTEX) * vertexIndex, sizeof(D3DTLVERTEX) * vertexCount, &ptr, flags);
+	if FAILED(res) return res;
 	memcpy(ptr, vertices, sizeof(D3DTLVERTEX) * vertexCount);
 	D3DVtx->Unlock();
-	D3DDev->SetFVF(D3DFVF_TLVERTEX);
-	D3DDev->SetStreamSource(0, D3DVtx, 0, sizeof(D3DTLVERTEX));
-	return D3DDev->DrawPrimitive(primitiveType, 0, primitiveCount);
+	res = D3DDev->DrawPrimitive(primitiveType, vertexIndex, primitiveCount);
+	vertexIndex += vertexCount;
+	return res;
 #else // (DIRECT3D_VERSION >= 0x900)
 	return D3DDev->DrawPrimitive(primitiveType, D3DVT_TLVERTEX, vertices, vertexCount, isNoClip ? D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP : 0);
 #endif // (DIRECT3D_VERSION >= 0x900)

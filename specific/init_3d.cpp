@@ -138,6 +138,10 @@ void __cdecl D3DDeviceCreate(LPDDS lpBackBuffer) {
 	}
 
 	if( D3DDev ) {
+		if( D3DVtx != NULL ) {
+			D3DVtx->Release();
+			D3DVtx = NULL;
+		}
 		HRESULT res = D3D_OK;
 		do {
 			res = D3DDev->TestCooperativeLevel();
@@ -149,9 +153,11 @@ void __cdecl D3DDeviceCreate(LPDDS lpBackBuffer) {
 		throw ERR_CreateDevice;
 	}
 
-	if( !D3DVtx && FAILED(D3DDev->CreateVertexBuffer(32*sizeof(D3DTLVERTEX), 0, D3DFVF_TLVERTEX, D3DPOOL_MANAGED, &D3DVtx, NULL)) )
+	if( !D3DVtx && FAILED(D3DDev->CreateVertexBuffer(256*sizeof(D3DTLVERTEX), D3DUSAGE_DYNAMIC|D3DUSAGE_SOFTWAREPROCESSING, D3DFVF_TLVERTEX, D3DPOOL_DEFAULT, &D3DVtx, NULL)) )
 		throw ERR_CreateDevice;
 
+	D3DDev->SetStreamSource(0, D3DVtx, 0, sizeof(D3DTLVERTEX));
+	D3DDev->SetFVF(D3DFVF_TLVERTEX);
 #else // (DIRECT3D_VERSION >= 0x900)
 	if FAILED(D3D->CreateDevice(IID_IDirect3DHALDevice, (LPDIRECTDRAWSURFACE)lpBackBuffer, &D3DDev))
 		throw ERR_CreateDevice;
