@@ -98,7 +98,7 @@ HRESULT HWR_DrawPrimitive(D3DPRIMITIVETYPE primitiveType, LPVOID vertices, DWORD
 	}
 	static DWORD vertexIndex = 0;
 	DWORD flags = D3DLOCK_NOOVERWRITE;
-	if( vertexIndex + vertexCount > 256 ) {
+	if( vertexIndex + vertexCount > VTXBUF_LEN ) {
 		vertexIndex = 0;
 		flags = D3DLOCK_DISCARD;
 	}
@@ -117,6 +117,7 @@ HRESULT HWR_DrawPrimitive(D3DPRIMITIVETYPE primitiveType, LPVOID vertices, DWORD
 
 void __cdecl HWR_InitState() {
 #if (DIRECT3D_VERSION >= 0x900)
+	D3DDev->SetRenderState(D3DRS_CLIPPING, FALSE);
 	D3DDev->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 	D3DDev->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD);
 	D3DDev->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);

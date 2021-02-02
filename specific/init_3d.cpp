@@ -149,11 +149,14 @@ void __cdecl D3DDeviceCreate(LPDDS lpBackBuffer) {
 		if( (res != D3D_OK && res != D3DERR_DEVICENOTRESET) || FAILED(D3DDev->Reset(&d3dpp)) ) {
 			throw ERR_CreateDevice;
 		}
-	} else if FAILED(D3D->CreateDevice(CurrentDisplayAdapter.index, D3DDEVTYPE_HAL, HGameWindow, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &D3DDev)) {
-		throw ERR_CreateDevice;
+	} else {
+		DWORD flags = CHK_ANY(caps->DevCaps, D3DDEVCAPS_HWTRANSFORMANDLIGHT) ? D3DCREATE_HARDWARE_VERTEXPROCESSING : D3DCREATE_SOFTWARE_VERTEXPROCESSING;
+		if FAILED(D3D->CreateDevice(CurrentDisplayAdapter.index, D3DDEVTYPE_HAL, HGameWindow, flags, &d3dpp, &D3DDev)) {
+			throw ERR_CreateDevice;
+		}
 	}
 
-	if( !D3DVtx && FAILED(D3DDev->CreateVertexBuffer(256*sizeof(D3DTLVERTEX), D3DUSAGE_DYNAMIC|D3DUSAGE_SOFTWAREPROCESSING, D3DFVF_TLVERTEX, D3DPOOL_DEFAULT, &D3DVtx, NULL)) )
+	if( !D3DVtx && FAILED(D3DDev->CreateVertexBuffer(sizeof(D3DTLVERTEX) * VTXBUF_LEN, D3DUSAGE_WRITEONLY|D3DUSAGE_DONOTCLIP|D3DUSAGE_DYNAMIC, D3DFVF_TLVERTEX, D3DPOOL_DEFAULT, &D3DVtx, NULL)) )
 		throw ERR_CreateDevice;
 
 	D3DDev->SetStreamSource(0, D3DVtx, 0, sizeof(D3DTLVERTEX));

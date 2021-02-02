@@ -249,6 +249,7 @@ typedef struct {
 #define COLL_LEFT	(0x02)
 #define COLL_RIGHT	(0x04)
 #define COLL_TOP	(0x08)
+
 /*
  * DirectX type definitions
  */
@@ -287,6 +288,8 @@ typedef D3DTEXTUREHANDLE HWR_TEXHANDLE;
 #endif // (DIRECT3D_VERSION >= 0x900)
 
 #if (DIRECT3D_VERSION >= 0x900)
+#define VTXBUF_LEN (256)
+
 typedef struct {
 	DWORD width;
 	DWORD height;
