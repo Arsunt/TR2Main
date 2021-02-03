@@ -35,6 +35,8 @@
 #include "modding/joy_output.h"
 #endif // FEATURE_INPUT_IMPROVED
 
+#define CAM_DISTANCE (0x600)
+
 void __cdecl InitialiseCamera() {
 	Camera.shift = LaraItem->pos.y - 0x400;
 	Camera.target.x = LaraItem->pos.x;
@@ -47,7 +49,7 @@ void __cdecl InitialiseCamera() {
 	Camera.pos.z = Camera.target.z - 100;
 	Camera.pos.roomNumber = Camera.target.roomNumber;
 
-	Camera.targetDistance = 0x600;
+	Camera.targetDistance = CAM_DISTANCE;
 	Camera.item = NULL;
 	Camera.numberFrames = 1;
 	if ( !(Lara.extra_anim) ) {
@@ -140,7 +142,7 @@ void __cdecl LookCamera(ITEM_INFO *item) {
 	Camera.target.z = item->pos.z;
 	Camera.target.x = item->pos.x;
 	Camera.targetAngle = item->pos.rotY + Lara.torso_y_rot + Lara.head_y_rot;
-	Camera.targetDistance = 0x600;
+	Camera.targetDistance = CAM_DISTANCE;
 	Camera.targetElevation = item->pos.rotX + Lara.torso_x_rot + Lara.head_x_rot;
 	Camera.shift = (-0x200 * phd_sin(Camera.targetElevation)) >> W2V_SHIFT;
 	Camera.target.z += Camera.shift * phd_cos(item->pos.rotY) >> W2V_SHIFT;
@@ -305,7 +307,7 @@ void __cdecl CalculateCamera() {
 		Camera.item = NULL;
 		Camera.targetElevation = 0;
 		Camera.targetAngle = 0;
-		Camera.targetDistance = 0x600;
+		Camera.targetDistance = CAM_DISTANCE;
 		Camera.flags = CFL_None;
 	}
 	IsChunkyCamera = 0;
