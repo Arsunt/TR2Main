@@ -685,7 +685,29 @@ int __cdecl AddTexturePage16(int width, int height, BYTE *pageBuffer) {
 #endif // (DIRECT3D_VERSION >= 0x900)
 }
 
-#if (DIRECT3D_VERSION < 0x900)
+#if (DIRECT3D_VERSION >= 0x900)
+// NOTE: this function is not presented in the original game
+int AddTexturePage32(int width, int height, BYTE *pageBuffer, bool alpha) {
+	int pageIndex = CreateTexturePage(width, height, alpha);
+	if( pageIndex < 0 )
+		return -1;
+
+	DDSDESC desc;
+	if FAILED(TexturePages[pageIndex].texture->LockRect(0, &desc, NULL, 0)) {
+		return -1;
+	}
+	DWORD *src = (DWORD *)pageBuffer;
+	for( int i=0; i<height; ++i ) {
+		DWORD *dst = (DWORD *)((BYTE *)desc.pBits + desc.Pitch * i);
+		memcpy(dst, src, sizeof(DWORD) * width);
+		src += width;
+	}
+	TexturePages[pageIndex].texture->UnlockRect(0);
+
+	return pageIndex;
+}
+
+#else // (DIRECT3D_VERSION >= 0x900)
 HRESULT CALLBACK EnumTextureFormatsCallback(LPDDSDESC lpDdsd, LPVOID lpContext) {
 	LPDDPIXELFORMAT lpDDPixFmt = &lpDdsd->ddpfPixelFormat;
 
@@ -736,7 +758,7 @@ HRESULT __cdecl EnumerateTextureFormats() {
 	}
 	return ret;
 }
-#endif // (DIRECT3D_VERSION < 0x900)
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 void __cdecl CleanupTextures() {
 	FreeTexturePages();

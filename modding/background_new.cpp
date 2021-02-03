@@ -286,7 +286,7 @@ int BGND2_PrepareCaptureTextures() {
 	return 0;
 }
 
-static int MakeBgndTextures(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmpPal) {
+static int MakeBgndTextures(DWORD width, DWORD height, DWORD bpp, BYTE *bitmap, RGB888 *bmpPal) {
 	DWORD side = MIN(2048, GetMaxTextureSize());
 	S_DontDisplayPicture(); // clean up previous textures
 
@@ -309,7 +309,7 @@ static int MakeBgndTextures(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmp
 			DWORD h = side;
 			if( i == nx - 1 && width % side ) w = width % side;
 			if( j == ny - 1 && height % side ) h = height % side;
-			int pageIndex = MakeCustomTexture(i*side, j*side, w, h, width, side, bitmap, bmpPal, BGND_PaletteIndex, NULL, false);
+			int pageIndex = MakeCustomTexture(i*side, j*side, w, h, width, side, bpp, bitmap, bmpPal, BGND_PaletteIndex, NULL, false);
 			if( pageIndex < 0) {
 				return -1;
 			}
@@ -677,7 +677,7 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 	DWORD fileSize, bitmapSize;
 	BYTE *fileData = NULL;
 	BYTE *bitmapData = NULL;
-	DWORD width, height;
+	DWORD width, height, bpp = 8;
 	char fullPath[256] = {0};
 	bool isPCX;
 	int pickResult = -1;
@@ -751,7 +751,12 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 		DecompPCX(fileData, fileSize, bitmapData, PicPalette);
 		isPCX = true;
 	} else if( SavedAppSettings.RenderMode == RM_Hardware && TextureFormat.bpp >= 16 ) {
-		if( GDI_LoadImageFile(fullPath, &bitmapData, &width, &height, 16) ) {
+#if (DIRECT3D_VERSION >= 0x900)
+		bpp = 32;
+#else // (DIRECT3D_VERSION >= 0x900)
+		bpp = 16;
+#endif // (DIRECT3D_VERSION >= 0x900)
+		if( GDI_LoadImageFile(fullPath, &bitmapData, &width, &height, bpp) ) {
 			goto FAIL;
 		}
 		bitmapSize = width * height * 2;
@@ -799,7 +804,7 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 		WinVidCopyBitmapToBuffer(PictureBufferSurface, bitmapData);
 #endif // (DIRECT3D_VERSION >= 0x900)
 	} else {
-		MakeBgndTextures(width, height, bitmapData, isPCX ? PicPalette : NULL);
+		MakeBgndTextures(width, height, bpp, bitmapData, isPCX ? PicPalette : NULL);
 	}
 
 	if( !isTitle && isPCX ) {

@@ -381,7 +381,7 @@ static int LoadButtonSpriteTexturePage() {
 				AdaptToPalette(bitmap, width, height, width, bmpPal, bitmap, width, GamePalette8);
 				memcpy(bmpPal, GamePalette8, sizeof(bmpPal));
 			}
-			pageIndex = MakeCustomTexture(0, 0, width, height, width, width, bitmap, bmpPal, PaletteIndex, ButtonSpriteSWR, true);
+			pageIndex = MakeCustomTexture(0, 0, width, height, width, width, 8, bitmap, bmpPal, PaletteIndex, ButtonSpriteSWR, true);
 			if( pageIndex >= 0 && SavedAppSettings.RenderMode == RM_Hardware ) {
 				HWR_TexturePageIndexes[HwrTexturePagesCount] = pageIndex;
 				HWR_PageHandles[HwrTexturePagesCount] = GetTexturePageHandle(pageIndex);
@@ -526,9 +526,9 @@ static int FillEdgePadding(DWORD width, DWORD height, DWORD side, BYTE *bitmap, 
 	return 0;
 }
 
-int MakeCustomTexture(DWORD x, DWORD y, DWORD width, DWORD height, DWORD pitch, DWORD side, BYTE *bitmap, RGB888 *bmpPal, int hwrPal, BYTE *swrBuf, bool keyColor) {
+int MakeCustomTexture(DWORD x, DWORD y, DWORD width, DWORD height, DWORD pitch, DWORD side, DWORD bpp, BYTE *bitmap, RGB888 *bmpPal, int hwrPal, BYTE *swrBuf, bool keyColor) {
 	int pageIndex = -1;
-	if( bmpPal == NULL ) { // source bitmap is not indexed
+	if( bpp == 16 ) {
 		if( SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16 ) { // texture cannot be indexed in this case
 			return -1;
 		}
@@ -537,15 +537,31 @@ int MakeCustomTexture(DWORD x, DWORD y, DWORD width, DWORD height, DWORD pitch, 
 		UINT16 *bmpSrc = (UINT16 *)bitmap + x + y * pitch;
 
 		for( DWORD j = 0; j < height; ++j ) {
-			for( DWORD i = 0; i < width; ++i ) {
-				bmpDst[i] = bmpSrc[i];
-			}
+			memcpy(bmpDst, bmpSrc, sizeof(UINT16) * width);
 			bmpSrc += pitch;
 			bmpDst += side;
 		}
-		FillEdgePadding(width, height, side, (BYTE *)tmpBmp, 16);
+		FillEdgePadding(width, height, side, (BYTE *)tmpBmp, bpp);
 		pageIndex = AddTexturePage16(side, side, (BYTE *)tmpBmp);
 		free(tmpBmp);
+#if (DIRECT3D_VERSION >= 0x900)
+	} else if( bpp == 32 ) {
+		if( SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16 ) { // texture cannot be indexed in this case
+			return -1;
+		}
+		DWORD *tmpBmp = (DWORD *)calloc(4, SQR(side));
+		DWORD *bmpDst = tmpBmp;
+		DWORD *bmpSrc = (DWORD *)bitmap + x + y * pitch;
+
+		for( DWORD j = 0; j < height; ++j ) {
+			memcpy(bmpDst, bmpSrc, sizeof(DWORD) * width);
+			bmpSrc += pitch;
+			bmpDst += side;
+		}
+		FillEdgePadding(width, height, side, (BYTE *)tmpBmp, bpp);
+		pageIndex = AddTexturePage32(side, side, (BYTE *)tmpBmp, false);
+		free(tmpBmp);
+#endif // (DIRECT3D_VERSION >= 0x900)
 	} else if( SavedAppSettings.RenderMode == RM_Hardware && TextureFormat.bpp >= 16 ) {
 		UINT16 *tmpBmp = (UINT16 *)calloc(2, SQR(side));
 		UINT16 *bmpDst = tmpBmp;
