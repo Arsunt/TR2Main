@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -34,6 +34,33 @@
 #ifdef FEATURE_INPUT_IMPROVED
 #include "modding/joy_output.h"
 #endif // FEATURE_INPUT_IMPROVED
+
+void __cdecl InitialiseCamera() {
+	Camera.shift = LaraItem->pos.y - 0x400;
+	Camera.target.x = LaraItem->pos.x;
+	Camera.target.y = Camera.shift;
+	Camera.target.z = LaraItem->pos.z;
+	Camera.target.roomNumber = LaraItem->roomNumber;
+
+	Camera.pos.x = Camera.target.x;
+	Camera.pos.y = Camera.target.y;
+	Camera.pos.z = Camera.target.z - 100;
+	Camera.pos.roomNumber = Camera.target.roomNumber;
+
+	Camera.targetDistance = 0x600;
+	Camera.item = NULL;
+	Camera.numberFrames = 1;
+	if ( !(Lara.extra_anim) ) {
+		Camera.type = CAM_Chase;
+	}
+	Camera.speed = 1;
+	Camera.flags = 0;
+	Camera.bounce = 0;
+	Camera.number = -1;
+	Camera.fixedCamera = 0;
+	AlterFOV(80 * PHD_DEGREE);
+	CalculateCamera();
+}
 
 void __cdecl MoveCamera(GAME_VECTOR *destination, int speed) {
 	Camera.pos.x += (destination->x - Camera.pos.x) / speed;
@@ -104,6 +131,54 @@ void __cdecl MoveCamera(GAME_VECTOR *destination, int speed) {
 		Camera.micPos.x = Camera.pos.x + ((phd_sin(Camera.actualAngle) * PhdPersp) >> W2V_SHIFT);
 		Camera.micPos.z = Camera.pos.z + ((phd_cos(Camera.actualAngle) * PhdPersp) >> W2V_SHIFT);
 		Camera.micPos.y = Camera.pos.y;
+	}
+}
+
+void __cdecl LookCamera(ITEM_INFO *item) {
+	int zOld = Camera.target.z;
+	int xOld = Camera.target.x;
+	Camera.target.z = item->pos.z;
+	Camera.target.x = item->pos.x;
+	Camera.targetAngle = item->pos.rotY + Lara.torso_y_rot + Lara.head_y_rot;
+	Camera.targetDistance = 0x600;
+	Camera.targetElevation = item->pos.rotX + Lara.torso_x_rot + Lara.head_x_rot;
+	Camera.shift = (-0x200 * phd_sin(Camera.targetElevation)) >> W2V_SHIFT;
+	Camera.target.z += Camera.shift * phd_cos(item->pos.rotY) >> W2V_SHIFT;
+	Camera.target.x += Camera.shift * phd_sin(item->pos.rotY) >> W2V_SHIFT;
+
+	if( !GoodPosition(Camera.target.x, Camera.target.y, Camera.target.z, Camera.target.roomNumber) ) {
+		Camera.target.x = item->pos.x;
+		Camera.target.z = item->pos.z;
+	}
+	Camera.target.y += ShiftClamp(&Camera.target, 306);
+
+	GAME_VECTOR goal;
+	int dist = Camera.targetDistance * phd_cos(Camera.targetElevation) >> W2V_SHIFT;
+	goal.x = Camera.target.x - (dist * phd_sin(Camera.targetAngle) >> W2V_SHIFT);
+	goal.y = Camera.target.y + (Camera.targetDistance * phd_sin(Camera.targetElevation) >> W2V_SHIFT);
+	goal.z = Camera.target.z - (dist * phd_cos(Camera.targetAngle) >> W2V_SHIFT);
+	goal.roomNumber = Camera.pos.roomNumber;
+
+	SmartShift(&goal, ClipCamera);
+	Camera.target.z = zOld + (Camera.target.z - zOld) / Camera.speed;
+	Camera.target.x = xOld + (Camera.target.x - xOld) / Camera.speed;
+	MoveCamera(&goal, Camera.speed);
+}
+
+void __cdecl FixedCamera() {
+	GAME_VECTOR goal;
+	OBJECT_VECTOR *fixed = &Camera.fixed[Camera.number];
+	goal.x = fixed->x;
+	goal.y = fixed->y;
+	goal.z = fixed->z;
+	goal.roomNumber = fixed->data;
+	if( !LOS(&Camera.target, &goal) ) {
+		ShiftClamp(&goal, 0x100);
+	}
+	Camera.fixedCamera = 1;
+	MoveCamera(&goal, Camera.speed);
+	if( Camera.timer && !--Camera.timer ) {
+		Camera.timer = -1;
 	}
 }
 
@@ -240,8 +315,7 @@ void __cdecl CalculateCamera() {
  * Inject function
  */
 void Inject_Camera() {
-//	INJECT(0x00410580, InitialiseCamera);
-
+	INJECT(0x00410580, InitialiseCamera);
 	INJECT(0x00410630, MoveCamera);
 
 //	INJECT(0x004109B0, ClipCamera);
@@ -251,8 +325,8 @@ void Inject_Camera() {
 //	INJECT(0x004113D0, ChaseCamera);
 //	INJECT(0x004114C0, ShiftClamp);
 //	INJECT(0x00411660, CombatCamera);
-//	INJECT(0x004117F0, LookCamera);
-//	INJECT(0x004119E0, FixedCamera);
 
+	INJECT(0x004117F0, LookCamera);
+	INJECT(0x004119E0, FixedCamera);
 	INJECT(0x00411A80, CalculateCamera);
 }
