@@ -106,13 +106,20 @@ typedef struct {
  * @param[in] txr Pointer to the Texture structure
  */
 void RenderTexturedFarQuad(VERTEX2D *vtx0, VERTEX2D *vtx1, VERTEX2D *vtx2, VERTEX2D *vtx3, TEXTURE *txr) {
+	extern int PatternTexPage;
 	D3DTLVERTEX vtx[4];
-	double uvAdjust = (double)UvAdd / (double)(PHD_ONE);
 
-	float tu0 = (double)txr->u / 256.0 + uvAdjust;
-	float tv0 = (double)txr->v / 256.0 + uvAdjust;
-	float tu1 = (double)(txr->u + txr->width)  / 256.0 - uvAdjust;
-	float tv1 = (double)(txr->v + txr->height) / 256.0 - uvAdjust;
+	float tu0 = (double)txr->u / 256.0;
+	float tv0 = (double)txr->v / 256.0;
+	float tu1 = (double)(txr->u + txr->width)  / 256.0;
+	float tv1 = (double)(txr->v + txr->height) / 256.0;
+	if( PatternTexPage < 0 ) {
+		double uvAdjust = (double)UvAdd / (double)(PHD_ONE);
+		tu0 += uvAdjust;
+		tv0 += uvAdjust;
+		tu1 -= uvAdjust;
+		tv1 -= uvAdjust;
+	}
 
 	float rhw = RhwFactor / FltFarZ;
 
