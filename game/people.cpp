@@ -21,8 +21,12 @@
 
 #include "global/precompiled.h"
 #include "game/people.h"
+#include "3dsystem/phd_math.h"
+#include "game/box.h"
+#include "game/control.h"
 #include "game/effects.h"
 #include "game/items.h"
+#include "game/larafire.h"
 #include "game/sound.h"
 #include "game/sphere.h"
 #include "specific/game.h"
@@ -31,6 +35,26 @@
 #ifdef FEATURE_VIDEOFX_IMPROVED
 extern DWORD AlphaBlendMode;
 #endif // FEATURE_VIDEOFX_IMPROVED
+
+int __cdecl Targetable(ITEM_INFO *item, AI_INFO *info) {
+	CREATURE_INFO *creature;
+	ITEM_INFO *enemy;
+	GAME_VECTOR source, destination;
+
+	creature = (CREATURE_INFO *) item->data;
+	enemy = creature->enemy;
+	if (enemy->hitPoints > 0 && info->ahead && info->distance < SQR(8192)) {
+		source.x = item->pos.x;
+		source.y = item->pos.y - 768;
+		source.z = item->pos.z;
+		source.roomNumber = item->roomNumber;
+		destination.x = enemy->pos.x;
+		destination.y = enemy->pos.y - 768;
+		destination.z = enemy->pos.z;
+		return LOS(&source, &destination);
+	}
+	return 0;
+}
 
 __int16 __cdecl GunShot(int x, int y, int z, __int16 speed, __int16 rotY, __int16 roomNumber) {
 #ifdef FEATURE_VIDEOFX_IMPROVED
@@ -113,19 +137,120 @@ __int16 __cdecl GunMiss(int x, int y, int z, __int16 speed, __int16 rotY, __int1
 	return GunShot(x, y, z, speed, rotY, roomNumber);
 }
 
+int __cdecl ShotLara(ITEM_INFO *item, AI_INFO *info, BITE_INFO *bite, __int16 rotation, int damage) {
+	CREATURE_INFO *creature;
+	ITEM_INFO *enemy;
+	int val;
+	BOOL hit, shot;
+	__int16 fxID, itemID;
+	GAME_VECTOR source, destination;
+
+	creature = (CREATURE_INFO *) item->data;
+	enemy = creature->enemy;
+	if (info->distance <= SQR(8192) && Targetable(item, info)) {
+		val = SQR(8192) * (enemy->speed * phd_sin(info->enemy_facing) >> W2V_SHIFT) / 300;
+		if (SQR(val) + info->distance > SQR(8192)) {
+			hit = FALSE;
+		} else {
+			hit = GetRandomControl() < (SQR(8192) - info->distance) / 3276 + 8192;
+		}
+		shot = TRUE;
+	} else {
+		shot = FALSE;
+		hit = FALSE;
+	}
+	fxID = -1;
+	if (enemy == LaraItem) {
+		if (hit) {
+			fxID = CreatureEffect(item, bite, GunHit);
+			LaraItem->hitPoints -= damage;
+			LaraItem->hit_status = 1;
+		} else {
+			if (shot)
+				fxID = CreatureEffect(item, bite, GunMiss);
+		}
+	} else {
+		fxID = CreatureEffect(item, bite, GunShot);
+		if (hit) {
+			enemy->hitPoints -= damage / 10;
+			enemy->hit_status = 1;
+		}
+	}
+	if (fxID != -1)
+		Effects[fxID].pos.rotY += rotation;
+	source.x = item->pos.x;
+	source.y = item->pos.y - 768;
+	source.z = item->pos.z;
+	source.roomNumber = item->roomNumber;
+	destination.x = enemy->pos.x;
+	destination.y = enemy->pos.y - 768;
+	destination.z = enemy->pos.z;
+	itemID = ObjectOnLOS(&source, &destination);
+	if (itemID != -1)
+		SmashItem(itemID, LGT_Unarmed);
+	return shot;
+}
+
+void __cdecl WinstonControl(__int16 itemID) {
+	ITEM_INFO *item;
+	CREATURE_INFO *winston;
+	AI_INFO info;
+	__int16 angle;
+
+	if (CreatureActive(itemID)) {
+		item = &Items[itemID];
+		winston = (CREATURE_INFO *) item->data;
+		CreatureAIInfo(item, &info);
+		CreatureMood(item, &info, TRUE);
+		angle = CreatureTurn(item, winston->maximum_turn);
+		if (item->currentAnimState == 1) {
+			if ((info.distance > SQR(1536) || !info.ahead) && item->goalAnimState != 2) {
+				item->goalAnimState = 2;
+				PlaySoundEffect(345, &item->pos, 0);
+			}
+		} else {
+			if (info.distance <= SQR(1536)) {
+				if (info.ahead) {
+					item->goalAnimState = 1;
+					if (CHK_ANY(winston->flags, 1))
+						--winston->flags;
+				} else {
+					if (!CHK_ANY(winston->flags, 1)) {
+						PlaySoundEffect(344, &item->pos, 0);
+						PlaySoundEffect(347, &item->pos, 0);
+						winston->flags |= 1;
+					}
+				}
+			}
+		}
+		if (item->touchBits && !CHK_ANY(winston->flags, 2)) {
+			PlaySoundEffect(346, &item->pos, 0);
+			PlaySoundEffect(347, &item->pos, 0);
+			winston->flags |= 2;
+		} else {
+			if (!item->touchBits && CHK_ANY(winston->flags, 2))
+				winston->flags -= 2;
+		}
+		if (GetRandomDraw() < 256)
+			PlaySoundEffect(347, &item->pos, 0);
+		CreatureAnimation(itemID, angle, 0);
+	}
+}
+
 /*
  * Inject function
  */
 void Inject_People() {
-//	INJECT(0x00435EB0, Targetable);
+	INJECT(0x00435EB0, Targetable);
+
 //	INJECT(0x00435F40, ControlGlow);
 //	INJECT(0x00435F80, ControlGunShot);
 
 	INJECT(0x00435FD0, GunShot);
 	INJECT(0x00436040, GunHit);
 	INJECT(0x00436100, GunMiss);
+	INJECT(0x004361B0, ShotLara);
 
-//	INJECT(0x004361B0, ShotLara);
 //	INJECT(0x00436380, InitialiseCult1);
 //	INJECT(0x004363D0, Cult1Control);
 //	INJECT(0x00436800, InitialiseCult3);
@@ -134,5 +259,6 @@ void Inject_People() {
 //	INJECT(0x004371C0, Worker2Control);
 //	INJECT(0x00437620, BanditControl);
 //	INJECT(0x00437960, Bandit2Control);
-//	INJECT(0x00437DA0, WinstonControl);
+
+	INJECT(0x00437DA0, WinstonControl);
 }
