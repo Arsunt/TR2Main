@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -198,6 +198,30 @@ static void MarkSemitransTextureRanges() {
 		}
 	}
 }
+
+void UpdateDepthQ(bool isReset) {
+	static DEPTHQ_ENTRY depthQBackup[15];
+	if( isReset ) {
+		memcpy(depthQBackup, DepthQTable, sizeof(DEPTHQ_ENTRY) * 15);
+		return;
+	}
+	switch( SavedAppSettings.LightingMode ) {
+	case 0:
+		for( DWORD i = 0; i < 15; ++i ) {
+			DepthQTable[i] = DepthQTable[15];
+		}
+		break;
+	case 1:
+		memcpy(&DepthQTable[7], &depthQBackup[7], sizeof(DEPTHQ_ENTRY) * 8);
+		for( DWORD i = 0; i < 7; ++i ) {
+			DepthQTable[i] = DepthQTable[7];
+		}
+		break;
+	case 2:
+		memcpy(DepthQTable, depthQBackup, sizeof(DEPTHQ_ENTRY) * 15);
+		break;
+	}
+}
 #endif // FEATURE_VIDEOFX_IMPROVED
 
 #if defined(FEATURE_MOD_CONFIG)
@@ -250,6 +274,100 @@ static void LoadBareFootSFX(int *sampleIndexes, int sampleCount) {
 	CloseHandle(hSfxFile);
 }
 #endif // FEATURE_MOD_CONFIG
+
+#ifdef FEATURE_BACKGROUND_IMPROVED
+int PatternTexPage = -1;
+
+static struct {
+	int x, y, side, page;
+} BgndPattern = {0, 0, 0, -1};
+
+static bool GetBgndPatternInfo() {
+	memset(&BgndPattern, 0, sizeof(BgndPattern));
+	if( !Objects[ID_INV_BACKGROUND].loaded ) {
+		return false;
+	}
+
+	__int16 *meshPtr = MeshPtr[Objects[ID_INV_BACKGROUND].meshIndex];
+	meshPtr += 3+2; // skip mesh coords (3*INT16) and radius (1*INT32)
+
+	int num = *(meshPtr++);
+	meshPtr += num*3; // skip vertices (each one is 3xINT16)
+
+	num = *(meshPtr++);
+	if( num >= 0 ) // negative num means lights instead of normals
+		meshPtr += num*3; // skip normals (each is 3xINT16)
+	else
+		meshPtr -= num; // skip lights (each one is INT16)
+
+	num = *(meshPtr++); // get quads number (we need at least one)
+	if( num < 1 ) return false;
+
+	meshPtr += 4; // skip 4 vertex indices of 1st textured quad (each one is INT16)
+	DWORD textureIndex = *(meshPtr++); // get texture index of 1st textured quad.
+
+	PHD_TEXTURE *texture = &PhdTextureInfo[textureIndex];
+	PHD_UV *uv = texture->uv;
+	if( uv[0].u != uv[3].u && uv[1].u != uv[2].u && uv[0].u >= uv[2].u &&
+		uv[0].v != uv[1].v && uv[2].v != uv[3].v && uv[0].v >= uv[2].v )
+	{
+		return false;
+	}
+
+	int x = (uv[0].u % 0x100 + uv[0].u) / 0x100;
+	int y = (uv[0].v % 0x100 + uv[0].v) / 0x100;
+	int w = (uv[2].u % 0x100 + uv[2].u) / 0x100 - x;
+	int h = (uv[2].v % 0x100 + uv[2].v) / 0x100 - y;
+	if( w != h ) return false;
+
+	while( h%2 == 0 ) h /= 2;
+	if( h != 1 ) return false;
+
+	BgndPattern.x = x;
+	BgndPattern.y = y;
+	BgndPattern.side = w;
+	BgndPattern.page = texture->tpage;
+	return true;
+}
+
+static int CreateBgndPatternTexture(HANDLE hFile) {
+	if( hFile == INVALID_HANDLE_VALUE || SavedAppSettings.RenderMode != RM_Hardware || BgndPattern.side <= 0 ) {
+		return -1;
+	}
+
+	DWORD bytesRead;
+	int pageCount = 0;
+	SetFilePointer(hFile, LevelFileTexPagesOffset, NULL, FILE_BEGIN);
+	ReadFileSync(hFile, &pageCount, sizeof(pageCount), &bytesRead, NULL);
+	if( BgndPattern.page >= pageCount ) {
+		return -1;
+	}
+
+	int pageIndex = -1;
+	DWORD pageSize = ( TextureFormat.bpp < 16 ) ? 256*256*1 : 256*256*2;
+	BYTE *bitmap = (BYTE *)GlobalAlloc(GMEM_FIXED, pageSize);
+	if( TextureFormat.bpp < 16 ) {
+		SetFilePointer(hFile, BgndPattern.page*(256*256*1), NULL, FILE_CURRENT);
+		ReadFileSync(hFile, bitmap, pageSize, &bytesRead, NULL);
+		pageIndex = MakeCustomTexture(BgndPattern.x, BgndPattern.y, BgndPattern.side, BgndPattern.side,
+									256, BgndPattern.side, 8, bitmap, GamePalette8, PaletteIndex, NULL, false);
+	} else {
+		SetFilePointer(hFile, pageCount*(256*256*1) + BgndPattern.page*(256*256*2), NULL, FILE_CURRENT);
+		ReadFileSync(hFile, bitmap, pageSize, &bytesRead, NULL);
+		pageIndex = MakeCustomTexture(BgndPattern.x, BgndPattern.y, BgndPattern.side, BgndPattern.side,
+									256, BgndPattern.side, 16, bitmap, NULL, -1, NULL, false);
+	}
+
+	if( pageIndex >= 0 ) {
+		HWR_TexturePageIndexes[HwrTexturePagesCount] = pageIndex;
+		HWR_PageHandles[HwrTexturePagesCount] = GetTexturePageHandle(pageIndex);
+		pageIndex = HwrTexturePagesCount++;
+	}
+
+	GlobalFree(bitmap);
+	return pageIndex;
+}
+#endif // FEATURE_BACKGROUND_IMPROVED
 
 static GF_LEVEL_TYPE LoadLevelType = GFL_NOLEVEL;
 
@@ -556,6 +674,10 @@ BOOL __cdecl LoadObjects(HANDLE hFile) {
 			}
 		}
 	}
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	// get background pattern info before UV adjustment
+	GetBgndPatternInfo();
+#endif // FEATURE_BACKGROUND_IMPROVED
 	AdjustTextureUVs(true);
 
 	return TRUE;
@@ -630,13 +752,18 @@ BOOL __cdecl LoadItems(HANDLE hFile) {
 BOOL __cdecl LoadDepthQ(HANDLE hFile) {
 	int i, j;
 	DWORD bytesRead;
+#if (DIRECT3D_VERSION < 0x900)
 	RGB888 paletteBuffer[256];
+#endif // (DIRECT3D_VERSION < 0x900)
 
 	ReadFileSync(hFile, DepthQTable, 32*sizeof(DEPTHQ_ENTRY), &bytesRead, NULL);
 
 	for( i=0; i<32; ++i )
 		DepthQTable[i].index[0] = 0;
 
+#if (DIRECT3D_VERSION >= 0x900)
+	memcpy(DepthQIndex, &DepthQTable[24], sizeof(DEPTHQ_ENTRY));
+#else // (DIRECT3D_VERSION >= 0x900)
 	if( GameVid_IsWindowedVga ) {
 		CopyBitmapPalette(GamePalette8, DepthQTable[0].index, 32*sizeof(DEPTHQ_ENTRY), paletteBuffer);
 		SyncSurfacePalettes(DepthQTable, 256, 32, 256, GamePalette8, DepthQTable, 256, paletteBuffer, true);
@@ -645,8 +772,13 @@ BOOL __cdecl LoadDepthQ(HANDLE hFile) {
 			DepthQIndex[i] = S_COLOUR(GamePalette8[i].red, GamePalette8[i].green, GamePalette8[i].blue);
 		}
 	} else {
-		memcpy(DepthQIndex, &DepthQTable[24], 256);
+		memcpy(DepthQIndex, &DepthQTable[24], sizeof(DEPTHQ_ENTRY));
 	}
+#endif // (DIRECT3D_VERSION >= 0x900)
+
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	UpdateDepthQ(true);
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 	for( i=0; i<32; ++i ) {
 		for( j=0; j<256; ++j ) {
@@ -1017,6 +1149,9 @@ BOOL __cdecl LoadLevel(LPCTSTR fileName, int levelID) {
 	MarkSemitransObjects();
 	MarkSemitransTextureRanges();
 #endif // FEATURE_VIDEOFX_IMPROVED
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	PatternTexPage = CreateBgndPatternTexture(hFile);
+#endif // FEATURE_BACKGROUND_IMPROVED
 	result = TRUE;
 
 EXIT :
@@ -1086,6 +1221,9 @@ BOOL __cdecl S_ReloadLevelGraphics(BOOL reloadPalettes, BOOL reloadTexPages) {
 				HWR_FreeTexturePages();
 			SetFilePointer(hFile, LevelFileTexPagesOffset, NULL, FILE_BEGIN);
 			LoadTexturePages(hFile);
+#ifdef FEATURE_BACKGROUND_IMPROVED
+			PatternTexPage = CreateBgndPatternTexture(hFile);
+#endif // FEATURE_BACKGROUND_IMPROVED
 		}
 		CloseHandle(hFile);
 	}

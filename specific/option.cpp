@@ -700,7 +700,7 @@ void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 			}
 			break;
 
-		case 1 : // new game | save game
+		case 1 : // new game | save game | restart level
 			if( CHK_ANY(GF_GameFlow.flags, GFF_LoadSaveDisabled) ) {
 				InputDB = IN_RIGHT;
 			}
@@ -729,7 +729,16 @@ void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 			}
 			else if( passportMode == 0 ) {
 				if( InventoryMode == INV_DeathMode ) {
+#ifdef FEATURE_HUD_IMPROVED
+					if( PassportTextInfo == NULL ) {
+						if( SavedGamesCount == 0 ) left = false;
+						SetPassportTextInfo(GSI_Passport_RestartLevel, left, right);
+						T_BottomAlign(PassportTextInfo, 1);
+						T_CentreH(PassportTextInfo, 1);
+					}
+#else // FEATURE_HUD_IMPROVED
 					InputDB = ( item->animDirection == -1 ) ? IN_LEFT : IN_RIGHT;
+#endif // FEATURE_HUD_IMPROVED
 				} else {
 					if( PassportTextInfo == NULL ) {
 						GAME_STRING_ID textID;
@@ -775,7 +784,7 @@ void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 			}
 			break;
 
-		case 2 : // exit game
+		case 2 : // exit game | exit to title
 			if( PassportTextInfo == NULL ) {
 				GAME_STRING_ID textID;
 				if( InventoryMode == INV_TitleMode ) {
@@ -788,7 +797,6 @@ void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 					textID = GSI_Passport_ExitToTitle;
 				}
 #ifdef FEATURE_HUD_IMPROVED
-				if( InventoryMode == INV_DeathMode && SavedGamesCount == 0 ) left = false;
 				SetPassportTextInfo(textID, left, right);
 #else // FEATURE_HUD_IMPROVED
 				PassportTextInfo = T_Print(0, PASSPORT_Y_TITLE, 0, GF_GameStringTable[textID]);
@@ -802,7 +810,11 @@ void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 			break;
 	}
 
+#ifdef FEATURE_HUD_IMPROVED
+	if( CHK_ANY(InputDB, IN_LEFT) && (InventoryMode != INV_DeathMode || SavedGamesCount != 0 || page > 1) ) {
+#else // FEATURE_HUD_IMPROVED
 	if( CHK_ANY(InputDB, IN_LEFT) && (InventoryMode != INV_DeathMode || SavedGamesCount != 0) ) {
+#endif // FEATURE_HUD_IMPROVED
 		item->animDirection = -1;
 		item->goalFrame -= 5;
 		if( SavedGamesCount != 0 ) {

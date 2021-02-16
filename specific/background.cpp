@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -30,6 +30,8 @@
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
 #include "modding/background_new.h"
+
+extern int PatternTexPage;
 
 DWORD InvBackgroundMode = 2;
 DWORD StatsBackgroundMode = 0;
@@ -126,13 +128,13 @@ void __cdecl DrawQuad(float sx, float sy, float width, float height, D3DCOLOR co
 	for( int i=0; i<4; ++i ) {
 		vertex[i].sz = 0;
 		vertex[i].rhw = FltRhwONearZ;
-		vertex[i].color = color | 0xFF000000;
+		vertex[i].color = RGBA_SETALPHA(color, 0xFF);
 		vertex[i].specular = 0;
 	}
 
 	HWR_TexSource(0);
 	HWR_EnableColorKey(false);
-	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3D_TLVERTEX, &vertex, 4, D3D_DRAWFLAGS);
+	HWR_DrawPrimitive(D3DPT_TRIANGLESTRIP, &vertex, 4, true);
 }
 
 void __cdecl BGND_DrawInGameBackground() {
@@ -160,8 +162,72 @@ void __cdecl BGND_DrawInGameBackground() {
 		BGND_DrawInGameBlack();
 		return;
 	}
-#endif // FEATURE_BACKGROUND_IMPROVED
 
+	if( PatternTexPage >= 0 ) {
+		tu = tv = 0;
+		twidth = theight = 256;
+		texSource = HWR_PageHandles[PatternTexPage];
+	} else {
+		meshPtr = MeshPtr[Objects[ID_INV_BACKGROUND].meshIndex];
+		meshPtr += 3+2; // skip mesh coords (3*INT16) and radius (1*INT32)
+
+		numVertices = *(meshPtr++);
+		meshPtr += numVertices*3; // skip vertices (each one is 3xINT16)
+
+		numNormals = *(meshPtr++);
+		if( numNormals >= 0 ) // negative num means lights instead of normals
+			meshPtr += numNormals*3; // skip normals (each is 3xINT16)
+		else
+			meshPtr -= numNormals; // skip lights (each one is INT16)
+
+		numQuads = *(meshPtr++);
+		if( numQuads < 1 ) {
+			BGND_DrawInGameBlack();
+			return;
+		}
+		meshPtr += 4; // skip 4 vertice indices of 1st textured quad (each one is INT16)
+		textureIndex = *(meshPtr++); // get texture index of 1st textured quad.
+
+		textureInfo = &PhdTextureInfo[textureIndex];
+		texSource = HWR_PageHandles[textureInfo->tpage];
+
+		tu = textureInfo->uv[0].u / PHD_HALF;
+		tv = textureInfo->uv[0].v / PHD_HALF;
+		twidth  = textureInfo->uv[2].u / PHD_HALF - tu + 1;
+		theight = textureInfo->uv[2].v / PHD_HALF - tv + 1;
+	}
+
+	HWR_EnableZBuffer(false, false);
+	if( PatternTexPage >= 0 ) {
+#if (DIRECT3D_VERSION >= 0x900)
+		D3DDev->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
+		D3DDev->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
+#else // (DIRECT3D_VERSION >= 0x900)
+		D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREADDRESS, D3DTADDRESS_WRAP);
+#endif // (DIRECT3D_VERSION >= 0x900)
+	}
+
+	if( bgndMode == 2 ) {
+		static const int shortWaveStep = -0x0267; // minus 3.92 degrees
+		static const int longWaveStep  = -0x0200; // minus 2.81 degrees
+
+		static UINT16 deformWavePhase = 0x0000; // 0 degrees
+		static UINT16 shortWavePhase = 0x4000; // 90 degrees
+		static UINT16 longWavePhase = 0xA000; // 225 degrees
+
+		PSX_Background(texSource, tu, tv, twidth, theight, 3, 10, deformWavePhase, shortWavePhase, longWavePhase);
+
+		deformWavePhase += shortWaveStep;
+		shortWavePhase  += shortWaveStep;
+		longWavePhase   += longWaveStep;
+
+		goto CLEANUP;
+	}
+
+	y_count = 6;
+	x_count = MulDiv(y_count, PhdWinWidth, PhdWinHeight);
+
+#else // !FEATURE_BACKGROUND_IMPROVED
 	meshPtr = MeshPtr[Objects[ID_INV_BACKGROUND].meshIndex];
 	meshPtr += 3+2; // skip mesh coords (3*INT16) and radius (1*INT32)
 
@@ -183,8 +249,8 @@ void __cdecl BGND_DrawInGameBackground() {
 	meshPtr += 4; // skip 4 vertice indices of 1st textured quad (each one is INT16)
 	textureIndex = *(meshPtr++); // get texture index of 1st textured quad.
 
-	texSource = HWR_PageHandles[PhdTextureInfo[textureIndex].tpage];
 	textureInfo = &PhdTextureInfo[textureIndex];
+	texSource = HWR_PageHandles[textureInfo->tpage];
 
 	tu = textureInfo->uv[0].u / PHD_HALF;
 	tv = textureInfo->uv[0].v / PHD_HALF;
@@ -193,28 +259,6 @@ void __cdecl BGND_DrawInGameBackground() {
 
 	HWR_EnableZBuffer(false, false);
 
-#ifdef FEATURE_BACKGROUND_IMPROVED
-	if( bgndMode == 2 ) {
-		static const int shortWaveStep = -0x0267; // minus 3.92 degrees
-		static const int longWaveStep  = -0x0200; // minus 2.81 degrees
-
-		static UINT16 deformWavePhase = 0x0000; // 0 degrees
-		static UINT16 shortWavePhase = 0x4000; // 90 degrees
-		static UINT16 longWavePhase = 0xA000; // 225 degrees
-
-		PSX_Background(texSource, tu, tv, twidth, theight, 3, 10, deformWavePhase, shortWavePhase, longWavePhase);
-
-		deformWavePhase += shortWaveStep;
-		shortWavePhase  += shortWaveStep;
-		longWavePhase   += longWaveStep;
-
-		HWR_EnableZBuffer(true, true);
-		return;
-	}
-
-	y_count = 6;
-	x_count = MulDiv(y_count, PhdWinWidth, PhdWinHeight);
-#else // !FEATURE_BACKGROUND_IMPROVED
 	x_count = 8;
 	y_count = 6;
 #endif // FEATURE_BACKGROUND_IMPROVED
@@ -247,6 +291,17 @@ void __cdecl BGND_DrawInGameBackground() {
 		}
 		y_current = y_next;
 	}
+#ifdef FEATURE_BACKGROUND_IMPROVED
+CLEANUP:
+	if( PatternTexPage >= 0 ) {
+#if (DIRECT3D_VERSION >= 0x900)
+		D3DDev->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+		D3DDev->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+#else // (DIRECT3D_VERSION >= 0x900)
+		D3DDev->SetRenderState(D3DRENDERSTATE_TEXTUREADDRESS, D3DTADDRESS_CLAMP);
+#endif // (DIRECT3D_VERSION >= 0x900)
+	}
+#endif // FEATURE_BACKGROUND_IMPROVED
 	HWR_EnableZBuffer(true, true);
 }
 
@@ -264,11 +319,26 @@ void __cdecl DrawTextureTile(int sx, int sy, int width, int height, HWR_TEXHANDL
 	sx1 = (double)(sx + width);
 	sy1 = (double)(sy + height);
 
+#ifdef FEATURE_BACKGROUND_IMPROVED
+	tu0 = (double)tu / 256.0;
+	tv0 = (double)tv / 256.0;
+	tu1 = (double)(tu + t_width)  / 256.0;
+	tv1 = (double)(tv + t_height) / 256.0;
+
+	if( PatternTexPage < 0 ) {
+		uvAdjust = (double)UvAdd / (double)(PHD_ONE);
+		tu0 += uvAdjust;
+		tv0 += uvAdjust;
+		tu1 -= uvAdjust;
+		tv1 -= uvAdjust;
+	}
+#else // FEATURE_BACKGROUND_IMPROVED
 	uvAdjust = (double)UvAdd / (double)(PHD_ONE);
 	tu0 = (double)tu / 256.0 + uvAdjust;
 	tv0 = (double)tv / 256.0 + uvAdjust;
 	tu1 = (double)(tu + t_width)  / 256.0 - uvAdjust;
 	tv1 = (double)(tv + t_height) / 256.0 - uvAdjust;
+#endif // FEATURE_BACKGROUND_IMPROVED
 
 	vertex[0].sx = sx0;
 	vertex[0].sy = sy0;
@@ -302,7 +372,7 @@ void __cdecl DrawTextureTile(int sx, int sy, int width, int height, HWR_TEXHANDL
 
 	HWR_TexSource(texSource);
 	HWR_EnableColorKey(false);
-	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3D_TLVERTEX, &vertex, 4, D3D_DRAWFLAGS);
+	HWR_DrawPrimitive(D3DPT_TRIANGLESTRIP, &vertex, 4, true);
 }
 
 D3DCOLOR __cdecl BGND_CenterLighting(int x, int y, int width, int height) {
@@ -312,6 +382,10 @@ D3DCOLOR __cdecl BGND_CenterLighting(int x, int y, int width, int height) {
 	xDist = (double)(x - (width/2)) / (double)width; // xDist range will be: -0.5..0.5
 	yDist = (double)(y - (height/2)) / (double)height; // yDist range will be: -0.5..0.5
 	light = 256 - (sqrt(xDist * xDist + yDist * yDist) * 300.0); // light range will be: 44..256
+
+#if defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
+	if( SavedAppSettings.LightingMode ) light /= 2;
+#endif // defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
 
 	// Do light range checks just in case
 	CLAMP(light, 0, 255);

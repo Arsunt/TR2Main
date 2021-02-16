@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -52,7 +52,6 @@ extern int CalculateFogShade(int depth);
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
 DWORD ShadowMode = 1;
-void FreeEnvmapTexture();
 #endif // FEATURE_VIDEOFX_IMPROVED
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
@@ -78,6 +77,86 @@ typedef struct ShadowInfo_t {
 	__int16 vertexCount;
 	POS_3D vertex[32]; // original size was 8
 } SHADOW_INFO;
+
+#if (DIRECT3D_VERSION >= 0x900)
+static bool SWR_StretchBlt(SWR_BUFFER *dstBuf, RECT *dstRect, SWR_BUFFER *srcBuf, RECT *srcRect) {
+	if( !srcBuf || !srcBuf->bitmap || !srcBuf->width || !srcBuf->height ||
+		!dstBuf || !dstBuf->bitmap || !dstBuf->width || !dstBuf->height )
+	{
+		return false;
+	}
+
+	int sx = 0;
+	int sy = 0;
+	int sw = srcBuf->width;
+	int sh = srcBuf->height;
+	if( srcRect ) {
+		sx = srcRect->left;
+		sy = srcRect->top;
+		sw = srcRect->right;
+		sh = srcRect->bottom;
+		CLAMP(sx, 0, (int)srcBuf->width);
+		CLAMP(sy, 0, (int)srcBuf->height);
+		CLAMP(sw, 0, (int)srcBuf->width);
+		CLAMP(sh, 0, (int)srcBuf->height);
+		sw -= sx;
+		sh -= sy;
+		if( !sw || !sh ) return false;
+	}
+
+	int dx = 0;
+	int dy = 0;
+	int dw = dstBuf->width;
+	int dh = dstBuf->height;
+	if( dstRect ) {
+		dx = dstRect->left;
+		dy = dstRect->top;
+		dw = dstRect->right;
+		dh = dstRect->bottom;
+		CLAMP(dx, 0, (int)dstBuf->width);
+		CLAMP(dy, 0, (int)dstBuf->height);
+		CLAMP(dw, 0, (int)dstBuf->width);
+		CLAMP(dh, 0, (int)dstBuf->height);
+		dw -= dx;
+		dh -= dy;
+		if( !dw || !dh ) return false;
+	}
+
+	if( dw < 0 ) {
+		dx += dw;
+		dw = -dw;
+		sx += sw;
+		sw = -sw;
+	}
+
+	if( dh < 0 ) {
+		dy += dh;
+		dh = -dh;
+		sy += sh;
+		sh = -sh;
+	}
+
+
+	int *x = (int *)malloc(sizeof(int) * dw);
+	if( !x ) return false;
+
+	for( int i = 0; i < dw; ++i ) {
+		x[i] = i * sw / dw;
+	}
+
+	for( int j = 0; j < dh; ++j ) {
+		int y = j * sh / dh;
+		LPBYTE src = srcBuf->bitmap + srcBuf->width * y + sx;
+		LPBYTE dst = dstBuf->bitmap + dstBuf->width * j + dx;
+		for( int i = 0; i < dw; ++i ) {
+			dst[i] = src[x[i]];
+		}
+	}
+
+	free(x);
+	return true;
+}
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 int __cdecl GetRenderScale(int unit) {
 #ifdef FEATURE_HUD_IMPROVED
@@ -112,7 +191,9 @@ void __cdecl S_InitialisePolyList(BOOL clearBackBuffer) {
 	DWORD flags = 0;
 
 	if( WinVidNeedToResetBuffers ) {
+#if (DIRECT3D_VERSION < 0x900)
 		RestoreLostBuffers();
+#endif // (DIRECT3D_VERSION < 0x900)
 		WinVidSpinMessageLoop(false);
 		if( SavedAppSettings.FullScreen ) {
 			flags = CLRB_BackBuffer|CLRB_PrimaryBuffer;
@@ -120,7 +201,9 @@ void __cdecl S_InitialisePolyList(BOOL clearBackBuffer) {
 				flags |= CLRB_RenderBuffer;
 			if( SavedAppSettings.TripleBuffering )
 				flags |= CLRB_ThirdBuffer;
+#if (DIRECT3D_VERSION < 0x900)
 			WaitPrimaryBufferFlip();
+#endif // (DIRECT3D_VERSION < 0x900)
 		} else {
 			flags = CLRB_WindowedPrimaryBuffer;
 			if( SavedAppSettings.RenderMode == RM_Hardware )
@@ -136,23 +219,33 @@ void __cdecl S_InitialisePolyList(BOOL clearBackBuffer) {
 	flags = CLRB_PhdWinSize;
 	if( SavedAppSettings.RenderMode == RM_Software ) {
 		// Software Renderer
+#if (DIRECT3D_VERSION >= 0x900)
+		if( clearBackBuffer )
+			flags |= CLRB_BackBuffer|CLRB_RenderBuffer;
+#else // (DIRECT3D_VERSION >= 0x900)
 		flags |= CLRB_RenderBuffer;
+#endif // (DIRECT3D_VERSION >= 0x900)
 		ClearBuffers(flags, 0);
 	} else {
 		// Hardware Renderer
 		if( clearBackBuffer )
 			flags |= CLRB_BackBuffer;
+#if (DIRECT3D_VERSION >= 0x900)
+		if( SavedAppSettings.ZBuffer )
+			flags |= CLRB_ZBuffer;
+#else // (DIRECT3D_VERSION >= 0x900)
 		if( SavedAppSettings.ZBuffer && ZBufferSurface != NULL )
 			flags |= CLRB_ZBuffer;
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 		ClearBuffers(flags, 0);
 		HWR_BeginScene();
 		HWR_EnableZBuffer(true, true);
 	}
 	phd_InitPolyList();
-#ifdef FEATURE_VIDEOFX_IMPROVED
+#if defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION < 0x900)
 	FreeEnvmapTexture();
-#endif // FEATURE_VIDEOFX_IMPROVED
+#endif // defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION < 0x900)
 }
 
 DWORD __cdecl S_DumpScreen() {
@@ -189,10 +282,49 @@ void __cdecl S_OutputPolyList() {
 	if( SavedAppSettings.RenderMode == RM_Software ) {
 		// Software renderer
 		phd_SortPolyList();
+#if (DIRECT3D_VERSION >= 0x900)
+		// prefetch surface lock
+		extern LPDDS CaptureBufferSurface;
+		HRESULT rc = CaptureBufferSurface->LockRect(&desc, NULL, D3DLOCK_DONOTWAIT);
+		if( FAILED(rc) && rc != D3DERR_WASSTILLDRAWING ) {
+			return;
+		}
+		// do software rendering
+		extern void PrepareSWR(int pitch, int height);
+		PrepareSWR(RenderBuffer.width, RenderBuffer.height);
+		phd_PrintPolyList(RenderBuffer.bitmap);
+		// finish surface lock
+		if( rc == D3DERR_WASSTILLDRAWING && FAILED(CaptureBufferSurface->LockRect(&desc, NULL, 0)) ) {
+			return;
+		}
+		// copy bitmap to surface
+		BYTE *src = RenderBuffer.bitmap;
+		for( DWORD i=0; i<RenderBuffer.height; ++i ) {
+			DWORD *dst = (DWORD *)((BYTE *)desc.pBits + desc.Pitch * i);
+			for( DWORD j=0; j<RenderBuffer.width; ++j ) {
+				if( *src ) {
+					BYTE r = WinVidPalette[*src].peRed;
+					BYTE g = WinVidPalette[*src].peGreen;
+					BYTE b = WinVidPalette[*src].peBlue;
+					*dst++ = RGB_MAKE(r, g, b);
+				} else {
+					*dst++ = 0;
+				}
+				++src;
+			}
+		}
+		// unlock surface
+		CaptureBufferSurface->UnlockRect();
+#else // (DIRECT3D_VERSION >= 0x900)
 		if SUCCEEDED(WinVidBufferLock(RenderBufferSurface, &desc, DDLOCK_WRITEONLY|DDLOCK_WAIT)) {
+#ifdef FEATURE_NOLEGACY_OPTIONS
+			extern void PrepareSWR(int pitch, int height);
+			PrepareSWR(desc.lPitch, desc.dwHeight);
+#endif // FEATURE_NOLEGACY_OPTIONS
 			phd_PrintPolyList((BYTE *)desc.lpSurface);
 			WinVidBufferUnlock(RenderBufferSurface, &desc);
 		}
+#endif // (DIRECT3D_VERSION >= 0x900)
 	} else {
 		// Hardware renderer
 		if( !SavedAppSettings.ZBuffer || !SavedAppSettings.DontSortPrimitives ) {
@@ -791,10 +923,11 @@ void __cdecl S_AnimateTextures(int nTicks) {
 	RoomLightShades[2] = (WIBBLE_SIZE-1) * (phd_sin(WibbleOffset * PHD_360 / WIBBLE_SIZE) + PHD_IONE) / 2 / PHD_IONE;
 
 	if( GF_SunsetEnabled ) {
-		DWORD sunsetTimeout = TICKS_PER_SECOND*60*20; // sunset sets in 20 minutes
-		SunsetTimer += nTicks;
-		CLAMPG(SunsetTimer, sunsetTimeout);
-		RoomLightShades[3] = (WIBBLE_SIZE-1) * SunsetTimer / sunsetTimeout;
+		// NOTE: in the original game there was: SunsetTimer += nTicks;
+		// so the timer was reset every time when the saved game is loaded
+		SunsetTimer = SaveGame.statistics.timer * TICKS_PER_FRAME;
+		CLAMPG(SunsetTimer, SUNSET_TIMEOUT);
+		RoomLightShades[3] = (WIBBLE_SIZE-1) * SunsetTimer / SUNSET_TIMEOUT;
 	}
 	AnimateTextures(nTicks);
 }
@@ -831,19 +964,35 @@ void __cdecl S_DisplayPicture(LPCTSTR fileName, BOOL isTitle) {
 	bitmapData = (BYTE *)game_malloc(bitmapSize, GBUF_LoadPiccyBuffer);
 	DecompPCX(fileData, fileSize, bitmapData, PicPalette);
 
-	if( SavedAppSettings.RenderMode == RM_Software )
+	if( SavedAppSettings.RenderMode == RM_Software ) {
+#if (DIRECT3D_VERSION >= 0x900)
+		if( PictureBuffer.bitmap != NULL)
+			memcpy(PictureBuffer.bitmap, bitmapData, PictureBuffer.width * PictureBuffer.height);
+#else // (DIRECT3D_VERSION >= 0x900)
 		WinVidCopyBitmapToBuffer(PictureBufferSurface, bitmapData);
-	else
+#endif // (DIRECT3D_VERSION >= 0x900)
+	} else {
 		BGND_Make640x480(bitmapData, PicPalette);
+	}
 
-	if( !isTitle )
+	if( !isTitle ) {
+#if (DIRECT3D_VERSION >= 0x900)
+		memcpy(GamePalette8, PicPalette, sizeof(GamePalette8));
+#else // (DIRECT3D_VERSION >= 0x900)
 		CopyBitmapPalette(PicPalette, bitmapData, bitmapSize, GamePalette8);
+#endif // (DIRECT3D_VERSION >= 0x900)
+	}
 
 	game_free(fileSize + bitmapSize);
 #endif // FEATURE_BACKGROUND_IMPROVED
 }
 
 void __cdecl S_SyncPictureBufferPalette() {
+#if (DIRECT3D_VERSION >= 0x900)
+	if( PictureBuffer.bitmap == NULL ) return;
+	SyncSurfacePalettes(PictureBuffer.bitmap, PictureBuffer.width, PictureBuffer.height, PictureBuffer.width, PicPalette, PictureBuffer.bitmap, PictureBuffer.width, GamePalette8, TRUE);
+	memcpy(PicPalette, GamePalette8, sizeof(PicPalette));
+#else // (DIRECT3D_VERSION >= 0x900)
 	DDSDESC desc;
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	int width = BGND_PictureWidth;
@@ -859,6 +1008,7 @@ void __cdecl S_SyncPictureBufferPalette() {
 	SyncSurfacePalettes(desc.lpSurface, width, height, desc.lPitch, PicPalette, desc.lpSurface, desc.lPitch, GamePalette8, TRUE);
 	WinVidBufferUnlock(PictureBufferSurface, &desc);
 	memcpy(PicPalette, GamePalette8, sizeof(PicPalette));
+#endif // (DIRECT3D_VERSION >= 0x900)
 }
 
 void __cdecl S_DontDisplayPicture() {
@@ -880,9 +1030,15 @@ void __cdecl FadeToPal(int fadeValue, RGB888 *palette) {
 	int i, j;
 	int palStartIdx = 0;
 	int palEndIdx = 256;
+#if (DIRECT3D_VERSION < 0x900)
 	int palSize = 256;
+#endif // (DIRECT3D_VERSION < 0x900)
 	PALETTEENTRY fadePal[256];
 
+#if (DIRECT3D_VERSION >= 0x900)
+	if( SavedAppSettings.RenderMode != RM_Software )
+		return;
+#else // (DIRECT3D_VERSION >= 0x900)
 	if( !GameVid_IsVga )
 		return;
 
@@ -891,6 +1047,7 @@ void __cdecl FadeToPal(int fadeValue, RGB888 *palette) {
 		palEndIdx -= 10;
 		palSize -= 20;
 	}
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 	if( fadeValue <= 1 ) {
 		for( i=palStartIdx; i<palEndIdx; ++i ) {
@@ -898,7 +1055,12 @@ void __cdecl FadeToPal(int fadeValue, RGB888 *palette) {
 			WinVidPalette[i].peGreen = palette[i].green;
 			WinVidPalette[i].peBlue  = palette[i].blue;
 		}
+#if (DIRECT3D_VERSION >= 0x900)
+		S_InitialisePolyList(FALSE);
+		S_OutputPolyList();
+#else // (DIRECT3D_VERSION >= 0x900)
 		DDrawPalette->SetEntries(0, palStartIdx, palSize, &WinVidPalette[palStartIdx]);
+#endif // (DIRECT3D_VERSION >= 0x900)
 		return;
 	}
 
@@ -915,7 +1077,12 @@ void __cdecl FadeToPal(int fadeValue, RGB888 *palette) {
 			WinVidPalette[i].peGreen = fadePal[i].peGreen + (palette[i].green - fadePal[i].peGreen) * j / fadeValue;
 			WinVidPalette[i].peBlue  = fadePal[i].peBlue  + (palette[i].blue  - fadePal[i].peBlue)  * j / fadeValue;
 		}
+#if (DIRECT3D_VERSION >= 0x900)
+		S_InitialisePolyList(FALSE);
+		S_OutputPolyList();
+#else // (DIRECT3D_VERSION >= 0x900)
 		DDrawPalette->SetEntries(0, palStartIdx, palSize, &WinVidPalette[palStartIdx]);
+#endif // (DIRECT3D_VERSION >= 0x900)
 		S_DumpScreen();
 	}
 }
@@ -930,7 +1097,9 @@ void __cdecl ScreenClear(bool isPhdWinSize) {
 }
 
 void __cdecl S_CopyScreenToBuffer() {
+#if (DIRECT3D_VERSION < 0x900)
 	DDSDESC desc;
+#endif // (DIRECT3D_VERSION < 0x900)
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	DWORD bgndMode = 0;
 	if( IsFadeToBlack ) {
@@ -949,6 +1118,20 @@ void __cdecl S_CopyScreenToBuffer() {
 
 	if( SavedAppSettings.RenderMode == RM_Software ) {
 #ifdef FEATURE_BACKGROUND_IMPROVED
+#if (DIRECT3D_VERSION >= 0x900)
+		if( PictureBuffer.bitmap == NULL ||
+			PictureBuffer.width != width ||
+			PictureBuffer.height != height )
+		{
+			BGND_PictureWidth = width;
+			BGND_PictureHeight = height;
+			try {
+				CreatePictureBuffer();
+			} catch(...) {
+				return;
+			}
+		}
+#else // (DIRECT3D_VERSION >= 0x900)
 		if( PictureBufferSurface != NULL &&
 			(BGND_PictureWidth != width || BGND_PictureHeight != height) )
 		{
@@ -964,9 +1147,26 @@ void __cdecl S_CopyScreenToBuffer() {
 				return;
 			}
 		}
+#endif // (DIRECT3D_VERSION >= 0x900)
 #endif // FEATURE_BACKGROUND_IMPROVED
 
+#if (DIRECT3D_VERSION >= 0x900)
+		SWR_StretchBlt(&PictureBuffer, NULL, &RenderBuffer, &GameVidRect);
+#else // (DIRECT3D_VERSION >= 0x900)
 		PictureBufferSurface->Blt(NULL, RenderBufferSurface, &GameVidRect, DDBLT_WAIT, NULL);
+#endif // (DIRECT3D_VERSION >= 0x900)
+#if (DIRECT3D_VERSION >= 0x900)
+#ifdef FEATURE_BACKGROUND_IMPROVED
+		if( InventoryMode != INV_PauseMode || PauseBackgroundMode != 0 )
+#endif // FEATURE_BACKGROUND_IMPROVED
+		{
+			BYTE *ptr = PictureBuffer.bitmap;
+			DWORD num = PictureBuffer.width * PictureBuffer.height;
+			for( DWORD i = 0; i < num; ++i ) {
+				ptr[i] = DepthQIndex[ptr[i]];
+			}
+		}
+#else // (DIRECT3D_VERSION >= 0x900)
 		if(
 #ifdef FEATURE_BACKGROUND_IMPROVED
 			(InventoryMode != INV_PauseMode || PauseBackgroundMode != 0) &&
@@ -983,6 +1183,7 @@ void __cdecl S_CopyScreenToBuffer() {
 			}
 			WinVidBufferUnlock(PictureBufferSurface, &desc);
 		}
+#endif // (DIRECT3D_VERSION >= 0x900)
 		memcpy(PicPalette, GamePalette8, sizeof(PicPalette));
 	}
 #ifdef FEATURE_BACKGROUND_IMPROVED
@@ -993,7 +1194,11 @@ void __cdecl S_CopyScreenToBuffer() {
 }
 
 void __cdecl S_CopyBufferToScreen() {
+#if defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
+	DWORD color = SavedAppSettings.LightingMode ? 0xFF808080 : 0xFFFFFFFF;
+#else // defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
 	DWORD color = 0xFFFFFFFF; // vertex color (ARGB white)
+#endif // defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	DWORD bgndMode = 0;
 	if( IsFadeToBlack ) {
@@ -1006,16 +1211,27 @@ void __cdecl S_CopyBufferToScreen() {
 #endif // FEATURE_BACKGROUND_IMPROVED
 
 	if( SavedAppSettings.RenderMode == RM_Software ) {
+#if (DIRECT3D_VERSION >= 0x900)
+		if( PictureBuffer.bitmap == NULL ) {
+			return;
+		}
+#else // (DIRECT3D_VERSION >= 0x900)
 		if( PictureBufferSurface == NULL ) { // NOTE: additional check just in case
 			return;
 		}
+#endif // (DIRECT3D_VERSION >= 0x900)
 		if( memcmp(GamePalette8, PicPalette, sizeof(PicPalette)) ) {
 			S_SyncPictureBufferPalette();
 		}
 #ifdef FEATURE_BACKGROUND_IMPROVED
 		RECT rect = PhdWinRect;
 		BGND2_CalculatePictureRect(&rect);
+#if (DIRECT3D_VERSION >= 0x900)
+		ClearBuffers(CLRB_RenderBuffer, 0);
+		SWR_StretchBlt(&RenderBuffer, &rect, &PictureBuffer, NULL);
+#else // (DIRECT3D_VERSION >= 0x900)
 		RenderBufferSurface->Blt(&rect, PictureBufferSurface, NULL, DDBLT_WAIT, NULL);
+#endif // (DIRECT3D_VERSION >= 0x900)
 	}
 	else if( BGND_PictureIsReady && (!BGND_IsCaptured || bgndMode == 0) ) {
 		HWR_EnableZBuffer(false, false);
@@ -1035,7 +1251,11 @@ void __cdecl S_CopyBufferToScreen() {
 		}
 
 #else // !FEATURE_BACKGROUND_IMPROVED
+#if (DIRECT3D_VERSION >= 0x900)
+		SWR_StretchBlt(&RenderBuffer, &GameVidRect, &PictureBuffer, NULL);
+#else // (DIRECT3D_VERSION >= 0x900)
 		RenderBufferSurface->Blt(&GameVidRect, PictureBufferSurface, NULL, DDBLT_WAIT, NULL);
+#endif // (DIRECT3D_VERSION >= 0x900)
 	}
 	else if( BGND_PictureIsReady ) {
 		BGND_GetPageHandles();

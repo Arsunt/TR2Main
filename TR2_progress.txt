@@ -162,7 +162,7 @@ x function is unused / included in another function
 0x004103A0:		GetBaddieTarget
 
 	game/camera.cpp
-0x00410580:	 *	InitialiseCamera
+0x00410580:	+	InitialiseCamera
 0x00410630:	+	MoveCamera
 0x004109B0:	 *	ClipCamera
 0x00410A90:	 *	ShiftCamera
@@ -171,8 +171,8 @@ x function is unused / included in another function
 0x004113D0:	 *	ChaseCamera
 0x004114C0:	 *	ShiftClamp
 0x00411660:	 *	CombatCamera
-0x004117F0:	 *	LookCamera
-0x004119E0:	 *	FixedCamera
+0x004117F0:	+	LookCamera
+0x004119E0:	+	FixedCamera
 0x00411A80:	+	CalculateCamera
 
 	game/cinema.cpp
@@ -191,9 +191,9 @@ x function is unused / included in another function
 	game/collide.cpp
 0x004128D0:		GetCollisionInfo
 0x00412F90:		FindGridShift
-0x00412FC0:		CollideStaticObjects
-0x004133B0:		GetNearByRooms
-0x00413480:		GetNewRoom
+0x00412FC0:	+	CollideStaticObjects
+0x004133B0:	+	GetNearByRooms
+0x00413480:	+	GetNewRoom
 0x004134E0:		ShiftItem
 0x00413520:	 *	UpdateLaraRoom
 0x00413580:		GetTiltType

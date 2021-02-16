@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -257,7 +257,7 @@ static void phd_PutEnvmapPolygons(__int16 *ptrEnv) {
 		PhdVBuf[i].zv -= (double)(W2V_SCALE/2);
 		// set lighting that depends only from fog distance
 		PhdVBuf[i].g = (LsAdder + 0x1000) / 2;
-		CLAMP(PhdVBuf[i].g, 0, 0x1FFF);
+		CLAMP(PhdVBuf[i].g, 0x1000, 0x1FFF); // reflection can be darker but not brighter
 
 		// rotate normal vectors for X/Y, no translation
 		int x = (PhdMatrixPtr->_00 * ptrObj[0] +
@@ -591,9 +591,15 @@ __int16 *__cdecl calc_background_light(__int16 *ptrObj) {
 		ptrObj += vtxCount;
 	}
 
-	// SkyBox top has 50% brightness
+	// Skybox has normal brightness
+	int shade = 0x0FFF;
+
+	// NOTE: Sunset did not change the skybox brightness in the original game
+	if( GF_SunsetEnabled )
+		shade += 0x400 * SunsetTimer / SUNSET_TIMEOUT;
+
 	for( int i = 0; i < vtxCount; ++i )
-		PhdVBuf[i].g = 0x0FFF;
+		PhdVBuf[i].g = shade;
 
 	return ptrObj;
 }

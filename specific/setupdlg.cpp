@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -32,9 +32,9 @@
 #include "global/vars.h"
 #include <commctrl.h>
 
-#ifdef FEATURE_NOLEGACY_OPTIONS
-extern bool AvoidInterlacedVideoModes;
-#endif // FEATURE_NOLEGACY_OPTIONS
+#if defined(FEATURE_NOLEGACY_OPTIONS) || defined(FEATURE_VIDEOFX_IMPROVED)
+APP_SETTINGS ChangedAppSettings, SavedAppSettings;
+#endif // defined(FEATURE_NOLEGACY_OPTIONS) || defined(FEATURE_VIDEOFX_IMPROVED)
 
 static LPCTSTR String_Software3d = "Software (256 Colors)";
 static LPCTSTR String_Hardware3d = "Hardware 3D Acceleration";
@@ -145,6 +145,10 @@ bool __cdecl SE_WriteAppSettings(APP_SETTINGS *settings) {
 	SetRegistryBoolValue(REG_JOY_ENABLE,		settings->JoystickEnabled);
 	SetRegistryBoolValue(REG_FMV_DISABLE,		settings->DisableFMV);
 
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	SetRegistryDwordValue(REG_LIGHTING_MODE,	settings->LightingMode);
+#endif // FEATURE_VIDEOFX_IMPROVED
+
 	CloseGameRegistryKey();
 	return true;
 }
@@ -253,9 +257,11 @@ int __cdecl SE_ReadAppSettings(APP_SETTINGS *settings) {
 	GetRegistryBoolValue(REG_JOY_ENABLE,	&settings->JoystickEnabled,			true);
 	GetRegistryBoolValue(REG_FMV_DISABLE,	&settings->DisableFMV,				false);
 
-#ifdef FEATURE_NOLEGACY_OPTIONS
-	GetRegistryBoolValue(REG_AVOID_INTERLACED, &AvoidInterlacedVideoModes, false);
-#endif // FEATURE_NOLEGACY_OPTIONS
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	GetRegistryDwordValue(REG_LIGHTING_MODE, (DWORD *)&settings->LightingMode, true);
+	CLAMPG(settings->LightingMode, 2);
+#endif // FEATURE_VIDEOFX_IMPROVED
+
 	CloseGameRegistryKey();
 	return IsNewRegistryKeyCreated() ? 2 : 1;
 }
@@ -313,6 +319,11 @@ void __cdecl SE_DefaultGraphicsSettings() {
 	for( adapter = DisplayAdapterList.head; adapter; adapter = adapter->next ) {
 		if( adapter->body.lpAdapterGuid == NULL )
 			swAdapter = adapter;
+#if (DIRECT3D_VERSION >= 0x900)
+			hwAdapter = adapter;
+			ChangedAppSettings.ZBuffer = true;
+			ChangedAppSettings.BilinearFiltering = true;
+#else // (DIRECT3D_VERSION >= 0x900)
 		if( adapter->body.hwRenderSupported && (hwAdapter == NULL || adapter != swAdapter) )
 		{
 			hwAdapter = adapter;
@@ -323,6 +334,7 @@ void __cdecl SE_DefaultGraphicsSettings() {
 			ChangedAppSettings.ZBuffer = adapter->body.zBufferSupported;
 			ChangedAppSettings.BilinearFiltering = adapter->body.linearFilterSupported;
 		}
+#endif // (DIRECT3D_VERSION >= 0x900)
 	}
 
 	if( hwAdapter != NULL ) {
@@ -647,7 +659,11 @@ void __cdecl SE_GraphicsDlgFullScreenModesUpdate(HWND hwndDlg) {
 		modeList = &ChangedAppSettings.PreferredDisplayAdapter->body.hwDispModeList;
 	} else {
 		modeList = &ChangedAppSettings.PreferredDisplayAdapter->body.swDispModeList;
+#if (DIRECT3D_VERSION >= 0x900)
+		SE_FullScreenMode.bpp = 32;
+#else // (DIRECT3D_VERSION >= 0x900)
 		SE_FullScreenMode.bpp = 8;
+#endif // (DIRECT3D_VERSION >= 0x900)
 	}
 	SE_FullScreenMode.vga = VGA_NoVga;
 
@@ -737,8 +753,13 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 	bool windowedModeListAvailable;
 	DWORD fullScreenVideoModesCount;
 	DISPLAY_ADAPTER *preferred = &ChangedAppSettings.PreferredDisplayAdapter->body;
+#if (DIRECT3D_VERSION >= 0x900)
+	bool isSWSupported = true;
+	bool isHWSupported = true;
+#else // (DIRECT3D_VERSION >= 0x900)
 	bool isSWSupported = ( preferred->swDispModeList.dwCount > 0 || preferred->swWindowedSupported );
 	bool isHWSupported = ( preferred->hwDispModeList.dwCount > 0 || preferred->hwWindowedSupported );
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 	if( (ChangedAppSettings.RenderMode == RM_Software && !isSWSupported) ||
 		(ChangedAppSettings.RenderMode == RM_Hardware && !isHWSupported) )
@@ -764,7 +785,11 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 #endif // FEATURE_NOLEGACY_OPTIONS
 		zBufferAvailable = false;
 		bilinearFilteringAvailable = false;
+#if (DIRECT3D_VERSION >= 0x900)
+		windowedModeAvailable = true;
+#else // (DIRECT3D_VERSION >= 0x900)
 		windowedModeAvailable = preferred->swWindowedSupported;
+#endif // (DIRECT3D_VERSION >= 0x900)
 		fullScreenModeAvailable = ( preferred->swDispModeList.dwCount > 0 );
 		fullScreenVideoModesCount = preferred->swDispModeList.dwCount;
 	} else if( ChangedAppSettings.RenderMode == RM_Hardware ) {
@@ -774,9 +799,15 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 		ditherAvailable = preferred->ditherSupported;
 		tripleBufferingAvailable = true;
 #endif // FEATURE_NOLEGACY_OPTIONS
+#if (DIRECT3D_VERSION >= 0x900)
+		zBufferAvailable = true;
+		bilinearFilteringAvailable = true;
+		windowedModeAvailable = true;
+#else // (DIRECT3D_VERSION >= 0x900)
 		zBufferAvailable = preferred->zBufferSupported;
 		bilinearFilteringAvailable = preferred->linearFilterSupported;
 		windowedModeAvailable = preferred->hwWindowedSupported;
+#endif // (DIRECT3D_VERSION >= 0x900)
 		fullScreenModeAvailable = ( preferred->hwDispModeList.dwCount > 0 );
 		fullScreenVideoModesCount = preferred->hwDispModeList.dwCount;
 	} else {
@@ -839,7 +870,7 @@ void __cdecl SE_GraphicsDlgUpdate(HWND hwndDlg) {
 	ShowWindow(hItem, SW_HIDE);
 #else // FEATURE_NOLEGACY_OPTIONS
 	EnableWindow(hItem, perspectiveCorrectAvailable);
-	SendMessage(hItem, BM_SETCHECK3, ChangedAppSettings.PerspectiveCorrect, 0);
+	SendMessage(hItem, BM_SETCHECK, ChangedAppSettings.PerspectiveCorrect, 0);
 #endif // FEATURE_NOLEGACY_OPTIONS
 
 	// 'Dither' CheckBox

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -21,6 +21,7 @@
 
 #include "global/precompiled.h"
 #include "specific/input.h"
+#include "game/health.h"
 #include "game/invfunc.h"
 #include "game/laramisc.h"
 #include "specific/display.h"
@@ -287,7 +288,11 @@ bool __cdecl S_UpdateInput() {
 #endif // FEATURE_SCREENSHOT_IMPROVED
 		if( !isScreenShotKeyPressed ) {
 			isScreenShotKeyPressed = true;
+#if (DIRECT3D_VERSION >= 0x900)
+			ScreenShot(NULL);
+#else // (DIRECT3D_VERSION >= 0x900)
 			ScreenShot(PrimaryBufferSurface);
+#endif // (DIRECT3D_VERSION >= 0x900)
 		}
 	} else {
 		isScreenShotKeyPressed = false;
@@ -335,6 +340,21 @@ bool __cdecl S_UpdateInput() {
 		} else {
 			isF7KeyPressed = false;
 		}
+
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		// Software Renderer F11 key
+		if( KEY_DOWN(DIK_F11) ) {
+			if( !isF11KeyPressed ) {
+				isF11KeyPressed = true;
+				// Lighting Contrast (F11)
+				newSettings = SavedAppSettings;
+				newSettings.LightingMode = (newSettings.LightingMode + 1) % 3;
+				GameApplySettings(&newSettings);
+			}
+		} else {
+			isF11KeyPressed = false;
+		}
+#endif // FEATURE_VIDEOFX_IMPROVED
 	} else {
 
 		// Hardware Renderer F7 key
@@ -389,7 +409,14 @@ bool __cdecl S_UpdateInput() {
 		if( KEY_DOWN(DIK_F11) ) {
 			if( !isF11KeyPressed ) {
 				isF11KeyPressed = true;
-#ifndef FEATURE_NOLEGACY_OPTIONS
+#ifdef FEATURE_NOLEGACY_OPTIONS
+#if defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
+				// Lighting Contrast (F11)
+				newSettings = SavedAppSettings;
+				newSettings.LightingMode = (newSettings.LightingMode + 1) % 3;
+				GameApplySettings(&newSettings);
+#endif // defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
+#else // FEATURE_NOLEGACY_OPTIONS
 				// Dithering (F11)
 				newSettings = SavedAppSettings;
 				TOGGLE(newSettings.Dither);
@@ -510,7 +537,9 @@ bool __cdecl S_UpdateInput() {
 						}
 
 						newSettings.VideoMode = mode;
+#if (DIRECT3D_VERSION < 0x900)
 						newSettings.FullScreen = true;
+#endif // (DIRECT3D_VERSION < 0x900)
 						GameApplySettings(&newSettings);
 					}
 				}
@@ -519,6 +548,47 @@ bool __cdecl S_UpdateInput() {
 			isF12KeyPressed = false;
 		}
 	}
+
+#ifdef FEATURE_NOLEGACY_OPTIONS
+	if( SavedAppSettings.RenderMode == RM_Software ) {
+		char msg[32] = {0};
+		const char *levels[3] = {
+			GF_GameStringTable[GSI_Detail_Low],
+			GF_GameStringTable[GSI_Detail_Medium],
+			GF_GameStringTable[GSI_Detail_High],
+		};
+		// Decrease Software Renderer Detail Level
+		if( KEY_DOWN(DIK_F3) ) {
+			if( !isF3KeyPressed && DetailLevel > 0 ) {
+				isF3KeyPressed = true;
+				switch( --DetailLevel ) {
+					case 0: PerspectiveDistance = SW_DETAIL_LOW; break;
+					case 1: PerspectiveDistance = SW_DETAIL_MEDIUM; break;
+					case 2: PerspectiveDistance = SW_DETAIL_HIGH; break;
+				}
+				snprintf(msg, sizeof(msg), "Detail Level: %s", levels[DetailLevel]);
+			}
+		} else {
+			isF3KeyPressed = false;
+		}
+
+		// Increase Software Renderer Detail Level
+		if( KEY_DOWN(DIK_F4) ) {
+			if( !isF4KeyPressed && DetailLevel < 2 ) {
+				isF4KeyPressed = true;
+				switch( ++DetailLevel ) {
+					case 0: PerspectiveDistance = SW_DETAIL_LOW; break;
+					case 1: PerspectiveDistance = SW_DETAIL_MEDIUM; break;
+					case 2: PerspectiveDistance = SW_DETAIL_HIGH; break;
+				}
+				snprintf(msg, sizeof(msg), "Detail Level: %s", levels[DetailLevel]);
+			}
+		} else {
+			isF4KeyPressed = false;
+		}
+		if( *msg ) DisplayModeInfo(msg);
+	}
+#endif // FEATURE_NOLEGACY_OPTIONS
 
 	// Check if we cannot change full screen video parameters here
 	if( IsVidSizeLock ||
@@ -619,37 +689,7 @@ bool __cdecl S_UpdateInput() {
 		isF2KeyPressed = false;
 	}
 
-#ifdef FEATURE_NOLEGACY_OPTIONS
-	if( SavedAppSettings.RenderMode == RM_Software ) {
-		// Decrease Software Renderer Detail Level
-		if( KEY_DOWN(DIK_F3) ) {
-			if( !isF3KeyPressed && DetailLevel > 0 ) {
-				isF3KeyPressed = true;
-				switch( --DetailLevel ) {
-					case 0: PerspectiveDistance = SW_DETAIL_LOW; break;
-					case 1: PerspectiveDistance = SW_DETAIL_MEDIUM; break;
-					case 2: PerspectiveDistance = SW_DETAIL_HIGH; break;
-				}
-			}
-		} else {
-			isF3KeyPressed = false;
-		}
-
-		// Increase Software Renderer Detail Level
-		if( KEY_DOWN(DIK_F4) ) {
-			if( !isF4KeyPressed && DetailLevel < 2 ) {
-				isF4KeyPressed = true;
-				switch( ++DetailLevel ) {
-					case 0: PerspectiveDistance = SW_DETAIL_LOW; break;
-					case 1: PerspectiveDistance = SW_DETAIL_MEDIUM; break;
-					case 2: PerspectiveDistance = SW_DETAIL_HIGH; break;
-				}
-			}
-		} else {
-			isF4KeyPressed = false;
-		}
-	}
-#else // FEATURE_NOLEGACY_OPTIONS
+#ifndef FEATURE_NOLEGACY_OPTIONS
 	// Decrease inner screen size (F3)
 	if( KEY_DOWN(DIK_F3) ) {
 		if( !isF3KeyPressed ) {
@@ -669,7 +709,7 @@ bool __cdecl S_UpdateInput() {
 	} else {
 		isF4KeyPressed = false;
 	}
-#endif // FEATURE_NOLEGACY_OPTIONS
+#endif // !FEATURE_NOLEGACY_OPTIONS
 
 EXIT :
 	InputStatus = input;

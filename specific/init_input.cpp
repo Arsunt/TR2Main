@@ -319,11 +319,11 @@ extern void __thiscall FlaggedStringDelete(STRING_FLAGGED *item);
 extern bool FlaggedStringCopy(STRING_FLAGGED *dst, STRING_FLAGGED *src);
 
 bool __cdecl DInputCreate() {
-#if (DIRECTINPUT_VERSION >= 0x700)
-	return SUCCEEDED(DirectInputCreateEx(GameModule, DIRECTINPUT_VERSION, IID_IDirectInput7, (LPVOID *)&DInput, NULL));
-#else // (DIRECTINPUT_VERSION >= 0x700)
+#if (DIRECTINPUT_VERSION >= 0x800)
+	return SUCCEEDED(DirectInput8Create(GameModule, DIRECTINPUT_VERSION, IID_IDirectInput8, (LPVOID *)&DInput, NULL));
+#else // (DIRECTINPUT_VERSION >= 0x800)
 	return SUCCEEDED(DirectInputCreate(GameModule, DIRECTINPUT_VERSION, &DInput, NULL));
-#endif // (DIRECTINPUT_VERSION >= 0x700)
+#endif // (DIRECTINPUT_VERSION >= 0x800)
 }
 
 void __cdecl DInputRelease() {
@@ -455,11 +455,11 @@ static DWORD DInputReadJoystick(int *xPos, int *yPos) {
 	DWORD buttonStatus = 0;
 	DIJOYSTATE joyState;
 
-#if (DIRECTINPUT_VERSION >= 0x700)
+#if (DIRECTINPUT_VERSION >= 0x800)
 	while( FAILED(IDID_SysJoystick->Poll()) || FAILED(IDID_SysJoystick->GetDeviceState(sizeof(joyState), &joyState)) )
-#else // (DIRECTINPUT_VERSION >= 0x700)
+#else // (DIRECTINPUT_VERSION >= 0x800)
 	while( FAILED(IDID_SysJoystick->GetDeviceState(sizeof(joyState), &joyState)) )
-#endif // (DIRECTINPUT_VERSION >= 0x700)
+#endif // (DIRECTINPUT_VERSION >= 0x800)
 	{
 		if FAILED(IDID_SysJoystick->Acquire()) return 0;
 	}
@@ -662,18 +662,16 @@ JOYSTICK_NODE *__cdecl GetJoystick(GUID *lpGuid) {
 }
 
 void __cdecl DInputKeyboardCreate() {
-#if (DIRECTINPUT_VERSION >= 0x700)
-	if FAILED(DInput->CreateDeviceEx(GUID_SysKeyboard, IID_IDirectInputDevice7, (LPVOID *)&IDID_SysKeyboard, NULL))
-		throw ERR_CantCreateKeyboardDevice;
-#else // (DIRECTINPUT_VERSION >= 0x700)
 	if FAILED(DInput->CreateDevice(GUID_SysKeyboard, &IDID_SysKeyboard, NULL))
 		throw ERR_CantCreateKeyboardDevice;
-#endif // (DIRECTINPUT_VERSION >= 0x700)
 	if FAILED(IDID_SysKeyboard->SetCooperativeLevel(HGameWindow, DISCL_FOREGROUND|DISCL_NONEXCLUSIVE))
 		throw ERR_CantSetKBCooperativeLevel;
 	if FAILED(IDID_SysKeyboard->SetDataFormat(&c_dfDIKeyboard))
 		throw ERR_CantSetKBDataFormat;
-	if FAILED(IDID_SysKeyboard->Acquire())
+
+	// NOTE: there is no DIERR_OTHERAPPHASPRIO check in the original code
+	HRESULT res = IDID_SysKeyboard->Acquire();
+	if( !SUCCEEDED(res) && res != DIERR_OTHERAPPHASPRIO )
 		throw ERR_CantAcquireKeyboard;
 }
 
@@ -712,13 +710,8 @@ bool __cdecl DInputJoystickCreate() {
 	memset(JoyRanges, 0, sizeof(JoyRanges));
 	memset(&JoyCaps, 0, sizeof(JoyCaps));
 	JoyCaps.dwSize = sizeof(JoyCaps);
-#if (DIRECTINPUT_VERSION >= 0x700)
-	if FAILED(DInput->CreateDeviceEx(CurrentJoystick.joystickGuid, IID_IDirectInputDevice7, (LPVOID *)&IDID_SysJoystick, NULL))
-		return false;
-#else // (DIRECTINPUT_VERSION >= 0x700)
 	if FAILED(DInput->CreateDevice(CurrentJoystick.joystickGuid, &IDID_SysJoystick, NULL))
 		return false;
-#endif // (DIRECTINPUT_VERSION >= 0x700)
 	if FAILED(IDID_SysJoystick->SetCooperativeLevel(HGameWindow, DISCL_FOREGROUND|DISCL_NONEXCLUSIVE))
 		return false;
 	if FAILED(IDID_SysJoystick->SetDataFormat(&c_dfDIJoystick))
@@ -727,7 +720,9 @@ bool __cdecl DInputJoystickCreate() {
 		return false;
 	if FAILED(IDID_SysJoystick->EnumObjects(DInputEnumJoystickAxisCallback, (LPVOID)JoyRanges, DIDFT_AXIS))
 		return false;
-	if FAILED(IDID_SysJoystick->Acquire())
+
+	HRESULT res = IDID_SysJoystick->Acquire();
+	if( !SUCCEEDED(res) && res != DIERR_OTHERAPPHASPRIO )
 		return false;
 #endif // FEATURE_INPUT_IMPROVED
 
@@ -767,11 +762,7 @@ void __cdecl WinInRunControlPanel(HWND hWnd) {
 	if( DInput != NULL ) {
 #ifdef FEATURE_INPUT_IMPROVED
 		JOYSTICK *preferred = &ChangedAppSettings.PreferredJoystick->body;
-#if (DIRECTINPUT_VERSION >= 0x700)
-		if SUCCEEDED(DInput->CreateDeviceEx(preferred->joystickGuid, IID_IDirectInputDevice7, (LPVOID *)&IDID_SysJoystick, NULL))
-#else // (DIRECTINPUT_VERSION >= 0x700)
 		if SUCCEEDED(DInput->CreateDevice(preferred->joystickGuid, &IDID_SysJoystick, NULL))
-#endif // (DIRECTINPUT_VERSION >= 0x700)
 		{
 			IDID_SysJoystick->RunControlPanel(hWnd, 0);
 			IDID_SysJoystick->Release();

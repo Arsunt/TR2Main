@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### New features
+- Added DirectX 9 support. However, TR2Main can be compiled for DirectX 5 too.
 - Into TR2Main.dll added information about the current version. Now it will be easier to find out which DLL is which version.
 - The number of secrets in the script is taken into account when calculating the total number of secrets in the final statistics. Now it is calculated correctly, regardless of the total number of levels, bonus levels, and even mod levels.
 - Additional checks have been implemented to prevent Lara from getting weapons that are not supported by current level. Thus, a number of problems associated with the "Nightmare in Vegas" level are fixed.
@@ -71,6 +72,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fade out to black implemented for levels, demos, cut scenes and statistics.
 - Added an option to select Demo Mode text style: none, PC or PlayStation.
 - Now the inventory stopwatch (statistics item) position depends from HUD scale and Field of View options. So it looks both PlayStation and PC authentic.
+- The message is displayed when Bilinear Filter or Z-Buffer is toggled with F7/F8 hotkey (DirectX 9 only).
+- Added high contrast lighting (PlayStation style) for Hardware Renderer (DirectX 9 only).
+- Added low contrast lighting (Classic PC Hardware style) for Software Renderer.
+- Added F11 hotkey to toggle low/high contrast lighting (in the original game F11 was used to toggle Dither).
+- Sunset effect in Bartoli's Hideout now makes skybox a little darker.
+- Added "Restart Level" option (available only in case of Lara's death).
+- The inventory pattern (both static and animated) is seamless now for Bilinear Filter.
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.
@@ -96,6 +104,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a wrong inventory text position if the game window size is changed. 
 - Fixed a flashing "Demo Mode" text while demo is playing. 
 - The *low ceiling jump* bugfix is optional now.
+- Fixed a bug due to which non-textured surfaces could appear brighter than textured ones with the same lighting settings.
+- Fixed a bug that reset timer of sunset effect in Bartoli's Hideout after saved game is loaded.
 
 ### TR2Main bugfixes
 - Background capture is optimized even more, now it is 3-4 times faster than v0.8.2. No lags anymore (broken since v0.8.0).

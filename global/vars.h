@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -186,24 +186,24 @@ extern __int16 InvOptionObjectsCount;
 #define CameraCount					VAR_U_(0x004D7C64, DWORD)
 #define MinesDetonated				VAR_U_(0x004D7E6C, BOOL)
 #define BGND_PictureIsReady			VAR_U_(0x004D7E78, bool)
-#if (DIRECT3D_VERSION >= 0x700)
-#define D3DDev						VAR_U_(0x004D7EAC, LPDIRECT3DDEVICE7)
-#define D3D							VAR_U_(0x004D7EB0, LPDIRECT3D7)
-#else // (DIRECT3D_VERSION >= 0x700)
+#if (DIRECT3D_VERSION >= 0x900)
+#define D3DDev						VAR_U_(0x004D7EAC, LPDIRECT3DDEVICE9)
+#define D3D							VAR_U_(0x004D7EB0, LPDIRECT3D9)
+#else // (DIRECT3D_VERSION >= 0x900)
 #define D3DDev						VAR_U_(0x004D7EAC, LPDIRECT3DDEVICE2)
 #define D3D							VAR_U_(0x004D7EB0, LPDIRECT3D2)
 #define D3DView						VAR_U_(0x004D7EB4, LPDIRECT3DVIEWPORT2)
 #define D3DMaterial					VAR_U_(0x004D7EB8, LPDIRECT3DMATERIAL2)
-#endif // (DIRECT3D_VERSION >= 0x700)
+#endif // (DIRECT3D_VERSION >= 0x900)
 #define MinWindowClientHeight		VAR_U_(0x004D7EC0, int)
+#if (DIRECT3D_VERSION < 0x900)
 #define DDrawInterface				VAR_U_(0x004D7EC4, LPDIRECTDRAW)
+#endif // (DIRECT3D_VERSION < 0x900)
 #define IsGameWindowChanging		VAR_U_(0x004D7EC8, bool)
 #define MaxWindowHeight				VAR_U_(0x004D7ECC, int)
-#if (DIRECT3D_VERSION >= 0x700)
-#define DDraw						VAR_U_(0x004D7ED0, LPDIRECTDRAW7)
-#else // (DIRECT3D_VERSION >= 0x700)
+#if (DIRECT3D_VERSION < 0x900)
 #define DDraw						VAR_U_(0x004D7ED0, LPDIRECTDRAW2)
-#endif // (DIRECT3D_VERSION >= 0x700)
+#endif // (DIRECT3D_VERSION < 0x900)
 #define IsGameWindowCreated			VAR_U_(0x004D7ED4, bool)
 #define IsGameWindowUpdating		VAR_U_(0x004D7ED8, bool)
 #define IsDDrawGameWindowShow		VAR_U_(0x004D7EDC, bool)
@@ -245,21 +245,29 @@ extern DISPLAY_ADAPTER CurrentDisplayAdapter;
 #define IsGameWindowActive			VAR_U_(0x004D8380, bool)
 #define CurrentJoystick				VAR_U_(0x004D8388, JOYSTICK)
 #define JoystickList				VAR_U_(0x004D8540, JOYSTICK_LIST)
-#if (DIRECTINPUT_VERSION >= 0x700)
-#define DInput						VAR_U_(0x004D854C, LPDIRECTINPUT7)
-#define IDID_SysKeyboard			VAR_U_(0x004D8550, LPDIRECTINPUTDEVICE7)
-#define IDID_SysJoystick			VAR_U_(0x004D8554, LPDIRECTINPUTDEVICE7)
-#else // (DIRECTINPUT_VERSION >= 0x700)
+#if (DIRECTINPUT_VERSION >= 0x800)
+#define DInput						VAR_U_(0x004D854C, LPDIRECTINPUT8)
+#define IDID_SysKeyboard			VAR_U_(0x004D8550, LPDIRECTINPUTDEVICE8)
+#define IDID_SysJoystick			VAR_U_(0x004D8554, LPDIRECTINPUTDEVICE8)
+#else // (DIRECTINPUT_VERSION >= 0x800)
 #define DInput						VAR_U_(0x004D854C, LPDIRECTINPUT)
 #define IDID_SysKeyboard			VAR_U_(0x004D8550, LPDIRECTINPUTDEVICE)
 #define IDID_SysJoystick			VAR_U_(0x004D8554, LPDIRECTINPUTDEVICE)
-#endif // (DIRECTINPUT_VERSION >= 0x700)
+#endif // (DIRECTINPUT_VERSION >= 0x800)
 #define IsVidSizeLock				VAR_U_(0x004D855C, BOOL)
 #define SoundAdapterList			VAR_U_(0x004D8960, SOUND_ADAPTER_LIST)
 #define IsSoundEnabled				VAR_U_(0x004D8D70, bool)
+#if (DIRECTSOUND_VERSION >= 0x800)
+#define DSound						VAR_U_(0x004D8D74, LPDIRECTSOUND8)
+#else // (DIRECTSOUND_VERSION >= 0x800)
 #define DSound						VAR_U_(0x004D8D74, LPDIRECTSOUND)
+#endif // (DIRECTSOUND_VERSION >= 0x800)
 #define CurrentSoundAdapter			VAR_U_(0x004D8E78, SOUND_ADAPTER)
 #define PrimarySoundAdapter			VAR_U_(0x004D8E9C, SOUND_ADAPTER_NODE*)
+#if (DIRECT3D_VERSION >= 0x900)
+extern SWR_BUFFER RenderBuffer;
+extern SWR_BUFFER PictureBuffer;
+#else // (DIRECT3D_VERSION >= 0x900)
 #define RenderBufferSurface			VAR_U_(0x004D8EA0, LPDDS)
 #define DDrawClipper				VAR_U_(0x004D8EA4, LPDIRECTDRAWCLIPPER)
 #define ThirdBufferSurface			VAR_U_(0x004D92A8, LPDDS)
@@ -269,13 +277,17 @@ extern DISPLAY_ADAPTER CurrentDisplayAdapter;
 #define PrimaryBufferSurface		VAR_U_(0x004D92B8, LPDDS)
 #define ColorBitMasks				VAR_U_(0x004D92D8, COLOR_BIT_MASKS)
 #define GameVidBufRect				VAR_U_(0x004D9308, RECT)
+#endif // (DIRECT3D_VERSION >= 0x900)
 #define GameVidRect					VAR_U_(0x004D9318, RECT)
 #define GameVidWidth				VAR_U_(0x004D9328, int)
 #define GameVidHeight				VAR_U_(0x004D932C, int)
 #define GameVidBPP					VAR_U_(0x004D9330, int)
+#if (DIRECT3D_VERSION < 0x900)
 #define GameVidBufWidth				VAR_U_(0x004D9334, int)
 #define GameVidBufHeight			VAR_U_(0x004D9338, int)
+#endif // (DIRECT3D_VERSION < 0x900)
 #define UvAdd						VAR_U_(0x004D933C, int)
+#if (DIRECT3D_VERSION < 0x900)
 #define GameVid_IsVga				VAR_U_(0x004D9340, bool)
 #define GameVid_IsWindowedVga		VAR_U_(0x004D9341, bool)
 #define GameVid_IsFullscreenVga		VAR_U_(0x004D9342, bool)
@@ -283,6 +295,7 @@ extern DISPLAY_ADAPTER CurrentDisplayAdapter;
 #define Is16bitTextures				VAR_U_(0x004D9344, bool)
 #define NeedToReloadTextures		VAR_U_(0x004D9345, bool)
 #define BackBufferSurface			VAR_U_(0x004D9348, LPDDS)
+#endif // (DIRECT3D_VERSION < 0x900)
 #define HwrTexturePagesCount		VAR_U_(0x004D9350, DWORD)
 #define ReadFileBytesCounter		VAR_U_(0x004D9BE0, DWORD)
 #define LevelFilePalettesOffset		VAR_U_(0x004D9BE4, LONG)
@@ -323,14 +336,22 @@ extern DISPLAY_ADAPTER CurrentDisplayAdapter;
 #define AnimatedTextureRanges		VAR_U_(0x0051B91C, __int16*)
 #define WinVidNeedToResetBuffers	VAR_U_(0x0051BC20, bool)
 #define IsWet						VAR_U_(0x0051BC28, BOOL)
+#if defined(FEATURE_NOLEGACY_OPTIONS) || defined(FEATURE_VIDEOFX_IMPROVED)
+extern APP_SETTINGS ChangedAppSettings;
+#else // defined(FEATURE_NOLEGACY_OPTIONS) || defined(FEATURE_VIDEOFX_IMPROVED)
 #define ChangedAppSettings			VAR_U_(0x0051BC40, APP_SETTINGS)
+#endif // defined(FEATURE_NOLEGACY_OPTIONS) || defined(FEATURE_VIDEOFX_IMPROVED)
 #define SE_PropSheetWndHandle		VAR_U_(0x0051BC7C, HWND)
 #define SE_OldPropSheetWndProc		VAR_U_(0x0051BC80, WNDPROC)
 #define SE_DisplayAdapter			VAR_U_(0x0051BC8C, DISPLAY_ADAPTER_NODE*)
 #define SoundDialogHandle			VAR_U_(0x0051BC90, HWND)
 #define GraphicsDialogHandle		VAR_U_(0x0051BC9C, HWND)
 #define SE_FullScreenMode			VAR_U_(0x0051BCA0, DISPLAY_MODE)
+#if defined(FEATURE_NOLEGACY_OPTIONS) || defined(FEATURE_VIDEOFX_IMPROVED)
+extern APP_SETTINGS SavedAppSettings;
+#else // defined(FEATURE_NOLEGACY_OPTIONS) || defined(FEATURE_VIDEOFX_IMPROVED)
 #define SavedAppSettings			VAR_U_(0x0051BCB0, APP_SETTINGS)
+#endif // defined(FEATURE_NOLEGACY_OPTIONS) || defined(FEATURE_VIDEOFX_IMPROVED)
 #define IsSetupDialogCentered		VAR_U_(0x0051BCF0, bool)
 #define IsTitleLoaded				VAR_U_(0x0051BD90, BOOL)
 #define S_MasterVolume				VAR_U_(0x0051BD98, DWORD)
@@ -556,7 +577,6 @@ extern PHD_TEXTURE PhdTextureInfo[0x2000];
 #define DepthQTable					ARRAY_(0x004BD2C8, DEPTHQ_ENTRY, [32])
 #define DepthQIndex					ARRAY_(0x004BF2C8, BYTE, [256])
 #define PhdVBuf						ARRAY_(0x004BF3D0, PHD_VBUF, [1500])
-#define XBuffer						ARRAY_(0x004CAF50, int, [12000]) // NOTE: this means that SW renderer maximum safe resolution is 1200 pixels
 #ifdef FEATURE_EXTENDED_LIMITS
 extern BYTE *TexturePageBuffer8[128];
 #else // FEATURE_EXTENDED_LIMITS
@@ -568,8 +588,8 @@ extern BYTE *TexturePageBuffer8[128];
 #define InventoryExtraData			ARRAY_(0x004D7970, int, [8])
 #define SfxInfos					ARRAY_(0x004D7C68, SFX_INFO, [32])
 #ifdef FEATURE_BACKGROUND_IMPROVED
-extern int BGND_TexturePageIndexes[128];
-extern HWR_TEXHANDLE BGND_PageHandles[128];
+extern int BGND_TexturePageIndexes[64];
+extern HWR_TEXHANDLE BGND_PageHandles[64];
 #else // FEATURE_BACKGROUND_IMPROVED
 #define BGND_TexturePageIndexes		ARRAY_(0x004D7E80, int, [5])
 #define BGND_PageHandles			ARRAY_(0x004D7E98, HWR_TEXHANDLE, [5])
@@ -612,13 +632,6 @@ extern bool ConflictLayout[ARRAY_SIZE(Layout->key)];
 #define RoomLightShades				ARRAY_(0x0051B8F8, int, [4])
 #define GamePalette8				ARRAY_(0x0051B920, RGB888, [256])
 #define StringToShow				ARRAY_(0x0051BD10, char, [128])
-#if defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_BACKGROUND_IMPROVED)
-extern TEXPAGE_DESC TexturePages[256];
-extern LPDIRECTDRAWPALETTE DDrawPalettes[256];
-#else // defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_BACKGROUND_IMPROVED)
-#define TexturePages				ARRAY_(0x0051BDA8, TEXPAGE_DESC, [32])
-#define DDrawPalettes				ARRAY_(0x0051C200, LPDIRECTDRAWPALETTE, [16])
-#endif // defined(FEATURE_EXTENDED_LIMITS) || defined(FEATURE_BACKGROUND_IMPROVED)
 #define TextInfoTable				ARRAY_(0x0051C820, TEXT_STR_INFO, [64])
 #define TheStrings					ARRAY_(0x0051D6C0, STRING_FIXED64, [64])
 #define SampleLut					ARRAY_(0x0051E6E0, __int16, [370])

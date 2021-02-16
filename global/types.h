@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -77,6 +77,7 @@ typedef struct {
 // AI values
 #define HP_DONT_TARGET		(0xC000)
 #define RANDOM_SEED			(0xD371F947)
+#define SUNSET_TIMEOUT		(TICKS_PER_SECOND*60*20) // sunset sets in 20 minutes
 
 // Angle values
 #define PHD_360				(PHD_ONE)
@@ -243,25 +244,58 @@ typedef struct {
 #define GLOW_M16_COLOR		(0x7F701F) // M16 gunfire
 #define GLOW_GUNSHOT_COLOR	(0x7F701F) // Skidoo/Enemy gunfire
 
+// Collision types
+#define COLL_FRONT	(0x01)
+#define COLL_LEFT	(0x02)
+#define COLL_RIGHT	(0x04)
+#define COLL_TOP	(0x08)
+
 /*
  * DirectX type definitions
  */
 
-#if (DIRECT3D_VERSION >= 0x700)
-#define D3D_TLVERTEX D3DFVF_TLVERTEX
-#define D3D_DRAWFLAGS (0)
-typedef LPDIRECTDRAWSURFACE7 LPDDS;
-typedef DDSURFACEDESC2 DDSDESC;
-typedef LPDDSURFACEDESC2 LPDDSDESC;
-typedef LPDIRECTDRAWSURFACE7 HWR_TEXHANDLE;
-#else // (DIRECT3D_VERSION >= 0x700)
-#define D3D_TLVERTEX D3DVT_TLVERTEX
-#define D3D_DRAWFLAGS (D3DDP_DONOTUPDATEEXTENTS|D3DDP_DONOTCLIP)
+#if (DIRECT3D_VERSION >= 0x900)
+#ifndef RGB_MAKE
+#define RGBA_SETALPHA(rgba, x)	(((x) << 24) | ((rgba) & 0x00ffffff))
+#define RGBA_GETALPHA(rgb)		((rgb) >> 24)
+#define RGBA_GETRED(rgb)		(((rgb) >> 16) & 0xff)
+#define RGBA_GETGREEN(rgb)		(((rgb) >> 8) & 0xff)
+#define RGBA_GETBLUE(rgb)		((rgb) & 0xff)
+#define RGBA_MAKE(r, g, b, a)	((D3DCOLOR) (((a) << 24) | ((r) << 16) | ((g) << 8) | (b)))
+#define RGB_GETRED(rgb)			(((rgb) >> 16) & 0xff)
+#define RGB_GETGREEN(rgb)		(((rgb) >> 8) & 0xff)
+#define RGB_GETBLUE(rgb)		((rgb) & 0xff)
+#define RGB_MAKE(r, g, b)		((D3DCOLOR) (((r) << 16) | ((g) << 8) | (b)))
+#endif // RGB_MAKE
+
+#ifndef D3DFVF_TLVERTEX
+#define D3DFVF_TLVERTEX (D3DFVF_XYZRHW|D3DFVF_DIFFUSE|D3DFVF_SPECULAR|D3DFVF_TEX1)
+#endif // D3DFVF_TLVERTEX
+
+typedef struct {
+	D3DVALUE sx, sy, sz, rhw;
+	D3DCOLOR color, specular;
+	D3DVALUE tu, tv;
+} D3DTLVERTEX, *LPD3DTLVERTEX;
+
+typedef D3DLOCKED_RECT DDSDESC, *LPDDSDESC;
+typedef LPDIRECT3DSURFACE9 LPDDS;
+typedef LPDIRECT3DTEXTURE9 HWR_TEXHANDLE;
+#else // (DIRECT3D_VERSION >= 0x900)
+typedef DDSURFACEDESC DDSDESC, *LPDDSDESC;
 typedef LPDIRECTDRAWSURFACE3 LPDDS;
-typedef DDSURFACEDESC DDSDESC;
-typedef LPDDSURFACEDESC LPDDSDESC;
 typedef D3DTEXTUREHANDLE HWR_TEXHANDLE;
-#endif // (DIRECT3D_VERSION >= 0x700)
+#endif // (DIRECT3D_VERSION >= 0x900)
+
+#if (DIRECT3D_VERSION >= 0x900)
+#define VTXBUF_LEN (256)
+
+typedef struct {
+	DWORD width;
+	DWORD height;
+	LPBYTE bitmap;
+} SWR_BUFFER;
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 /*
  * Enums
@@ -1183,14 +1217,17 @@ typedef struct DisplayAdapter_t {
 	GUID adapterGuid;
 	STRING_FLAGGED driverDescription;
 	STRING_FLAGGED driverName;
+#if (DIRECT3D_VERSION >= 0x900)
+	UINT index;
+	D3DCAPS9 caps;
+	DISPLAY_MODE_LIST hwDispModeList;
+	DISPLAY_MODE_LIST swDispModeList;
+	DWORD screenWidth;
+#else // (DIRECT3D_VERSION >= 0x900)
 	DDCAPS driverCaps;
 	DDCAPS helCaps;
 	GUID deviceGuid;
-#if (DIRECT3D_VERSION >= 0x700)
-	D3DDEVICEDESC7 D3DHWDeviceDesc;
-#else // (DIRECT3D_VERSION >= 0x700)
 	D3DDEVICEDESC D3DHWDeviceDesc;
-#endif // DIRECT3D_VERSION >= 0x700
 	DISPLAY_MODE_LIST hwDispModeList;
 	DISPLAY_MODE_LIST swDispModeList;
 	DISPLAY_MODE vgaMode1;
@@ -1206,6 +1243,7 @@ typedef struct DisplayAdapter_t {
 	bool zBufferSupported;
 	bool linearFilterSupported;
 	bool shadeRestricted;
+#endif // (DIRECT3D_VERSION >= 0x900)
 } DISPLAY_ADAPTER;
 
 typedef struct DisplayAdapterNode_t {
@@ -1286,14 +1324,21 @@ typedef struct AppSettings_t {
 	TEX_ADJUST_MODE TexelAdjustMode;
 	int NearestAdjustment;
 	int LinearAdjustment;
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	int LightingMode;
+#endif // FEATURE_VIDEOFX_IMPROVED
 } APP_SETTINGS;
 
 struct TEXPAGE_DESC {
+#if (DIRECT3D_VERSION >= 0x900)
+	LPDIRECT3DTEXTURE9 texture;
+#else // (DIRECT3D_VERSION >= 0x900)
 	LPDDS sysMemSurface;
 	LPDDS vidMemSurface;
 	LPDIRECTDRAWPALETTE palette;
 	LPDIRECT3DTEXTURE2 texture3d;
 	HWR_TEXHANDLE texHandle;
+#endif // (DIRECT3D_VERSION >= 0x900)
 	int width;
 	int height;
 	int status;
@@ -1326,8 +1371,10 @@ typedef struct ColorBitMasks_t {
 } COLOR_BIT_MASKS;
 
 typedef struct TextureFormat_t {
+#if (DIRECT3D_VERSION < 0x900)
 	DDPIXELFORMAT pixelFmt;
 	COLOR_BIT_MASKS colorBitMasks;
+#endif // (DIRECT3D_VERSION < 0x900)
 	DWORD bpp;
 } TEXTURE_FORMAT;
 
@@ -1724,6 +1771,9 @@ typedef struct CollInfo_t {
 	int badCeiling;
 	PHD_VECTOR shift;
 	PHD_VECTOR old;
+	__int16 oldAnimState;
+	__int16 oldAnimNumber;
+	__int16 oldFrameNumber;
 	__int16 facing;
 	__int16 quadrant;
 	__int16 collType;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -84,11 +84,66 @@ static LPCTSTR ErrorStringTable[] = {
 	"GetDisplayMode",
 };
 
+#if (DIRECT3D_VERSION >= 0x900)
+#ifdef FEATURE_VIDEOFX_IMPROVED
+extern DWORD ReflectionMode;
+#endif // FEATURE_VIDEOFX_IMPROVED
+
+SWR_BUFFER RenderBuffer = {0, 0, NULL};
+SWR_BUFFER PictureBuffer = {0, 0, NULL};
+
+static bool SWRBufferCreate(SWR_BUFFER *buffer, DWORD width, DWORD height) {
+	if( !buffer || !width || !height ) return false;
+	buffer->width = width;
+	buffer->height = height;
+	buffer->bitmap = (LPBYTE)calloc(1, width*height);
+	return ( buffer->bitmap != NULL );
+}
+
+static void SWRBufferFree(SWR_BUFFER *buffer) {
+	if( !buffer || !buffer->bitmap ) return;
+	free(buffer->bitmap);
+	buffer->bitmap = NULL;
+}
+
+static bool SWRBufferClear(SWR_BUFFER *buffer, BYTE value) {
+	if( !buffer || !buffer->bitmap || !buffer->width || !buffer->height ) return false;
+	memset(buffer->bitmap, value, buffer->width * buffer->height);
+	return true;
+}
+
+LPDDS CaptureBufferSurface = NULL;
+
+static void FreeCaptureBuffer() {
+	if( CaptureBufferSurface != NULL) {
+		CaptureBufferSurface->Release();
+		CaptureBufferSurface = NULL;
+	}
+}
+
+static int CreateCaptureBuffer() {
+	FreeCaptureBuffer();
+
+	if FAILED(D3DDev->CreateRenderTarget(GameVidWidth, GameVidHeight, D3DFMT_X8R8G8B8, D3DMULTISAMPLE_NONE, 0, TRUE, &CaptureBufferSurface, NULL))
+		return -1;
+
+	D3DDev->ColorFill(CaptureBufferSurface, NULL, 0);
+
+	DDSDESC desc;
+	if FAILED(CaptureBufferSurface->LockRect(&desc, NULL, 0)) {
+		FreeCaptureBuffer();
+		return -1;
+	}
+
+	CaptureBufferSurface->UnlockRect();
+	return 0;
+}
+#else // (DIRECT3D_VERSION >= 0x900)
 #if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED) || defined(FEATURE_VIDEOFX_IMPROVED)
 LPDDS CaptureBufferSurface = NULL; // used for screen capture in windowed mode
 LPDDS EnvmapBufferSurface = NULL; // used as environment map for the reflection effect
 
-static int __cdecl CreateCaptureBuffer() {
+static int CreateCaptureBuffer() {
 	DDSDESC dsp;
 
 	memset(&dsp, 0, sizeof(dsp));
@@ -110,11 +165,7 @@ static int __cdecl CreateCaptureBuffer() {
 #endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED) || defined(FEATURE_VIDEOFX_IMPROVED)
 
 void __cdecl CreateScreenBuffers() {
-#if (DIRECT3D_VERSION >= 0x700)
-	DDSCAPS2 ddsCaps;
-#else // (DIRECT3D_VERSION >= 0x700)
 	DDSCAPS ddsCaps;
-#endif // (DIRECT3D_VERSION >= 0x700)
 	DDSDESC dsp;
 
 	memset(&dsp, 0, sizeof(dsp));
@@ -226,16 +277,6 @@ void __cdecl CreateWindowPalette() {
 		throw ERR_SetPalette;
 }
 
-#if (DIRECT3D_VERSION >= 0x700)
-static HRESULT WINAPI EnumZBufferCallback(DDPIXELFORMAT* pddpf, VOID* pddpfDesired) {
-	if( pddpf->dwFlags == DDPF_ZBUFFER ) {
-		memcpy(pddpfDesired, pddpf, sizeof(DDPIXELFORMAT));
-		return D3DENUMRET_CANCEL;
-	}
-	return D3DENUMRET_OK;
-}
-#endif // (DIRECT3D_VERSION >= 0x700)
-
 void __cdecl CreateZBuffer() {
 	DDSDESC dsp;
 
@@ -246,15 +287,8 @@ void __cdecl CreateZBuffer() {
 	dsp.dwSize = sizeof(dsp);
 	dsp.dwWidth = GameVidBufWidth;
 	dsp.dwHeight = GameVidBufHeight;
-#if (DIRECT3D_VERSION >= 0x700)
-	dsp.dwFlags = DDSD_PIXELFORMAT|DDSD_WIDTH|DDSD_HEIGHT|DDSD_CAPS;
-	if( D3D == NULL && !D3DCreate() )
-		throw ERR_D3D_Create;
-	D3D->EnumZBufferFormats(IID_IDirect3DHALDevice, EnumZBufferCallback, &dsp.ddpfPixelFormat);
-#else // (DIRECT3D_VERSION >= 0x700)
 	dsp.dwFlags = DDSD_ZBUFFERBITDEPTH|DDSD_WIDTH|DDSD_HEIGHT|DDSD_CAPS;
 	dsp.dwZBufferBitDepth = GetZBufferDepth();
-#endif // (DIRECT3D_VERSION >= 0x700)
 	dsp.ddsCaps.dwCaps = DDSCAPS_ZBUFFER|DDSCAPS_VIDEOMEMORY;
 
 	if FAILED(DDrawSurfaceCreate(&dsp, &ZBufferSurface))
@@ -271,8 +305,14 @@ DWORD __cdecl GetZBufferDepth() {
 	if( (bitDepthMask & DDBD_32) != 0 ) return 32;
 	return 8;
 }
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 void __cdecl CreateRenderBuffer() {
+#if (DIRECT3D_VERSION >= 0x900)
+	SWRBufferFree(&RenderBuffer);
+	if( !SWRBufferCreate(&RenderBuffer, GameVidWidth, GameVidHeight) )
+		throw ERR_CreateRenderBuffer;
+#else // (DIRECT3D_VERSION >= 0x900)
 	DDSDESC dsp;
 
 	memset(&dsp, 0, sizeof(dsp));
@@ -287,9 +327,15 @@ void __cdecl CreateRenderBuffer() {
 
 	if( !WinVidClearBuffer(RenderBufferSurface, NULL, 0) )
 		throw ERR_ClearRenderBuffer;
+#endif // (DIRECT3D_VERSION >= 0x900)
 }
 
 void __cdecl CreatePictureBuffer() {
+#if (DIRECT3D_VERSION >= 0x900)
+	SWRBufferFree(&PictureBuffer);
+	if( !SWRBufferCreate(&PictureBuffer, BGND_PictureWidth, BGND_PictureHeight) )
+		throw ERR_CreatePictureBuffer;
+#else // (DIRECT3D_VERSION >= 0x900)
 	DDSDESC dsp;
 
 	memset(&dsp, 0, sizeof(dsp));
@@ -306,9 +352,17 @@ void __cdecl CreatePictureBuffer() {
 
 	if FAILED(DDrawSurfaceCreate(&dsp, &PictureBufferSurface))
 		throw ERR_CreatePictureBuffer;
+#endif // (DIRECT3D_VERSION >= 0x900)
 }
 
 void __cdecl ClearBuffers(DWORD flags, DWORD fillColor) {
+#if (DIRECT3D_VERSION >= 0x900)
+	if( CHK_ANY(flags, CLRB_RenderBuffer) )
+		SWRBufferClear(&RenderBuffer, 0);
+
+	if( CHK_ANY(flags, CLRB_PictureBuffer) )
+		SWRBufferClear(&PictureBuffer, 0);
+#else // (DIRECT3D_VERSION >= 0x900)
 	DWORD d3dClearFlags = 0;
 	D3DRECT d3dRect;
 	RECT winRect;
@@ -338,11 +392,7 @@ void __cdecl ClearBuffers(DWORD flags, DWORD fillColor) {
 			d3dRect.y1 = winRect.top;
 			d3dRect.x2 = winRect.right;
 			d3dRect.y2 = winRect.bottom;
-#if (DIRECT3D_VERSION >= 0x700)
-			D3DDev->Clear(1, &d3dRect, d3dClearFlags, fillColor, 1.0, 0);
-#else // (DIRECT3D_VERSION >= 0x700)
 			D3DView->Clear(1, &d3dRect, d3dClearFlags);
-#endif // (DIRECT3D_VERSION >= 0x700)
 		}
 	} else {
 	// Software Renderer Checks
@@ -363,8 +413,9 @@ void __cdecl ClearBuffers(DWORD flags, DWORD fillColor) {
 	if( (flags & CLRB_ThirdBuffer) != 0 )
 		WinVidClearBuffer(ThirdBufferSurface, &winRect, fillColor);
 
-	if( (flags & CLRB_RenderBuffer) != 0 )
+	if( (flags & CLRB_RenderBuffer) != 0 ) {
 		WinVidClearBuffer(RenderBufferSurface, &winRect, fillColor);
+	}
 
 	if( (flags & CLRB_PictureBuffer) != 0 ) {
 		winRect.left = 0;
@@ -386,8 +437,10 @@ void __cdecl ClearBuffers(DWORD flags, DWORD fillColor) {
 		winRect.bottom = GameWindowPositionY + GameWindowHeight;
 		WinVidClearBuffer(PrimaryBufferSurface, &winRect, fillColor);
 	}
+#endif // (DIRECT3D_VERSION >= 0x900)
 }
 
+#if (DIRECT3D_VERSION < 0x900)
 void __cdecl RestoreLostBuffers() {
 	if( !PrimaryBufferSurface ) {
 		S_ExitSystem("Oops... no front buffer");
@@ -436,8 +489,37 @@ REBUILD:
 		}
 	}
 }
+#endif // (DIRECT3D_VERSION < 0x900)
 
 void __cdecl UpdateFrame(bool needRunMessageLoop, LPRECT rect) {
+#if (DIRECT3D_VERSION >= 0x900)
+	// This method is pretty fast, so we can do it every frame
+	LPDDS backBuffer = NULL;
+	if SUCCEEDED(D3DDev->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &backBuffer)) {
+		if( SavedAppSettings.RenderMode == RM_Hardware ) {
+			D3DDev->StretchRect(backBuffer, NULL, CaptureBufferSurface, NULL, D3DTEXF_NONE);
+#if FEATURE_VIDEOFX_IMPROVED
+			if( ReflectionMode != 0 ) SetEnvmapTexture(backBuffer);
+#endif // FEATURE_VIDEOFX_IMPROVED
+		} else {
+			D3DDev->StretchRect(CaptureBufferSurface, NULL, backBuffer, NULL, D3DTEXF_NONE);
+		}
+		backBuffer->Release();
+	}
+	HRESULT res = D3DDev->Present(NULL, NULL, NULL, NULL);
+	if( res == D3DERR_DEVICELOST && !IsGameToExit ) {
+		FreeCaptureBuffer();
+#if FEATURE_VIDEOFX_IMPROVED
+		FreeEnvmapTexture();
+#endif // FEATURE_VIDEOFX_IMPROVED
+		D3DDeviceCreate(NULL);
+		if( SavedAppSettings.RenderMode == RM_Hardware ) {
+			HWR_InitState();
+		}
+		CreateCaptureBuffer();
+	}
+	D3DDev->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, 0, 1.0, 0);
+#else // (DIRECT3D_VERSION >= 0x900)
 	RECT dstRect;
 	LPRECT pSrcRect = rect ? rect : &GameVidRect;
 
@@ -461,32 +543,37 @@ void __cdecl UpdateFrame(bool needRunMessageLoop, LPRECT rect) {
 		}
 #endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED) || defined(FEATURE_VIDEOFX_IMPROVED)
 	}
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 	if( needRunMessageLoop ) {
 		WinVidSpinMessageLoop(false);
 	}
 }
 
+#if (DIRECT3D_VERSION < 0x900)
 void __cdecl WaitPrimaryBufferFlip() {
 	if( SavedAppSettings.FlipBroken && SavedAppSettings.FullScreen ) {
 		while( PrimaryBufferSurface->GetFlipStatus(DDGFS_ISFLIPDONE) == DDERR_WASSTILLDRAWING )
 			/* just wait */;
 	}
 }
+#endif // (DIRECT3D_VERSION < 0x900)
 
 bool __cdecl RenderInit() {
 	return true;
 }
 
 void __cdecl RenderStart(bool isReset) {
-	signed int minWidth;
-	signed int minHeight;
-	bool is16bitTextures;
+	int minWidth;
+	int minHeight;
 	DISPLAY_MODE dispMode;
+#if (DIRECT3D_VERSION < 0x900)
+	bool is16bitTextures;
 	DDPIXELFORMAT pixelFormat;
 
 	if( isReset )
 		NeedToReloadTextures = false;
+#endif // (DIRECT3D_VERSION < 0x900)
 
 	if( SavedAppSettings.FullScreen ) {
 		// FullScreen mode
@@ -502,16 +589,20 @@ void __cdecl RenderStart(bool isReset) {
 		if( !WinVidGoFullScreen(&dispMode) )
 			throw ERR_GoFullScreen;
 
+#if (DIRECT3D_VERSION < 0x900)
 		CreateScreenBuffers();
+#endif // (DIRECT3D_VERSION < 0x900)
 
 		GameVidWidth  = dispMode.width;
 		GameVidHeight = dispMode.height;
+		GameVidBPP = dispMode.bpp;
+#if (DIRECT3D_VERSION < 0x900)
 		GameVidBufWidth  = dispMode.width;
 		GameVidBufHeight = dispMode.height;
-		GameVidBPP = dispMode.bpp;
-		GameVid_IsVga = ( dispMode.vga != 0 );
+		GameVid_IsVga = ( dispMode.vga != VGA_NoVga );
 		GameVid_IsWindowedVga = false;
 		GameVid_IsFullscreenVga = ( dispMode.vga == VGA_Standard );
+#endif // (DIRECT3D_VERSION < 0x900)
 	} else {
 		// Windowed mode
 
@@ -528,11 +619,13 @@ void __cdecl RenderStart(bool isReset) {
 
 		GameVidWidth  = dispMode.width;
 		GameVidHeight = dispMode.height;
+		GameVidBPP = dispMode.bpp;
+
+#if (DIRECT3D_VERSION < 0x900)
 		GameVidBufWidth  = (dispMode.width  + 0x1F) & ~0x1F;
 		GameVidBufHeight = (dispMode.height + 0x1F) & ~0x1F;
-		GameVidBPP = dispMode.bpp;
 		GameVid_IsVga = ( dispMode.vga != 0 );
-		GameVid_IsWindowedVga = ( dispMode.vga != 0 );
+		GameVid_IsWindowedVga = ( dispMode.vga != VGA_NoVga );
 		GameVid_IsFullscreenVga = false;
 
 		CreatePrimarySurface();
@@ -544,8 +637,33 @@ void __cdecl RenderStart(bool isReset) {
 		}
 
 		CreateClipper();
+#endif // (DIRECT3D_VERSION < 0x900)
 	}
 
+#if (DIRECT3D_VERSION >= 0x900)
+#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+	FreeCaptureBuffer();
+#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+#if FEATURE_VIDEOFX_IMPROVED
+	FreeEnvmapTexture();
+#endif // FEATURE_VIDEOFX_IMPROVED
+	D3DDeviceCreate(NULL);
+	TextureFormat.bpp = 32;
+#if defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+	CreateCaptureBuffer();
+#endif // defined(FEATURE_SCREENSHOT_IMPROVED) || defined(FEATURE_BACKGROUND_IMPROVED)
+
+	if( SavedAppSettings.RenderMode == RM_Hardware ) {
+#if defined(FEATURE_BACKGROUND_IMPROVED)
+		BGND2_PrepareCaptureTextures();
+#endif // defined(FEATURE_BACKGROUND_IMPROVED)
+	} else {
+		CreateRenderBuffer();
+		if( !PictureBuffer.bitmap ) {
+			CreatePictureBuffer();
+		}
+	}
+#else // (DIRECT3D_VERSION >= 0x900)
 	memset(&pixelFormat, 0, sizeof(DDPIXELFORMAT));
 	pixelFormat.dwSize = sizeof(DDPIXELFORMAT);
 	if FAILED(PrimaryBufferSurface->GetPixelFormat(&pixelFormat))
@@ -561,6 +679,9 @@ void __cdecl RenderStart(bool isReset) {
 		}
 		D3DDeviceCreate(BackBufferSurface);
 		EnumerateTextureFormats();
+#if defined(FEATURE_BACKGROUND_IMPROVED)
+		BGND2_PrepareCaptureTextures();
+#endif // defined(FEATURE_BACKGROUND_IMPROVED)
 	} else {
 		CreateRenderBuffer();
 		if( PictureBufferSurface == NULL ) {
@@ -587,6 +708,7 @@ void __cdecl RenderStart(bool isReset) {
 	GameVidBufRect.top  = 0;
 	GameVidBufRect.right  = GameVidBufWidth;
 	GameVidBufRect.bottom = GameVidBufHeight;
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 	GameVidRect.left = 0;
 	GameVidRect.top  = 0;
@@ -597,10 +719,21 @@ void __cdecl RenderStart(bool isReset) {
 	DumpHeight = GameVidHeight;
 
 	setup_screen_size();
+#if (DIRECT3D_VERSION < 0x900)
 	NeedToReloadTextures = true;
+#endif // (DIRECT3D_VERSION < 0x900)
 }
 
 void __cdecl RenderFinish(bool needToClearTextures) {
+#if (DIRECT3D_VERSION >= 0x900)
+	S_DontDisplayPicture();
+	HWR_FreeTexturePages();
+	CleanupTextures();
+	SWRBufferFree(&PictureBuffer);
+	SWRBufferFree(&RenderBuffer);
+	FreeCaptureBuffer();
+	Direct3DRelease();
+#else // (DIRECT3D_VERSION >= 0x900)
 	if( SavedAppSettings.RenderMode == RM_Hardware ) {
 		// Hardware Renderer
 		if( needToClearTextures ) {
@@ -665,13 +798,16 @@ void __cdecl RenderFinish(bool needToClearTextures) {
 
 	if( needToClearTextures )
 		NeedToReloadTextures = false;
+#endif // (DIRECT3D_VERSION >= 0x900)
 }
 
 bool __cdecl ApplySettings(APP_SETTINGS *newSettings) {
 	char modeString[64] = {0};
 	APP_SETTINGS oldSettings = SavedAppSettings;
 
+#if (DIRECT3D_VERSION < 0x900)
 	RenderFinish(false);
+#endif // (DIRECT3D_VERSION < 0x900)
 
 	if( newSettings != &SavedAppSettings )
 		SavedAppSettings = *newSettings;
@@ -680,7 +816,9 @@ bool __cdecl ApplySettings(APP_SETTINGS *newSettings) {
 		RenderStart(false);
 	}
 	catch(...) {
+#if (DIRECT3D_VERSION < 0x900)
 		RenderFinish(false);
+#endif // (DIRECT3D_VERSION < 0x900)
 		SavedAppSettings = oldSettings;
 		try {
 			RenderStart(false);
@@ -690,7 +828,9 @@ bool __cdecl ApplySettings(APP_SETTINGS *newSettings) {
 			DISPLAY_MODE_NODE *mode;
 			DISPLAY_MODE targetMode;
 
+#if (DIRECT3D_VERSION < 0x900)
 			RenderFinish(false);
+#endif // (DIRECT3D_VERSION < 0x900)
 
 			SavedAppSettings.PreferredDisplayAdapter = PrimaryDisplayAdapter;
 			SavedAppSettings.RenderMode = RM_Software;
@@ -700,14 +840,18 @@ bool __cdecl ApplySettings(APP_SETTINGS *newSettings) {
 			targetMode.width = 640;
 			targetMode.height = 480;
 			targetMode.bpp = 0;
+#if (DIRECT3D_VERSION < 0x900)
 			targetMode.vga = VGA_NoVga;
+#endif // (DIRECT3D_VERSION < 0x900)
 
 			modeList = &PrimaryDisplayAdapter->body.swDispModeList;
 
 #ifdef FEATURE_NOLEGACY_OPTIONS
 			if( modeList->head ) {
 				targetMode.bpp = modeList->head->body.bpp;
+#if (DIRECT3D_VERSION < 0x900)
 				targetMode.vga = modeList->head->body.vga;
+#endif // (DIRECT3D_VERSION < 0x900)
 			}
 #endif // FEATURE_NOLEGACY_OPTIONS
 			for( mode = modeList->head; mode; mode = mode->next ) {
@@ -757,7 +901,9 @@ void __cdecl FmvBackToGame() {
 		DISPLAY_MODE_NODE *mode;
 		DISPLAY_MODE targetMode;
 
+#if (DIRECT3D_VERSION < 0x900)
 		RenderFinish(false);
+#endif // (DIRECT3D_VERSION < 0x900)
 
 		SavedAppSettings.PreferredDisplayAdapter = PrimaryDisplayAdapter;
 		SavedAppSettings.RenderMode = RM_Software;
@@ -767,14 +913,18 @@ void __cdecl FmvBackToGame() {
 		targetMode.width = 640;
 		targetMode.height = 480;
 		targetMode.bpp = 0;
+#if (DIRECT3D_VERSION < 0x900)
 		targetMode.vga = VGA_NoVga;
+#endif // (DIRECT3D_VERSION < 0x900)
 
 		modeList = &PrimaryDisplayAdapter->body.swDispModeList;
 
 #ifdef FEATURE_NOLEGACY_OPTIONS
 		if( modeList->head ) {
 			targetMode.bpp = modeList->head->body.bpp;
+#if (DIRECT3D_VERSION < 0x900)
 			targetMode.vga = modeList->head->body.vga;
+#endif // (DIRECT3D_VERSION < 0x900)
 		}
 #endif // FEATURE_NOLEGACY_OPTIONS
 		for( mode = modeList->head; mode; mode = mode->next ) {
@@ -809,27 +959,65 @@ void __cdecl GameApplySettings(APP_SETTINGS *newSettings) {
 		return;
 	}
 
+#if (DIRECT3D_VERSION >= 0x900)
+	if( newSettings->ZBuffer != SavedAppSettings.ZBuffer ||
+		newSettings->BilinearFiltering != SavedAppSettings.BilinearFiltering )
+	{
+		char msg[32] = {0};
+		if( newSettings->ZBuffer != SavedAppSettings.ZBuffer ) {
+			snprintf(msg, sizeof(msg), "Z Buffer: %s",
+				newSettings->ZBuffer ? GF_SpecificStringTable[SSI_On] : GF_SpecificStringTable[SSI_Off]);
+		} else if( newSettings->BilinearFiltering != SavedAppSettings.BilinearFiltering ) {
+			snprintf(msg, sizeof(msg), "Bilinear Filter: %s",
+				newSettings->BilinearFiltering ? GF_SpecificStringTable[SSI_On] : GF_SpecificStringTable[SSI_Off]);
+		}
+		if( *msg ) DisplayModeInfo(msg);
+		needInitRenderState = true;
+	}
+#else // (DIRECT3D_VERSION >= 0x900)
 	if( newSettings->PerspectiveCorrect != SavedAppSettings.PerspectiveCorrect ||
 		newSettings->Dither != SavedAppSettings.Dither ||
 		newSettings->BilinearFiltering != SavedAppSettings.BilinearFiltering )
 	{
 		needInitRenderState = true;
 	}
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 	if( newSettings->BilinearFiltering != SavedAppSettings.BilinearFiltering ) {
 		needAdjustTexel = true;
 	}
 
+#if (DIRECT3D_VERSION >= 0x900)
+	if( newSettings->RenderMode != SavedAppSettings.RenderMode ||
+		newSettings->VideoMode  != SavedAppSettings.VideoMode ||
+		newSettings->FullScreen != SavedAppSettings.FullScreen )
+#else // (DIRECT3D_VERSION >= 0x900)
 	if( newSettings->RenderMode != SavedAppSettings.RenderMode ||
 		newSettings->VideoMode  != SavedAppSettings.VideoMode ||
 		newSettings->FullScreen != SavedAppSettings.FullScreen ||
 		newSettings->ZBuffer    != SavedAppSettings.ZBuffer ||
 		newSettings->TripleBuffering != SavedAppSettings.TripleBuffering )
+#endif // (DIRECT3D_VERSION >= 0x900)
 	{
 		ApplySettings(newSettings);
 		S_AdjustTexelCoordinates();
 		return;
 	}
+
+#ifdef FEATURE_VIDEOFX_IMPROVED
+	if( newSettings->LightingMode != SavedAppSettings.LightingMode ) {
+		const char *levels[3] = {
+			"Low",
+			"Medium",
+			"High",
+		};
+		char msg[32] = {0};
+		snprintf(msg, sizeof(msg), "Lighting Contrast: %s", levels[newSettings->LightingMode]);
+		DisplayModeInfo(msg);
+		needInitRenderState = true;
+	}
+#endif // FEATURE_VIDEOFX_IMPROVED
+
 
 	if( !newSettings->FullScreen ) {
 		if( newSettings->WindowWidth != SavedAppSettings.WindowWidth || newSettings->WindowHeight != SavedAppSettings.WindowHeight ) {
@@ -839,6 +1027,9 @@ void __cdecl GameApplySettings(APP_SETTINGS *newSettings) {
 			newSettings->WindowWidth  = dispMode.width;
 			newSettings->WindowHeight = dispMode.height;
 			if( dispMode.width != SavedAppSettings.WindowWidth || dispMode.height != SavedAppSettings.WindowHeight ) {
+#if (DIRECT3D_VERSION >= 0x900)
+				needRebuildBuffers = true;
+#else // (DIRECT3D_VERSION >= 0x900)
 				if( GameVidBufWidth < dispMode.width || GameVidBufWidth - dispMode.width > 0x40 ||
 					GameVidBufHeight < dispMode.height || GameVidBufHeight - dispMode.height > 0x40 )
 				{
@@ -856,14 +1047,29 @@ void __cdecl GameApplySettings(APP_SETTINGS *newSettings) {
 					setup_screen_size();
 					WinVidNeedToResetBuffers = false;
 				}
+#endif // (DIRECT3D_VERSION >= 0x900)
 			}
 		}
 	}
 
 	if( needInitRenderState ) {
+#if (DIRECT3D_VERSION >= 0x900)
+		SavedAppSettings.ZBuffer = newSettings->ZBuffer;
+		SavedAppSettings.BilinearFiltering = newSettings->BilinearFiltering;
+		setup_screen_size();
+#else // (DIRECT3D_VERSION >= 0x900)
 		SavedAppSettings.PerspectiveCorrect = newSettings->PerspectiveCorrect;
 		SavedAppSettings.Dither = newSettings->Dither;
 		SavedAppSettings.BilinearFiltering = newSettings->BilinearFiltering;
+#endif // (DIRECT3D_VERSION >= 0x900)
+
+#ifdef FEATURE_VIDEOFX_IMPROVED
+		SavedAppSettings.LightingMode = newSettings->LightingMode;
+		if( SavedAppSettings.RenderMode == RM_Software ) {
+			extern void UpdateDepthQ(bool isReset);
+			UpdateDepthQ(false);
+		}
+#endif // FEATURE_VIDEOFX_IMPROVED
 
 		if( SavedAppSettings.RenderMode == RM_Hardware ) {
 			HWR_InitState();
@@ -900,6 +1106,7 @@ LPCTSTR __cdecl DecodeErrorMessage(DWORD errorCode) {
  * Inject function
  */
 void Inject_InitDisplay() {
+#if (DIRECT3D_VERSION < 0x900)
 	INJECT(0x004484E0, CreateScreenBuffers);
 	INJECT(0x00448620, CreatePrimarySurface);
 	INJECT(0x004486C0, CreateBackBuffer);
@@ -907,12 +1114,17 @@ void Inject_InitDisplay() {
 	INJECT(0x00448800, CreateWindowPalette);
 	INJECT(0x004488E0, CreateZBuffer);
 	INJECT(0x004489A0, GetZBufferDepth);
+#endif // (DIRECT3D_VERSION < 0x900)
 	INJECT(0x004489D0, CreateRenderBuffer);
 	INJECT(0x00448A80, CreatePictureBuffer);
 	INJECT(0x00448AF0, ClearBuffers);
+#if (DIRECT3D_VERSION < 0x900)
 	INJECT(0x00448CA0, RestoreLostBuffers);
+#endif // (DIRECT3D_VERSION < 0x900)
 	INJECT(0x00448DE0, UpdateFrame);
+#if (DIRECT3D_VERSION < 0x900)
 	INJECT(0x00448EB0, WaitPrimaryBufferFlip);
+#endif // (DIRECT3D_VERSION < 0x900)
 	INJECT(0x00448EF0, RenderInit);
 	INJECT(0x00448F00, RenderStart);
 	INJECT(0x004492B0, RenderFinish);

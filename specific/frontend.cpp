@@ -219,8 +219,13 @@ void __cdecl S_FadeToBlack() {
 	FadeWait();
 
 	// make two blank frames
+#if (DIRECT3D_VERSION >= 0x900)
+	ScreenClear(false);
+	S_Wait(2 * TICKS_PER_FRAME, FALSE);
+#else // (DIRECT3D_VERSION >= 0x900)
 	ScreenClear(false); ScreenDump();
 	ScreenClear(false); ScreenDump();
+#endif // (DIRECT3D_VERSION >= 0x900)
 }
 
 void __cdecl S_Wait(int timeout, BOOL inputCheck) {

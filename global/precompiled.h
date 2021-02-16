@@ -22,13 +22,37 @@
 #ifndef TR2MAIN_PRECOMPILED_HEADER
 #define TR2MAIN_PRECOMPILED_HEADER
 
+// There is no DirectInput above 8.0
+#if (DIRECTINPUT_VERSION > 0x800)
+#undef DIRECTINPUT_VERSION
+#define DIRECTINPUT_VERSION (0x800)
+#endif // (DIRECTINPUT_VERSION > 0x800)
+
+// There is no DirectSound above 9.0
+#if (DIRECTSOUND_VERSION > 0x900)
+#undef DIRECTSOUND_VERSION
+#define DIRECTSOUND_VERSION (0x900)
+#endif // (DIRECTSOUND_VERSION > 0x900)
+
+// Some defines are required for DX9 and above
+#if (DIRECT3D_VERSION >= 0x900)
+#ifndef FEATURE_NOLEGACY_OPTIONS
+#define FEATURE_NOLEGACY_OPTIONS
+#endif // !FEATURE_NOLEGACY_OPTIONS
+#endif // (DIRECT3D_VERSION >= 0x900)
+
 #include <stdio.h>
 #include <windows.h>
 #include <shlobj.h>
 #include <shlwapi.h>
-#include <ddraw.h>
-#include <d3d.h>
 #include <dinput.h>
 #include <dsound.h>
 
+#if (DIRECT3D_VERSION >= 0x900)
+#include <d3d9.h>
+#include <d3dx9.h>
+#else // (DIRECT3D_VERSION >= 0x900)
+#include <ddraw.h>
+#include <d3d.h>
+#endif // (DIRECT3D_VERSION >= 0x900)
 #endif // TR2MAIN_PRECOMPILED_HEADER

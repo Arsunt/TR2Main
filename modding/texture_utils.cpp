@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -324,6 +324,23 @@ static bool ParseButtonSprites(json_value *root) {
 	return true;
 }
 
+static BYTE FindPaletteEntry(RGB888 *palette, int red, int green, int blue) {
+	UINT16 result = 0;
+	int diffMin = INT_MAX;
+	// skip index 0 as it is reserved as semitransparent
+	for( int i=1; i<256; ++i ) {
+		int diffRed   = red   - GamePalette8[i].red;
+		int diffGreen = green - GamePalette8[i].green;
+		int diffBlue  = blue  - GamePalette8[i].blue;
+		int diffTotal = SQR(diffRed) + SQR(diffGreen) + SQR(diffBlue);
+		if( diffTotal < diffMin ) {
+			diffMin = diffTotal;
+			result = i;
+		}
+	}
+	return result;
+}
+
 static void AdaptToPalette(void *srcData, int width, int height, int srcPitch, RGB888 *srcPalette, void *dstData, int dstPitch, RGB888 *dstPalette) {
 	int i, j;
 	BYTE *src, *dst;
@@ -331,7 +348,7 @@ static void AdaptToPalette(void *srcData, int width, int height, int srcPitch, R
 
 	// skip index 0 as it is reserved as semitransparent
 	for( i=1; i<256; ++i ) {
-		bufPalette[i] = FindNearestPaletteEntry(dstPalette, srcPalette[i].red, srcPalette[i].green, srcPalette[i].blue, false);
+		bufPalette[i] = FindPaletteEntry(dstPalette, srcPalette[i].red, srcPalette[i].green, srcPalette[i].blue);
 	}
 
 	src = (BYTE *)srcData;
@@ -364,7 +381,7 @@ static int LoadButtonSpriteTexturePage() {
 				AdaptToPalette(bitmap, width, height, width, bmpPal, bitmap, width, GamePalette8);
 				memcpy(bmpPal, GamePalette8, sizeof(bmpPal));
 			}
-			pageIndex = MakeCustomTexture(0, 0, width, height, width, width, bitmap, bmpPal, PaletteIndex, ButtonSpriteSWR, true);
+			pageIndex = MakeCustomTexture(0, 0, width, height, width, width, 8, bitmap, bmpPal, PaletteIndex, ButtonSpriteSWR, true);
 			if( pageIndex >= 0 && SavedAppSettings.RenderMode == RM_Hardware ) {
 				HWR_TexturePageIndexes[HwrTexturePagesCount] = pageIndex;
 				HWR_PageHandles[HwrTexturePagesCount] = GetTexturePageHandle(pageIndex);
@@ -509,9 +526,9 @@ static int FillEdgePadding(DWORD width, DWORD height, DWORD side, BYTE *bitmap, 
 	return 0;
 }
 
-int MakeCustomTexture(DWORD x, DWORD y, DWORD width, DWORD height, DWORD pitch, DWORD side, BYTE *bitmap, RGB888 *bmpPal, int hwrPal, BYTE *swrBuf, bool keyColor) {
+int MakeCustomTexture(DWORD x, DWORD y, DWORD width, DWORD height, DWORD pitch, DWORD side, DWORD bpp, BYTE *bitmap, RGB888 *bmpPal, int hwrPal, BYTE *swrBuf, bool keyColor) {
 	int pageIndex = -1;
-	if( bmpPal == NULL ) { // source bitmap is not indexed
+	if( bpp == 16 ) {
 		if( SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16 ) { // texture cannot be indexed in this case
 			return -1;
 		}
@@ -520,15 +537,31 @@ int MakeCustomTexture(DWORD x, DWORD y, DWORD width, DWORD height, DWORD pitch, 
 		UINT16 *bmpSrc = (UINT16 *)bitmap + x + y * pitch;
 
 		for( DWORD j = 0; j < height; ++j ) {
-			for( DWORD i = 0; i < width; ++i ) {
-				bmpDst[i] = bmpSrc[i];
-			}
+			memcpy(bmpDst, bmpSrc, sizeof(UINT16) * width);
 			bmpSrc += pitch;
 			bmpDst += side;
 		}
-		FillEdgePadding(width, height, side, (BYTE *)tmpBmp, 16);
+		FillEdgePadding(width, height, side, (BYTE *)tmpBmp, bpp);
 		pageIndex = AddTexturePage16(side, side, (BYTE *)tmpBmp);
 		free(tmpBmp);
+#if (DIRECT3D_VERSION >= 0x900)
+	} else if( bpp == 32 ) {
+		if( SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16 ) { // texture cannot be indexed in this case
+			return -1;
+		}
+		DWORD *tmpBmp = (DWORD *)calloc(4, SQR(side));
+		DWORD *bmpDst = tmpBmp;
+		DWORD *bmpSrc = (DWORD *)bitmap + x + y * pitch;
+
+		for( DWORD j = 0; j < height; ++j ) {
+			memcpy(bmpDst, bmpSrc, sizeof(DWORD) * width);
+			bmpSrc += pitch;
+			bmpDst += side;
+		}
+		FillEdgePadding(width, height, side, (BYTE *)tmpBmp, bpp);
+		pageIndex = AddTexturePage32(side, side, (BYTE *)tmpBmp, false);
+		free(tmpBmp);
+#endif // (DIRECT3D_VERSION >= 0x900)
 	} else if( SavedAppSettings.RenderMode == RM_Hardware && TextureFormat.bpp >= 16 ) {
 		UINT16 *tmpBmp = (UINT16 *)calloc(2, SQR(side));
 		UINT16 *bmpDst = tmpBmp;

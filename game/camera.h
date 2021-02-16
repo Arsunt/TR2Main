@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -24,23 +24,24 @@
 
 #include "global/types.h"
 
+typedef void(__cdecl *CB_SMARTCAM)(int*, int*, int*, int, int, int, int, int, int, int);
+
 /*
  * Function list
  */
-#define InitialiseCamera ((void(__cdecl*)(void)) 0x00410580)
-
+void __cdecl InitialiseCamera(); // 0x00410580
 void __cdecl MoveCamera(GAME_VECTOR *destination, int speed); // 0x00410630
 
 #define ClipCamera ((void(__cdecl*)(int*, int*, int*, int, int, int, int, int, int, int)) 0x004109B0)
 #define ShiftCamera ((void(__cdecl*)(int*, int*, int*, int, int, int, int, int, int, int)) 0x00410A90)
 #define GoodPosition ((FLOOR_INFO*(__cdecl*)(int, int, int, __int16)) 0x00410BF0)
-#define SmartShift ((void(__cdecl*)(GAME_VECTOR*, void*)) 0x00410C40)
+#define SmartShift ((void(__cdecl*)(GAME_VECTOR*, CB_SMARTCAM)) 0x00410C40)
 #define ChaseCamera ((void(__cdecl*)(ITEM_INFO*)) 0x004113D0)
 #define ShiftClamp ((int(__cdecl*)(GAME_VECTOR*, int)) 0x004114C0)
 #define CombatCamera ((void(__cdecl*)(ITEM_INFO*)) 0x00411660)
-#define LookCamera ((void(__cdecl*)(ITEM_INFO*)) 0x004117F0)
-#define FixedCamera ((void(__cdecl*)(void)) 0x004119E0)
 
+void __cdecl LookCamera(ITEM_INFO *item); // 0x004117F0
+void __cdecl FixedCamera(); // 0x004119E0
 void __cdecl CalculateCamera(); // 0x00411A80
 
 #endif // CAMERA_H_INCLUDED

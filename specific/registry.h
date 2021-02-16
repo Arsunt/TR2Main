@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -47,6 +47,7 @@
 #define REG_ADJUST_MODE			"TexelAdjustMode"
 #define REG_ADJUST_NEAREST		"NearestAdjustment"
 #define REG_ADJUST_LINEAR		"LinearAdjustment"
+#define REG_LIGHTING_MODE		"LightingMode"
 #define REG_MUSIC_VOLUME		"MusicVolume"
 #define REG_SOUND_VOLUME		"SoundFXVolume"
 #define REG_DETAIL_LEVEL		"DetailLevel"

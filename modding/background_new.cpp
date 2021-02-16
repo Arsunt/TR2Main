@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -38,6 +38,7 @@
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
 extern LPDDS CaptureBufferSurface;
+extern TEXPAGE_DESC TexturePages[256];
 
 #ifdef FEATURE_INPUT_IMPROVED
 #include "modding/joy_output.h"
@@ -47,8 +48,9 @@ extern LPDDS CaptureBufferSurface;
 extern bool IsGold();
 #endif
 
-int BGND_TexturePageIndexes[128];
-HWR_TEXHANDLE BGND_PageHandles[128];
+static int BGND_CapturePageIndexes[64];
+int BGND_TexturePageIndexes[64];
+HWR_TEXHANDLE BGND_PageHandles[64];
 
 DWORD BGND_PictureWidth  = 640;
 DWORD BGND_PictureHeight = 480;
@@ -104,13 +106,20 @@ typedef struct {
  * @param[in] txr Pointer to the Texture structure
  */
 void RenderTexturedFarQuad(VERTEX2D *vtx0, VERTEX2D *vtx1, VERTEX2D *vtx2, VERTEX2D *vtx3, TEXTURE *txr) {
+	extern int PatternTexPage;
 	D3DTLVERTEX vtx[4];
-	double uvAdjust = (double)UvAdd / (double)(PHD_ONE);
 
-	float tu0 = (double)txr->u / 256.0 + uvAdjust;
-	float tv0 = (double)txr->v / 256.0 + uvAdjust;
-	float tu1 = (double)(txr->u + txr->width)  / 256.0 - uvAdjust;
-	float tv1 = (double)(txr->v + txr->height) / 256.0 - uvAdjust;
+	float tu0 = (double)txr->u / 256.0;
+	float tv0 = (double)txr->v / 256.0;
+	float tu1 = (double)(txr->u + txr->width)  / 256.0;
+	float tv1 = (double)(txr->v + txr->height) / 256.0;
+	if( PatternTexPage < 0 ) {
+		double uvAdjust = (double)UvAdd / (double)(PHD_ONE);
+		tu0 += uvAdjust;
+		tv0 += uvAdjust;
+		tu1 -= uvAdjust;
+		tv1 -= uvAdjust;
+	}
 
 	float rhw = RhwFactor / FltFarZ;
 
@@ -146,15 +155,7 @@ void RenderTexturedFarQuad(VERTEX2D *vtx0, VERTEX2D *vtx1, VERTEX2D *vtx2, VERTE
 
 	HWR_TexSource(txr->handle);
 	HWR_EnableColorKey(false);
-#if (DIRECT3D_VERSION >= 0x700)
-	D3DDev->SetRenderState(D3DRENDERSTATE_CLIPPING, TRUE);
-	D3DDev->SetRenderState(D3DRENDERSTATE_EXTENTS, TRUE);
-#endif // (DIRECT3D_VERSION >= 0x700)
-	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3D_TLVERTEX, &vtx, 4, 0);
-#if (DIRECT3D_VERSION >= 0x700)
-	D3DDev->SetRenderState(D3DRENDERSTATE_CLIPPING, FALSE);
-	D3DDev->SetRenderState(D3DRENDERSTATE_EXTENTS, FALSE);
-#endif // (DIRECT3D_VERSION >= 0x700)
+	HWR_DrawPrimitive(D3DPT_TRIANGLESTRIP, &vtx, 4, false);
 }
 
 /**
@@ -202,6 +203,9 @@ void PSX_Background(HWR_TEXHANDLE texSource, int tu, int tv, int t_width, int t_
 			int shortWave = phd_sin(shortWaveRowPhase)*32/0x4000;
 			int longWave = phd_sin(longWaveRowPhase)*32/0x4000;
 			light = 128 + shortWave + longWave;
+#if defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
+			if( SavedAppSettings.LightingMode ) light /= 2;
+#endif // defined(FEATURE_VIDEOFX_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
 			vtx->color = RGBA_MAKE(light, light, light, 0xFFu);
 			vtx->y = ((float)(baseY + tileSize*j + phd_sin(deformWaveRowPhase)*tileRadius/0x4000)) / PIXEL_ACCURACY;
 			vtx->x = ((float)(baseX + tileSize*i + phd_cos(deformWaveRowPhase)*tileRadius/0x4000)) / PIXEL_ACCURACY;
@@ -233,20 +237,64 @@ void PSX_Background(HWR_TEXHANDLE texSource, int tu, int tv, int t_width, int t_
 	free(vertices);
 }
 
-static int CreateCaptureTexture(DWORD index, DWORD side) {
-	int pageIndex = BGND_TexturePageIndexes[index];
-	if( pageIndex < 0 || !TexturePages[pageIndex].status ) {
-		pageIndex = CreateTexturePage(side, side, NULL);
+static int CreateCaptureTexture(DWORD index, int side) {
+	int pageIndex = BGND_CapturePageIndexes[index];
+	if( pageIndex >= 0 && TexturePages[pageIndex].width != side ) {
+		SafeFreeTexturePage(pageIndex);
+		pageIndex = -1;
+	}
+	if( pageIndex < 0 || !CHK_ANY(TexturePages[pageIndex].status, 1) ) {
+		DDSDESC desc;
+#if (DIRECT3D_VERSION >= 0x900)
+		pageIndex = CreateTexturePage(side, side, false);
 		if( pageIndex < 0 ) {
 			return -1;
 		}
-		BGND_TexturePageIndexes[index] = pageIndex;
+		if SUCCEEDED(TexturePages[pageIndex].texture->LockRect(0, &desc, NULL, 0)) {
+			TexturePages[pageIndex].texture->UnlockRect(0);
+		}
+#else // (DIRECT3D_VERSION >= 0x900)
+		pageIndex = CreateTexturePage(side, side, NULL);
+		if SUCCEEDED(WinVidBufferLock(TexturePages[pageIndex].sysMemSurface, &desc, DDLOCK_WRITEONLY|DDLOCK_WAIT)) {
+			WinVidBufferUnlock(TexturePages[pageIndex].sysMemSurface, &desc);
+		}
+#endif // (DIRECT3D_VERSION >= 0x900)
+		if( pageIndex < 0 ) {
+			return -1;
+		}
+		BGND_CapturePageIndexes[index] = pageIndex;
 	}
 	return pageIndex;
 }
 
-static int MakeBgndTextures(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmpPal) {
-	DWORD side = GetMaxTextureSize();
+void BGND2_CleanupCaptureTextures() {
+	for( DWORD i=0; i<ARRAY_SIZE(BGND_CapturePageIndexes); ++i ) {
+		BGND_CapturePageIndexes[i] = -1;
+	}
+}
+
+int BGND2_PrepareCaptureTextures() {
+	static bool once = false;
+	if( !once ) {
+		BGND2_CleanupCaptureTextures();
+		once = true;
+	}
+	DWORD side = MIN(2048, GetMaxTextureSize());
+	DWORD nx = (GameVidWidth + side - 1) / side;
+	DWORD ny = (GameVidHeight + side - 1) / side;
+	for( DWORD i=0; i<ARRAY_SIZE(BGND_CapturePageIndexes); ++i ) {
+		if( i < nx*ny ) {
+			CreateCaptureTexture(i, side);
+		} else {
+			SafeFreeTexturePage(BGND_CapturePageIndexes[i]);
+			BGND_CapturePageIndexes[i] = -1;
+		}
+	}
+	return 0;
+}
+
+static int MakeBgndTextures(DWORD width, DWORD height, DWORD bpp, BYTE *bitmap, RGB888 *bmpPal) {
+	DWORD side = MIN(2048, GetMaxTextureSize());
 	S_DontDisplayPicture(); // clean up previous textures
 
 	if( bmpPal != NULL && (SavedAppSettings.RenderMode != RM_Hardware || TextureFormat.bpp < 16) ) {
@@ -268,7 +316,7 @@ static int MakeBgndTextures(DWORD width, DWORD height, BYTE *bitmap, RGB888 *bmp
 			DWORD h = side;
 			if( i == nx - 1 && width % side ) w = width % side;
 			if( j == ny - 1 && height % side ) h = height % side;
-			int pageIndex = MakeCustomTexture(i*side, j*side, w, h, width, side, bitmap, bmpPal, BGND_PaletteIndex, NULL, false);
+			int pageIndex = MakeCustomTexture(i*side, j*side, w, h, width, side, bpp, bitmap, bmpPal, BGND_PaletteIndex, NULL, false);
 			if( pageIndex < 0) {
 				return -1;
 			}
@@ -348,10 +396,16 @@ static int __cdecl BGND2_FadeToPal(int fadeValue, RGB888 *palette, int inputChec
 	int i, j;
 	int palStartIdx = 0;
 	int palEndIdx = 256;
+#if (DIRECT3D_VERSION < 0x900)
 	int palSize = 256;
+#endif // (DIRECT3D_VERSION < 0x900)
 	bool fadeFaster = false;
 	PALETTEENTRY fadePal[256];
 
+#if (DIRECT3D_VERSION >= 0x900)
+	if( SavedAppSettings.RenderMode != RM_Software )
+		return fadeValue;
+#else // (DIRECT3D_VERSION >= 0x900)
 	if( !GameVid_IsVga )
 		return fadeValue;
 
@@ -360,6 +414,7 @@ static int __cdecl BGND2_FadeToPal(int fadeValue, RGB888 *palette, int inputChec
 		palEndIdx -= 10;
 		palSize -= 20;
 	}
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 	if( fadeValue <= 1 ) {
 		for( i=palStartIdx; i<palEndIdx; ++i ) {
@@ -367,7 +422,12 @@ static int __cdecl BGND2_FadeToPal(int fadeValue, RGB888 *palette, int inputChec
 			WinVidPalette[i].peGreen = palette[i].green;
 			WinVidPalette[i].peBlue  = palette[i].blue;
 		}
+#if (DIRECT3D_VERSION >= 0x900)
+		S_InitialisePolyList(FALSE);
+		S_OutputPolyList();
+#else // (DIRECT3D_VERSION >= 0x900)
 		DDrawPalette->SetEntries(0, palStartIdx, palSize, &WinVidPalette[palStartIdx]);
+#endif // (DIRECT3D_VERSION >= 0x900)
 		return fadeValue;
 	}
 
@@ -390,24 +450,39 @@ static int __cdecl BGND2_FadeToPal(int fadeValue, RGB888 *palette, int inputChec
 			WinVidPalette[i].peGreen = fadePal[i].peGreen + (palette[i].green - fadePal[i].peGreen) * j / fadeValue;
 			WinVidPalette[i].peBlue  = fadePal[i].peBlue  + (palette[i].blue  - fadePal[i].peBlue)  * j / fadeValue;
 		}
+#if (DIRECT3D_VERSION >= 0x900)
+		S_InitialisePolyList(FALSE);
+		S_OutputPolyList();
+#else // (DIRECT3D_VERSION >= 0x900)
 		DDrawPalette->SetEntries(0, palStartIdx, palSize, &WinVidPalette[palStartIdx]);
+#endif // (DIRECT3D_VERSION >= 0x900)
 		S_DumpScreen();
 	}
 	return fadeFaster ? 1 : 0;
 }
 
 static void BGND2_CustomBlt(LPDDSDESC dst, DWORD dstX, DWORD dstY, LPDDSDESC src, LPRECT srcRect) {
+	DWORD srcX = srcRect->left;
+	DWORD srcY = srcRect->top;
+	DWORD width = srcRect->right - srcRect->left;
+	DWORD height = srcRect->bottom - srcRect->top;
+
+#if (DIRECT3D_VERSION >= 0x900)
+	BYTE *srcLine = (BYTE *)src->pBits + srcY * src->Pitch  + srcX * 4;
+	BYTE *dstLine = (BYTE *)dst->pBits + dstY * dst->Pitch  + dstX * 4;
+
+	for( DWORD j = 0; j < height; ++j ) {
+		memcpy(dstLine, srcLine, sizeof(DWORD) * width);
+		srcLine += src->Pitch;
+		dstLine += dst->Pitch;
+	}
+#else // (DIRECT3D_VERSION >= 0x900)
 	DWORD srcBpp = src->ddpfPixelFormat.dwRGBBitCount/8;
 	DWORD dstBpp = dst->ddpfPixelFormat.dwRGBBitCount/8;
 	COLOR_BIT_MASKS srcMask, dstMask;
 
 	WinVidGetColorBitMasks(&srcMask, &src->ddpfPixelFormat);
 	WinVidGetColorBitMasks(&dstMask, &dst->ddpfPixelFormat);
-
-	DWORD srcX = srcRect->left;
-	DWORD srcY = srcRect->top;
-	DWORD width = srcRect->right - srcRect->left;
-	DWORD height = srcRect->bottom - srcRect->top;
 
 	BYTE *srcLine = (BYTE *)src->lpSurface + srcY * src->lPitch  + srcX * srcBpp;
 	BYTE *dstLine = (BYTE *)dst->lpSurface + dstY * dst->lPitch  + dstX * dstBpp;
@@ -452,6 +527,7 @@ static void BGND2_CustomBlt(LPDDSDESC dst, DWORD dstX, DWORD dstY, LPDDSDESC src
 		srcLine += src->lPitch;
 		dstLine += dst->lPitch;
 	}
+#endif // (DIRECT3D_VERSION >= 0x900)
 }
 
 int __cdecl BGND2_CapturePicture() {
@@ -466,8 +542,6 @@ int __cdecl BGND2_CapturePicture() {
 		return -1;
 	}
 
-	LPDDS surface = CaptureBufferSurface ? CaptureBufferSurface : PrimaryBufferSurface;
-
 	BGND_PictureIsReady = false;
 	BGND_IsCaptured = false;
 
@@ -476,32 +550,49 @@ int __cdecl BGND2_CapturePicture() {
 		return -1;
 	}
 
-	if( surface == PrimaryBufferSurface ) {
+#if (DIRECT3D_VERSION < 0x900)
+	LPDDS surface = CaptureBufferSurface ? CaptureBufferSurface : PrimaryBufferSurface;
+#endif // (DIRECT3D_VERSION < 0x900)
+	if( CaptureBufferSurface == NULL ) {
 		MapWindowPoints(HGameWindow, GetParent(HGameWindow), (LPPOINT)&rect, 2);
 	}
 	width = ABS(rect.right - rect.left);
 	height = ABS(rect.bottom - rect.top);
 
-	DWORD side = GetMaxTextureSize();
+	DWORD side = MIN(2048, GetMaxTextureSize());
 
 	DWORD nx = (width + side - 1) / side;
 	DWORD ny = (height + side - 1) / side;
 
-	if( nx*ny >= ARRAY_SIZE(BGND_TexturePageIndexes) ) {
+	if( nx*ny >= ARRAY_SIZE(BGND_CapturePageIndexes) ) {
 		return -1; // It seems image is too big
 	}
 
-	int x[ARRAY_SIZE(BGND_TexturePageIndexes) + 1];
+	int x[ARRAY_SIZE(BGND_CapturePageIndexes) + 1];
+	x[nx] = rect.right - rect.left;
 	for( DWORD i = 0; i < nx; ++i ) {
-		x[i] = i * side * (rect.right - rect.left) / width + rect.left;
+		x[i] = i * side * x[nx] / width;
 	}
-	x[nx] = rect.right;
 
-	int y[ARRAY_SIZE(BGND_TexturePageIndexes) + 1];
+	int y[ARRAY_SIZE(BGND_CapturePageIndexes) + 1];
+	y[ny] = rect.bottom - rect.top;
 	for( DWORD i = 0; i < ny; ++i ) {
-		y[i] = i * side * (rect.bottom - rect.top) / height + rect.top;
+		y[i] = i * side * y[ny] / height;
 	}
-	y[ny] = rect.bottom;
+
+#if (DIRECT3D_VERSION >= 0x900)
+	DISPLAY_MODE mode;
+	LPDDS surface = NULL;
+	if( CaptureBufferSurface != NULL ) {
+		surface = CaptureBufferSurface;
+	} else if( !WinVidGetDisplayMode(&mode)
+		|| FAILED(D3DDev->CreateOffscreenPlainSurface(mode.width, mode.height, D3DFMT_A8R8G8B8, D3DPOOL_SYSTEMMEM, &surface, NULL))
+		|| FAILED(D3DDev->GetFrontBufferData(0, surface)) )
+	{
+		ret = -1;
+		goto CLEANUP;
+	}
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 	for( DWORD j = 0; j < ny; ++j ) {
 		for( DWORD i = 0; i < nx; ++i ) {
@@ -516,6 +607,9 @@ int __cdecl BGND2_CapturePicture() {
 			if( !isSrcLock ) {
 				HRESULT rc;
 				memset(&srcDesc, 0, sizeof(srcDesc));
+#if (DIRECT3D_VERSION >= 0x900)
+				rc = surface->LockRect(&srcDesc, &rect, D3DLOCK_READONLY);
+#else // (DIRECT3D_VERSION >= 0x900)
 				srcDesc.dwSize = sizeof(srcDesc);
 				do {
 					rc = surface->Lock(&rect, &srcDesc, DDLOCK_READONLY|DDLOCK_WAIT, NULL);
@@ -523,12 +617,21 @@ int __cdecl BGND2_CapturePicture() {
 				if( rc == DDERR_SURFACELOST ) {
 					rc = surface->Restore();
 				}
+#endif // (DIRECT3D_VERSION >= 0x900)
 				if FAILED(rc) {
 					ret = -1;
 					goto CLEANUP;
 				}
 				isSrcLock = true;
 			}
+#if (DIRECT3D_VERSION >= 0x900)
+			if FAILED(TexturePages[pageIndex].texture->LockRect(0, &dstDesc, NULL, 0)) {
+				ret = -1;
+				goto CLEANUP;
+			}
+			BGND2_CustomBlt(&dstDesc, 0, 0, &srcDesc, &r);
+			TexturePages[pageIndex].texture->UnlockRect(0);
+#else // (DIRECT3D_VERSION >= 0x900)
 			if FAILED(WinVidBufferLock(TexturePages[pageIndex].sysMemSurface, &dstDesc, DDLOCK_WRITEONLY|DDLOCK_WAIT)) {
 				ret = -1;
 				goto CLEANUP;
@@ -540,6 +643,7 @@ int __cdecl BGND2_CapturePicture() {
 				ret = -1;
 				goto CLEANUP;
 			}
+#endif // (DIRECT3D_VERSION >= 0x900)
 		}
 	}
 
@@ -551,13 +655,20 @@ int __cdecl BGND2_CapturePicture() {
 	BGND_IsCaptured = true;
 
 CLEANUP :
-	if( isSrcLock ) {
-#if (DIRECT3D_VERSION >= 0x700)
-		surface->Unlock(&rect);
-#else // (DIRECT3D_VERSION >= 0x700)
-		surface->Unlock(srcDesc.lpSurface);
-#endif // (DIRECT3D_VERSION >= 0x700)
+#if (DIRECT3D_VERSION >= 0x900)
+	if( surface != NULL ) {
+		if( isSrcLock ) {
+			surface->UnlockRect();
+		}
+		if( surface != CaptureBufferSurface ) {
+			surface->Release();
+		}
 	}
+#else // (DIRECT3D_VERSION >= 0x900)
+	if( isSrcLock ) {
+		surface->Unlock(srcDesc.lpSurface);
+	}
+#endif // (DIRECT3D_VERSION >= 0x900)
 	return ret;
 }
 
@@ -573,7 +684,7 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 	DWORD fileSize, bitmapSize;
 	BYTE *fileData = NULL;
 	BYTE *bitmapData = NULL;
-	DWORD width, height;
+	DWORD width, height, bpp = 8;
 	char fullPath[256] = {0};
 	bool isPCX;
 	int pickResult = -1;
@@ -647,7 +758,12 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 		DecompPCX(fileData, fileSize, bitmapData, PicPalette);
 		isPCX = true;
 	} else if( SavedAppSettings.RenderMode == RM_Hardware && TextureFormat.bpp >= 16 ) {
-		if( GDI_LoadImageFile(fullPath, &bitmapData, &width, &height, 16) ) {
+#if (DIRECT3D_VERSION >= 0x900)
+		bpp = 32;
+#else // (DIRECT3D_VERSION >= 0x900)
+		bpp = 16;
+#endif // (DIRECT3D_VERSION >= 0x900)
+		if( GDI_LoadImageFile(fullPath, &bitmapData, &width, &height, bpp) ) {
 			goto FAIL;
 		}
 		bitmapSize = width * height * 2;
@@ -656,6 +772,20 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 		goto FAIL;
 	}
 
+#if (DIRECT3D_VERSION >= 0x900)
+	if( PictureBuffer.bitmap == NULL ||
+		PictureBuffer.width != width ||
+		PictureBuffer.height != height )
+	{
+		BGND_PictureWidth = width;
+		BGND_PictureHeight = height;
+		try {
+			CreatePictureBuffer();
+		} catch(...) {
+			goto FAIL;
+		}
+	}
+#else // (DIRECT3D_VERSION >= 0x900)
 	if( PictureBufferSurface != NULL &&
 		(BGND_PictureWidth != width || BGND_PictureHeight != height) )
 	{
@@ -671,14 +801,25 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 			goto FAIL;
 		}
 	}
+#endif // (DIRECT3D_VERSION >= 0x900)
 
-	if( SavedAppSettings.RenderMode == RM_Software )
+	if( SavedAppSettings.RenderMode == RM_Software ) {
+#if (DIRECT3D_VERSION >= 0x900)
+		if( PictureBuffer.bitmap != NULL)
+			memcpy(PictureBuffer.bitmap, bitmapData, PictureBuffer.width * PictureBuffer.height);
+#else // (DIRECT3D_VERSION >= 0x900)
 		WinVidCopyBitmapToBuffer(PictureBufferSurface, bitmapData);
-	else
-		MakeBgndTextures(width, height, bitmapData, isPCX ? PicPalette : NULL);
+#endif // (DIRECT3D_VERSION >= 0x900)
+	} else {
+		MakeBgndTextures(width, height, bpp, bitmapData, isPCX ? PicPalette : NULL);
+	}
 
 	if( !isTitle && isPCX ) {
+#if (DIRECT3D_VERSION >= 0x900)
+		memcpy(GamePalette8, PicPalette, sizeof(GamePalette8));
+#else // (DIRECT3D_VERSION >= 0x900)
 		CopyBitmapPalette(PicPalette, bitmapData, bitmapSize, GamePalette8);
+#endif // (DIRECT3D_VERSION >= 0x900)
 	}
 	if( bitmapData != NULL ) {
 		free(bitmapData);
@@ -690,10 +831,17 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 	return 0;
 
 FAIL :
+#if (DIRECT3D_VERSION >= 0x900)
+	if( PictureBuffer.bitmap != NULL ) {
+		free(PictureBuffer.bitmap);
+		PictureBuffer.bitmap = NULL;
+	}
+#else // (DIRECT3D_VERSION >= 0x900)
 	if( PictureBufferSurface != NULL ) {
 		PictureBufferSurface->Release();
 		PictureBufferSurface = NULL;
 	}
+#endif // (DIRECT3D_VERSION >= 0x900)
 	if( bitmapData != NULL ) {
 		free(bitmapData);
 	}
@@ -715,7 +863,6 @@ int __cdecl BGND2_ShowPicture(DWORD fadeIn, DWORD waitIn, DWORD fadeOut, DWORD w
 		S_InitialisePolyList(FALSE);
 		S_CopyBufferToScreen();
 		S_OutputPolyList();
-		S_DumpScreen();
 
 		// fade in
 		if( fadeIn > 0 ) {
@@ -745,8 +892,13 @@ int __cdecl BGND2_ShowPicture(DWORD fadeIn, DWORD waitIn, DWORD fadeOut, DWORD w
 			return -1;
 		}
 		if( fadeOut > 0 || waitOut > 0 ) {
+#if (DIRECT3D_VERSION >= 0x900)
+			ScreenClear(false);
+			S_Wait(2 * TICKS_PER_FRAME, FALSE);
+#else // (DIRECT3D_VERSION >= 0x900)
 			ScreenClear(false); ScreenDump();
 			ScreenClear(false); ScreenDump();
+#endif // (DIRECT3D_VERSION >= 0x900)
 		}
 		if( waitOut > 2 ) {
 			S_Wait((waitOut - 2) * TICKS_PER_FRAME, inputCheck);
@@ -763,7 +915,7 @@ int __cdecl BGND2_ShowPicture(DWORD fadeIn, DWORD waitIn, DWORD fadeOut, DWORD w
 			switch( phase ) {
 				case 0 :
 					if( frame < fadeIn ) {
-						BGND_TextureAlpha = 255 * frame / fadeIn;
+						BGND_TextureAlpha = 255 * frame / (fadeIn - 1);
 						break;
 					}
 					++phase;
@@ -882,7 +1034,7 @@ static void __cdecl BGND2_DrawTexture(RECT *rect, HWR_TEXHANDLE texSource,
 	HWR_EnableColorKey(false);
 	D3DDev->GetRenderState(AlphaBlendEnabler, &alphaState);
 	D3DDev->SetRenderState(AlphaBlendEnabler, TRUE);
-	D3DDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3D_TLVERTEX, &vertex, 4, D3D_DRAWFLAGS);
+	HWR_DrawPrimitive(D3DPT_TRIANGLESTRIP, &vertex, 4, true);
 	D3DDev->SetRenderState(AlphaBlendEnabler, alphaState);
 }
 
@@ -900,8 +1052,6 @@ void __cdecl BGND2_DrawTextures(RECT *rect, D3DCOLOR color) {
 	if( nx*ny >= ARRAY_SIZE(BGND_TexturePageIndexes) ) {
 		return; // It seems image is too big
 	}
-
-	BGND_GetPageHandles();
 
 	int x[ARRAY_SIZE(BGND_TexturePageIndexes) + 1];
 	for( DWORD i = 0; i < nx; ++i ) {
@@ -922,7 +1072,9 @@ void __cdecl BGND2_DrawTextures(RECT *rect, D3DCOLOR color) {
 			if( i == nx - 1 && width % side ) w = width % side;
 			if( j == ny - 1 && height % side ) h = height % side;
 			RECT r = {x[i], y[j], x[i+1], y[j+1]};
-			BGND2_DrawTexture(&r, BGND_PageHandles[i + j*nx], 0, 0, w, h, side, color, color, color, color);
+
+			int *index = BGND_IsCaptured ? BGND_CapturePageIndexes : BGND_TexturePageIndexes;
+			BGND2_DrawTexture(&r, GetTexturePageHandle(index[i + j*nx]), 0, 0, w, h, side, color, color, color, color);
 		}
 	}
 }
