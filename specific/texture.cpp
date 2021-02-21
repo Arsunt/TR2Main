@@ -707,6 +707,44 @@ int AddTexturePage32(int width, int height, BYTE *pageBuffer, bool alpha) {
 	return pageIndex;
 }
 
+// NOTE: this function is not presented in the original game
+int AddExternalTexture(LPCTSTR fileName, bool alpha) {
+	int pageIndex = GetFreeTexturePageIndex();
+	if( pageIndex < 0 )
+		return -1;
+
+	memset(&TexturePages[pageIndex], 0, sizeof(TEXPAGE_DESC));
+	HRESULT res = D3DXCreateTextureFromFileEx(D3DDev, fileName, D3DX_DEFAULT, D3DX_DEFAULT, 0,
+								0, alpha ? D3DFMT_A8R8G8B8 : D3DFMT_X8R8G8B8, D3DPOOL_MANAGED,
+								D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &TexturePages[pageIndex].texture);
+	if FAILED(res)
+		return -1;
+
+	D3DSURFACE_DESC desc;
+	if FAILED(TexturePages[pageIndex].texture->GetLevelDesc(0, &desc)) {
+		TexturePages[pageIndex].texture->Release();
+		TexturePages[pageIndex].texture = NULL;
+		return -1;
+	}
+
+	TexturePages[pageIndex].status = 1|2;
+	TexturePages[pageIndex].width = desc.Width;
+	TexturePages[pageIndex].height = desc.Height;
+	return pageIndex;
+}
+
+// NOTE: this function is not presented in the original game
+bool IsExternalTexture(int page) {
+	if (page < 0 || page >= (int)ARRAY_SIZE(HWR_TexturePageIndexes))
+		return false;
+
+	page = HWR_TexturePageIndexes[page];
+	if (page < 0 || page >= (int)ARRAY_SIZE(TexturePages))
+		return false;
+
+	return CHK_ALL(TexturePages[page].status, 1|2);
+}
+
 #else // (DIRECT3D_VERSION >= 0x900)
 HRESULT CALLBACK EnumTextureFormatsCallback(LPDDSDESC lpDdsd, LPVOID lpContext) {
 	LPDDPIXELFORMAT lpDDPixFmt = &lpDdsd->ddpfPixelFormat;

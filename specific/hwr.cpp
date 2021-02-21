@@ -377,10 +377,26 @@ void __cdecl HWR_LoadTexturePages(int pagesCount, LPVOID pagesBuffer, RGB888 *pa
 	if( palette != NULL )
 		PaletteIndex = CreateTexturePalette(palette);
 
+#if (DIRECT3D_VERSION >= 0x900)
+	char levelName[256] = {0};
+	char texName[256] = {0};
+	strncpy(levelName, PathFindFileName(LevelFileName), sizeof(levelName)-1);
+	char *ext = PathFindExtension(levelName);
+	if( ext != NULL ) *ext = 0;
+#endif // (DIRECT3D_VERSION >= 0x900)
+
 	for( int i=0; i<pagesCount; ++i ) {
+#if (DIRECT3D_VERSION >= 0x900)
+		snprintf(texName, sizeof(texName), "./textures/texpages/%s_%d.png", levelName, i);
+#endif // (DIRECT3D_VERSION >= 0x900)
 		if( palette != NULL ) {
 			pageIndex = AddTexturePage8(256, 256, bufferPtr, PaletteIndex);
 			bufferPtr += 256*256*1;
+#if (DIRECT3D_VERSION >= 0x900)
+		} else if( PathFileExists(texName) ) {
+			pageIndex = AddExternalTexture(texName, true);
+			bufferPtr += 256*256*2;
+#endif // (DIRECT3D_VERSION >= 0x900)
 		} else {
 			pageIndex = AddTexturePage16(256, 256, bufferPtr);
 			bufferPtr += 256*256*2;

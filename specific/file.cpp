@@ -343,6 +343,12 @@ static int CreateBgndPatternTexture(HANDLE hFile) {
 		return -1;
 	}
 
+#if (DIRECT3D_VERSION >= 0x900)
+	if( IsExternalTexture(BgndPattern.page) ) {
+		return -1;
+	}
+#endif // (DIRECT3D_VERSION >= 0x900)
+
 	int pageIndex = -1;
 	DWORD pageSize = ( TextureFormat.bpp < 16 ) ? 256*256*1 : 256*256*2;
 	BYTE *bitmap = (BYTE *)GlobalAlloc(GMEM_FIXED, pageSize);

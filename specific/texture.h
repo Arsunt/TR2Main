@@ -68,6 +68,8 @@ int __cdecl AddTexturePage8(int width, int height, BYTE *pageBuffer, int palInde
 int __cdecl AddTexturePage16(int width, int height, BYTE *pageBuffer); // 0x00456360
 #if (DIRECT3D_VERSION >= 0x900)
 int AddTexturePage32(int width, int height, BYTE *pageBuffer, bool alpha); // NOTE: this function is not presented in the original game
+int AddExternalTexture(LPCTSTR fileName, bool alpha); // NOTE: this function is not presented in the original game
+bool IsExternalTexture(int page); // NOTE: this function is not presented in the original game
 #else // (DIRECT3D_VERSION >= 0x900)
 HRESULT CALLBACK EnumTextureFormatsCallback(LPDDSDESC lpDdsd, LPVOID lpContext); // 0x00456500
 HRESULT __cdecl EnumerateTextureFormats(); // 0x00456620
