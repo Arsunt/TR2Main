@@ -34,6 +34,8 @@ bool SetEnvmapTexture(LPDDS surface);
 HWR_TEXHANDLE GetEnvmapTextureHandle();
 #endif // FEATURE_VIDEOFX_IMPROVED
 DWORD GetMaxTextureSize();
+int GetTextureSideByPage(int page);
+int GetTextureSideByHandle(HWR_TEXHANDLE handle);
 
 void __cdecl CopyBitmapPalette(RGB888 *srcPal, BYTE *srcBitmap, int bitmapSize, RGB888 *destPal); // 0x00455990
 BYTE __cdecl FindNearestPaletteEntry(RGB888 *palette, int red, int green, int blue, bool ignoreSysPalette); // 0x00455AD0

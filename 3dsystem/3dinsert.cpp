@@ -2431,11 +2431,15 @@ void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spri
 	uOffset = LOBYTE(PhdSpriteInfo[spriteIdx].offset) * 256;
 	vOffset = HIBYTE(PhdSpriteInfo[spriteIdx].offset) * 256;
 
-	u0 = rhw * (double)(uOffset - UvAdd + PhdSpriteInfo[spriteIdx].width);
-	v0 = rhw * (double)(vOffset + UvAdd);
+	// NOTE: page side is not counted in the original game, but we need it for HD textures
+	int adjustment = UvAdd * 256 / GetTextureSideByPage(PhdSpriteInfo[spriteIdx].texPage);
+	CLAMPL(adjustment, 1);
 
-	u1 = rhw * (double)(uOffset + UvAdd);
-	v1 = rhw * (double)(vOffset - UvAdd + PhdSpriteInfo[spriteIdx].height);
+	u0 = rhw * (double)(uOffset - adjustment + PhdSpriteInfo[spriteIdx].width);
+	v0 = rhw * (double)(vOffset + adjustment);
+
+	u1 = rhw * (double)(uOffset + adjustment);
+	v1 = rhw * (double)(vOffset - adjustment + PhdSpriteInfo[spriteIdx].height);
 
 	VBuffer[0].x = (float)x0;
 	VBuffer[0].y = (float)y0;

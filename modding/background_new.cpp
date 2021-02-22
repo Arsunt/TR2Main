@@ -114,7 +114,8 @@ void RenderTexturedFarQuad(VERTEX2D *vtx0, VERTEX2D *vtx1, VERTEX2D *vtx2, VERTE
 	float tu1 = (double)(txr->u + txr->width)  / 256.0;
 	float tv1 = (double)(txr->v + txr->height) / 256.0;
 	if( PatternTexPage < 0 ) {
-		double uvAdjust = (double)UvAdd / (double)(PHD_ONE);
+		double uvAdjust = (double)UvAdd / (double)(256 * GetTextureSideByHandle(txr->handle));
+		CLAMPL(uvAdjust, 1.0/double(PHD_ONE));
 		tu0 += uvAdjust;
 		tv0 += uvAdjust;
 		tu1 -= uvAdjust;

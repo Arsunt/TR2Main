@@ -543,8 +543,8 @@ BOOL __cdecl LoadRooms(HANDLE hFile) {
 
 void __cdecl AdjustTextureUVs(bool resetUvAdd) {
 	DWORD i, j;
-	int adjustment;
-	int offset;
+	int adjustment, adjustment_old;
+	int offset, offset_old;
 	BYTE uvFlags;
 	PHD_UV *pUV;
 
@@ -556,13 +556,20 @@ void __cdecl AdjustTextureUVs(bool resetUvAdd) {
 		adjustment = SavedAppSettings.NearestAdjustment; // NearestAdjustment default is 16. It can be changed in the registry only
 	}
 
-	offset = adjustment;
-	if( !resetUvAdd )
-		offset -= UvAdd;
-
+	adjustment_old = resetUvAdd ? 0 : UvAdd;
 	UvAdd = adjustment;
 
 	for( i=0; i<TextureInfoCount; ++i ) {
+		if( SavedAppSettings.RenderMode == RM_Hardware ) {
+			// NOTE: page side is not counted in the original game, but we need it for HD textures
+			offset = adjustment * 256 / GetTextureSideByPage(PhdTextureInfo[i].tpage);
+			offset_old = adjustment_old * 256 / GetTextureSideByPage(PhdTextureInfo[i].tpage);
+			CLAMPL(offset, 1);
+			CLAMPL(offset_old, 1);
+			offset -= offset_old;
+		} else {
+			offset = adjustment - adjustment_old;
+		}
 
 		uvFlags = LabTextureUVFlags[i];
 		pUV = PhdTextureInfo[i].uv;

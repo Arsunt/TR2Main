@@ -326,14 +326,17 @@ void __cdecl DrawTextureTile(int sx, int sy, int width, int height, HWR_TEXHANDL
 	tv1 = (double)(tv + t_height) / 256.0;
 
 	if( PatternTexPage < 0 ) {
-		uvAdjust = (double)UvAdd / (double)(PHD_ONE);
+		uvAdjust = (double)UvAdd / (double)(256 * GetTextureSideByHandle(texSource));
+		CLAMPL(uvAdjust, 1.0/double(PHD_ONE));
 		tu0 += uvAdjust;
 		tv0 += uvAdjust;
 		tu1 -= uvAdjust;
 		tv1 -= uvAdjust;
 	}
 #else // FEATURE_BACKGROUND_IMPROVED
-	uvAdjust = (double)UvAdd / (double)(PHD_ONE);
+	// NOTE: page side is not counted in the original game, but we need it for HD textures
+	uvAdjust = (double)UvAdd / (double)(256 * GetTextureSideByHandle(texSource));
+	CLAMPL(uvAdjust, 1.0/double(PHD_ONE));
 	tu0 = (double)tu / 256.0 + uvAdjust;
 	tv0 = (double)tv / 256.0 + uvAdjust;
 	tu1 = (double)(tu + t_width)  / 256.0 - uvAdjust;

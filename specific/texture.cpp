@@ -167,6 +167,22 @@ DWORD GetMaxTextureSize() {
 #endif // (DIRECT3D_VERSION >= 0x900)
 }
 
+int GetTextureSideByPage(int page) {
+	if( page < 0 ) return 256;
+	page = HWR_TexturePageIndexes[page];
+	if( page < 0 ) return 256;
+	return TexturePages[page].width;
+}
+
+int GetTextureSideByHandle(HWR_TEXHANDLE handle) {
+	for( DWORD i=0; i<ARRAY_SIZE(HWR_TexturePageIndexes); ++i ) {
+		if( HWR_TexturePageIndexes[i] >= 0 && HWR_PageHandles[i] == handle ) {
+			return TexturePages[HWR_TexturePageIndexes[i]].width;
+		}
+	}
+	return 256;
+}
+
 void __cdecl CopyBitmapPalette(RGB888 *srcPal, BYTE *srcBitmap, int bitmapSize, RGB888 *destPal) {
 	int i, j;
 #if (DIRECT3D_VERSION < 0x900)
