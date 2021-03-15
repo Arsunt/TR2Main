@@ -27,7 +27,8 @@
 /*
  * Function list
  */
-#define LaraGun ((void(__cdecl*)(void)) 0x0042E740)
+void __cdecl LaraGun(); // 0x0042E740
+
 #define CheckForHoldingState ((int(__cdecl*)(int)) 0x0042ECB0)
 #define InitialiseNewWeapon ((void(__cdecl*)(void)) 0x0042ECF0)
 #define LaraTargetInfo ((void(__cdecl*)(WEAPON_INFO*)) 0x0042EE30)
