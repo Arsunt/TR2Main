@@ -24,6 +24,10 @@
 #include "specific/hwr.h"
 #include "global/vars.h"
 
+#if (DIRECT3D_VERSION >= 0x900)
+#include "modding/texture_utils.h"
+#endif // (DIRECT3D_VERSION >= 0x900)
+
 #ifdef FEATURE_VIDEOFX_IMPROVED
 #include "specific/texture.h"
 #include "modding/mod_utils.h"
@@ -2433,6 +2437,17 @@ void __cdecl InsertSprite_Sorted(int z, int x0, int y0, int x1, int y1, int spri
 
 	// NOTE: page side is not counted in the original game, but we need it for HD textures
 	int adjustment = UvAdd * 256 / GetTextureSideByPage(PhdSpriteInfo[spriteIdx].texPage);
+#if (DIRECT3D_VERSION >= 0x900)
+	double forcedAdjust = GetTexPagesAdjustment();
+	if( forcedAdjust > 0.0) {
+		adjustment = (int)(forcedAdjust * 256.0);
+	}
+#endif // (DIRECT3D_VERSION >= 0x900)
+#ifdef FEATURE_HUD_IMPROVED
+	if( spriteIdx >= (int)ARRAY_SIZE(PhdSpriteInfo) - HUD_SPRITE_RESERVED ) {
+		adjustment = 0;
+	}
+#endif // FEATURE_HUD_IMPROVED
 	CLAMPL(adjustment, 1);
 
 	u0 = rhw * (double)(uOffset - adjustment + PhdSpriteInfo[spriteIdx].width);

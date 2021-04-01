@@ -440,6 +440,9 @@ BOOL __cdecl LoadTexturePages(HANDLE hFile) {
 #ifdef FEATURE_HUD_IMPROVED
 	LoadButtonSprites();
 #endif // FEATURE_HUD_IMPROVED
+#if (DIRECT3D_VERSION >= 0x900)
+	LoadTexPagesConfiguration(LevelFileName);
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 	return TRUE;
 }
@@ -547,6 +550,28 @@ void __cdecl AdjustTextureUVs(bool resetUvAdd) {
 	int offset, offset_old;
 	BYTE uvFlags;
 	PHD_UV *pUV;
+
+#if (DIRECT3D_VERSION >= 0x900)
+	if( SavedAppSettings.RenderMode == RM_Hardware ) {
+		double forcedAdjust = GetTexPagesAdjustment();
+		if( forcedAdjust > 0.0) {
+			if( !resetUvAdd ) {
+				return;
+			}
+			offset = (int)(forcedAdjust * 256.0);
+			for( i=0; i<TextureInfoCount; ++i ) {
+				uvFlags = LabTextureUVFlags[i];
+				pUV = PhdTextureInfo[i].uv;
+
+				for( j=0; j<4; ++j ) {
+					pUV[j].u += ((uvFlags & 1) ? -offset : offset);
+					pUV[j].v += ((uvFlags & 2) ? -offset : offset);
+					uvFlags >>= 2;
+				}
+			}
+		}
+	}
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 	if( SavedAppSettings.RenderMode == RM_Hardware && (SavedAppSettings.TexelAdjustMode == TAM_Always ||
 		(SavedAppSettings.TexelAdjustMode == TAM_BilinearOnly && SavedAppSettings.BilinearFiltering)) )
@@ -1206,6 +1231,9 @@ void __cdecl S_UnloadLevelFile() {
 #ifdef FEATURE_MOD_CONFIG
 	UnloadModConfiguration();
 #endif // FEATURE_MOD_CONFIG
+#if (DIRECT3D_VERSION >= 0x900)
+	UnloadTexPagesConfiguration();
+#endif // (DIRECT3D_VERSION >= 0x900)
 }
 
 void __cdecl S_AdjustTexelCoordinates() {

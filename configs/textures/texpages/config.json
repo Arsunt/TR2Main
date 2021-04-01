@@ -1,0 +1,30 @@
+{
+    "comment": [
+        "                                                                     ",
+        " This is texture pages configuration file for TR2Main. You can use   ",
+        " it, if texture pages have wrong design like ones for iOS/Android.   ",
+        " This is JSON format, it's very simple. Here is info about fields:   ",
+        "                                                                     ",
+        " - 'comment' is used for comments only and it's ignored by the game. ",
+        "   You can write some notes inside it, like this one.                ",
+        "                                                                     ",
+        " - 'default' stores a set of default parameters for all levels.      ",
+        "                                                                     ",
+        " - 'levels' stores sets of parameters for each of the levels.        ",
+        "   If some parameter is set both in the 'default' and the 'levels',  ",
+        "   the parameter from 'levels' is applied.                           ",
+        "                                                                     ",
+        " - 'filename' is used to set the name of the level file for which    ",
+        "   this set of parameters will be used. Just a filename with no path ",
+        "   and no extension.                                                 ",
+        "                                                                     ",
+        " - 'uv_adjust' is used to force UV adjustment if textures are        ",
+        "   misplaced and produce texture bleeding. You can set it to value   ",
+        "   between 0.0 and 1.0. Don't use it if your textures are OK.        ",
+        "                                                                     "
+     ],
+    "default": {
+        "comment": "Default settings for all levels",
+        "uv_adjust": 1.0
+    }
+}

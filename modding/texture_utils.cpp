@@ -605,3 +605,79 @@ int MakeCustomTexture(DWORD x, DWORD y, DWORD width, DWORD height, DWORD pitch, 
 	return pageIndex;
 }
 
+#if (DIRECT3D_VERSION >= 0x900)
+#define TEXPAGE_CONFIG_NAME "textures/texpages/config.json"
+
+typedef struct {
+	bool isLoaded;
+	double adjustment;
+} TEXPAGES_CONFIG;
+
+static TEXPAGES_CONFIG TexPagesConfig;
+
+bool IsTexPagesConfigLoaded() {
+	return TexPagesConfig.isLoaded;
+}
+
+double GetTexPagesAdjustment() {
+	return TexPagesConfig.adjustment;
+}
+
+static bool ParseLevelTexPagesConfiguration(json_value *root) {
+	if( root == NULL || root->type != json_object ) {
+		return false;
+	}
+	json_value* field = NULL;
+
+	field = GetJsonField(root, json_double, "uv_adjust", NULL);
+	if( field ) {
+		TexPagesConfig.adjustment = field->u.dbl;
+	}
+	return true;
+}
+
+static bool ParseTexPagesConfiguration(char *levelName, json_value *root) {
+	if( root == NULL || root->type != json_object ) {
+		return false;
+	}
+	// parsing default configs
+	ParseLevelTexPagesConfiguration(GetJsonField(root, json_object, "default", NULL));
+	// parsing level specific configs
+	json_value* levels = GetJsonField(root, json_array, "levels", NULL);
+	if( levels ) ParseLevelTexPagesConfiguration(GetJsonObjectByStringField(levels, "filename", levelName, false, NULL));
+	return true;
+}
+
+void UnloadTexPagesConfiguration() {
+	memset(&TexPagesConfig, 0, sizeof(TexPagesConfig));
+}
+
+bool LoadTexPagesConfiguration(LPCTSTR levelFilePath) {
+	UnloadTexPagesConfiguration();
+	if( !PathFileExists(TEXPAGE_CONFIG_NAME) ) {
+		return false;
+	}
+	char levelName[256] = {0};
+	strncpy(levelName, PathFindFileName(levelFilePath), sizeof(levelName)-1);
+	char *ext = PathFindExtension(levelName);
+	if( ext != NULL ) *ext = 0;
+
+	DWORD bytesRead = 0;
+	HANDLE hFile = CreateFile(TEXPAGE_CONFIG_NAME, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN|FILE_ATTRIBUTE_NORMAL, NULL);
+	if( hFile == INVALID_HANDLE_VALUE ) {
+		return false;
+	}
+	DWORD cfgSize = GetFileSize(hFile, NULL);
+	void *cfgData = malloc(cfgSize);
+	ReadFile(hFile, cfgData, cfgSize, &bytesRead, NULL);
+	CloseHandle(hFile);
+
+	json_value* json = json_parse((const json_char *)cfgData, cfgSize);
+	if( json != NULL ) {
+		TexPagesConfig.isLoaded = ParseTexPagesConfiguration(levelName, json);
+	}
+	json_value_free(json);
+	free(cfgData);
+	return TexPagesConfig.isLoaded;
+}
+#endif // (DIRECT3D_VERSION >= 0x900)
