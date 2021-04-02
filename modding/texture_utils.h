@@ -38,6 +38,7 @@ int MakeCustomTexture(DWORD x, DWORD y, DWORD width, DWORD height, DWORD pitch, 
 
 #if (DIRECT3D_VERSION >= 0x900)
 bool IsTexPagesConfigLoaded();
+bool IsTexPagesLegacyColors();
 double GetTexPagesAdjustment();
 #ifdef FEATURE_HUD_IMPROVED
 int GetTexPagesGlyphSpacing(int id);

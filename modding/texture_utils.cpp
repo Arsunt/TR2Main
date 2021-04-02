@@ -610,6 +610,7 @@ int MakeCustomTexture(DWORD x, DWORD y, DWORD width, DWORD height, DWORD pitch, 
 
 typedef struct {
 	bool isLoaded;
+	bool isLegacyColors;
 	double adjustment;
 #ifdef FEATURE_HUD_IMPROVED
 	struct {
@@ -625,6 +626,10 @@ static TEXPAGES_CONFIG TexPagesConfig;
 
 bool IsTexPagesConfigLoaded() {
 	return TexPagesConfig.isLoaded;
+}
+
+bool IsTexPagesLegacyColors() {
+	return TexPagesConfig.isLegacyColors;
 }
 
 double GetTexPagesAdjustment() {
@@ -675,6 +680,11 @@ static bool ParseLevelTexPagesConfiguration(json_value *root) {
 		return false;
 	}
 	json_value* field = NULL;
+
+	field = GetJsonField(root, json_boolean, "legacy_colors", NULL);
+	if( field ) {
+		TexPagesConfig.isLegacyColors = field->u.boolean;
+	}
 
 	field = GetJsonField(root, json_double, "uv_adjust", NULL);
 	if( field ) {

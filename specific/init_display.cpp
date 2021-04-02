@@ -873,11 +873,13 @@ bool __cdecl ApplySettings(APP_SETTINGS *newSettings) {
 	if( SavedAppSettings.RenderMode != oldSettings.RenderMode ) {
 		S_ReloadLevelGraphics(1, 1);
 	}
+#if (DIRECT3D_VERSION < 0x900)
 	else if( SavedAppSettings.RenderMode == RM_Software &&
 		SavedAppSettings.FullScreen != oldSettings.FullScreen )
 	{
 		S_ReloadLevelGraphics(1, 0);
 	}
+#endif // (DIRECT3D_VERSION < 0x900)
 
 #ifdef FEATURE_NOLEGACY_OPTIONS
 	snprintf(modeString, sizeof(modeString), "%dx%d", GameVidWidth, GameVidHeight);

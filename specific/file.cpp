@@ -440,9 +440,6 @@ BOOL __cdecl LoadTexturePages(HANDLE hFile) {
 #ifdef FEATURE_HUD_IMPROVED
 	LoadButtonSprites();
 #endif // FEATURE_HUD_IMPROVED
-#if (DIRECT3D_VERSION >= 0x900)
-	LoadTexPagesConfiguration(LevelFileName);
-#endif // (DIRECT3D_VERSION >= 0x900)
 
 	return TRUE;
 }
@@ -851,6 +848,16 @@ BOOL __cdecl LoadPalettes(HANDLE hFile) {
 	}
 
 	ReadFileSync(hFile, GamePalette16, 256*sizeof(PALETTEENTRY), &bytesRead, NULL);
+#if (DIRECT3D_VERSION >= 0x900)
+	if( !IsTexPagesLegacyColors() ) {
+		for( int i=0; i<256; ++i ) {
+			PALETTEENTRY *pal = &GamePalette16[i];
+			pal->peRed   = (pal->peRed   & 0xF8) | (pal->peRed   >> 5);
+			pal->peGreen = (pal->peGreen & 0xF8) | (pal->peGreen >> 5);
+			pal->peBlue  = (pal->peBlue  & 0xF8) | (pal->peBlue  >> 5);
+		}
+	}
+#endif // (DIRECT3D_VERSION >= 0x900)
 	return TRUE;
 }
 
@@ -1150,6 +1157,12 @@ BOOL __cdecl LoadLevel(LPCTSTR fileName, int levelID) {
 		goto EXIT;
 	}
 
+#if (DIRECT3D_VERSION >= 0x900)
+	if( SavedAppSettings.RenderMode == RM_Hardware ) {
+		LoadTexPagesConfiguration(LevelFileName);
+	}
+#endif // (DIRECT3D_VERSION >= 0x900)
+
 	LevelFilePalettesOffset = SetFilePointer(hFile, 0, NULL, FILE_CURRENT);
 	if( !LoadPalettes(hFile) ) {
 		goto EXIT;
@@ -1249,6 +1262,12 @@ BOOL __cdecl S_ReloadLevelGraphics(BOOL reloadPalettes, BOOL reloadTexPages) {
 		hFile = CreateFile(LevelFileName, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 		if( hFile == INVALID_HANDLE_VALUE )
 			return FALSE;
+
+#if (DIRECT3D_VERSION >= 0x900)
+		if( SavedAppSettings.RenderMode == RM_Hardware ) {
+			LoadTexPagesConfiguration(LevelFileName);
+		}
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 		if( reloadPalettes && SavedAppSettings.RenderMode == RM_Software ) {
 			SetFilePointer(hFile, LevelFilePalettesOffset, NULL, FILE_BEGIN);
