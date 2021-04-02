@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -343,7 +343,12 @@ DWORD __cdecl T_GetTextWidth(TEXT_STR_INFO *textInfo) {
 				spacing = 12;
 			} else {
 				// For "Digit", "Special" and normal letter sprites we use spacing table + letterSpacing
+#if defined(FEATURE_HUD_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
+				spacing = GetTexPagesGlyphSpacing(sprite);
+				if( !spacing ) spacing = T_TextSpacing[sprite];
+#else // defined(FEATURE_HUD_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
 				spacing = T_TextSpacing[sprite];
+#endif // defined(FEATURE_HUD_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
 				// NOTE: this condition was added instead of returned value recalculation (see below).
 				// In the original code spacing addition was unconditional
 				if( str[1] != 0 ) { // If this letter is not last, add letterSpacing
@@ -384,7 +389,7 @@ void __cdecl T_DrawText() {
 }
 
 void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
-	int x, y, z, xOff;
+	int x, y, z, xOff, spacing;
 	int boxX, boxY, boxZ, boxW, boxH;
 	DWORD textWidth, scaleH, scaleV, sprite;
 #ifdef FEATURE_HUD_IMPROVED
@@ -508,16 +513,28 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
 			// But sprite itself is center aligned in this space
 			if( *str >= '0' && *str <= '9' ) {
 				// !!! Here we do LEFT spacing part for digit letters !!!
-				xOff = (12 - T_TextSpacing[sprite]) / 2;
+#if defined(FEATURE_HUD_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
+				spacing = GetTexPagesGlyphSpacing(sprite);
+				if( !spacing ) spacing = T_TextSpacing[sprite];
+#else // defined(FEATURE_HUD_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
+				spacing = T_TextSpacing[sprite];
+#endif // defined(FEATURE_HUD_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
+				xOff = (12 - spacing) / 2;
 				x += xOff * scaleH / PHD_ONE;
 			}
 
 			// Draw letter sprite
 #ifdef FEATURE_HUD_IMPROVED
 			if( x > 0 && x < GetRenderWidthDownscaled() && y > 0 && y < GetRenderHeightDownscaled() ) {
+#if (DIRECT3D_VERSION >= 0x900)
+				sx = GetTextScaleH(x + GetTexPagesGlyphXOffset(sprite));
+				sy = GetTextScaleV(y + GetTexPagesGlyphYOffset(sprite));
+				sh = GetTextScaleH(scaleH * GetTexPagesGlyphStretch(sprite));
+#else // (DIRECT3D_VERSION >= 0x900)
 				sx = GetTextScaleH(x);
 				sy = GetTextScaleV(y);
 				sh = GetTextScaleH(scaleH);
+#endif // (DIRECT3D_VERSION >= 0x900)
 				sv = GetTextScaleV(scaleV);
 				S_DrawScreenSprite2d(sx, sy, z, sh, sv, (Objects[ID_ALPHABET].meshIndex + sprite), 0x1000, textInfo->textFlags);
 			}
@@ -533,13 +550,19 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
 				continue;
 
 			// Check if normal letter sprite is digit representation
+#if defined(FEATURE_HUD_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
+			spacing = GetTexPagesGlyphSpacing(sprite);
+			if( !spacing ) spacing = T_TextSpacing[sprite];
+#else // defined(FEATURE_HUD_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
+			spacing = T_TextSpacing[sprite];
+#endif // defined(FEATURE_HUD_IMPROVED) && (DIRECT3D_VERSION >= 0x900)
 			if( *str >= '0' && *str <= '9' ) {
 				// !!! Here we do RIGHT spacing part for digit letters !!!
-				xOff = (12 - T_TextSpacing[sprite]) / 2;
+				xOff = (12 - spacing) / 2;
 				x += (12 - xOff) * scaleH / PHD_ONE;
 			} else {
 				// For "Digit", "Special" and normal letter sprites we use spacing table + letterSpacing
-				xOff = T_TextSpacing[sprite];
+				xOff = spacing;
 				xOff += textInfo->letterSpacing;
 				x += xOff * scaleH / PHD_ONE;
 			}

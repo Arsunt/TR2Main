@@ -80,6 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added "Restart Level" option (available only in case of Lara's death).
 - The inventory pattern (both static and animated) is seamless now for Bilinear Filter.
 - Added external HD textures support (DirectX 9 only).
+- Added iOS/Android texture pack full support (DirectX 9 only).
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.

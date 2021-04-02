@@ -611,6 +611,14 @@ int MakeCustomTexture(DWORD x, DWORD y, DWORD width, DWORD height, DWORD pitch, 
 typedef struct {
 	bool isLoaded;
 	double adjustment;
+#ifdef FEATURE_HUD_IMPROVED
+	struct {
+		int spacing;
+		int xOffset;
+		int yOffset;
+		double stretch;
+	} glyphs[110];
+#endif // FEATURE_HUD_IMPROVED
 } TEXPAGES_CONFIG;
 
 static TEXPAGES_CONFIG TexPagesConfig;
@@ -623,6 +631,45 @@ double GetTexPagesAdjustment() {
 	return TexPagesConfig.adjustment;
 }
 
+#ifdef FEATURE_HUD_IMPROVED
+int GetTexPagesGlyphSpacing(int id) {
+	if( id < 0 || id >= (int)ARRAY_SIZE(TexPagesConfig.glyphs)
+		|| SavedAppSettings.RenderMode == RM_Software )
+	{
+		return 0;
+	}
+	return TexPagesConfig.glyphs[id].spacing;
+}
+
+int GetTexPagesGlyphXOffset(int id) {
+	if( id < 0 || id >= (int)ARRAY_SIZE(TexPagesConfig.glyphs)
+		|| SavedAppSettings.RenderMode == RM_Software )
+	{
+		return 0;
+	}
+	return TexPagesConfig.glyphs[id].xOffset;
+}
+
+int GetTexPagesGlyphYOffset(int id) {
+	if( id < 0 || id >= (int)ARRAY_SIZE(TexPagesConfig.glyphs)
+		|| SavedAppSettings.RenderMode == RM_Software )
+	{
+		return 0;
+	}
+	return TexPagesConfig.glyphs[id].yOffset;
+}
+
+double GetTexPagesGlyphStretch(int id) {
+	if( id < 0 || id >= (int)ARRAY_SIZE(TexPagesConfig.glyphs)
+		|| SavedAppSettings.RenderMode == RM_Software
+		|| TexPagesConfig.glyphs[id].stretch <= 0.0 )
+	{
+		return 1.0;
+	}
+	return TexPagesConfig.glyphs[id].stretch;
+}
+#endif // FEATURE_HUD_IMPROVED
+
 static bool ParseLevelTexPagesConfiguration(json_value *root) {
 	if( root == NULL || root->type != json_object ) {
 		return false;
@@ -633,6 +680,22 @@ static bool ParseLevelTexPagesConfiguration(json_value *root) {
 	if( field ) {
 		TexPagesConfig.adjustment = field->u.dbl;
 	}
+
+#ifdef FEATURE_HUD_IMPROVED
+	json_value* glyphs = GetJsonField(root, json_array, "glyphs", NULL);
+	if( glyphs ) {
+		for( DWORD i = 0; i < glyphs->u.array.length; ++i ) {
+			json_value *glyph = glyphs->u.array.values[i];
+			int id = GetJsonIntegerFieldValue(glyph, "id", -1);
+			if( id < 0 || id >= (int)ARRAY_SIZE(TexPagesConfig.glyphs) ) continue;
+			TexPagesConfig.glyphs[id].spacing = GetJsonIntegerFieldValue(glyph, "spacing", 0);
+			TexPagesConfig.glyphs[id].xOffset = GetJsonIntegerFieldValue(glyph, "x_offset", 0);
+			TexPagesConfig.glyphs[id].yOffset = GetJsonIntegerFieldValue(glyph, "y_offset", 0);
+			TexPagesConfig.glyphs[id].stretch = GetJsonFloatFieldValue(glyph, "stretch", 1.0);
+		}
+	}
+#endif // FEATURE_HUD_IMPROVED
+
 	return true;
 }
 

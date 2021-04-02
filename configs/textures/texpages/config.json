@@ -21,10 +21,468 @@
         " - 'uv_adjust' is used to force UV adjustment if textures are        ",
         "   misplaced and produce texture bleeding. You can set it to value   ",
         "   between 0.0 and 1.0. Don't use it if your textures are OK.        ",
+        "                                                                     ",
+        " - 'glyphs' is used to modify some font sprites parameters.          ",
+        "   'id' contains the glyph ID (from 0 to 109),                       ",
+        "   'x_offset' contains the integer value of glyph X adjustment,      ",
+        "   'y_offset' contains the integer value of glyph Y adjustment,      ",
+        "   'stretch' contains the float value of glyph horizontal stretch,   ",
+        "   'spacing' contains the integer value of glyph spacing.            ",
         "                                                                     "
      ],
     "default": {
         "comment": "Default settings for all levels",
-        "uv_adjust": 1.0
+        "uv_adjust": 1.0,
+        "glyphs": [{
+            "comment": "A",
+            "id": 0,
+            "spacing": 11
+        }, {
+            "comment": "B",
+            "id": 1,
+            "spacing": 10
+        }, {
+            "comment": "C",
+            "id": 2,
+            "spacing": 10
+        }, {
+            "comment": "D",
+            "id": 3,
+            "spacing": 10
+        }, {
+            "comment": "E",
+            "id": 4,
+            "spacing": 8
+        }, {
+            "comment": "F",
+            "id": 5,
+            "spacing": 8
+        }, {
+            "comment": "G",
+            "id": 6,
+            "spacing": 10
+        }, {
+            "comment": "H",
+            "id": 7,
+            "spacing": 10
+        }, {
+            "comment": "I",
+            "id": 8,
+            "spacing": 9
+        }, {
+            "comment": "J",
+            "id": 9,
+            "spacing": 8
+        }, {
+            "comment": "K",
+            "id": 10,
+            "spacing": 10
+        }, {
+            "comment": "L",
+            "id": 11,
+            "spacing": 9
+        }, {
+            "comment": "M",
+            "id": 12,
+            "spacing": 11
+        }, {
+            "comment": "N",
+            "id": 13,
+            "spacing": 10
+        }, {
+            "comment": "O",
+            "id": 14,
+            "spacing": 11
+        }, {
+            "comment": "P",
+            "id": 15,
+            "spacing": 10
+        }, {
+            "comment": "Q",
+            "id": 16,
+            "spacing": 11
+        }, {
+            "comment": "R",
+            "id": 17,
+            "spacing": 10
+        }, {
+            "comment": "S",
+            "id": 18,
+            "spacing": 10
+        }, {
+            "comment": "T",
+            "id": 19,
+            "spacing": 10
+        }, {
+            "comment": "U",
+            "id": 20,
+            "spacing": 10
+        }, {
+            "comment": "V",
+            "id": 21,
+            "spacing": 11
+        }, {
+            "comment": "W",
+            "id": 22,
+            "spacing": 11
+        }, {
+            "comment": "X",
+            "id": 23,
+            "spacing": 11
+        }, {
+            "comment": "Y",
+            "id": 24,
+            "spacing": 11
+        }, {
+            "comment": "Z",
+            "id": 25,
+            "spacing": 10
+        }, {
+            "comment": "a",
+            "id": 26,
+            "spacing": 9
+        }, {
+            "comment": "b",
+            "id": 27,
+            "spacing": 10
+        }, {
+            "comment": "c",
+            "id": 28,
+            "spacing": 9
+        }, {
+            "comment": "d",
+            "id": 29,
+            "spacing": 10
+        }, {
+            "comment": "e",
+            "id": 30,
+            "spacing": 10
+        }, {
+            "comment": "f",
+            "id": 31,
+            "spacing": 10
+        }, {
+            "comment": "g",
+            "id": 32,
+            "y_offset": -6,
+            "spacing": 10
+        }, {
+            "comment": "h",
+            "id": 33,
+            "spacing": 9
+        }, {
+            "comment": "i",
+            "id": 34,
+            "stretch": 2.0,
+            "spacing": 9
+        }, {
+            "comment": "j",
+            "id": 35,
+            "y_offset": -6,
+            "spacing": 8
+        }, {
+            "comment": "k",
+            "id": 36,
+            "spacing": 10
+        }, {
+            "comment": "l",
+            "id": 37,
+            "stretch": 2.0,
+            "spacing": 9
+        }, {
+            "comment": "m",
+            "id": 38,
+            "spacing": 10
+        }, {
+            "comment": "n",
+            "id": 39,
+            "spacing": 9
+        }, {
+            "comment": "o",
+            "id": 40,
+            "spacing": 10
+        }, {
+            "comment": "p",
+            "id": 41,
+            "y_offset": -6,
+            "spacing": 10
+        }, {
+            "comment": "q",
+            "id": 42,
+            "y_offset": -6,
+            "spacing": 10
+        }, {
+            "comment": "r",
+            "id": 43,
+            "spacing": 9
+        }, {
+            "comment": "s",
+            "id": 44,
+            "spacing": 9
+        }, {
+            "comment": "t",
+            "id": 45,
+            "spacing": 9
+        }, {
+            "comment": "u",
+            "id": 46,
+            "spacing": 9
+        }, {
+            "comment": "v",
+            "id": 47,
+            "spacing": 11
+        }, {
+            "comment": "w",
+            "id": 48,
+            "spacing": 11
+        }, {
+            "comment": "x",
+            "id": 49,
+            "spacing": 11
+        }, {
+            "comment": "y",
+            "id": 50,
+            "y_offset": -6,
+            "spacing": 11
+        }, {
+            "comment": "z",
+            "id": 51,
+            "spacing": 9
+        }, {
+            "comment": "0",
+            "id": 52,
+            "spacing": 10
+        }, {
+            "comment": "1",
+            "id": 53,
+            "stretch": 2.0,
+            "spacing": 10
+        }, {
+            "comment": "2",
+            "id": 54,
+            "spacing": 9
+        }, {
+            "comment": "3",
+            "id": 55,
+            "spacing": 9
+        }, {
+            "comment": "4",
+            "id": 56,
+            "spacing": 11
+        }, {
+            "comment": "5",
+            "id": 57,
+            "spacing": 9
+        }, {
+            "comment": "6",
+            "id": 58,
+            "spacing": 10
+        }, {
+            "comment": "7",
+            "id": 59,
+            "spacing": 10
+        }, {
+            "comment": "8",
+            "id": 60,
+            "spacing": 10
+        }, {
+            "comment": "9",
+            "id": 61,
+            "spacing": 10
+        }, {
+            "comment": ".",
+            "id": 62,
+            "spacing": 5
+        }, {
+            "comment": ",",
+            "id": 63,
+            "spacing": 6
+        }, {
+            "comment": "!",
+            "id": 64,
+            "spacing": 5
+        }, {
+            "comment": "?",
+            "id": 65,
+            "spacing": 8
+        }, {
+            "comment": "[ / double quote",
+            "id": 66,
+            "spacing": 6
+        }, {
+            "comment": "diaeresis diacritic",
+            "id": 67,
+            "spacing": 8
+        }, {
+            "comment": "/",
+            "id": 68,
+            "spacing": 10
+        }, {
+            "comment": "circumflex diacritic",
+            "id": 69,
+            "x_offset": 4,
+            "spacing": 10
+        }, {
+            "comment": "acute diacritic",
+            "id": 70,
+            "x_offset": 4,
+            "spacing": 6
+        }, {
+            "comment": "-",
+            "id": 71,
+            "spacing": 7
+        }, {
+            "comment": "+ / =",
+            "id": 72,
+            "spacing": 10
+        }, {
+            "comment": ":",
+            "id": 73,
+            "spacing": 5
+        }, {
+            "comment": "eszett",
+            "id": 74,
+            "spacing": 10
+        }, {
+            "comment": "] / +",
+            "id": 75,
+            "spacing": 6
+        }, {
+            "comment": "backslash / copyright",
+            "id": 76,
+            "spacing": 10
+        }, {
+            "comment": "grave diacritic",
+            "id": 77,
+            "spacing": 7
+        }, {
+            "comment": "# / &",
+            "id": 78,
+            "spacing": 11
+        }, {
+            "comment": "'",
+            "id": 79,
+            "spacing": 6
+        }, {
+            "comment": "ring menu arrow: Up",
+            "id": 80,
+            "spacing": 13
+        }, {
+            "comment": "ring menu arrow: Down",
+            "id": 81,
+            "spacing": 13
+        }, {
+            "comment": "ammo digit: 0",
+            "id": 82,
+            "spacing": 10
+        }, {
+            "comment": "ammo digit: 1",
+            "id": 83,
+            "spacing": 10
+        }, {
+            "comment": "ammo digit: 2",
+            "id": 84,
+            "spacing": 9
+        }, {
+            "comment": "ammo digit: 3",
+            "id": 85,
+            "spacing": 9
+        }, {
+            "comment": "ammo digit: 4",
+            "id": 86,
+            "spacing": 11
+        }, {
+            "comment": "ammo digit: 5",
+            "id": 87,
+            "spacing": 9
+        }, {
+            "comment": "ammo digit: 6",
+            "id": 88,
+            "spacing": 10
+        }, {
+            "comment": "ammo digit: 7",
+            "id": 89,
+            "spacing": 10
+        }, {
+            "comment": "ammo digit: 8",
+            "id": 90,
+            "spacing": 10
+        }, {
+            "comment": "ammo digit: 9",
+            "id": 91,
+            "spacing": 10
+        }, {
+            "comment": "button: Unknown",
+            "id": 92,
+            "spacing": 15
+        }, {
+            "comment": "button: Triangle",
+            "id": 93,
+            "spacing": 14
+        }, {
+            "comment": "button: Circle",
+            "id": 94,
+            "spacing": 14
+        }, {
+            "comment": "button: Cross",
+            "id": 95,
+            "spacing": 14
+        }, {
+            "comment": "button: Square",
+            "id": 96,
+            "spacing": 14
+        }, {
+            "comment": "button: L1",
+            "id": 97,
+            "spacing": 15
+        }, {
+            "comment": "button: R1",
+            "id": 98,
+            "spacing": 15
+        }, {
+            "comment": "button: L2",
+            "id": 99,
+            "spacing": 15
+        }, {
+            "comment": "button: R2",
+            "id": 100,
+            "spacing": 15
+        }, {
+            "comment": "volume icon: Music",
+            "id": 101,
+            "spacing": 11
+        }, {
+            "comment": "volume icon: SFX",
+            "id": 102,
+            "spacing": 13
+        }, {
+            "comment": "ammo icon: Shotgun",
+            "id": 103,
+            "spacing": 7
+        }, {
+            "comment": "ammo icon: Magnum",
+            "id": 104,
+            "spacing": 7
+        }, {
+            "comment": "ammo icon: Uzi",
+            "id": 105,
+            "spacing": 7
+        }, {
+            "comment": "arrow down",
+            "id": 106,
+            "spacing": 10
+        }, {
+            "comment": "arrow up",
+            "id": 107,
+            "spacing": 10
+        }, {
+            "comment": "arrow left",
+            "id": 108,
+            "spacing": 12
+        }, {
+            "comment": "arrow right",
+            "id": 109,
+            "spacing": 12
+        }]
     }
 }
