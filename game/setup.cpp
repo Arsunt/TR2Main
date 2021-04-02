@@ -141,7 +141,7 @@ void __cdecl BaddyObjects() {
 	obj = &Objects[ID_CULT1A];
 	if( obj->loaded ) {
 		if( !Objects[ID_CULT1].loaded ) {
-			S_ExitSystem("FATAL: CULT1B requires CULT1");
+			S_ExitSystem("FATAL: CULT1A requires CULT1"); // NOTE: there was a typo: CULT1B instead of CULT1A
 		}
 		obj->frameBase = Objects[ID_CULT1].frameBase;
 		obj->animIndex = Objects[ID_CULT1].animIndex;
