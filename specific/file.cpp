@@ -543,29 +543,31 @@ BOOL __cdecl LoadRooms(HANDLE hFile) {
 
 void __cdecl AdjustTextureUVs(bool resetUvAdd) {
 	DWORD i, j;
-	int adjustment, adjustment_old;
-	int offset, offset_old;
+	int offset;
 	BYTE uvFlags;
-	PHD_UV *pUV;
-
+	PHD_UV *pUV, *pBackup;
+	// NOTE: there was no such backup in the original game
+	static PHD_TEXTURE TextureInfoBackup[ARRAY_SIZE(PhdTextureInfo)];
+	if( resetUvAdd ) {
+		memcpy(TextureInfoBackup, PhdTextureInfo, TextureInfoCount * sizeof(PHD_TEXTURE));
+	}
 #if (DIRECT3D_VERSION >= 0x900)
 	if( SavedAppSettings.RenderMode == RM_Hardware ) {
 		double forcedAdjust = GetTexPagesAdjustment();
 		if( forcedAdjust > 0.0) {
-			if( !resetUvAdd ) {
-				return;
-			}
-			offset = (int)(forcedAdjust * 256.0);
+			UvAdd = (int)(forcedAdjust * 256.0);
 			for( i=0; i<TextureInfoCount; ++i ) {
 				uvFlags = LabTextureUVFlags[i];
 				pUV = PhdTextureInfo[i].uv;
+				pBackup = TextureInfoBackup[i].uv;
 
 				for( j=0; j<4; ++j ) {
-					pUV[j].u += ((uvFlags & 1) ? -offset : offset);
-					pUV[j].v += ((uvFlags & 2) ? -offset : offset);
+					pUV[j].u = pBackup[j].u + ((uvFlags & 1) ? -UvAdd : UvAdd);
+					pUV[j].v = pBackup[j].v + ((uvFlags & 2) ? -UvAdd : UvAdd);
 					uvFlags >>= 2;
 				}
 			}
+			return;
 		}
 	}
 #endif // (DIRECT3D_VERSION >= 0x900)
@@ -573,32 +575,27 @@ void __cdecl AdjustTextureUVs(bool resetUvAdd) {
 	if( SavedAppSettings.RenderMode == RM_Hardware && (SavedAppSettings.TexelAdjustMode == TAM_Always ||
 		(SavedAppSettings.TexelAdjustMode == TAM_BilinearOnly && SavedAppSettings.BilinearFiltering)) )
 	{
-		adjustment = SavedAppSettings.LinearAdjustment; // LinearAdjustment default is 128. It can be changed in the registry only
+		UvAdd = SavedAppSettings.LinearAdjustment;
 	} else {
-		adjustment = SavedAppSettings.NearestAdjustment; // NearestAdjustment default is 16. It can be changed in the registry only
+		UvAdd = SavedAppSettings.NearestAdjustment;
 	}
-
-	adjustment_old = resetUvAdd ? 0 : UvAdd;
-	UvAdd = adjustment;
 
 	for( i=0; i<TextureInfoCount; ++i ) {
 		if( SavedAppSettings.RenderMode == RM_Hardware ) {
 			// NOTE: page side is not counted in the original game, but we need it for HD textures
-			offset = adjustment * 256 / GetTextureSideByPage(PhdTextureInfo[i].tpage);
-			offset_old = adjustment_old * 256 / GetTextureSideByPage(PhdTextureInfo[i].tpage);
+			offset = UvAdd * 256 / GetTextureSideByPage(PhdTextureInfo[i].tpage);
 			CLAMPL(offset, 1);
-			CLAMPL(offset_old, 1);
-			offset -= offset_old;
 		} else {
-			offset = adjustment - adjustment_old;
+			offset = UvAdd;
 		}
 
 		uvFlags = LabTextureUVFlags[i];
 		pUV = PhdTextureInfo[i].uv;
+		pBackup = TextureInfoBackup[i].uv;
 
 		for( j=0; j<4; ++j ) {
-			pUV[j].u += ((uvFlags & 1) ? -offset : offset);
-			pUV[j].v += ((uvFlags & 2) ? -offset : offset);
+			pUV[j].u = pBackup[j].u + ((uvFlags & 1) ? -offset : offset);
+			pUV[j].v = pBackup[j].v + ((uvFlags & 2) ? -offset : offset);
 			uvFlags >>= 2;
 		}
 	}
