@@ -36,6 +36,19 @@ DWORD JoystickButtonStyle = 0;
 
 typedef enum {
 	kbd_esc,
+	kbd_f1,
+	kbd_f2,
+	kbd_f3,
+	kbd_f4,
+	kbd_f5,
+	kbd_f6,
+	kbd_f7,
+	kbd_f8,
+	kbd_f9,
+	kbd_f10,
+	kbd_f11,
+	kbd_f12,
+
 	kbd_tab,
 	kbd_1,
 	kbd_2,
@@ -50,6 +63,7 @@ typedef enum {
 	kbd_minus,
 	kbd_equals,
 	kbd_backspace,
+
 	kbd_capslock,
 	kbd_q,
 	kbd_w,
@@ -64,6 +78,7 @@ typedef enum {
 	kbd_lbracket,
 	kbd_rbracket,
 	kbd_return,
+
 	kbd_ctrl,
 	kbd_a,
 	kbd_s,
@@ -78,6 +93,7 @@ typedef enum {
 	kbd_apostrophe,
 	kbd_grave,
 	kbd_shift,
+
 	kbd_alt,
 	kbd_backslash,
 	kbd_z,
@@ -92,6 +108,10 @@ typedef enum {
 	kbd_slash,
 	kbd_oem102,
 	kbd_space,
+
+	kbd_printscreen,
+	kbd_scrolllock,
+	kbd_pause,
 	kbd_insert,
 	kbd_home,
 	kbd_pageup,
@@ -103,6 +123,7 @@ typedef enum {
 	kbd_up,
 	kbd_down,
 	kbd_numlock,
+
 	kbd_pad7,
 	kbd_pad8,
 	kbd_pad9,
@@ -139,6 +160,18 @@ typedef struct {
 
 static MAP btnMap[] = {
 	{kbd_esc, "esc"},
+	{kbd_f1, "f1"},
+	{kbd_f2, "f2"},
+	{kbd_f3, "f3"},
+	{kbd_f4, "f4"},
+	{kbd_f5, "f5"},
+	{kbd_f6, "f6"},
+	{kbd_f7, "f7"},
+	{kbd_f8, "f8"},
+	{kbd_f9, "f9"},
+	{kbd_f10, "f10"},
+	{kbd_f11, "f11"},
+	{kbd_f12, "f12"},
 	{kbd_tab, "tab"},
 	{kbd_capslock, "capslock"},
 	{kbd_shift, "shift"},
@@ -195,6 +228,9 @@ static MAP btnMap[] = {
 	{kbd_period, "."},
 	{kbd_slash, "/"},
 	{kbd_oem102, "<"},
+	{kbd_printscreen, "printscreen"},
+	{kbd_scrolllock, "scrolllock"},
+	{kbd_pause, "pause"},
 	{kbd_insert, "insert"},
 	{kbd_home, "home"},
 	{kbd_pageup, "pageup"},
