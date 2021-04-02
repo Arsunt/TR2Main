@@ -158,7 +158,7 @@ BOOL __cdecl GameMain() {
 		HWR_InitState();
 	}
 
-	GameMemoryPointer = (BYTE *)GlobalAlloc(GMEM_FIXED, 0x380000); // 3.5 MB
+	GameMemoryPointer = (BYTE *)GlobalAlloc(GMEM_FIXED, GameMemorySize);
 	if( GameMemoryPointer == NULL ) {
 		lstrcpy(StringToShow, "GameMain: could not allocate malloc_buffer");
 		return FALSE;
