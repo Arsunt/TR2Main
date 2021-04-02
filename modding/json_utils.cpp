@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -64,7 +64,12 @@ json_value *GetJsonObjectByStringField(json_value *root, const char *name, const
 	return result;
 }
 
-int GetJsonIntegerFieldValue(json_value *root, const char *name) {
+int GetJsonIntegerFieldValue(json_value *root, const char *name, int defaultValue) {
 	json_value *field = GetJsonField(root, json_integer, name, NULL);
-	return field ? field->u.integer : 0;
+	return field ? field->u.integer : defaultValue;
+}
+
+double GetJsonFloatFieldValue(json_value *root, const char *name, double defaultValue) {
+	json_value *field = GetJsonField(root, json_double, name, NULL);
+	return field ? field->u.dbl : defaultValue;
 }

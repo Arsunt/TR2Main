@@ -292,13 +292,13 @@ static bool ParseSpriteInfo(json_value *root, int id) {
 	}
 	PHD_SPRITE *info = &PhdSpriteInfo[BTN_SPR_IDX + id];
 
-	BYTE u = GetJsonIntegerFieldValue(root, "u");
-	BYTE v = GetJsonIntegerFieldValue(root, "v");
-	int x = GetJsonIntegerFieldValue(root, "x");
-	int y = GetJsonIntegerFieldValue(root, "y");
-	int width = GetJsonIntegerFieldValue(root, "width");
-	int height = GetJsonIntegerFieldValue(root, "height");
-	ButtonSpriteSpacing[id] = GetJsonIntegerFieldValue(root, "spacing");;
+	BYTE u = GetJsonIntegerFieldValue(root, "u", 0);
+	BYTE v = GetJsonIntegerFieldValue(root, "v", 0);
+	int x = GetJsonIntegerFieldValue(root, "x", 0);
+	int y = GetJsonIntegerFieldValue(root, "y", 0);
+	int width = GetJsonIntegerFieldValue(root, "width", 0);
+	int height = GetJsonIntegerFieldValue(root, "height", 0);
+	ButtonSpriteSpacing[id] = GetJsonIntegerFieldValue(root, "spacing", 0);
 
 	info->offset = (v << 8) | u;
 	info->width = ABS(width)*256;

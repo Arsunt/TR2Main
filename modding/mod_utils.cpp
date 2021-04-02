@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -321,11 +321,11 @@ static bool ParsePolyfilterConfiguration(json_value *root, const char *name, POL
 		if( !filter ) continue;
 		field = GetJsonField(item, json_object, "filter", NULL);
 		if( field ) {
-			filter->n_vtx = GetJsonIntegerFieldValue(field, "v");
-			filter->n_gt4 = GetJsonIntegerFieldValue(field, "t4");
-			filter->n_gt3 = GetJsonIntegerFieldValue(field, "t3");
-			filter->n_g4  = GetJsonIntegerFieldValue(field, "c4");
-			filter->n_g3  = GetJsonIntegerFieldValue(field, "c3");
+			filter->n_vtx = GetJsonIntegerFieldValue(field, "v",  0);
+			filter->n_gt4 = GetJsonIntegerFieldValue(field, "t4", 0);
+			filter->n_gt3 = GetJsonIntegerFieldValue(field, "t3", 0);
+			filter->n_g4  = GetJsonIntegerFieldValue(field, "c4", 0);
+			filter->n_g3  = GetJsonIntegerFieldValue(field, "c3", 0);
 		}
 		json_value *t4list = GetJsonField(item, json_string, "t4list", NULL);
 		json_value *t3list = GetJsonField(item, json_string, "t3list", NULL);
