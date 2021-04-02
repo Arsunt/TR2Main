@@ -398,9 +398,23 @@ static void AdaptToPalette(void *srcData, int width, int height, int srcPitch, R
 	}
 }
 
-static int LoadButtonSpriteTexturePage() {
+static int LoadButtonSpriteTexturePage(bool *isExternal) {
 	int pageIndex = -1;
 	DWORD width, height, pcxSize = 0;
+
+#if (DIRECT3D_VERSION >= 0x900)
+	if( SavedAppSettings.RenderMode == RM_Hardware && PathFileExists("textures/buttons.png") ) {
+		pageIndex = AddExternalTexture("textures/buttons.png", true);
+		if( pageIndex >= 0 ) {
+			HWR_TexturePageIndexes[HwrTexturePagesCount] = pageIndex;
+			HWR_PageHandles[HwrTexturePagesCount] = GetTexturePageHandle(pageIndex);
+			pageIndex = HwrTexturePagesCount++;
+			if( isExternal ) *isExternal = true;
+			return pageIndex;
+		}
+	}
+	if( isExternal ) *isExternal = false;
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 	LPCBYTE pcxData = (LPCBYTE)GetResourceData("BUTTONS.PCX", &pcxSize);
 	if( !pcxData || !pcxSize || GetPcxResolution(pcxData, pcxSize, &width, &height)
@@ -433,13 +447,33 @@ static int LoadButtonSpriteTexturePage() {
 bool LoadButtonSprites() {
 	ButtonSpriteLoaded = false;
 	memset(&PhdSpriteInfo[BTN_SPR_IDX], 0, sizeof(PHD_SPRITE) * button_sprites_number);
-	int pageIndex = LoadButtonSpriteTexturePage();
+	bool isExternalTexture = false;
+	int pageIndex = LoadButtonSpriteTexturePage(&isExternalTexture);
 	if( pageIndex >= 0 ) {
 		for( int i = 0; i < button_sprites_number; ++i ) {
 			PhdSpriteInfo[BTN_SPR_IDX + i].texPage = pageIndex;
 		}
 		DWORD jsonSize = 0;
+#if (DIRECT3D_VERSION >= 0x900)
+		bool isExternalJson = false;
+		LPVOID jsonData = NULL;
+		if( isExternalTexture && PathFileExists("textures/buttons.json") ) {
+			DWORD bytesRead = 0;
+			HANDLE hFile = CreateFile("textures/buttons.json", GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN|FILE_ATTRIBUTE_NORMAL, NULL);
+			if( hFile != INVALID_HANDLE_VALUE ) {
+				isExternalJson = true;
+				jsonSize = GetFileSize(hFile, NULL);
+				jsonData = malloc(jsonSize);
+				ReadFile(hFile, jsonData, jsonSize, &bytesRead, NULL);
+				CloseHandle(hFile);
+			}
+		}
+		if( !isExternalJson ) {
+			jsonData = (LPVOID)GetResourceData("BUTTONS.JSON", &jsonSize);
+		}
+#else // (DIRECT3D_VERSION >= 0x900)
 		LPCVOID jsonData = GetResourceData("BUTTONS.JSON", &jsonSize);
+#endif // (DIRECT3D_VERSION >= 0x900)
 		if( jsonData && jsonSize ) {
 			json_value* json = json_parse((const json_char *)jsonData, jsonSize);
 			if( json != NULL ) {
@@ -447,6 +481,11 @@ bool LoadButtonSprites() {
 				json_value_free(json);
 			}
 		}
+#if (DIRECT3D_VERSION >= 0x900)
+		if( isExternalJson && jsonData ) {
+			free(jsonData);
+		}
+#endif // (DIRECT3D_VERSION >= 0x900)
 	}
 	return ButtonSpriteLoaded;
 }
