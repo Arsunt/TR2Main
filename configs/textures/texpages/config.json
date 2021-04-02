@@ -36,7 +36,7 @@
      ],
     "default": {
         "comment": "Default settings for all levels",
-        "legacy_colors": true,
+        "legacy_colors": false,
         "uv_adjust": 1.0,
         "glyphs": [{
             "comment": "A",
