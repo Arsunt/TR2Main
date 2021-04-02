@@ -529,13 +529,14 @@ void __cdecl T_DrawThisText(TEXT_STR_INFO *textInfo) {
 #if (DIRECT3D_VERSION >= 0x900)
 				sx = GetTextScaleH(x + GetTexPagesGlyphXOffset(sprite));
 				sy = GetTextScaleV(y + GetTexPagesGlyphYOffset(sprite));
-				sh = GetTextScaleH(scaleH * GetTexPagesGlyphStretch(sprite));
+				sh = GetTextScaleH(scaleH * GetTexPagesGlyphXStretch(sprite));
+				sv = GetTextScaleV(scaleV * GetTexPagesGlyphYStretch(sprite));
 #else // (DIRECT3D_VERSION >= 0x900)
 				sx = GetTextScaleH(x);
 				sy = GetTextScaleV(y);
 				sh = GetTextScaleH(scaleH);
-#endif // (DIRECT3D_VERSION >= 0x900)
 				sv = GetTextScaleV(scaleV);
+#endif // (DIRECT3D_VERSION >= 0x900)
 				S_DrawScreenSprite2d(sx, sy, z, sh, sv, (Objects[ID_ALPHABET].meshIndex + sprite), 0x1000, textInfo->textFlags);
 			}
 #else // FEATURE_HUD_IMPROVED

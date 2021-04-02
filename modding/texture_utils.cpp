@@ -692,7 +692,8 @@ typedef struct {
 		int spacing;
 		int xOffset;
 		int yOffset;
-		double stretch;
+		double xStretch;
+		double yStretch;
 	} glyphs[110];
 #endif // FEATURE_HUD_IMPROVED
 } TEXPAGES_CONFIG;
@@ -739,14 +740,24 @@ int GetTexPagesGlyphYOffset(int id) {
 	return TexPagesConfig.glyphs[id].yOffset;
 }
 
-double GetTexPagesGlyphStretch(int id) {
+double GetTexPagesGlyphXStretch(int id) {
 	if( id < 0 || id >= (int)ARRAY_SIZE(TexPagesConfig.glyphs)
 		|| SavedAppSettings.RenderMode == RM_Software
-		|| TexPagesConfig.glyphs[id].stretch <= 0.0 )
+		|| TexPagesConfig.glyphs[id].xStretch <= 0.0 )
 	{
 		return 1.0;
 	}
-	return TexPagesConfig.glyphs[id].stretch;
+	return TexPagesConfig.glyphs[id].xStretch;
+}
+
+double GetTexPagesGlyphYStretch(int id) {
+	if( id < 0 || id >= (int)ARRAY_SIZE(TexPagesConfig.glyphs)
+		|| SavedAppSettings.RenderMode == RM_Software
+		|| TexPagesConfig.glyphs[id].yStretch <= 0.0 )
+	{
+		return 1.0;
+	}
+	return TexPagesConfig.glyphs[id].yStretch;
 }
 #endif // FEATURE_HUD_IMPROVED
 
@@ -776,7 +787,8 @@ static bool ParseLevelTexPagesConfiguration(json_value *root) {
 			TexPagesConfig.glyphs[id].spacing = GetJsonIntegerFieldValue(glyph, "spacing", 0);
 			TexPagesConfig.glyphs[id].xOffset = GetJsonIntegerFieldValue(glyph, "x_offset", 0);
 			TexPagesConfig.glyphs[id].yOffset = GetJsonIntegerFieldValue(glyph, "y_offset", 0);
-			TexPagesConfig.glyphs[id].stretch = GetJsonFloatFieldValue(glyph, "stretch", 1.0);
+			TexPagesConfig.glyphs[id].xStretch = GetJsonFloatFieldValue(glyph, "x_stretch", 1.0);
+			TexPagesConfig.glyphs[id].yStretch = GetJsonFloatFieldValue(glyph, "y_stretch", 1.0);
 		}
 	}
 #endif // FEATURE_HUD_IMPROVED

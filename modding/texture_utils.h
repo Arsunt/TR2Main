@@ -44,7 +44,8 @@ double GetTexPagesAdjustment();
 int GetTexPagesGlyphSpacing(int id);
 int GetTexPagesGlyphXOffset(int id);
 int GetTexPagesGlyphYOffset(int id);
-double GetTexPagesGlyphStretch(int id);
+double GetTexPagesGlyphXStretch(int id);
+double GetTexPagesGlyphYStretch(int id);
 #endif // FEATURE_HUD_IMPROVED
 
 void UnloadTexPagesConfiguration();
