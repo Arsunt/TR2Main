@@ -334,6 +334,19 @@ static int CreateBgndPatternTexture(HANDLE hFile) {
 	if( hFile == INVALID_HANDLE_VALUE || SavedAppSettings.RenderMode != RM_Hardware || BgndPattern.side <= 0 ) {
 		return -1;
 	}
+	int pageIndex = -1;
+
+#if (DIRECT3D_VERSION >= 0x900)
+	if( PathFileExists("textures/background.png") ) {
+		pageIndex = AddExternalTexture("textures/background.png", true);
+		if( pageIndex >= 0 ) {
+			HWR_TexturePageIndexes[HwrTexturePagesCount] = pageIndex;
+			HWR_PageHandles[HwrTexturePagesCount] = GetTexturePageHandle(pageIndex);
+			pageIndex = HwrTexturePagesCount++;
+			return pageIndex;
+		}
+	}
+#endif // (DIRECT3D_VERSION >= 0x900)
 
 	DWORD bytesRead;
 	int pageCount = 0;
@@ -349,7 +362,6 @@ static int CreateBgndPatternTexture(HANDLE hFile) {
 	}
 #endif // (DIRECT3D_VERSION >= 0x900)
 
-	int pageIndex = -1;
 	DWORD pageSize = ( TextureFormat.bpp < 16 ) ? 256*256*1 : 256*256*2;
 	BYTE *bitmap = (BYTE *)GlobalAlloc(GMEM_FIXED, pageSize);
 	if( TextureFormat.bpp < 16 ) {
