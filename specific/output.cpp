@@ -78,6 +78,9 @@ typedef struct ShadowInfo_t {
 	POS_3D vertex[32]; // original size was 8
 } SHADOW_INFO;
 
+// NOTE: there was no such backup in the original game
+PHD_TEXTURE TextureBackupUV[ARRAY_SIZE(PhdTextureInfo)];
+
 #if (DIRECT3D_VERSION >= 0x900)
 static bool SWR_StretchBlt(SWR_BUFFER *dstBuf, RECT *dstRect, SWR_BUFFER *srcBuf, RECT *srcRect) {
 	if( !srcBuf || !srcBuf->bitmap || !srcBuf->width || !srcBuf->height ||
@@ -883,7 +886,7 @@ void __cdecl AnimateTextures(int nTicks) {
 	static int tickComp = 0;
 	__int16 i, j;
 	__int16 *ptr;
-	PHD_TEXTURE temp;
+	PHD_TEXTURE temp1, temp2;
 
 	tickComp += nTicks;
 	while( tickComp > TICKS_PER_FRAME * 5 ) {
@@ -891,11 +894,14 @@ void __cdecl AnimateTextures(int nTicks) {
 		i = *(ptr++);
 		for( ; i>0; --i, ++ptr ) {
 			j = *(ptr++);
-			temp = PhdTextureInfo[*ptr];
+			temp1 = PhdTextureInfo[*ptr];
+			temp2 = TextureBackupUV[*ptr];
 			for ( ; j>0; --j, ++ptr ) {
 				PhdTextureInfo[ptr[0]] = PhdTextureInfo[ptr[1]];
+				TextureBackupUV[ptr[0]] = TextureBackupUV[ptr[1]];
 			}
-			PhdTextureInfo[*ptr] = temp;
+			PhdTextureInfo[*ptr] = temp1;
+			TextureBackupUV[*ptr] = temp2;
 		}
 		tickComp -= TICKS_PER_FRAME * 5;
 	}

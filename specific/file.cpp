@@ -559,9 +559,9 @@ void __cdecl AdjustTextureUVs(bool resetUvAdd) {
 	BYTE uvFlags;
 	PHD_UV *pUV, *pBackup;
 	// NOTE: there was no such backup in the original game
-	static PHD_TEXTURE TextureInfoBackup[ARRAY_SIZE(PhdTextureInfo)];
+	extern PHD_TEXTURE TextureBackupUV[ARRAY_SIZE(PhdTextureInfo)];
 	if( resetUvAdd ) {
-		memcpy(TextureInfoBackup, PhdTextureInfo, TextureInfoCount * sizeof(PHD_TEXTURE));
+		memcpy(TextureBackupUV, PhdTextureInfo, TextureInfoCount * sizeof(PHD_TEXTURE));
 	}
 #if (DIRECT3D_VERSION >= 0x900)
 	if( SavedAppSettings.RenderMode == RM_Hardware ) {
@@ -571,7 +571,7 @@ void __cdecl AdjustTextureUVs(bool resetUvAdd) {
 			for( i=0; i<TextureInfoCount; ++i ) {
 				uvFlags = LabTextureUVFlags[i];
 				pUV = PhdTextureInfo[i].uv;
-				pBackup = TextureInfoBackup[i].uv;
+				pBackup = TextureBackupUV[i].uv;
 
 				for( j=0; j<4; ++j ) {
 					pUV[j].u = pBackup[j].u + ((uvFlags & 1) ? -UvAdd : UvAdd);
@@ -603,7 +603,7 @@ void __cdecl AdjustTextureUVs(bool resetUvAdd) {
 
 		uvFlags = LabTextureUVFlags[i];
 		pUV = PhdTextureInfo[i].uv;
-		pBackup = TextureInfoBackup[i].uv;
+		pBackup = TextureBackupUV[i].uv;
 
 		for( j=0; j<4; ++j ) {
 			pUV[j].u = pBackup[j].u + ((uvFlags & 1) ? -offset : offset);
