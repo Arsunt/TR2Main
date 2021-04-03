@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -28,12 +28,16 @@
  * Function list
  */
 //	0x004339A0:		InitialiseMovingBlock
-//	0x004339D0:		MovableBlock
+
+#define MovableBlock ((void(__cdecl*)(__int16)) 0x004339D0)
+
 //	0x00433B20:		MovableBlockCollision
 //	0x00433D80:		TestBlockMovable
 //	0x00433DD0:		TestBlockPush
 //	0x00433F20:		TestBlockPull
-//	0x00434160:		AlterFloorHeight
+
+#define AlterFloorHeight ((void(__cdecl*)(ITEM_INFO *, int)) 0x00434160)
+
 //	0x00434220:		DrawMovableBlock
 
 #define DrawUnclippedItem ((void(__cdecl*)(ITEM_INFO *)) 0x00434250)

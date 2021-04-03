@@ -254,7 +254,7 @@ x function is unused / included in another function
 0x00417900:		CreateBartoliLight
 0x004179E0:		DragonFire
 0x00417A90:	 *	DragonCollision
-0x00417D80:		DragonBones
+0x00417D80:	 *	DragonBones
 0x00417E60:	 *	DragonControl
 0x004183B0:	 *	InitialiseBartoli
 0x004184D0:	 *	BartoliControl
@@ -752,12 +752,12 @@ x function is unused / included in another function
 
 	game/moveblock.cpp
 0x004339A0:		InitialiseMovingBlock
-0x004339D0:		MovableBlock
+0x004339D0:	 *	MovableBlock
 0x00433B20:		MovableBlockCollision
 0x00433D80:		TestBlockMovable
 0x00433DD0:		TestBlockPush
 0x00433F20:		TestBlockPull
-0x00434160:		AlterFloorHeight
+0x00434160:	 *	AlterFloorHeight
 0x00434220:		DrawMovableBlock
 0x00434250:	 *	DrawUnclippedItem
 
@@ -821,12 +821,12 @@ x function is unused / included in another function
 0x00437DA0:	 *	WinstonControl
 
 	game/pickup.cpp
-0x00437F20:		PickUpCollision
+0x00437F20:	 *	PickUpCollision
 0x004383A0:		SwitchCollision
 0x004385B0:		SwitchCollision2
 0x004386B0:		DetonatorCollision
 0x004388F0:		KeyHoleCollision
-0x00438B30:		PuzzleHoleCollision
+0x00438B30:	 *	PuzzleHoleCollision
 0x00438DF0:		SwitchControl
 0x00438E30:		SwitchTrigger
 0x00438EF0:		KeyTrigger
@@ -837,14 +837,14 @@ x function is unused / included in another function
 0x00438FA0:	 *	MouseControl
 
 	game/savegame.cpp
-0x00439190:		InitialiseStartInfo
+0x00439190:	+	InitialiseStartInfo
 0x00439200:	+	ModifyStartInfo
-0x004392E0:	 *	CreateStartInfo
-0x004394F0:	 *	CreateSaveGameInfo
-0x00439A20:		ExtractSaveGameInfo
-0x0043A280:		ResetSG
-0x0043A2A0:		WriteSG
-0x0043A2F0:		ReadSG
+0x004392E0:	+	CreateStartInfo
+0x004394F0:	+	CreateSaveGameInfo
+0x00439A20:	+	ExtractSaveGameInfo
+0x0043A280:	+	ResetSG
+0x0043A2A0:	+	WriteSG
+0x0043A2F0:	+	ReadSG
 
 	game/setup.cpp
 0x0043A330:	 *	InitialiseLevel
@@ -862,7 +862,7 @@ x function is unused / included in another function
 0x0043CC50:	 *	SharkControl
 
 	game/skidoo.cpp
-0x0043CEE0:		InitialiseSkidoo
+0x0043CEE0:	 *	InitialiseSkidoo
 0x0043CF20:		SkidooCheckGeton
 0x0043D010:		SkidooCollision
 0x0043D110:		SkidooBaddieCollision

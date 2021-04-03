@@ -161,6 +161,7 @@ extern __int16 InvOptionObjectsCount;
 #define BoundEnd					VAR_U_(0x004D77B4, int)
 #define IsAssaultTimerDisplay		VAR_U_(0x004D77D0, BOOL)
 #define IsAssaultTimerActive		VAR_U_(0x004D77D4, BOOL)
+#define IsMonkAngry					VAR_U_(0x004D77D8, BOOL)
 #define AmmoTextInfo				VAR_U_(0x004D791C, TEXT_STR_INFO*)
 #define DisplayModeTextInfo			VAR_U_(0x004D7920, TEXT_STR_INFO*)
 #define DisplayModeInfoTimer		VAR_U_(0x004D7924, DWORD)
@@ -367,7 +368,9 @@ extern APP_SETTINGS SavedAppSettings;
 #define SampleInfoCount				VAR_U_(0x0051E6C0, DWORD)
 #define SoundIsActive				VAR_U_(0x0051E6C4, BOOL)
 #define SampleInfos					VAR_U_(0x0051E9C4, SAMPLE_INFO*)
+#define SG_Point					VAR_U_(0x0051E9C8, BYTE*)
 #define SaveGame					VAR_U_(0x0051E9E0, SAVEGAME_INFO)
+#define SG_Count					VAR_U_(0x005206A4, DWORD)
 #define Lara						VAR_U_(0x005206E0, LARA_INFO)
 #define LaraItem					VAR_U_(0x005207BC, ITEM_INFO*)
 #define Effects						VAR_U_(0x005207C0, FX_INFO *)
@@ -655,6 +658,8 @@ extern STATIC_INFO StaticObjects[256];
 #define DrawRoomsArray				ARRAY_(0x00525B20, __int16, [100])
 #define StaticObjects				ARRAY_(0x00525C00, STATIC_INFO, [50])
 #endif // FEATURE_EXTENDED_LIMITS
+#define CD_Flags					ARRAY_(0x005261C0, __int16, [64])
+#define FlipMaps					ARRAY_(0x00526260, int, [10])
 #define GroundZones					ARRAY_(0x005263A0, __int16*, [8])
 #define FlyZones					ARRAY_(0x005263C0, __int16*, [2])
 

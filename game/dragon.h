@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -32,9 +32,7 @@
 //	0x004179E0:		DragonFire
 
 #define DragonCollision ((void(__cdecl*)(__int16, ITEM_INFO *, COLL_INFO *)) 0x00417A90)
-
-//	0x00417D80:		DragonBones
-
+#define DragonBones ((void(__cdecl*)(__int16)) 0x00417D80)
 #define DragonControl ((void(__cdecl*)(__int16)) 0x00417E60)
 #define InitialiseBartoli ((void(__cdecl*)(__int16)) 0x004183B0)
 #define BartoliControl ((void(__cdecl*)(__int16)) 0x004184D0)

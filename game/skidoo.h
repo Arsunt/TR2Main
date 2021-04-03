@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -27,7 +27,8 @@
 /*
  * Function list
  */
-//	0x0043CEE0:		InitialiseSkidoo
+#define InitialiseSkidoo ((void(__cdecl*)(__int16)) 0x0043CEE0)
+
 //	0x0043CF20:		SkidooCheckGeton
 //	0x0043D010:		SkidooCollision
 //	0x0043D110:		SkidooBaddieCollision
