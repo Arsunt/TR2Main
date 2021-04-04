@@ -231,8 +231,8 @@ x function is unused / included in another function
 0x00416610:	 *	FlipMap
 0x004166D0:		RemoveRoomFlipItems
 0x00416770:		AddRoomFlipItems
-0x004167D0:		TriggerCDTrack
-0x00416800:		TriggerNormalCDTrack
+0x004167D0:	+	TriggerCDTrack
+0x00416800:	+	TriggerNormalCDTrack
 
 	game/demo.cpp
 0x004168E0:	 *	DoDemoSequence

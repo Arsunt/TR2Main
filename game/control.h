@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -57,7 +57,8 @@ int __cdecl ControlPhase(int nTicks, BOOL demoMode);
 
 // 0x004166D0:		RemoveRoomFlipItems
 // 0x00416770:		AddRoomFlipItems
-// 0x004167D0:		TriggerCDTrack
-// 0x00416800:		TriggerNormalCDTrack
+
+void __cdecl TriggerCDTrack(__int16 value, UINT16 flags, __int16 type); // 0x004167D0
+void __cdecl TriggerNormalCDTrack(__int16 value, UINT16 flags, __int16 type); // 0x00416800;
 
 #endif // CONTROL_H_INCLUDED

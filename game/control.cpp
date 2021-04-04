@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -173,6 +173,43 @@ int __cdecl ControlPhase(int nTicks, BOOL demoMode) {
 	return 0;
 }
 
+void __cdecl TriggerCDTrack(__int16 value, UINT16 flags, __int16 type) {
+	if( value > 1 && value < 64 ) {
+		TriggerNormalCDTrack(value, flags, type);
+	}
+}
+
+void __cdecl TriggerNormalCDTrack(__int16 value, UINT16 flags, __int16 type) {
+	if( type != 2 ) {
+		UINT16 codebits = flags & IFL_CODEBITS;
+		if( CHK_ANY(codebits, CD_Flags[value]) ){
+			return;
+		}
+		if( CHK_ANY(flags, IFL_INVISIBLE) ) {
+			CD_Flags[value] |= codebits;
+		}
+	}
+
+	if( value == CD_TrackID ) {
+		UINT8 timer = CD_Flags[value] & 0xFF;
+		if( timer ) {
+			if( !--timer ) {
+				CD_TrackID = -1;
+				S_CDPlay(value, FALSE);
+			}
+			CD_Flags[value] = (CD_Flags[value] & ~0xFF) | timer;
+		}
+	} else {
+		UINT8 timer = flags & 0xFF;
+		if( timer ) {
+			CD_TrackID = value;
+			CD_Flags[value] = (CD_Flags[value] & ~0xFF) | ((timer * 30) & 0xFF);
+		} else {
+			S_CDPlay(value, FALSE);
+		}
+	}
+}
+
 /*
  * Inject function
  */
@@ -197,6 +234,7 @@ void Inject_Control() {
 //	INJECT(0x00416610, FlipMap);
 //	INJECT(0x004166D0, RemoveRoomFlipItems);
 //	INJECT(0x00416770, AddRoomFlipItems);
-//	INJECT(0x004167D0, TriggerCDTrack);
-//	INJECT(0x00416800, TriggerNormalCDTrack);
+
+	INJECT(0x004167D0, TriggerCDTrack);
+	INJECT(0x00416800, TriggerNormalCDTrack);
 }
