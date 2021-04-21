@@ -28,9 +28,7 @@
  * Function list
  */
 #define InitialiseCreature ((void(__cdecl*)(__int16)) 0x0040E190)
-
-//	0x0040E1C0:		CreatureActive
-
+#define CreatureActive ((int(__cdecl*)(__int16)) 0x0040E1C0)
 #define CreatureAIInfo ((void(__cdecl*)(ITEM_INFO *, AI_INFO *)) 0x0040E210)
 
 //	0x0040E470:		SearchLOT

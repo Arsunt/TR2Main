@@ -24,11 +24,33 @@
 #include "3dsystem/phd_math.h"
 #include "game/draw.h"
 #include "game/larafire.h"
+#include "game/sound.h"
 #include "global/vars.h"
 
 #ifdef FEATURE_INPUT_IMPROVED
 #include "modding/joy_output.h"
 #endif // FEATURE_INPUT_IMPROVED
+
+void __cdecl set_pistol_arm(LARA_ARM *arm, int frame) {
+	__int16 anim;
+
+	if (frame < 5) {
+		anim = Objects[ID_LARA_PISTOLS].animIndex;
+	} else {
+		if (frame < 13) {
+			anim = Objects[ID_LARA_PISTOLS].animIndex + 1;
+		} else {
+			if (frame < 24) {
+				anim = Objects[ID_LARA_PISTOLS].animIndex + 2;
+			} else {
+				anim = Objects[ID_LARA_PISTOLS].animIndex + 3;
+			}
+		}
+	}
+	arm->anim_number = anim;
+	arm->frame_number = frame;
+	arm->frame_base = Anims[anim].framePtr;
+}
 
 void __cdecl PistolHandler(int weaponType) {
 	WEAPON_INFO *weapon = &Weapons[weaponType];
@@ -76,11 +98,119 @@ void __cdecl PistolHandler(int weaponType) {
 	}
 }
 
+void __cdecl AnimatePistols(int gunType) {
+	BOOL right;
+	__int16 frame, angles[2];
+	WEAPON_INFO *weapon;
+	static BOOL IsLeftUzi = FALSE;
+	static BOOL IsRightUzi = FALSE;
+
+	right = FALSE;
+	frame = Lara.right_arm.frame_number;
+	weapon = &Weapons[gunType];
+	if (!Lara.right_arm.lock && (!CHK_ANY(InputStatus, IN_ACTION) || Lara.target)) {
+		if (frame >= 24) {
+			frame = 4;
+		} else {
+			if (frame > 0 && frame <= 4)
+				--frame;
+		}
+		if (IsRightUzi) {
+			PlaySoundEffect(weapon->sampleNum + 1, &LaraItem->pos, 0);
+			IsRightUzi = FALSE;
+		}
+	} else {
+		if (frame >= 0 && frame < 4) {
+			++frame;
+		} else {
+			if (frame == 4) {
+				if (CHK_ANY(InputStatus, IN_ACTION)) {
+					angles[0] = LaraItem->pos.rotY + Lara.left_arm.y_rot;
+					angles[1] = Lara.right_arm.x_rot;
+					if (FireWeapon(gunType, Lara.target, LaraItem, angles)) {
+						Lara.right_arm.flash_gun = weapon->flashTime;
+						PlaySoundEffect(weapon->sampleNum, &LaraItem->pos, 0);
+						right = TRUE;
+						if (gunType == LGT_Uzis)
+							IsRightUzi = TRUE;
+					}
+					frame = 24;
+				} else {
+					if (IsRightUzi) {
+						PlaySoundEffect(weapon->sampleNum + 1, &LaraItem->pos, 0);
+						IsRightUzi = FALSE;
+					}
+				}
+			} else {
+				if (frame >= 24) {
+					if (gunType == LGT_Uzis) {
+						PlaySoundEffect(weapon->sampleNum, &LaraItem->pos, 0);
+						IsRightUzi = TRUE;
+					}
+					++frame;
+					if (frame == weapon->recoilFrame + 24)
+						frame = 4;
+				}
+			}
+		}
+	}
+	set_pistol_arm(&Lara.right_arm, frame);
+	frame = Lara.left_arm.frame_number;
+	if (!Lara.left_arm.lock && (!CHK_ANY(InputStatus, IN_ACTION) || Lara.target)) {
+		if (frame >= 24) {
+			frame = 4;
+		} else {
+			if (frame > 0 && frame <= 4)
+				--frame;
+		}
+		if (IsLeftUzi) {
+			PlaySoundEffect(weapon->sampleNum + 1, &LaraItem->pos, 0);
+			IsLeftUzi = FALSE;
+		}
+	} else {
+		if (frame >= 0 && frame < 4) {
+			++frame;
+		} else {
+			if (frame == 4) {
+				if (CHK_ANY(InputStatus, IN_ACTION)) {
+					angles[0] = LaraItem->pos.rotY + Lara.left_arm.y_rot;
+					angles[1] = Lara.left_arm.x_rot;
+					if (FireWeapon(gunType, Lara.target, LaraItem, angles)) {
+						Lara.left_arm.flash_gun = weapon->flashTime;
+						if (!right)
+							PlaySoundEffect(weapon->sampleNum, &LaraItem->pos, 0);
+						if (gunType == LGT_Uzis)
+							IsLeftUzi = TRUE;
+					}
+					frame = 24;
+				} else {
+					if (IsLeftUzi) {
+						PlaySoundEffect(weapon->sampleNum + 1, &LaraItem->pos, 0);
+						IsLeftUzi = FALSE;
+					}
+				}
+			} else {
+				if (frame >= 24) {
+					if (gunType == LGT_Uzis) {
+						PlaySoundEffect(weapon->sampleNum, &LaraItem->pos, 0);
+						IsLeftUzi = TRUE;
+					}
+					++frame;
+					if (frame == weapon->recoilFrame + 24)
+						frame = 4;
+				}
+			}
+		}
+	}
+	set_pistol_arm(&Lara.left_arm, frame);
+}
+
 /*
  * Inject function
  */
 void Inject_Lara2Gun() {
-//	INJECT(0x0042D000, set_pistol_arm);
+	INJECT(0x0042D000, set_pistol_arm);
+
 //	INJECT(0x0042D050, draw_pistols);
 //	INJECT(0x0042D0D0, undraw_pistols);
 //	INJECT(0x0042D300, ready_pistols);
@@ -89,6 +219,5 @@ void Inject_Lara2Gun() {
 //	INJECT(0x0042D3F0, undraw_pistol_mesh_right);
 
 	INJECT(0x0042D430, PistolHandler);
-
-//	INJECT(0x0042D5C0, AnimatePistols);
+	INJECT(0x0042D5C0, AnimatePistols);
 }

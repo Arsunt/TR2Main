@@ -125,7 +125,7 @@ x function is unused / included in another function
 0x0040CB50:		BoatCheckGeton
 0x0040CCC0:		BoatCollision
 0x0040CE20:		TestWaterHeight
-0x0040CF20:		DoBoatShift
+0x0040CF20:	+	DoBoatShift
 0x0040D0F0:	+	DoWakeEffect
 0x0040D270:		DoBoatDynamics
 0x0040D2C0:		BoatDynamics
@@ -136,7 +136,7 @@ x function is unused / included in another function
 
 	game/box.cpp
 0x0040E190:	 *	InitialiseCreature
-0x0040E1C0:		CreatureActive
+0x0040E1C0:	 *	CreatureActive
 0x0040E210:	 *	CreatureAIInfo
 0x0040E470:		SearchLOT
 0x0040E670:		UpdateLOT
@@ -227,7 +227,7 @@ x function is unused / included in another function
 0x00415C50:		zLOS
 0x00415F40:		xLOS
 0x00416230:		ClipTarget
-0x00416310:		ObjectOnLOS
+0x00416310:	 *	ObjectOnLOS
 0x00416610:	 *	FlipMap
 0x004166D0:		RemoveRoomFlipItems
 0x00416770:		AddRoomFlipItems
@@ -631,10 +631,10 @@ x function is unused / included in another function
 0x0042C5C0:	+	ControlRocket
 0x0042C9D0:		draw_shotgun
 0x0042CB40:		undraw_shotgun
-0x0042CC50:	 *	AnimateShotgun
+0x0042CC50:	+ 	AnimateShotgun
 
 	game/lara2gun.cpp
-0x0042D000:		set_pistol_arm
+0x0042D000:	+	set_pistol_arm
 0x0042D050:		draw_pistols
 0x0042D0D0:		undraw_pistols
 0x0042D300:		ready_pistols
@@ -642,7 +642,7 @@ x function is unused / included in another function
 0x0042D3B0:		undraw_pistol_mesh_left
 0x0042D3F0:		undraw_pistol_mesh_right
 0x0042D430:	+	PistolHandler
-0x0042D5C0:	 *	AnimatePistols
+0x0042D5C0:	+ 	AnimatePistols
 
 	game/laraclimb.cpp
 0x0042D8F0:		lara_as_climbleft
@@ -671,9 +671,9 @@ x function is unused / included in another function
 0x0042EFD0:	 *	LaraGetNewTarget
 0x0042F1F0:	 *	find_target_point
 0x0042F2A0:	 *	AimWeapon
-0x0042F370:	 *	FireWeapon
+0x0042F370:	+ 	FireWeapon
 0x0042F6E0:	 *	HitTarget
-0x0042F780:	 *	SmashItem
+0x0042F780:	+ 	SmashItem
 0x0042F7E0:	 *	WeaponObject
 
 	game/laraflare.cpp
@@ -774,9 +774,9 @@ x function is unused / included in another function
 0x00434A30:		ControlDeathSlide
 0x00434CC0:		BigBowlControl
 0x00434DB0:		BellControl
-0x00434E30:		InitialiseWindow
-0x00434EB0:	 *	SmashWindow
-0x00434F80:		WindowControl
+0x00434E30:	+	InitialiseWindow
+0x00434EB0:	+ 	SmashWindow
+0x00434F80:	+	WindowControl
 0x00435020:		SmashIceControl
 0x00435100:		ShutThatDoor
 0x00435150:		OpenThatDoor
@@ -803,13 +803,13 @@ x function is unused / included in another function
 0x00435E20:		DetonatorControl
 
 	game/people.cpp
-0x00435EB0:		Targetable
+0x00435EB0:	+	Targetable
 0x00435F40:		ControlGlow
 0x00435F80:		ControlGunShot
 0x00435FD0:	+	GunShot
 0x00436040:	+	GunHit
-0x00436100:		GunMiss
-0x004361B0:		ShotLara
+0x00436100:	+	GunMiss
+0x004361B0:	+	ShotLara
 0x00436380:	 *	InitialiseCult1
 0x004363D0:	 *	Cult1Control
 0x00436800:	 *	InitialiseCult3
@@ -818,7 +818,7 @@ x function is unused / included in another function
 0x004371C0:	 *	Worker2Control
 0x00437620:	 *	BanditControl
 0x00437960:	 *	Bandit2Control
-0x00437DA0:	 *	WinstonControl
+0x00437DA0:	+ 	WinstonControl
 
 	game/pickup.cpp
 0x00437F20:		PickUpCollision
@@ -837,7 +837,7 @@ x function is unused / included in another function
 0x00438FA0:	 *	MouseControl
 
 	game/savegame.cpp
-0x00439190:		InitialiseStartInfo
+0x00439190:	+	InitialiseStartInfo
 0x00439200:	+	ModifyStartInfo
 0x004392E0:	 *	CreateStartInfo
 0x004394F0:	 *	CreateSaveGameInfo
@@ -895,7 +895,7 @@ x function is unused / included in another function
 
 	game/sphere.cpp
 0x0043FA60:		TestCollision
-0x0043FB90:		GetSpheres
+0x0043FB90:	 *	GetSpheres
 0x0043FE70:	 *	GetJointAbsPosition
 0x00440010:	 *	BaddieBiteEffect
 
@@ -1168,7 +1168,7 @@ x function is unused / included in another function
 0x0044ADA0:	+	LoadCinematic
 0x0044AE20:	+	LoadDemo
 0x0044AEB0:	+	LoadDemoExternal
-0x0044AF50:		LoadSamples
+0x0044AF50:	+	LoadSamples
 0x0044B1C0:	+	ChangeFileNameExtension
 0x0044B200:	+	GetFullPath
 0x0044B230:	+	SelectDrive

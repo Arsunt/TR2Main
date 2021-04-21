@@ -1685,6 +1685,13 @@ typedef struct Phd3dPos_t {
 	__int16 rotZ;
 } PHD_3DPOS;
 
+typedef struct SphereInfo_t {
+	int x;
+	int y;
+	int z;
+	int r;
+} SPHERE_INFO;
+
 typedef struct ItemInfo_t {
 	int floor;
 	DWORD touchBits;

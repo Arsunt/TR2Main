@@ -21,9 +21,66 @@
 
 #include "global/precompiled.h"
 #include "game/objects.h"
+#include "3dsystem/phd_math.h"
+#include "game/effects.h"
+#include "game/items.h"
+#include "game/missile.h"
+#include "game/sound.h"
 #include "global/vars.h"
 
+void __cdecl InitialiseWindow(__int16 itemID) {
+	ITEM_INFO *item;
+	ROOM_INFO *room;
+	BOX_INFO *box;
 
+	item = &Items[itemID];
+	item->flags = 0;
+	item->meshBits = 1;
+	room = &RoomInfo[item->roomNumber];
+	box = &Boxes[room->floor[((item->pos.x - room->x) >> WALL_SHIFT) * room->xSize + ((item->pos.z - room->z) >> WALL_SHIFT)].box];
+	if (CHK_ANY(box->overlapIndex, 0x8000))
+		box->overlapIndex |= 0x4000;
+}
+
+void __cdecl SmashWindow(__int16 itemID) {
+	ITEM_INFO *item;
+	ROOM_INFO *room;
+	BOX_INFO *box;
+
+	item = &Items[itemID];
+	room = &RoomInfo[item->roomNumber];
+	box = &Boxes[room->floor[((item->pos.x - room->x) >> WALL_SHIFT) * room->xSize + ((item->pos.z - room->z) >> WALL_SHIFT)].box];
+	if (CHK_ANY(box->overlapIndex, 0x8000))
+		box->overlapIndex &= ~0x4000;
+	PlaySoundEffect(58, &item->pos, 0);
+	item->collidable = 0;
+	item->meshBits = 0xFFFE;
+	ExplodingDeath(itemID, 0xFEFE, 0);
+	item->flags |= IFL_INVISIBLE;
+	if (item->status == ITEM_ACTIVE)
+		RemoveActiveItem(itemID);
+	item->status = ITEM_DISABLED;
+}
+
+void __cdecl WindowControl(__int16 itemID) {
+	ITEM_INFO *item;
+	int val;
+
+	item = &Items[itemID];
+	if (!CHK_ANY(item->flags, IFL_INVISIBLE)) {
+		if (Lara.skidoo == -1) {
+			if (item->touchBits) {
+				item->touchBits = 0;
+				val = phd_cos(LaraItem->pos.rotY - item->pos.rotY) * LaraItem->speed >> W2V_SHIFT;
+				if (ABS(val) >= 50)
+					SmashWindow(itemID);
+			}
+		} else {
+			if (ItemNearLara(&item->pos, 512))
+				SmashWindow(itemID);
+		}
+	}
+}
 
 /*
  * Inject function
@@ -41,9 +98,11 @@ void Inject_Objects() {
 //	INJECT(0x00434A30, ControlDeathSlide);
 //	INJECT(0x00434CC0, BigBowlControl);
 //	INJECT(0x00434DB0, BellControl);
-//	INJECT(0x00434E30, InitialiseWindow);
-//	INJECT(0x00434EB0, SmashWindow);
-//	INJECT(0x00434F80, WindowControl);
+
+	INJECT(0x00434E30, InitialiseWindow);
+	INJECT(0x00434EB0, SmashWindow);
+	INJECT(0x00434F80, WindowControl);
+
 //	INJECT(0x00435020, SmashIceControl);
 //	INJECT(0x00435100, ShutThatDoor);
 //	INJECT(0x00435150, OpenThatDoor);

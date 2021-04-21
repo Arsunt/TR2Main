@@ -39,11 +39,11 @@
 //	0x00434A30:		ControlDeathSlide
 //	0x00434CC0:		BigBowlControl
 //	0x00434DB0:		BellControl
-//	0x00434E30:		InitialiseWindow
 
-#define SmashWindow ((void(__cdecl*)(__int16)) 0x00434EB0)
+void __cdecl InitialiseWindow(__int16 itemID); // 0x00434E30
+void __cdecl SmashWindow(__int16 itemID); // 0x00434EB0
+void __cdecl WindowControl(__int16 itemID); // 0x00434F80
 
-//	0x00434F80:		WindowControl
 //	0x00435020:		SmashIceControl
 //	0x00435100:		ShutThatDoor
 //	0x00435150:		OpenThatDoor

@@ -51,8 +51,8 @@ int __cdecl ControlPhase(int nTicks, BOOL demoMode);
 // 0x00415C50:		zLOS
 // 0x00415F40:		xLOS
 // 0x00416230:		ClipTarget
-// 0x00416310:		ObjectOnLOS
 
+#define ObjectOnLOS ((int(__cdecl*)(GAME_VECTOR*, GAME_VECTOR*)) 0x00416310)
 #define FlipMap ((void(__cdecl*)(void)) 0x00416610)
 
 // 0x004166D0:		RemoveRoomFlipItems
