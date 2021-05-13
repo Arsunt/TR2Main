@@ -991,6 +991,26 @@ void __cdecl DrawGunFlash(int weapon, int clip) {
 #endif // FEATURE_VIDEOFX_IMPROVED
 }
 
+void __cdecl CalculateObjectLighting(ITEM_INFO *item, __int16 *frame) {
+	int x, y, z;
+
+	if (item->shade1 < 0) {
+		phd_PushUnitMatrix();
+		PhdMatrixPtr->_23 = 0;
+		PhdMatrixPtr->_13 = 0;
+		PhdMatrixPtr->_03 = 0;
+		phd_RotYXZ(item->pos.rotY, item->pos.rotX, item->pos.rotZ);
+		phd_TranslateRel((frame[0] + frame[1]) >> 1, (frame[2] + frame[3]) >> 1, (frame[4] + frame[5]) >> 1);
+		x = item->pos.x + (PhdMatrixPtr->_03 >> W2V_SHIFT);
+		y = item->pos.y + (PhdMatrixPtr->_13 >> W2V_SHIFT);
+		z = item->pos.z + (PhdMatrixPtr->_23 >> W2V_SHIFT);
+		phd_PopMatrix();
+		S_CalculateLight(x, y, z, item->roomNumber);
+	} else {
+		S_CalculateStaticMeshLight(item->pos.x, item->pos.y, item->pos.z, item->shade1, item->shade2, &RoomInfo[item->roomNumber]);
+	}
+}
+
 void __cdecl AddDynamicLight(int x, int y, int z, int intensity, int falloff) {
 	int idx = ( DynamicLightCount < ARRAY_SIZE(DynamicLights) ) ? DynamicLightCount++ : 0;
 	DynamicLights[idx].x = x;
@@ -1041,8 +1061,8 @@ void Inject_Draw() {
 //	INJECT(0x0041BC10, InterpolateArmMatrix);
 
 	INJECT(0x0041BD10, DrawGunFlash);
+	INJECT(0x0041BE80, CalculateObjectLighting);
 
-//	INJECT(0x0041BE80, CalculateObjectLighting);
 //	INJECT(0x0041BF70, GetFrames);
 //	INJECT(0x0041C010, GetBoundsAccurate);
 //	INJECT(0x0041C090, GetBestFrame);
