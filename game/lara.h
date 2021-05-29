@@ -86,17 +86,17 @@
 // ----------:		lara_as_twist
 // ----------:		lara_as_kick
 // 0x004286F0:		lara_as_deathslide
-// 0x00428790:		extra_as_breath
+void __cdecl extra_as_breath (ITEM_INFO *item, COLL_INFO *coll); // 0x00428790
 // ----------:		extra_as_plunger
-// 0x004287E0:		extra_as_yetikill
-// 0x00428830:		extra_as_sharkkill
-// 0x004288D0:		extra_as_airlock
-// 0x004288F0:		extra_as_gongbong
-// 0x00428910:		extra_as_dinokill
-// 0x00428970:		extra_as_pulldagger
-// 0x00428A30:		extra_as_startanim
-// 0x00428A80:		extra_as_starthouse
-// 0x00428B30:		extra_as_finalanim
+void __cdecl extra_as_yetikill (ITEM_INFO *item, COLL_INFO *coll); // 0x004287E0
+void __cdecl extra_as_sharkkill (ITEM_INFO *item, COLL_INFO *coll); // 0x00428830
+void __cdecl extra_as_airlock (ITEM_INFO *item, COLL_INFO *coll); // 0x004288D0
+void __cdecl extra_as_gongbong (ITEM_INFO *item, COLL_INFO *coll); // 0x004288F0
+void __cdecl extra_as_dinokill (ITEM_INFO *item, COLL_INFO *coll); //0x00428910
+void __cdecl extra_as_pulldagger (ITEM_INFO *item, COLL_INFO *coll); //0x00428970
+void __cdecl extra_as_startanim (ITEM_INFO *item, COLL_INFO *coll); //0x00428A30
+void __cdecl extra_as_starthouse(ITEM_INFO *item, COLL_INFO *coll); //0x00428A80
+void __cdecl extra_as_finalanim(ITEM_INFO *item, COLL_INFO *coll); //0x00428B30
 // 0x00428BE0:		LaraFallen
 // 0x00428C40:		LaraCollideStop
 // 0x00428D00:		lara_col_walk

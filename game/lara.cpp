@@ -22,10 +22,195 @@
 #include "global/precompiled.h"
 #include "game/lara.h"
 #include "global/vars.h"
+#include "specific/sndpc.h"
+#include "game/control.h"
+#include "game/invfunc.h"
+#include "3dsystem/3d_gen.h"
 
 #ifdef FEATURE_GAMEPLAY_FIXES
 bool IsLowCeilingJumpFix = true;
 #endif // FEATURE_GAMEPLAY_FIXES
+
+void __cdecl extra_as_breath (ITEM_INFO *item, COLL_INFO *coll)
+{
+  item->animNumber = 0x67;//103
+  item->frameNumber = Anims[item->animNumber].frameBase;
+  item->currentAnimState = 2;
+  item->goalAnimState = 2;
+  Lara.gun_status = LGS_Armless;
+  Camera.type = CAM_Chase;
+  AlterFOV(0x38e0);//14560 = 80 * 182
+  Lara.extra_anim = 0;
+  return;
+}
+
+void __cdecl extra_as_yetikill (ITEM_INFO *item, COLL_INFO *coll)
+{
+    if (item->frameNumber < Anims[item->animNumber].frameEnd - 30)
+        Lara.death_count = 1;//delay death
+
+    Lara.hit_direction = -1;
+    Camera.targetDistance = 0xc00;//3072 = 1024 * 3
+    Camera.targetAngle = 0x71c0;//29120 = 160 * 182
+    return;
+}
+
+void __cdecl extra_as_sharkkill (ITEM_INFO *item, COLL_INFO *coll)
+{
+    int water;
+
+    Camera.targetAngle = 0x71c0;//29120 = 160 * 182
+    Camera.targetDistance = 0xc00;//3027 = 1024 * 3
+    Lara.hit_direction = -1;
+    if (item->frameNumber == Anims[item->animNumber].frameEnd)
+    {
+        water = GetWaterHeight(item->pos.x, item->pos.y, item->pos.z, item->roomNumber);
+        if ((water != -32750) && (water < item->pos.y - 100))
+            item->pos.y = item->pos.y -5;//move lara up to the surface
+    }
+
+    if (item->frameNumber < Anims[item->animNumber].frameEnd - 30)
+        Lara.death_count = 1;//delay death
+  return;
+}
+
+void __cdecl extra_as_airlock (ITEM_INFO *item, COLL_INFO *coll)
+{
+  Camera.targetAngle = 0x38e0;//14560 = 80 * 182
+  Camera.targetElevation = 0xee3a;//-4550 = -25 * 182
+  return;
+}
+
+void __cdecl extra_as_gongbong (ITEM_INFO *item, COLL_INFO *coll)
+{
+  Camera.targetDistance = 0xc00;//3072 = 1024*3
+  Camera.targetAngle = 0xee3a;//-4550 = -25 * 182
+  Camera.targetElevation = 0xf1c8;//-3640 = -20 * 182
+  return;
+}
+
+void __cdecl extra_as_dinokill (ITEM_INFO *item, COLL_INFO *coll)
+{
+    if (item ->frameNumber < Anims[item->animNumber].frameEnd - 30)
+    Lara.death_count = 1;//delay death
+
+    Lara.hit_direction = -1;
+    Camera.flags = CFL_FollowCenter;
+    Camera.targetAngle = 0x78dc;//30940 = 170 * 182
+    Camera.targetElevation = 0xee3a;//-4550 = -25 * 182
+    return;
+}
+
+
+void __cdecl extra_as_pulldagger (ITEM_INFO *item, COLL_INFO *coll)
+{
+    int currentCutFrame;
+    int animStart;
+    int animEnd;
+    animStart = Anims[item->animNumber].frameBase;
+    animEnd = Anims[item->animNumber].frameEnd;
+    currentCutFrame = item->frameNumber - animStart;
+
+    FLOOR_INFO *floor;
+    short roomNum;
+
+    if (currentCutFrame == 1)
+        StartSyncedAudio(28);
+    else
+    if (currentCutFrame == 180)
+    {
+    Lara.mesh_ptrs[10] = MeshPtr[Objects[ID_LARA].meshIndex + 10];//lara's right hand, the dagger?
+    Inv_AddItem(ID_PUZZLE_ITEM2);//0xAF but threw a build error
+    }
+
+    if (item->frameNumber == animEnd)
+    {
+    roomNum = item->roomNumber;
+    item->pos.rotY += 0x4000;//= item->pos.rotY + 0x4000;
+    floor = GetFloor(item->pos.x, item->pos.y, item->pos.z, &roomNum);//for the GetHeight call
+    GetHeight(floor, item->pos.x, item->pos.y, item->pos.z);//to set TriggerPtr
+    TestTriggers(TriggerPtr, 1);//make lara trigger a heavy trigger??
+    }
+  return;
+}
+
+void __cdecl extra_as_startanim (ITEM_INFO *item, COLL_INFO *coll)
+{
+    short roomNum;
+    FLOOR_INFO *floor;
+
+    roomNum = item->roomNumber;
+    floor = GetFloor(item->pos.x, item->pos.y, item->pos.z, &roomNum);//for the GetHeight call
+    GetHeight(floor, item->pos.x, item->pos.y, item->pos.z);//to set TriggerPtr
+    TestTriggers(TriggerPtr, 0);//do trigger
+    return;
+}
+
+void __cdecl extra_as_starthouse(ITEM_INFO *item, COLL_INFO *coll)
+{
+    int currentCutFrame;
+    int animStart;
+    int animEnd;
+    animStart = Anims[item->animNumber].frameBase;
+    animEnd = Anims[item->animNumber].frameEnd;
+    currentCutFrame = item->frameNumber - animStart;
+
+    if (currentCutFrame == 1)
+    {
+    StartSyncedAudio(63);
+    Lara.mesh_ptrs[10] = MeshPtr[Objects[ID_LARA_EXTRA].meshIndex + 10];//right hand
+    Lara.mesh_ptrs[0] = MeshPtr[Objects[ID_LARA_EXTRA].meshIndex];//hip
+    return;
+    }
+
+  if (currentCutFrame == 401)
+    {
+    Lara.mesh_ptrs[10] = MeshPtr[Objects[ID_LARA].meshIndex + 10];//right hand
+    Lara.mesh_ptrs[0] = MeshPtr[Objects[ID_LARA].meshIndex];//hip
+    Inv_AddItem(ID_PUZZLE_ITEM1); //0xAE but it was throwing a build error!
+    return;
+    }
+
+  if (item->frameNumber == animEnd)
+    {
+    Camera.type = CAM_Chase;
+    AlterFOV(0x38E0);//14560 = 80 * 182
+    }
+  return;
+}
+
+void __cdecl extra_as_finalanim(ITEM_INFO *item, COLL_INFO *coll)
+{
+    int currentCutFrame;
+    int animStart;
+    int animEnd;
+
+    item->hitPoints = 1000;
+
+    animStart = Anims[item->animNumber].frameBase;
+    animEnd = Anims[item->animNumber].frameEnd;
+    currentCutFrame = item->frameNumber - animStart;
+
+    if (currentCutFrame == 1)
+        {
+        Lara.back_gun = 0; //remove the shotgun off her back
+        Lara.mesh_ptrs[10] = MeshPtr[Objects[ID_LARA].meshIndex + 10];//make sure the right hand doesn't have the shotgun
+        Lara.mesh_ptrs[14] = MeshPtr[Objects[ID_LARA].meshIndex + 14];//make sure her head is good, to prevent the screaming head from appearing if the cutscene started with the player shooting
+        Lara.mesh_ptrs[0] = MeshPtr[Objects[ID_LARA_EXTRA].meshIndex];//make sure the dagger is on her
+        StartSyncedAudio(0x1b);
+        return;
+        }
+
+    if (currentCutFrame == 316)
+        {
+        Lara.mesh_ptrs[10] = MeshPtr[Objects[ID_LARA_SHOTGUN].meshIndex + 10]; //equip shotgun
+        return;
+        }
+
+    if (item->frameNumber == animEnd -1) //1 frame before the animation ends
+        IsLevelComplete = 1; //end the level
+    return;
+}
 
 void __cdecl lara_col_jumper(ITEM_INFO *item, COLL_INFO *coll) {
 	coll->badPos = 0x7F00;
@@ -121,17 +306,17 @@ void Inject_Lara() {
 //	INJECT(----------, lara_as_twist);
 //	INJECT(----------, lara_as_kick);
 //	INJECT(0x004286F0, lara_as_deathslide);
-//	INJECT(0x00428790, extra_as_breath);
+	INJECT(0x00428790, extra_as_breath);
 //	INJECT(----------, extra_as_plunger);
-//	INJECT(0x004287E0, extra_as_yetikill);
-//	INJECT(0x00428830, extra_as_sharkkill);
-//	INJECT(0x004288D0, extra_as_airlock);
-//	INJECT(0x004288F0, extra_as_gongbong);
-//	INJECT(0x00428910, extra_as_dinokill);
-//	INJECT(0x00428970, extra_as_pulldagger);
-//	INJECT(0x00428A30, extra_as_startanim);
-//	INJECT(0x00428A80, extra_as_starthouse);
-//	INJECT(0x00428B30, extra_as_finalanim);
+	INJECT(0x004287E0, extra_as_yetikill);
+	INJECT(0x00428830, extra_as_sharkkill);
+	INJECT(0x004288D0, extra_as_airlock);
+	INJECT(0x004288F0, extra_as_gongbong);
+	INJECT(0x00428910, extra_as_dinokill);
+	INJECT(0x00428970, extra_as_pulldagger);
+	INJECT(0x00428A30, extra_as_startanim);
+	INJECT(0x00428A80, extra_as_starthouse);
+	INJECT(0x00428B30, extra_as_finalanim);
 //	INJECT(0x00428BE0, LaraFallen);
 //	INJECT(0x00428C40, LaraCollideStop);
 //	INJECT(0x00428D00, lara_col_walk);
