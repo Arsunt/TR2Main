@@ -411,7 +411,7 @@ int __cdecl ShiftClamp(GAME_VECTOR *pos, int clamp) {
 }
 
 void __cdecl CombatCamera(ITEM_INFO *item) {
-	int distance, y;
+	int distance, y, dy;
 	GAME_VECTOR goal;
 
 	Camera.target.z = item->pos.z;
@@ -431,9 +431,10 @@ void __cdecl CombatCamera(ITEM_INFO *item) {
 	goal.roomNumber = Camera.pos.roomNumber;
 	y = LaraItem->pos.y + Lara.water_surface_dist;
 	if (Lara.water_status == LWS_Underwater && Camera.target.y > y && y > goal.y) {
+		dy = goal.y - Camera.target.y;
 		goal.y = y;
-		goal.z = Camera.target.z + (goal.z - Camera.target.z) * (y - Camera.target.y) / (goal.y - Camera.target.y);
-		goal.x = Camera.target.x + (goal.x - Camera.target.x) * (y - Camera.target.y) / (goal.y - Camera.target.y);
+		goal.z = Camera.target.z + (goal.z - Camera.target.z) * (y - Camera.target.y) / dy;
+		goal.x = Camera.target.x + (goal.x - Camera.target.x) * (y - Camera.target.y) / dy;
 	}
 	SmartShift(&goal, ShiftCamera);
 	MoveCamera(&goal, Camera.speed);
