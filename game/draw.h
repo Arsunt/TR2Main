@@ -63,8 +63,8 @@ void __cdecl phd_PutPolygons_I(__int16 *ptrObj, int clip); // 0x0041BA30
 #define InterpolateArmMatrix ((void(__cdecl*)(void)) 0x0041BC10)
 
 void __cdecl DrawGunFlash(int weapon, int clip);
+void __cdecl CalculateObjectLighting(ITEM_INFO *item, __int16 *frame); // 0x0041BE80
 
-#define CalculateObjectLighting ((void(__cdecl*)(ITEM_INFO*, __int16*)) 0x0041BE80)
 #define GetFrames ((int(__cdecl*)(ITEM_INFO*, __int16**, int*)) 0x0041BF70)
 #define GetBoundsAccurate ((__int16*(__cdecl*)(ITEM_INFO*)) 0x0041C010)
 #define GetBestFrame ((__int16*(__cdecl*)(ITEM_INFO*)) 0x0041C090)
