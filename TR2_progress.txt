@@ -629,14 +629,14 @@ x function is unused / included in another function
 0x0042C180:		ControlHarpoonBolt
 0x0042C4D0:	+	FireRocket
 0x0042C5C0:	+	ControlRocket
-0x0042C9D0:		draw_shotgun
-0x0042CB40:		undraw_shotgun
+0x0042C9D0:	 *	draw_shotgun
+0x0042CB40:	 *	undraw_shotgun
 0x0042CC50:	+ 	AnimateShotgun
 
 	game/lara2gun.cpp
 0x0042D000:	+	set_pistol_arm
-0x0042D050:		draw_pistols
-0x0042D0D0:		undraw_pistols
+0x0042D050:	 *	draw_pistols
+0x0042D0D0:	 *	undraw_pistols
 0x0042D300:		ready_pistols
 0x0042D360:		draw_pistol_meshes
 0x0042D3B0:		undraw_pistol_mesh_left
@@ -664,7 +664,7 @@ x function is unused / included in another function
 0x0042E4F0:		LaraTestClimbUpPos
 
 	game/larafire.cpp
-0x0042E740:	 *	LaraGun
+0x0042E740:	+	LaraGun
 0x0042ECB0:	 *	CheckForHoldingState
 0x0042ECF0:	 *	InitialiseNewWeapon
 0x0042EE30:	 *	LaraTargetInfo
@@ -677,17 +677,17 @@ x function is unused / included in another function
 0x0042F7E0:	 *	WeaponObject
 
 	game/laraflare.cpp
-0x0042F840:		DoFlareLight
-0x0042F8E0:		DoFlareInHand
+0x0042F840:	+	DoFlareLight
+0x0042F8E0:	+	DoFlareInHand
 0x0042F9C0:	+	DrawFlareInAir
-0x0042FAC0:		CreateFlare
-0x0042FCA0:		set_flare_arm
-0x0042FCF0:		draw_flare
-0x0042FE60:		undraw_flare
-0x00430090:		draw_flare_meshes
-0x004300B0:		undraw_flare_meshes
-0x004300D0:		ready_flare
-0x00430110:		FlareControl
+0x0042FAC0:	+	CreateFlare
+0x0042FCA0:	+	set_flare_arm
+0x0042FCF0:	+	draw_flare
+0x0042FE60:	+	undraw_flare
+0x00430090:	+	draw_flare_meshes
+0x004300B0:	+	undraw_flare_meshes
+0x004300D0:	+	ready_flare
+0x00430110:	+	FlareControl
 
 	game/laramisc.cpp
 0x00430380:	+	LaraControl

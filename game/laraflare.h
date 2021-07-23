@@ -27,18 +27,16 @@
 /*
  * Function list
  */
-//	0x0042F840:		DoFlareLight
-//	0x0042F8E0:		DoFlareInHand
-
+int __cdecl DoFlareLight(PHD_VECTOR *pos, int flareAge); // 0x0042F840
+void __cdecl DoFlareInHand(int flareAge); // 0x0042F8E0
 void __cdecl DrawFlareInAir(ITEM_INFO *item);
-
-//	0x0042FAC0:		CreateFlare
-//	0x0042FCA0:		set_flare_arm
-//	0x0042FCF0:		draw_flare
-//	0x0042FE60:		undraw_flare
-//	0x00430090:		draw_flare_meshes
-//	0x004300B0:		undraw_flare_meshes
-//	0x004300D0:		ready_flare
-//	0x00430110:		FlareControl
+void __cdecl CreateFlare(BOOL isFlying); // 0x0042FAC0
+void __cdecl set_flare_arm(int frame); // 0x0042FCA0
+void __cdecl draw_flare(); // 0x0042FCF0
+void __cdecl undraw_flare(); // 0x0042FE60
+void __cdecl draw_flare_meshes(); // 0x00430090
+void __cdecl undraw_flare_meshes(); // 0x004300B0
+void __cdecl ready_flare(); // 0x004300D0
+void __cdecl FlareControl(__int16 itemID); // 0x00430110
 
 #endif // LARA_FLARE_H_INCLUDED
