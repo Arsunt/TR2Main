@@ -50,7 +50,9 @@ int __cdecl ControlPhase(int nTicks, BOOL demoMode);
 
 // 0x00415C50:		zLOS
 // 0x00415F40:		xLOS
-// 0x00416230:		ClipTarget
+
+int __cdecl ClipTarget(GAME_VECTOR *start, GAME_VECTOR *target, FLOOR_INFO *floor); // 0x00416230
+
 // 0x00416310:		ObjectOnLOS
 
 #define FlipMap ((void(__cdecl*)(void)) 0x00416610)

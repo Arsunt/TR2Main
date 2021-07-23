@@ -27,7 +27,8 @@
 /*
  * Function list
  */
-//	0x0043FA60:		TestCollision
+#define TestCollision ((int(__cdecl*)(ITEM_INFO*, ITEM_INFO*)) 0x0043FA60)
+
 //	0x0043FB90:		GetSpheres
 
 #define GetJointAbsPosition ((void(__cdecl*)(ITEM_INFO*, PHD_VECTOR*, int)) 0x0043FE70)

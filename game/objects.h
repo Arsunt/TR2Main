@@ -38,7 +38,9 @@
 //	0x00434970:		DeathSlideCollision
 //	0x00434A30:		ControlDeathSlide
 //	0x00434CC0:		BigBowlControl
-//	0x00434DB0:		BellControl
+
+void __cdecl BellControl(__int16 itemID); // 0x00434DB0
+
 //	0x00434E30:		InitialiseWindow
 
 #define SmashWindow ((void(__cdecl*)(__int16)) 0x00434EB0)
@@ -53,11 +55,13 @@
 //	0x00435700:		DrawBridgeFloor
 //	0x00435740:		DrawBridgeCeiling
 //	0x00435780:		DrawBridgeCollision
-//	0x004357B0:		InitialiseLift
-//	0x004357F0:		LiftControl
-//	0x004358D0:		LiftFloorCeiling
-//	0x00435A50:		LiftFloor
-//	0x00435A90:		LiftCeiling
+
+void __cdecl InitialiseLift(__int16 itemID); // 0x004357B0
+void __cdecl LiftControl(__int16 itemID); // 0x004357F0
+void __cdecl LiftFloorCeiling(ITEM_INFO *item, int x, int y, int z, int *floor, int *ceiling); // 0x004358D0
+void __cdecl LiftFloor(ITEM_INFO *item, int x, int y, int z, int *height); // 0x00435A50
+void __cdecl LiftCeiling(ITEM_INFO *item, int x, int y, int z, int *height); // 0x00435A90
+
 //	0x00435AD0:		BridgeFlatFloor
 //	0x00435AF0:		BridgeFlatCeiling
 //	0x00435B10:		GetOffset

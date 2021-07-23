@@ -47,8 +47,10 @@ void __cdecl GetNewRoom(int x, int y, int z, __int16 roomID); // 0x00413480
 
 //	0x00413920:		DoorCollision
 //	0x004139A0:		TrapCollision
-//	0x00413A10:		ItemPushLara
-//	0x00413D20:		TestBoundsCollide
+
+#define ItemPushLara ((void(__cdecl*)(ITEM_INFO*, ITEM_INFO*, COLL_INFO*, BOOL, BOOL)) 0x00413A10)
+#define TestBoundsCollide ((int(__cdecl*)(ITEM_INFO*, ITEM_INFO*, int)) 0x00413D20)
+
 //	0x00413DF0:		TestLaraPosition
 //	0x00413F30:		AlignLaraPosition
 //	0x00414070:		MoveLaraPosition

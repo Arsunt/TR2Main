@@ -173,6 +173,29 @@ int __cdecl ControlPhase(int nTicks, BOOL demoMode) {
 	return 0;
 }
 
+int __cdecl ClipTarget(GAME_VECTOR *start, GAME_VECTOR *target, FLOOR_INFO *floor) {
+	int dx, dy, dz, height, ceiling;
+
+	dx = target->x - start->x;
+	dy = target->y - start->y;
+	dz = target->z - start->z;
+	height = GetHeight(floor, target->x, target->y, target->z);
+	if (target->y > height && start->y < height) {
+		target->y = height;
+		target->x = start->x + (target->y - start->y) * dx / dy;
+		target->z = start->z + (target->y - start->y) * dz / dy;
+		return 0;
+	}
+	ceiling = GetCeiling(floor, target->x, target->y, target->z);
+	if (target->y < ceiling && start->y > ceiling) {
+		target->y = ceiling;
+		target->x = start->x + (target->y - start->y) * dx / dy;
+		target->z = start->z + (target->y - start->y) * dz / dy;
+		return 0;
+	}
+	return 1;
+}
+
 /*
  * Inject function
  */
@@ -192,7 +215,9 @@ void Inject_Control() {
 //	INJECT(0x00415BB0, LOS);
 //	INJECT(0x00415C50, zLOS);
 //	INJECT(0x00415F40, xLOS);
-//	INJECT(0x00416230, ClipTarget);
+
+	INJECT(0x00416230, ClipTarget);
+
 //	INJECT(0x00416310, ObjectOnLOS);
 //	INJECT(0x00416610, FlipMap);
 //	INJECT(0x004166D0, RemoveRoomFlipItems);
