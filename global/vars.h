@@ -375,6 +375,7 @@ extern APP_SETTINGS SavedAppSettings;
 #define NextItemActive				VAR_U_(0x005207C8, __int16)
 #define NextEffectActive			VAR_U_(0x005207CA, __int16)
 #define PrevItemActive				VAR_U_(0x005207CC, __int16)
+#define SkipHairPhysics				VAR_U_(0x00521CD0, BOOL)
 #define SoundFxCount				VAR_U_(0x00521FDC, DWORD)
 #define SoundFx						VAR_U_(0x00521FE0, OBJECT_VECTOR*)
 #define AnimFrames					VAR_U_(0x005251B0, __int16*)
@@ -643,6 +644,8 @@ extern bool ConflictLayout[ARRAY_SIZE(Layout->key)];
 #define SaveGameItemFlags2			ARRAY_(0x00521BE0, DWORD, [24])
 #define SaveGameItemFlags1			ARRAY_(0x00521C40, DWORD, [24])
 #define PickupInfos					ARRAY_(0x00521CA0, PICKUP_INFO, [12])
+#define HairVelocity				ARRAY_(0x00521CE0, PHD_VECTOR, [7])
+#define HairPos						ARRAY_(0x00521D40, PHD_3DPOS, [7])
 #define Objects						ARRAY_(0x00522000, OBJECT_INFO, [265])
 #ifdef FEATURE_EXTENDED_LIMITS
 extern LIGHT_INFO DynamicLights[64];

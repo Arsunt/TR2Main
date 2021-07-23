@@ -164,13 +164,13 @@ x function is unused / included in another function
 	game/camera.cpp
 0x00410580:	+	InitialiseCamera
 0x00410630:	+	MoveCamera
-0x004109B0:	 *	ClipCamera
-0x00410A90:	 *	ShiftCamera
-0x00410BF0:	 *	GoodPosition
-0x00410C40:	 *	SmartShift
-0x004113D0:	 *	ChaseCamera
-0x004114C0:	 *	ShiftClamp
-0x00411660:	 *	CombatCamera
+0x004109B0:	+	ClipCamera
+0x00410A90:	+	ShiftCamera
+0x00410BF0:	+	GoodPosition
+0x00410C40:	+	SmartShift
+0x004113D0:	+	ChaseCamera
+0x004114C0:	+	ShiftClamp
+0x00411660:	+	CombatCamera
 0x004117F0:	+	LookCamera
 0x004119E0:	+	FixedCamera
 0x00411A80:	+	CalculateCamera
@@ -290,7 +290,7 @@ x function is unused / included in another function
 0x0041BA60:	 *	InterpolateMatrix
 0x0041BC10:	 *	InterpolateArmMatrix
 0x0041BD10:	+	DrawGunFlash
-0x0041BE80:	 *	CalculateObjectLighting
+0x0041BE80:	+	CalculateObjectLighting
 0x0041BF70:	 *	GetFrames
 0x0041C010:	 *	GetBoundsAccurate
 0x0041C090:	 *	GetBestFrame
@@ -380,9 +380,9 @@ x function is unused / included in another function
 0x004201A0:	+	GF_ModifyInventory
 
 	game/hair.cpp
-0x00420E80:	 *	InitialiseHair
-0x00420F00:	 *	HairControl
-0x00421900:	 *	DrawHair
+0x00420E80:	+ 	InitialiseHair
+0x00420F00:	+ 	HairControl
+0x00421900:	+ 	DrawHair
 
 	game/health.cpp
 0x00421980:	+	FlashIt
