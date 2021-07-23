@@ -154,7 +154,7 @@ void __cdecl ControlCeilingSpikes(__int16 itemID) {
 	if (item->touchBits) {
 		LaraItem->hitPoints -= 20;
 		LaraItem->hit_status = 1;
-		DoLotsOfBlood(LaraItem->pos.x, LaraItem->pos.y + 768, LaraItem->pos.z, 1, item->pos.rotY, LaraItem->roomNumber, 3);
+		DoLotsOfBlood(LaraItem->pos.x, item->pos.y + 768, LaraItem->pos.z, 1, item->pos.rotY, LaraItem->roomNumber, 3);
 		item->touchBits = 0;
 		PlaySoundEffect(205, &item->pos, 0);
 	}
