@@ -23,6 +23,7 @@
 #include "global/precompiled.h"
 #include "game/traps.h"
 #include "3dsystem/phd_math.h"
+#include "game/collide.h"
 #include "game/control.h"
 #include "game/effects.h"
 #include "game/items.h"
@@ -30,6 +31,7 @@
 #include "game/sound.h"
 #include "game/sphere.h"
 #include "specific/game.h"
+#include "specific/init.h"
 #include "global/vars.h"
 
 #ifdef FEATURE_INPUT_IMPROVED
@@ -310,6 +312,191 @@ void __cdecl KillerStatueControl(__int16 itemID) {
 					LaraItem->roomNumber);
 	}
 	AnimateItem(item);
+}
+
+void __cdecl SpringBoardControl(__int16 itemID) {
+	ITEM_INFO *item;
+
+	item = &Items[itemID];
+	if (!item->currentAnimState &&
+		item->pos.y == LaraItem->pos.y &&
+		!CHK_ANY(item->pos.x ^ LaraItem->pos.x, 0xFFFFFC00) &&
+		!CHK_ANY(item->pos.z ^ LaraItem->pos.z, 0xFFFFFC00))
+	{
+		if (LaraItem->hitPoints > 0) {
+			if (LaraItem->currentAnimState == AS_BACK || LaraItem->currentAnimState == AS_FASTBACK)
+				LaraItem->speed = -LaraItem->speed;
+			LaraItem->fallSpeed = -240;
+			LaraItem->gravity = 1;
+			LaraItem->animNumber = 34;
+			LaraItem->frameNumber = Anims[LaraItem->animNumber].frameBase;
+			LaraItem->currentAnimState = AS_FORWARDJUMP;
+			LaraItem->goalAnimState = AS_FORWARDJUMP;
+			item->goalAnimState = 1;
+			AnimateItem(item);
+		}
+	} else {
+		AnimateItem(item);
+	}
+}
+
+void __cdecl InitialiseRollingBall(__int16 itemID) {
+	ITEM_INFO *item;
+	GAME_VECTOR *pos;
+
+	item = &Items[itemID];
+	item->data = game_malloc(sizeof(GAME_VECTOR), GBUF_RollingBallStuff);
+	pos = (GAME_VECTOR *) item->data;
+	pos->x = item->pos.x;
+	pos->y = item->pos.y;
+	pos->z = item->pos.z;
+	pos->roomNumber = item->roomNumber;
+}
+
+void __cdecl RollingBallControl(__int16 itemID) {
+	ITEM_INFO *item;
+	int oldX, oldZ, distance, x, z;
+	__int16 roomID;
+	FLOOR_INFO *floor;
+	GAME_VECTOR *pos;
+
+	item = &Items[itemID];
+	if (item->status == ITEM_ACTIVE) {
+		if (item->goalAnimState == 2) {
+			AnimateItem(item);
+		} else {
+			if (item->pos.y < item->floor) {
+				if (!item->gravity) {
+					item->fallSpeed = -10;
+					item->gravity = 1;
+				}
+			} else {
+				if (!item->currentAnimState)
+					item->goalAnimState = 1;
+			}
+			oldX = item->pos.x;
+			oldZ = item->pos.z;
+			AnimateItem(item);
+			roomID = item->roomNumber;
+			floor = GetFloor(item->pos.x, item->pos.y, item->pos.z, &roomID);
+			if (item->roomNumber != roomID)
+				ItemNewRoom(itemID, roomID);
+			item->floor = GetHeight(floor, item->pos.x, item->pos.y, item->pos.z);
+			TestTriggers(TriggerPtr, TRUE);
+			if (item->pos.y >= item->floor - 256) {
+				item->gravity = 0;
+				item->pos.y = item->floor;
+				item->fallSpeed = 0;
+				if (item->objectID == ID_ROLLING_BALL2) {
+					PlaySoundEffect(222, &item->pos, 0);
+				} else {
+					if (item->objectID == ID_ROLLING_BALL3) {
+						PlaySoundEffect(227, &item->pos, 0);
+					} else {
+						PlaySoundEffect(147, &item->pos, 0);
+					}
+				}
+				distance = phd_sqrt(SQR(Camera.micPos.x - item->pos.x) + SQR(Camera.micPos.z - item->pos.z));
+				if (distance < 10240)
+					Camera.bounce = 40 * (distance - 10240) / 10240;
+			}
+			distance = item->objectID == ID_ROLLING_BALL1 ? 384 : 1024;
+			x = item->pos.x + (distance * phd_sin(item->pos.rotY) >> W2V_SHIFT);
+			z = item->pos.z + (distance * phd_cos(item->pos.rotY) >> W2V_SHIFT);
+			if (GetHeight(GetFloor(x, item->pos.y, z, &roomID), x, item->pos.y, z) < item->pos.y) {
+				if (item->objectID == ID_ROLLING_BALL2) {
+					PlaySoundEffect(223, &item->pos, 0);
+					item->goalAnimState = 2;
+				} else {
+					if (item->objectID == ID_ROLLING_BALL3) {
+						PlaySoundEffect(228, &item->pos, 0);
+						item->goalAnimState = 2;
+					} else {
+						item->status = ITEM_DISABLED;
+					}
+				}
+				item->pos.y = item->floor;
+				item->pos.x = oldX;
+				item->pos.z = oldZ;
+				item->fallSpeed = 0;
+				item->speed = 0;
+				item->touchBits = 0;
+			}
+		}
+	} else {
+		if (item->status == ITEM_DISABLED && !TriggerActive(item)) {
+			pos = (GAME_VECTOR *) item->data;
+			item->status = ITEM_INACTIVE;
+			item->pos.x = pos->x;
+			item->pos.y = pos->y;
+			item->pos.z = pos->z;
+			if (item->roomNumber != pos->roomNumber) {
+				RemoveDrawnItem(itemID);
+				item->nextItem = RoomInfo[pos->roomNumber].itemNumber;
+				RoomInfo[pos->roomNumber].itemNumber = itemID;
+				item->roomNumber = pos->roomNumber;
+			}
+			item->animNumber = Objects[item->objectID].animIndex;
+			item->frameNumber = Anims[item->animNumber].frameBase;
+			item->requiredAnimState = 0;
+			item->goalAnimState = Anims[item->animNumber].currentAnimState;
+			item->currentAnimState = Anims[item->animNumber].currentAnimState;
+			RemoveActiveItem(itemID);
+		}
+	}
+}
+
+void __cdecl RollingBallCollision(__int16 itemID, ITEM_INFO *laraItem, COLL_INFO *coll) {
+	ITEM_INFO *item;
+	int dx, dy, dz, distance, i;
+
+	item = &Items[itemID];
+	if (item->status == ITEM_ACTIVE) {
+		if (TestBoundsCollide(item, laraItem, coll->radius) && TestCollision(item, laraItem)) {
+			if (laraItem->gravity) {
+				if (CHK_ANY(coll->flags, 8))
+					ItemPushLara(item, laraItem, coll, CHK_ANY(coll->flags, 0x10), 1);
+				laraItem->hitPoints -= 100;
+				dx = laraItem->pos.x - item->pos.x;
+				dy = laraItem->pos.y - item->pos.y + 162;
+				dz = laraItem->pos.z - item->pos.z;
+				distance = phd_sqrt(SQR(dx) + SQR(dy) + SQR(dz));
+				if (distance < 512)
+					distance = 512;
+				DoBloodSplat(item->pos.x + (dx << WALL_SHIFT) / 2 / distance,
+							item->pos.y + (dy << WALL_SHIFT) / 2 / distance - 512,
+							item->pos.z + (dz << WALL_SHIFT) / 2 / distance,
+							item->speed,
+							item->pos.rotY,
+							item->roomNumber);
+			} else {
+				laraItem->hit_status = 1;
+				if (laraItem->hitPoints > 0) {
+					laraItem->hitPoints = -1;
+					laraItem->pos.rotY = item->pos.rotY;
+					laraItem->pos.rotZ = 0;
+					laraItem->pos.rotX = 0;
+					laraItem->animNumber = 139;
+					laraItem->frameNumber = Anims[laraItem->animNumber].frameBase;
+					laraItem->currentAnimState = AS_SPECIAL;
+					laraItem->goalAnimState = AS_SPECIAL;
+					Camera.flags = CFL_FollowCenter;
+					Camera.targetAngle = 170 * PHD_DEGREE;
+					Camera.targetElevation = -25 * PHD_DEGREE;
+					for (i = 0; i < 15; ++i)
+						DoBloodSplat(laraItem->pos.x + (GetRandomControl() - 16384) / 256,
+									laraItem->pos.y - GetRandomControl() / 64,
+									laraItem->pos.z + (GetRandomControl() - 16384) / 256,
+									2 * item->speed,
+									item->pos.rotY + (GetRandomControl() - 16384) / 8,
+									item->roomNumber);
+				}
+			}
+		}
+	} else {
+		if (item->status != ITEM_INVISIBLE)
+			ObjectCollision(itemID, laraItem, coll);
+	}
 }
 
 void __cdecl Pendulum(__int16 itemID) {
@@ -627,11 +814,11 @@ void Inject_Traps() {
 	INJECT(0x00441900, BladeControl);
 	INJECT(0x004419A0, InitialiseKillerStatue);
 	INJECT(0x004419F0, KillerStatueControl);
+	INJECT(0x00441B00, SpringBoardControl);
+	INJECT(0x00441BE0, InitialiseRollingBall);
+	INJECT(0x00441C20, RollingBallControl);
+	INJECT(0x00441F70, RollingBallCollision);
 
-//	INJECT(0x00441B00, SpringBoardControl);
-//	INJECT(0x00441BE0, InitialiseRollingBall);
-//	INJECT(0x00441C20, RollingBallControl);
-//	INJECT(0x00441F70, RollingBallCollision);
 //	INJECT(0x004421C0, SpikeCollision);
 //	INJECT(0x00442320, TrapDoorControl);
 //	INJECT(0x00442370, TrapDoorFloor);

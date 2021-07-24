@@ -203,8 +203,8 @@ x function is unused / included in another function
 0x004138C0:	 *	ObjectCollision
 0x00413920:		DoorCollision
 0x004139A0:		TrapCollision
-0x00413A10:		ItemPushLara
-0x00413D20:		TestBoundsCollide
+0x00413A10:	 *	ItemPushLara
+0x00413D20:	 *	TestBoundsCollide
 0x00413DF0:		TestLaraPosition
 0x00413F30:		AlignLaraPosition
 0x00414070:		MoveLaraPosition
@@ -226,7 +226,7 @@ x function is unused / included in another function
 0x00415BB0:	 *	LOS
 0x00415C50:		zLOS
 0x00415F40:		xLOS
-0x00416230:		ClipTarget
+0x00416230:	+	ClipTarget
 0x00416310:	 *	ObjectOnLOS
 0x00416610:	 *	FlipMap
 0x004166D0:		RemoveRoomFlipItems
@@ -773,7 +773,7 @@ x function is unused / included in another function
 0x00434970:		DeathSlideCollision
 0x00434A30:		ControlDeathSlide
 0x00434CC0:		BigBowlControl
-0x00434DB0:		BellControl
+0x00434DB0:	+	BellControl
 0x00434E30:	+	InitialiseWindow
 0x00434EB0:	+ 	SmashWindow
 0x00434F80:	+	WindowControl
@@ -786,11 +786,11 @@ x function is unused / included in another function
 0x00435700:		DrawBridgeFloor
 0x00435740:		DrawBridgeCeiling
 0x00435780:		DrawBridgeCollision
-0x004357B0:		InitialiseLift
-0x004357F0:		LiftControl
-0x004358D0:		LiftFloorCeiling
-0x00435A50:		LiftFloor
-0x00435A90:		LiftCeiling
+0x004357B0:	+	InitialiseLift
+0x004357F0:	+	LiftControl
+0x004358D0:	+	LiftFloorCeiling
+0x00435A50:	+	LiftFloor
+0x00435A90:	+	LiftCeiling
 0x00435AD0:		BridgeFlatFloor
 0x00435AF0:		BridgeFlatCeiling
 0x00435B10:		GetOffset
@@ -894,7 +894,7 @@ x function is unused / included in another function
 0x0043FA30:	+	SOUND_Init
 
 	game/sphere.cpp
-0x0043FA60:		TestCollision
+0x0043FA60:	 *	TestCollision
 0x0043FB90:	 *	GetSpheres
 0x0043FE70:	 *	GetJointAbsPosition
 0x00440010:	 *	BaddieBiteEffect
@@ -939,10 +939,10 @@ x function is unused / included in another function
 0x00441900:	+	BladeControl
 0x004419A0:	+	InitialiseKillerStatue
 0x004419F0:	+	KillerStatueControl
-0x00441B00:		SpringBoardControl
-0x00441BE0:		InitialiseRollingBall
-0x00441C20:		RollingBallControl
-0x00441F70:		RollingBallCollision
+0x00441B00:	+	SpringBoardControl
+0x00441BE0:	+	InitialiseRollingBall
+0x00441C20:	+	RollingBallControl
+0x00441F70:	+	RollingBallCollision
 0x004421C0:		SpikeCollision
 0x00442320:		TrapDoorControl
 0x00442370:		TrapDoorFloor

@@ -27,8 +27,7 @@
 /*
  * Function list
  */
-//	0x0043FA60:		TestCollision
-
+#define TestCollision ((int(__cdecl*)(ITEM_INFO*, ITEM_INFO*)) 0x0043FA60)
 #define GetSpheres ((int(__cdecl*)(ITEM_INFO*, SPHERE_INFO*, BOOL)) 0x0043FB90)
 #define GetJointAbsPosition ((void(__cdecl*)(ITEM_INFO*, PHD_VECTOR*, int)) 0x0043FE70)
 #define BaddieBiteEffect ((void(__cdecl*)(ITEM_INFO*,BITE_INFO*)) 0x00440010)
