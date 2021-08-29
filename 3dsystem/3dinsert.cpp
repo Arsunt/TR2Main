@@ -24,9 +24,9 @@
 #include "specific/hwr.h"
 #include "global/vars.h"
 
-#if (DIRECT3D_VERSION >= 0x900)
+#if defined(FEATURE_HUD_IMPROVED) || (DIRECT3D_VERSION >= 0x900)
 #include "modding/texture_utils.h"
-#endif // (DIRECT3D_VERSION >= 0x900)
+#endif // defined(FEATURE_HUD_IMPROVED) || (DIRECT3D_VERSION >= 0x900)
 
 #ifdef FEATURE_VIDEOFX_IMPROVED
 #include "specific/texture.h"
