@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -83,18 +83,6 @@ BOOL CALLBACK DInputEnumJoystickAxisCallback(LPCDIDEVICEOBJECTINSTANCE pdidoi, L
 		}
 	}
 	return DIENUM_CONTINUE;
-}
-
-static const char *GetRawInputName(DWORD dwVendorId, DWORD dwProductId) {
-	if( dwVendorId == 0x054C ) {
-		switch( dwProductId ) {
-			case 0x05C4: return "Sony DualShock 4 (1st gen)";
-			case 0x09CC: return "Sony DualShock 4 (2nd gen)";
-			case 0x0BA0: return "Sony DualShock 4 (wireless)";
-			case 0x0CE6: return "Sony DualSense";
-		}
-	}
-	return NULL;
 }
 
 // ----------------------- The ugly function by Microsoft -----------------------
@@ -213,14 +201,9 @@ static DWORD XInputGetStateExt(DWORD dwUserIndex, XINPUT_STATE *pState) {
 	return lpGetState(dwUserIndex, pState);
 }
 
-static BOOL CALLBACK RawInputCallBack(HANDLE hDevice, LPGUID lpGuid, PRID_DEVICE_INFO_HID lpInfo, LPVOID lpContext) {
-	if( hDevice == INVALID_HANDLE_VALUE || lpGuid == NULL || lpInfo == NULL || lpContext == NULL )
+static BOOL CALLBACK RawInputCallBack(LPGUID lpGuid, LPCTSTR lpDeviceName, LPCTSTR lpProductName, WORD vid, WORD pid, LPVOID lpContext) {
+	if( lpGuid == NULL || lpDeviceName == NULL || lpProductName == NULL || lpContext == NULL || IsXInputDevice(vid, pid) )
 		return TRUE;
-
-	const char *productName = GetRawInputName(lpInfo->dwVendorId, lpInfo->dwProductId);
-	if( !productName || IsXInputDevice(lpInfo->dwVendorId, lpInfo->dwProductId) ) {
-		return TRUE;
-	}
 
 	JOYSTICK_LIST *joyList = (JOYSTICK_LIST *)lpContext;
 	JOYSTICK_NODE *joyNode = new JOYSTICK_NODE;
@@ -242,10 +225,11 @@ static BOOL CALLBACK RawInputCallBack(HANDLE hDevice, LPGUID lpGuid, PRID_DEVICE
 
 	joyNode->body.joystickGuid = *lpGuid;
 	joyNode->body.lpJoystickGuid = &joyNode->body.joystickGuid;
-	FlaggedStringCreate(&joyNode->body.productName, 256);
-	FlaggedStringCreate(&joyNode->body.instanceName, 256);
-	lstrcpy(joyNode->body.productName.lpString, productName);
-	joyNode->body.rawInputHandle = hDevice;
+	FlaggedStringCreate(&joyNode->body.productName, strlen(lpProductName)+1);
+	FlaggedStringCreate(&joyNode->body.instanceName, strlen(lpDeviceName)+1);
+	lstrcpy(joyNode->body.productName.lpString, lpProductName);
+	lstrcpy(joyNode->body.instanceName.lpString, lpDeviceName);
+	joyNode->body.iface = JOY_RawInput;
 	return TRUE;
 }
 
@@ -267,7 +251,7 @@ void SetJoystickOutput(WORD leftMotor, WORD rightMotor, DWORD ledColor) {
 		XInputEnable(TRUE);
 		result = (ERROR_SUCCESS == XInputSetState(XInputIndex, &vibration));
 	} else if( IsRawInput ) {
-		result = RawInputSend(leftMotor, rightMotor, ledColor);
+		result = RawInputSetState(leftMotor, rightMotor, ledColor);
 	}
 
 	if( result ) {
@@ -446,6 +430,7 @@ static DWORD RawInputReadJoystick(int *xPos, int *yPos) {
 	buttonStatus |= state.btnL3 ? 0x0400 : 0;
 	buttonStatus |= state.btnR3 ? 0x0800 : 0;
 	buttonStatus |= state.btnPS ? 0x1000 : 0;
+	buttonStatus |= state.btnTouch ? 0x2000 : 0;
 	return buttonStatus;
 }
 
@@ -587,6 +572,7 @@ bool __cdecl DInputEnumDevices(JOYSTICK_LIST *joystickList) {
 		FlaggedStringCreate(&joyNode->body.productName, 256);
 		FlaggedStringCreate(&joyNode->body.instanceName, 256);
 		snprintf(joyNode->body.productName.lpString, 256, "XInput Controller %lu", i+1);
+		joyNode->body.iface = JOY_XInput;
 	}
 	RawInputEnumerate(RawInputCallBack, (LPVOID)joystickList);
 #endif // FEATURE_INPUT_IMPROVED
@@ -601,7 +587,7 @@ BOOL CALLBACK DInputEnumDevicesCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
 #ifdef FEATURE_INPUT_IMPROVED
 	DWORD vid = LOWORD(lpddi->guidProduct.Data1);
 	DWORD pid = HIWORD(lpddi->guidProduct.Data1);
-	if( GetRawInputName(vid, pid) || IsXInputDevice(vid, pid) ) {
+	if( GetRawInputName(vid, pid, FALSE) || IsXInputDevice(vid, pid) ) {
 		return DIENUM_CONTINUE;
 	}
 #endif // FEATURE_INPUT_IMPROVED
@@ -631,7 +617,7 @@ BOOL CALLBACK DInputEnumDevicesCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
 	lstrcpy(joyNode->body.productName.lpString, lpddi->tszProductName);
 	lstrcpy(joyNode->body.instanceName.lpString, lpddi->tszInstanceName);
 #ifdef FEATURE_INPUT_IMPROVED
-	joyNode->body.rawInputHandle = INVALID_HANDLE_VALUE;
+	joyNode->body.iface = JOY_DirectInput;
 #endif // FEATURE_INPUT_IMPROVED
 
 	return DIENUM_CONTINUE;
@@ -703,8 +689,8 @@ bool __cdecl DInputJoystickCreate() {
 		XInputIndex = guid->Data4[7];
 		return true;
 	}
-	if( CurrentJoystick.rawInputHandle != INVALID_HANDLE_VALUE ) {
-		IsRawInput = RawInputStart(HGameWindow, CurrentJoystick.rawInputHandle);
+	if( CurrentJoystick.iface == JOY_RawInput ) {
+		IsRawInput = RawInputStart(CurrentJoystick.instanceName.lpString);
 		return IsRawInput;
 	}
 	memset(JoyRanges, 0, sizeof(JoyRanges));

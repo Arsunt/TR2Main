@@ -1220,9 +1220,7 @@ void __cdecl SE_ControlsDlgUpdate(HWND hwndDlg) {
 #ifdef FEATURE_INPUT_IMPROVED
 	bool isDInput = false;
 	if( isAvailable && ChangedAppSettings.PreferredJoystick ) {
-		GUID *guid = &ChangedAppSettings.PreferredJoystick->body.joystickGuid;
-		HANDLE hRawInput = ChangedAppSettings.PreferredJoystick->body.rawInputHandle;
-		isDInput = (hRawInput == INVALID_HANDLE_VALUE) && (guid->Data1 || guid->Data2 || guid->Data3);
+		isDInput = ChangedAppSettings.PreferredJoystick->body.iface == JOY_DirectInput;
 	}
 	EnableWindow(GetDlgItem(hwndDlg, ID_CTRLS_BUTTON_CTL_PANEL), isDInput);
 #endif // FEATURE_INPUT_IMPROVED

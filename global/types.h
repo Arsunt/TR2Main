@@ -685,6 +685,14 @@ typedef enum {
 	TAM_Always,
 } TEX_ADJUST_MODE;
 
+#ifdef FEATURE_INPUT_IMPROVED
+typedef enum {
+	JOY_DirectInput,
+	JOY_XInput,
+	JOY_RawInput,
+} JOY_INTERFACE;
+#endif // FEATURE_INPUT_IMPROVED
+
 typedef enum {
 #ifdef FEATURE_HUD_IMPROVED
 	CTRL_Joystick,
@@ -1283,7 +1291,7 @@ typedef struct Joystick_t {
 	STRING_FLAGGED productName;
 	STRING_FLAGGED instanceName;
 #ifdef FEATURE_INPUT_IMPROVED
-	HANDLE rawInputHandle;
+	JOY_INTERFACE iface;
 #endif // FEATURE_INPUT_IMPROVED
 } JOYSTICK;
 

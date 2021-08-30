@@ -161,6 +161,7 @@
 			<Add library="hid" />
 			<Add library="ole32" />
 			<Add library="oleaut32" />
+			<Add library="setupapi" />
 			<Add library="xinput" />
 		</Linker>
 		<ExtraCommands>
