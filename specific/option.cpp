@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -651,6 +651,7 @@ void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 #endif // FEATURE_HUD_IMPROVED
 	}
 
+	InventoryExtraData[0] = page; // NOTE: moved here from the end
 	switch( page ) {
 		case 0 : // load game
 			if( CHK_ANY(GF_GameFlow.flags, GFF_LoadSaveDisabled) ) {
@@ -869,7 +870,7 @@ void __cdecl do_passport_option(INVENTORY_ITEM *item) {
 	}
 
 	if( CHK_ANY(InputDB, IN_SELECT) ) {
-		InventoryExtraData[0] = page;
+		// NOTE: InventoryExtraData[0]=page moved from here to the line before the switch
 		if( page == 2 ) {
 			item->animDirection = 1;
 			item->goalFrame = item->framesTotal - 1;
