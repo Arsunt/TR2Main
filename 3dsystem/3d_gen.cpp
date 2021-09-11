@@ -256,7 +256,14 @@ static void phd_PutEnvmapPolygons(__int16 *ptrEnv) {
 		// make sure that reflection will be drawn after normal poly
 		PhdVBuf[i].zv -= (double)(W2V_SCALE/2);
 		// set lighting that depends only from fog distance
-		PhdVBuf[i].g = (LsAdder + 0x1000) / 2;
+		PhdVBuf[i].g = 0x1000;
+		int depth = PhdMatrixPtr->_23 >> W2V_SHIFT;
+#ifdef FEATURE_VIEW_IMPROVED
+		PhdVBuf[i].g += CalculateFogShade(depth);
+#else // !FEATURE_VIEW_IMPROVED
+		if( depth > DEPTHQ_START ) // fog begin
+			PhdVBuf[i].g += depth - DEPTHQ_START;
+#endif // FEATURE_VIEW_IMPROVED
 		CLAMP(PhdVBuf[i].g, 0x1000, 0x1FFF); // reflection can be darker but not brighter
 
 		// rotate normal vectors for X/Y, no translation
