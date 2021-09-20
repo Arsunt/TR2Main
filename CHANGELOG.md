@@ -120,6 +120,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a bug when some underwater objects were untinted (broken since v0.1.0).
 - Fixed camera stabilization in some cut scenes (broken since v0.1.0).
 - Fixed the "Microphone Position at Lara" setting (broken since v0.1.0).
+- Changed randomizer formula to be less correct, but consistent with the original game (broken since v0.1.0).
 
 ## [0.8.2] - 2019-05-26
 ### TR2Main bugfixes

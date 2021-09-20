@@ -334,9 +334,9 @@ int __cdecl GameStats(int levelID) {
 
 int __cdecl GetRandomControl() {
 	RandomControl = RandomControl * 1103515245 + 12345;
-	return (RandomControl / 0x10000) & 0x7FFF;
-	// NOTE: the original game code was: return (RandomControl >> 10) & 0x7FFF;
-	// instead of the correct ANSI one: return (RandomControl >> 0x10) & 0x7FFF;
+	return (RandomControl >> 10) & 0x7FFF;
+	// NOTE: the shift value should be 0x10, but the original game has 10,
+	// it left "as is" to save consistency with the original game.
 }
 
 void __cdecl SeedRandomControl(int seed) {
@@ -345,9 +345,9 @@ void __cdecl SeedRandomControl(int seed) {
 
 int __cdecl GetRandomDraw() {
 	RandomDraw = RandomDraw * 1103515245 + 12345;
-	return (RandomDraw / 0x10000) & 0x7FFF;
-	// NOTE: the original game code was: return (RandomDraw >> 10) & 0x7FFF;
-	// instead of the correct ANSI one: return (RandomDraw >> 0x10) & 0x7FFF;
+	return (RandomDraw >> 10) & 0x7FFF;
+	// NOTE: the shift value should be 0x10, but the original game has 10,
+	// it left "as is" to save consistency with the original game.
 }
 
 void __cdecl SeedRandomDraw(int seed) {
