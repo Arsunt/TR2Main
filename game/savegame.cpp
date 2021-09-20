@@ -487,7 +487,7 @@ void __cdecl ExtractSaveGameInfo() {
 			}
 		}
 
-		if( obj->control == MovableBlock && item->status == ITEM_DISABLED ) {
+		if( obj->control == MovableBlock && item->status == ITEM_INACTIVE ) {
 			AlterFloorHeight(item, -0x400u);
 		}
 
