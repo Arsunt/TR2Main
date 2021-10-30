@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
- * Original game is written by Core Design Ltd. in 1997.
+ * Original game is created by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
  * This file is part of TR2Main.
