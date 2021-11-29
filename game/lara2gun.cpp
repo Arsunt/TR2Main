@@ -125,7 +125,7 @@ void __cdecl AnimatePistols(int gunType) {
 		} else {
 			if (frame == 4) {
 				if (CHK_ANY(InputStatus, IN_ACTION)) {
-					angles[0] = LaraItem->pos.rotY + Lara.left_arm.y_rot;
+					angles[0] = LaraItem->pos.rotY + Lara.right_arm.y_rot;
 					angles[1] = Lara.right_arm.x_rot;
 					if (FireWeapon(gunType, Lara.target, LaraItem, angles)) {
 						Lara.right_arm.flash_gun = weapon->flashTime;

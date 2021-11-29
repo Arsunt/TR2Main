@@ -27,8 +27,9 @@
 /*
  * Function list
  */
-//	0x004128D0:		GetCollisionInfo
-//	0x00412F90:		FindGridShift
+void __cdecl GetCollisionInfo(COLL_INFO *coll, int x, int y, int z, __int16 roomID, int height); // 0x004128D0
+
+#define FindGridShift ((int(__cdecl*)(int, int)) 0x00412F90)
 
 int __cdecl CollideStaticObjects(COLL_INFO *coll, int x, int y, int z, __int16 roomID, int hite); // 0x00412FC0
 void __cdecl GetNearByRooms(int x, int y, int z, int r, int h, __int16 roomID); // 0x004133B0
@@ -37,8 +38,8 @@ void __cdecl GetNewRoom(int x, int y, int z, __int16 roomID); // 0x00413480
 //	0x004134E0:		ShiftItem
 
 #define UpdateLaraRoom ((void(__cdecl*)(ITEM_INFO*, int)) 0x00413520)
+#define GetTiltType ((__int16(__cdecl*)(FLOOR_INFO*, int, int, int)) 0x00413580)
 
-//	0x00413580:		GetTiltType
 //	0x00413620:		LaraBaddieCollision
 //	0x004137C0:		EffectSpaz
 

@@ -245,10 +245,17 @@ typedef struct {
 #define GLOW_GUNSHOT_COLOR	(0x7F701F) // Skidoo/Enemy gunfire
 
 // Collision types
-#define COLL_FRONT	(0x01)
-#define COLL_LEFT	(0x02)
-#define COLL_RIGHT	(0x04)
-#define COLL_TOP	(0x08)
+#define COLL_FRONT		(0x01)
+#define COLL_LEFT		(0x02)
+#define COLL_RIGHT		(0x04)
+#define COLL_TOP		(0x08)
+#define COLL_TOPFRONT	(0x10)
+#define COLL_CLAMP		(0x20)
+
+// Trigger/floordata control bits
+#define END_BIT		(0x8000)
+#define VALUE_BITS	(0x03FF)
+#define DATA_TYPE	(0x00FF)
 
 /*
  * DirectX type definitions
@@ -1147,6 +1154,35 @@ typedef enum {
 	CHAR_SECRET2,
 	CHAR_SECRET3,
 } CHAR_SECRETS;
+
+typedef enum {
+	HT_WALL,
+	HT_SMALL_SLOPE,
+	HT_BIG_SLOPE,
+} HEIGHT_TYPE;
+
+typedef enum {
+	TT_TRIGGER,
+	TT_PAD,
+	TT_SWITCH,
+	TT_KEY,
+	TT_PICKUP,
+	TT_HEAVY,
+	TT_ANTIPAD,
+	TT_COMBAT,
+	TT_DUMMY,
+	TT_ANTITRIGGER,
+} TRIGGER_TYPE;
+
+typedef enum {
+	FT_FLOOR,
+	FT_DOOR,
+	FT_TILT,
+	FT_ROOF,
+	FT_TRIGGER,
+	FT_LAVA,
+	FT_CLIMB,
+} FLOOR_TYPE;
 
 /*
  * Structs

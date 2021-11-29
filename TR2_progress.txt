@@ -180,23 +180,23 @@ x function is unused / included in another function
 0x00411F40:	+	StartCinematic
 0x00412060:	+	InitCinematicRooms
 0x00412100:	+	DoCinematic
-0x00412270:	 *	CalculateCinematicCamera
-0x004123B0:	 *	GetCinematicRoom
-0x00412430:	 *	ControlCinematicPlayer
-0x00412510:	 *	LaraControlCinematic
-0x004125B0:	 *	InitialisePlayer1
-0x00412640:	 *	InitialiseGenPlayer
-0x00412680:	 *	InGameCinematicCamera
+0x00412270:	+ 	CalculateCinematicCamera
+0x004123B0:	+ 	GetCinematicRoom
+0x00412430:	+ 	ControlCinematicPlayer
+0x00412510:	+ 	LaraControlCinematic
+0x004125B0:	+ 	InitialisePlayer1
+0x00412640:	+ 	InitialiseGenPlayer
+0x00412680:	+ 	InGameCinematicCamera
 
 	game/collide.cpp
-0x004128D0:		GetCollisionInfo
-0x00412F90:		FindGridShift
+0x004128D0:	+	GetCollisionInfo
+0x00412F90:	 *	FindGridShift
 0x00412FC0:	+	CollideStaticObjects
 0x004133B0:	+	GetNearByRooms
 0x00413480:	+	GetNewRoom
 0x004134E0:		ShiftItem
 0x00413520:	 *	UpdateLaraRoom
-0x00413580:		GetTiltType
+0x00413580:	 *	GetTiltType
 0x00413620:		LaraBaddieCollision
 0x004137C0:		EffectSpaz
 0x00413840:	 *	CreatureCollision
@@ -223,9 +223,9 @@ x function is unused / included in another function
 0x004158A0:	 *	TriggerActive
 0x00415900:	 *	GetCeiling
 0x00415B60:		GetDoor
-0x00415BB0:	 *	LOS
-0x00415C50:		zLOS
-0x00415F40:		xLOS
+0x00415BB0:	+ 	LOS
+0x00415C50:	+	zLOS
+0x00415F40:	+	xLOS
 0x00416230:	+	ClipTarget
 0x00416310:	 *	ObjectOnLOS
 0x00416610:	 *	FlipMap
@@ -235,10 +235,10 @@ x function is unused / included in another function
 0x00416800:		TriggerNormalCDTrack
 
 	game/demo.cpp
-0x004168E0:	 *	DoDemoSequence
+0x004168E0:	+ 	DoDemoSequence
 0x00416940:	+	StartDemo
-0x00416AF0:	 *	LoadLaraDemoPos
-0x00416BC0:	 *	GetDemoInput
+0x00416AF0:	+ 	LoadLaraDemoPos
+0x00416BC0:	+ 	GetDemoInput
 
 	game/diver.cpp
 0x00416BF0:		Harpoon
