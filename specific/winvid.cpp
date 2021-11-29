@@ -1150,13 +1150,6 @@ LRESULT CALLBACK WinVidGameWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
 			case WM_SYSCOMMAND :
 				if( wParam == SC_KEYMENU ) return 0;
 				break;
-#ifdef FEATURE_INPUT_IMPROVED
-			case WM_INPUT :
-				if( wParam == RIM_INPUT ) {
-					RawInputReceive(hWnd, (HRAWINPUT)lParam);
-				}
-				break;
-#endif // FEATURE_INPUT_IMPROVED
 		}
 		return DefWindowProc(hWnd, Msg, wParam, lParam);
 	}
@@ -1320,14 +1313,6 @@ LRESULT CALLBACK WinVidGameWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
 				InvalidateRect(hWnd, NULL, FALSE);
 			break;
 #endif // (DIRECT3D_VERSION < 0x900)
-
-#ifdef FEATURE_INPUT_IMPROVED
-		case WM_INPUT :
-			if( wParam == RIM_INPUT ) {
-				RawInputReceive(hWnd, (HRAWINPUT)lParam);
-			}
-			break;
-#endif // FEATURE_INPUT_IMPROVED
 	}
 	return DefWindowProc(hWnd, Msg, wParam, lParam);
 }

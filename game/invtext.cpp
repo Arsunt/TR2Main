@@ -445,14 +445,14 @@ int __cdecl Display_Requester(REQUEST_INFO *req, BOOL removeOnDeselect, BOOL isB
 
 	// Menu Select
 	if( CHK_ANY(InputDB, IN_SELECT) ) {
-		if( strncmp(req->itemTexts1[req->selected - req->lineOffset]->pString, GF_SpecificStringTable[SSI_EmptySlot], 12) ||
-			strcmp(PassportTextInfo->pString, GF_GameStringTable[GSI_Passport_LoadGame]) )
-		{
-			Remove_Requester(req);
-			return (req->selected + 1);
-		} else {
+		// This check prevents from loading an empty saved game slot
+		// NOTE: there was an ugly strcmp check in the original game
+		if( req == &LoadGameRequester && InventoryExtraData[0] == 0 && !SaveSlotFlags[req->selected] ) {
 			InputStatus = 0;
 			return 0;
+		} else {
+			Remove_Requester(req);
+			return (req->selected + 1);
 		}
 	}
 

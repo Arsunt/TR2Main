@@ -676,7 +676,7 @@ void __cdecl S_LoadSettings() {
 
 #ifdef FEATURE_GAMEPLAY_FIXES
 	OpenGameRegistryKey(REG_BUGS_KEY);
-	GetRegistryBoolValue(REG_RUNNING_M16_FIX, &IsRunningM16fix, true);
+	GetRegistryBoolValue(REG_RUNNING_M16_FIX, &IsRunningM16fix, false);
 	GetRegistryBoolValue(REG_LOWCEILING_JUMP_FIX, &IsLowCeilingJumpFix, true);
 	CloseGameRegistryKey();
 #endif // FEATURE_GAMEPLAY_FIXES

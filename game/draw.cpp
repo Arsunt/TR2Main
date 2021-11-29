@@ -128,6 +128,9 @@ void __cdecl DrawRooms(__int16 currentRoom) {
 			// NOTE: this is dirty trick for Golden Lara while Dozy cheat mode.
 			// In TR1 there is bit mask in mesh_effects for distinct meshes,
 			// but whole Lara must be golden here, including braid and weapons.
+			// The original TR1 gold color is #A09860, but it Midas room walls
+			// were orange tinted and bright, so to compensate all of this
+			// and to make gold more sweet here used different tint color.
 			SetMeshReflectState(ID_NONE, RGBA_MAKE(0xFF,0xC0,0x40,GoldenLaraAlpha));
 		}
 #endif // FEATURE_VIDEOFX_IMPROVED

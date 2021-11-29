@@ -19,27 +19,22 @@
  * along with TR2Main.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MOVE_BLOCK_H_INCLUDED
-#define MOVE_BLOCK_H_INCLUDED
+#ifndef XINPUT_EX_H_INCLUDED
+#define XINPUT_EX_H_INCLUDED
 
 #include "global/types.h"
 
-/*
- * Function list
- */
-//	0x004339A0:		InitialiseMovingBlock
+#ifdef FEATURE_INPUT_IMPROVED
+// all essential definitions are inside XInput.h, but no static lib linked here
+#include <XInput.h>
 
-#define MovableBlock ((void(__cdecl*)(__int16)) 0x004339D0)
+#ifndef XINPUT_GAMEPAD_GUIDE
+#define XINPUT_GAMEPAD_GUIDE (0x400)
+#endif // XINPUT_GAMEPAD_GUIDE
 
-//	0x00433B20:		MovableBlockCollision
-//	0x00433D80:		TestBlockMovable
-//	0x00433DD0:		TestBlockPush
-//	0x00433F20:		TestBlockPull
+#define XINPUT_DPAD(x) (CHK_ALL((x), XINPUT_GAMEPAD_DPAD_UP|XINPUT_GAMEPAD_DPAD_DOWN|XINPUT_GAMEPAD_DPAD_LEFT|XINPUT_GAMEPAD_DPAD_RIGHT))
 
-#define AlterFloorHeight ((void(__cdecl*)(ITEM_INFO *, int)) 0x00434160)
+BOOL IsXInputDevice(DWORD dwVendorId, DWORD dwProductId);
+#endif // FEATURE_INPUT_IMPROVED
 
-//	0x00434220:		DrawMovableBlock
-
-#define DrawUnclippedItem ((void(__cdecl*)(ITEM_INFO *)) 0x00434250)
-
-#endif // MOVE_BLOCK_H_INCLUDED
+#endif // XINPUT_EX_H_INCLUDED

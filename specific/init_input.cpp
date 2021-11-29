@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -25,10 +25,9 @@
 #include "global/vars.h"
 
 #ifdef FEATURE_INPUT_IMPROVED
-#include <XInput.h>
+#include "modding/xinput_ex.h"
 #include "modding/raw_input.h"
 #include "modding/joy_output.h"
-#define XINPUT_DPAD(x) (CHK_ALL((x), XINPUT_GAMEPAD_DPAD_UP|XINPUT_GAMEPAD_DPAD_DOWN|XINPUT_GAMEPAD_DPAD_LEFT|XINPUT_GAMEPAD_DPAD_RIGHT))
 #define HAS_AXIS(x) (JoyRanges[x].lMax != JoyRanges[x].lMin)
 
 typedef enum {
@@ -85,142 +84,9 @@ BOOL CALLBACK DInputEnumJoystickAxisCallback(LPCDIDEVICEOBJECTINSTANCE pdidoi, L
 	return DIENUM_CONTINUE;
 }
 
-static const char *GetRawInputName(DWORD dwVendorId, DWORD dwProductId) {
-	if( dwVendorId == 0x054C ) {
-		switch( dwProductId ) {
-			case 0x05C4: return "Sony DualShock 4 (1st gen)";
-			case 0x09CC: return "Sony DualShock 4 (2nd gen)";
-			case 0x0BA0: return "Sony DualShock 4 (wireless)";
-			case 0x0CE6: return "Sony DualSense";
-		}
-	}
-	return NULL;
-}
-
-// ----------------------- The ugly function by Microsoft -----------------------
-// Enum each PNP device using WMI and check each device ID to see if it contains
-// "IG_" (ex. "VID_045E&PID_028E&IG_00").  If it does, then it's an XInput device
-// Unfortunately this information can not be found by just using DirectInput
-// ------------------------------------------------------------------------------
-#include <wbemidl.h>
-#include <oleauto.h>
-
-BOOL IsXInputDevice(DWORD dwVendorId, DWORD dwProductId) {
-	IWbemLocator* pIWbemLocator = NULL;
-	IEnumWbemClassObject* pEnumDevices = NULL;
-	IWbemClassObject* pDevices[20] = {0};
-	IWbemServices* pIWbemServices = NULL;
-	BSTR bstrNamespace = NULL;
-	BSTR bstrDeviceID = NULL;
-	BSTR bstrClassName = NULL;
-	DWORD uReturned = 0;
-	bool bIsXinputDevice = false;
-	UINT iDevice = 0;
-	VARIANT var;
-	HRESULT hr;
-
-	// CoInit if needed
-	hr = CoInitialize(NULL);
-	bool bCleanupCOM = SUCCEEDED(hr);
-
-	// Create WMI
-	hr = CoCreateInstance(__uuidof(WbemLocator), NULL, CLSCTX_INPROC_SERVER,
-							__uuidof(IWbemLocator), (LPVOID*) &pIWbemLocator);
-	if( FAILED(hr) || pIWbemLocator == NULL ) goto LCleanup;
-
-	bstrNamespace = SysAllocString(L"\\\\.\\root\\cimv2");
-	if( bstrNamespace == NULL ) goto LCleanup;
-
-	bstrClassName = SysAllocString(L"Win32_PNPEntity");
-	if( bstrClassName == NULL ) goto LCleanup;
-
-	bstrDeviceID = SysAllocString(L"DeviceID");
-	if( bstrDeviceID == NULL ) goto LCleanup;
-
-	// Connect to WMI
-	hr = pIWbemLocator->ConnectServer(bstrNamespace, NULL, NULL, 0L, 0L, NULL, NULL, &pIWbemServices);
-	if( FAILED(hr) || pIWbemServices == NULL ) goto LCleanup;
-
-	// Switch security level to IMPERSONATE.
-	CoSetProxyBlanket(pIWbemServices, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL,
-						RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE);
-
-	hr = pIWbemServices->CreateInstanceEnum(bstrClassName, 0, NULL, &pEnumDevices);
-	if( FAILED(hr) || pEnumDevices == NULL ) goto LCleanup;
-
-	// Loop over all devices
-	for( ;; ) {
-		// Get 20 at a time
-		hr = pEnumDevices->Next(10000, 20, pDevices, &uReturned);
-		if( FAILED(hr) ) goto LCleanup;
-		if( uReturned == 0 ) break;
-
-		for( iDevice=0; iDevice<uReturned; iDevice++ ) {
-			// For each device, get its device ID
-			hr = pDevices[iDevice]->Get(bstrDeviceID, 0L, &var, NULL, NULL);
-			if( SUCCEEDED(hr) && var.vt == VT_BSTR && var.bstrVal != NULL ) {
-				// Check if the device ID contains "IG_".  If it does, then it's an XInput device
-				if( wcsstr(var.bstrVal, L"IG_") ) {
-					// If it does, then get the VID/PID from var.bstrVal
-					DWORD dwPid = 0, dwVid = 0;
-					WCHAR* strVid = wcsstr( var.bstrVal, L"VID_" );
-					if( strVid && swscanf( strVid, L"VID_%4X", &dwVid ) != 1 )
-						dwVid = 0;
-					WCHAR* strPid = wcsstr( var.bstrVal, L"PID_" );
-					if( strPid && swscanf( strPid, L"PID_%4X", &dwPid ) != 1 )
-						dwPid = 0;
-
-					// Compare the VID/PID to the DInput device
-					if( dwVendorId == dwVid && dwProductId == dwPid )
-					{
-						bIsXinputDevice = true;
-						goto LCleanup;
-					}
-				}
-			}
-			if( pDevices[iDevice] ) {
-				pDevices[iDevice]->Release();
-				pDevices[iDevice] = NULL;
-			}
-		}
-	}
-
-LCleanup:
-	if( bstrNamespace ) SysFreeString(bstrNamespace);
-	if( bstrDeviceID ) SysFreeString(bstrDeviceID);
-	if( bstrClassName ) SysFreeString(bstrClassName);
-	for( iDevice=0; iDevice<20; iDevice++ ) {
-		if( pDevices[iDevice] ) pDevices[iDevice]->Release();
-	}
-	if( pEnumDevices ) pEnumDevices->Release();
-	if( pIWbemLocator ) pIWbemLocator->Release();
-	if( pIWbemServices ) pIWbemServices->Release();
-	if( bCleanupCOM ) CoUninitialize();
-	return bIsXinputDevice;
-}
-
-// The hack to get XInput Guide button state
-#ifndef XINPUT_GAMEPAD_GUIDE
-#define XINPUT_GAMEPAD_GUIDE (0x400)
-#endif // XINPUT_GAMEPAD_GUIDE
-static DWORD XInputGetStateExt(DWORD dwUserIndex, XINPUT_STATE *pState) {
-	static DWORD (WINAPI *lpGetState)(DWORD, XINPUT_STATE*) = NULL;
-	if( lpGetState == NULL ) {
-		HMODULE hDLL = LoadLibrary("xinput1_3.dll");
-		if( hDLL != NULL ) *(FARPROC *)&lpGetState = GetProcAddress(hDLL, MAKEINTRESOURCE(100));
-		if( lpGetState == NULL ) lpGetState = XInputGetState;
-	}
-	return lpGetState(dwUserIndex, pState);
-}
-
-static BOOL CALLBACK RawInputCallBack(HANDLE hDevice, LPGUID lpGuid, PRID_DEVICE_INFO_HID lpInfo, LPVOID lpContext) {
-	if( hDevice == INVALID_HANDLE_VALUE || lpGuid == NULL || lpInfo == NULL || lpContext == NULL )
+static BOOL CALLBACK RawInputCallBack(LPGUID lpGuid, LPCTSTR lpDeviceName, LPCTSTR lpProductName, WORD vid, WORD pid, LPVOID lpContext) {
+	if( lpGuid == NULL || lpDeviceName == NULL || lpProductName == NULL || lpContext == NULL || IsXInputDevice(vid, pid) )
 		return TRUE;
-
-	const char *productName = GetRawInputName(lpInfo->dwVendorId, lpInfo->dwProductId);
-	if( !productName || IsXInputDevice(lpInfo->dwVendorId, lpInfo->dwProductId) ) {
-		return TRUE;
-	}
 
 	JOYSTICK_LIST *joyList = (JOYSTICK_LIST *)lpContext;
 	JOYSTICK_NODE *joyNode = new JOYSTICK_NODE;
@@ -242,10 +108,11 @@ static BOOL CALLBACK RawInputCallBack(HANDLE hDevice, LPGUID lpGuid, PRID_DEVICE
 
 	joyNode->body.joystickGuid = *lpGuid;
 	joyNode->body.lpJoystickGuid = &joyNode->body.joystickGuid;
-	FlaggedStringCreate(&joyNode->body.productName, 256);
-	FlaggedStringCreate(&joyNode->body.instanceName, 256);
-	lstrcpy(joyNode->body.productName.lpString, productName);
-	joyNode->body.rawInputHandle = hDevice;
+	FlaggedStringCreate(&joyNode->body.productName, strlen(lpProductName)+1);
+	FlaggedStringCreate(&joyNode->body.instanceName, strlen(lpDeviceName)+1);
+	lstrcpy(joyNode->body.productName.lpString, lpProductName);
+	lstrcpy(joyNode->body.instanceName.lpString, lpDeviceName);
+	joyNode->body.iface = JOY_RawInput;
 	return TRUE;
 }
 
@@ -267,7 +134,7 @@ void SetJoystickOutput(WORD leftMotor, WORD rightMotor, DWORD ledColor) {
 		XInputEnable(TRUE);
 		result = (ERROR_SUCCESS == XInputSetState(XInputIndex, &vibration));
 	} else if( IsRawInput ) {
-		result = RawInputSend(leftMotor, rightMotor, ledColor);
+		result = RawInputSetState(leftMotor, rightMotor, ledColor);
 	}
 
 	if( result ) {
@@ -376,7 +243,7 @@ static DWORD XInputReadJoystick(int *xPos, int *yPos) {
 	XINPUT_STATE state;
 
 	XInputEnable(TRUE);
-	if( ERROR_SUCCESS != XInputGetStateExt(XInputIndex, &state) ) {
+	if( ERROR_SUCCESS != XInputGetState(XInputIndex, &state) ) {
 		return 0;
 	}
 
@@ -446,6 +313,7 @@ static DWORD RawInputReadJoystick(int *xPos, int *yPos) {
 	buttonStatus |= state.btnL3 ? 0x0400 : 0;
 	buttonStatus |= state.btnR3 ? 0x0800 : 0;
 	buttonStatus |= state.btnPS ? 0x1000 : 0;
+	buttonStatus |= state.btnTouch ? 0x2000 : 0;
 	return buttonStatus;
 }
 
@@ -587,6 +455,7 @@ bool __cdecl DInputEnumDevices(JOYSTICK_LIST *joystickList) {
 		FlaggedStringCreate(&joyNode->body.productName, 256);
 		FlaggedStringCreate(&joyNode->body.instanceName, 256);
 		snprintf(joyNode->body.productName.lpString, 256, "XInput Controller %lu", i+1);
+		joyNode->body.iface = JOY_XInput;
 	}
 	RawInputEnumerate(RawInputCallBack, (LPVOID)joystickList);
 #endif // FEATURE_INPUT_IMPROVED
@@ -601,7 +470,7 @@ BOOL CALLBACK DInputEnumDevicesCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
 #ifdef FEATURE_INPUT_IMPROVED
 	DWORD vid = LOWORD(lpddi->guidProduct.Data1);
 	DWORD pid = HIWORD(lpddi->guidProduct.Data1);
-	if( GetRawInputName(vid, pid) || IsXInputDevice(vid, pid) ) {
+	if( GetRawInputName(vid, pid, FALSE) || IsXInputDevice(vid, pid) ) {
 		return DIENUM_CONTINUE;
 	}
 #endif // FEATURE_INPUT_IMPROVED
@@ -631,7 +500,7 @@ BOOL CALLBACK DInputEnumDevicesCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
 	lstrcpy(joyNode->body.productName.lpString, lpddi->tszProductName);
 	lstrcpy(joyNode->body.instanceName.lpString, lpddi->tszInstanceName);
 #ifdef FEATURE_INPUT_IMPROVED
-	joyNode->body.rawInputHandle = INVALID_HANDLE_VALUE;
+	joyNode->body.iface = JOY_DirectInput;
 #endif // FEATURE_INPUT_IMPROVED
 
 	return DIENUM_CONTINUE;
@@ -696,15 +565,15 @@ bool __cdecl DInputJoystickCreate() {
 	XInputIndex = -1;
 	memset(&XInputCaps, 0, sizeof(XInputCaps));
 	GUID *guid = &CurrentJoystick.joystickGuid;
-	if( !guid->Data1 && !guid->Data2 && !guid->Data3 ) {
+	if( CurrentJoystick.iface == JOY_XInput ) {
 		if( ERROR_SUCCESS != XInputGetCapabilities(guid->Data4[7], 0, &XInputCaps) ) {
 			return false;
 		}
 		XInputIndex = guid->Data4[7];
 		return true;
 	}
-	if( CurrentJoystick.rawInputHandle != INVALID_HANDLE_VALUE ) {
-		IsRawInput = RawInputStart(HGameWindow, CurrentJoystick.rawInputHandle);
+	if( CurrentJoystick.iface == JOY_RawInput ) {
+		IsRawInput = RawInputStart(CurrentJoystick.instanceName.lpString);
 		return IsRawInput;
 	}
 	memset(JoyRanges, 0, sizeof(JoyRanges));

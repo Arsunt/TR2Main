@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
  * Original game is written by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -27,12 +27,16 @@
 /*
  * Function list
  */
-//	0x00437F20:		PickUpCollision
+
+#define PickUpCollision ((void(__cdecl*)(__int16, ITEM_INFO *, COLL_INFO *)) 0x00437F20)
+
 //	0x004383A0:		SwitchCollision
 //	0x004385B0:		SwitchCollision2
 //	0x004386B0:		DetonatorCollision
 //	0x004388F0:		KeyHoleCollision
-//	0x00438B30:		PuzzleHoleCollision
+
+#define PuzzleHoleCollision ((void(__cdecl*)(__int16, ITEM_INFO *, COLL_INFO *)) 0x00438B30)
+
 //	0x00438DF0:		SwitchControl
 //	0x00438E30:		SwitchTrigger
 //	0x00438EF0:		KeyTrigger
