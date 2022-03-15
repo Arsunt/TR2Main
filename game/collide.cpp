@@ -525,7 +525,7 @@ BOOL __cdecl TestLaraPosition(__int16* bounds, ITEM_INFO* item, ITEM_INFO* larai
 		&& zBound <= bounds[5];
 }
 
-void __cdecl AlignLaraPosition(PHD_VECTOR* vec, ITEM_INFO* item, ITEM_INFO* laraitem) {
+void __cdecl AlignLaraPosition(PHD_VECTOR* pos, ITEM_INFO* item, ITEM_INFO* laraitem) {
 	FLOOR_INFO* floor;
 	int x, y, z;
 	int height, ceiling;
@@ -537,9 +537,9 @@ void __cdecl AlignLaraPosition(PHD_VECTOR* vec, ITEM_INFO* item, ITEM_INFO* lara
 
 	phd_PushUnitMatrix();
 	phd_RotYXZ(item->pos.rotY, item->pos.rotX, item->pos.rotZ);
-	x = item->pos.x + ((vec->x * PhdMatrixPtr->_00 + vec->y * PhdMatrixPtr->_01 + vec->z * PhdMatrixPtr->_02) >> W2V_SHIFT);
-	y = item->pos.y + ((vec->x * PhdMatrixPtr->_10 + vec->y * PhdMatrixPtr->_11 + vec->z * PhdMatrixPtr->_12) >> W2V_SHIFT);
-	z = item->pos.z + ((vec->x * PhdMatrixPtr->_20 + vec->y * PhdMatrixPtr->_21 + vec->z * PhdMatrixPtr->_22) >> W2V_SHIFT);
+	x = item->pos.x + ((pos->x * PhdMatrixPtr->_00 + pos->y * PhdMatrixPtr->_01 + pos->z * PhdMatrixPtr->_02) >> W2V_SHIFT);
+	y = item->pos.y + ((pos->x * PhdMatrixPtr->_10 + pos->y * PhdMatrixPtr->_11 + pos->z * PhdMatrixPtr->_12) >> W2V_SHIFT);
+	z = item->pos.z + ((pos->x * PhdMatrixPtr->_20 + pos->y * PhdMatrixPtr->_21 + pos->z * PhdMatrixPtr->_22) >> W2V_SHIFT);
 	phd_PopMatrix();
 
 	roomID = laraitem->roomNumber;
@@ -552,6 +552,43 @@ void __cdecl AlignLaraPosition(PHD_VECTOR* vec, ITEM_INFO* item, ITEM_INFO* lara
 		laraitem->pos.y = y;
 		laraitem->pos.z = z;
 	}
+}
+
+BOOL __cdecl MoveLaraPosition(PHD_VECTOR* pos, ITEM_INFO* item, ITEM_INFO* laraitem) {
+	PHD_3DPOS newpos;
+	FLOOR_INFO* floor;
+	int height, distance;
+	int xDist, yDist, zDist;
+	__int16 roomID;
+
+	newpos.rotX = item->pos.rotX;
+	newpos.rotY = item->pos.rotY;
+	newpos.rotZ = item->pos.rotZ;
+
+	phd_PushUnitMatrix();
+	phd_RotYXZ(item->pos.rotY, item->pos.rotX, item->pos.rotZ);
+	newpos.x = item->pos.x + ((pos->x * PhdMatrixPtr->_00 + pos->y * PhdMatrixPtr->_01 + pos->z * PhdMatrixPtr->_02) >> W2V_SHIFT);
+	newpos.y = item->pos.y + ((pos->x * PhdMatrixPtr->_10 + pos->y * PhdMatrixPtr->_11 + pos->z * PhdMatrixPtr->_12) >> W2V_SHIFT);
+	newpos.z = item->pos.z + ((pos->x * PhdMatrixPtr->_20 + pos->y * PhdMatrixPtr->_21 + pos->z * PhdMatrixPtr->_22) >> W2V_SHIFT);
+	phd_PopMatrix();
+
+	if (item->objectID != ID_FLARE_ITEM) {
+		return Move3DPosTo3DPos(&laraitem->pos, &newpos, 16, 2 * PHD_DEGREE);
+	}
+
+	roomID = laraitem->roomNumber;
+	floor = GetFloor(newpos.x, newpos.y, newpos.z, &roomID);
+	height = GetHeight(floor, newpos.x, newpos.y, newpos.z);
+
+	if (ABS(height - laraitem->pos.y) > 512) {
+		return FALSE;
+	}
+
+	zDist = SQR(newpos.z - laraitem->pos.z);
+	yDist = SQR(newpos.y - laraitem->pos.y);
+	xDist = SQR(newpos.x - laraitem->pos.z);
+	distance = phd_sqrt(xDist + yDist + zDist);
+	return distance < 128 || Move3DPosTo3DPos(&laraitem->pos, &newpos, 16, 2 * PHD_DEGREE);
 }
 
 /*
@@ -578,6 +615,6 @@ void Inject_Collide() {
 	INJECT(0x00413D20, TestBoundsCollide);
 	INJECT(0x00413DF0, TestLaraPosition);
 	INJECT(0x00413F30, AlignLaraPosition);
-//	INJECT(0x00414070, MoveLaraPosition);
+	INJECT(0x00414070, MoveLaraPosition);
 //	INJECT(0x00414200, Move3DPosTo3DPos);
 }
