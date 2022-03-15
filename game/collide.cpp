@@ -347,6 +347,23 @@ void __cdecl ObjectCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* col
 	}
 }
 
+void __cdecl DoorCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll) {
+	ITEM_INFO* item;
+
+	item = &Items[itemID];
+	if (TestBoundsCollide(item, laraitem, coll->radius)) {
+		if (TestCollision(item, laraitem)) {
+			if CHK_ANY(coll->flags, 0x8) {
+				if (item->currentAnimState == item->goalAnimState) {
+					ItemPushLara(item, laraitem, coll, FALSE, TRUE);
+				} else {
+					ItemPushLara(item, laraitem, coll, CHK_ANY(coll->flags, 0x10), TRUE);
+				}
+			}
+		}
+	}
+}
+
 /*
  * Inject function
  */
@@ -365,7 +382,7 @@ void Inject_Collide() {
 	INJECT(0x004137C0, EffectSpaz);
 	INJECT(0x00413840, CreatureCollision);
 	INJECT(0x004138C0, ObjectCollision);
-//	INJECT(0x00413920, DoorCollision);
+	INJECT(0x00413920, DoorCollision);
 //	INJECT(0x004139A0, TrapCollision);
 //	INJECT(0x00413A10, ItemPushLara);
 //	INJECT(0x00413D20, TestBoundsCollide);
