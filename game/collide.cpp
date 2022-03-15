@@ -30,13 +30,15 @@ int __cdecl FindGridShift(int src, int dest) {
     int srcShift, destShift;
 	srcShift = src >> WALL_SHIFT;
 	destShift = dest >> WALL_SHIFT;
-	if (srcShift == destShift)
-		return 0;
+	if (srcShift == destShift) {
+        return 0;
+	}
 	src &= 1023;
-	if (destShift <= srcShift)
-		return -1 - src;
-	else
-		return 1025 - src;
+	if (destShift <= srcShift) {
+        return -1 - src;
+	} else {
+        return 1025 - src;
+	}
 }
 
 int __cdecl CollideStaticObjects(COLL_INFO *coll, int x, int y, int z, __int16 roomID, int hite) {
@@ -231,6 +233,24 @@ void __cdecl UpdateLaraRoom(ITEM_INFO* item, int height) {
 	}
 }
 
+short __cdecl GetTiltType(FLOOR_INFO* floor, int x, int y, int z) {
+	short* data;
+	unsigned char i;
+
+	for (i = floor->pitRoom; i != 255; i = floor->pitRoom) {
+		floor = &RoomInfo[i].floor[((z - RoomInfo[i].z) >> WALL_SHIFT) + RoomInfo[i].xSize * ((x - RoomInfo[i].x) >> WALL_SHIFT)];
+	}
+	if (floor->index == 0) {
+        return 0;
+	}
+	data = &FloorData[floor->index];
+	if (y + 512 >= floor->floor << 8 && *(BYTE*)data == 2) {
+        return data[1];
+	} else {
+	    return 0;
+	}
+}
+
 /*
  * Inject function
  */
@@ -244,7 +264,7 @@ void Inject_Collide() {
 
     INJECT(0x004134E0, ShiftItem);
     INJECT(0x00413520, UpdateLaraRoom);
-//	INJECT(0x00413580, GetTiltType);
+    INJECT(0x00413580, GetTiltType);
 //	INJECT(0x00413620, LaraBaddieCollision);
 //	INJECT(0x004137C0, EffectSpaz);
 //	INJECT(0x00413840, CreatureCollision);

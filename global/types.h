@@ -1833,11 +1833,11 @@ typedef struct DoorInfos_t {
 } DOOR_INFOS;
 
 typedef struct FloorInfo_t {
-	__int16 index;
+    __int16 index;
 	__int16 box;
-	char pitRoom;
+    unsigned char pitRoom;
 	char floor;
-	char skyRoom;
+    unsigned char skyRoom;
 	char ceiling;
 } FLOOR_INFO;
 
