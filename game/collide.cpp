@@ -364,6 +364,19 @@ void __cdecl DoorCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll)
 	}
 }
 
+void __cdecl TrapCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll) {
+	ITEM_INFO* item;
+
+	item = &Items[itemID];
+	if (item->status == ITEM_ACTIVE) {
+		if (TestBoundsCollide(item, laraitem, coll->radius)) {
+			TestCollision(item, laraitem);
+		}
+	} else if (item->status != ITEM_INVISIBLE) {
+		ObjectCollision(itemID, laraitem, coll);
+	}
+}
+
 /*
  * Inject function
  */
@@ -383,7 +396,7 @@ void Inject_Collide() {
 	INJECT(0x00413840, CreatureCollision);
 	INJECT(0x004138C0, ObjectCollision);
 	INJECT(0x00413920, DoorCollision);
-//	INJECT(0x004139A0, TrapCollision);
+	INJECT(0x004139A0, TrapCollision);
 //	INJECT(0x00413A10, ItemPushLara);
 //	INJECT(0x00413D20, TestBoundsCollide);
 //	INJECT(0x00413DF0, TestLaraPosition);

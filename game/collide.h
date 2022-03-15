@@ -46,7 +46,7 @@ void __cdecl CreatureCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* c
 void __cdecl ObjectCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll); // 0x004138C0
 
 void __cdecl DoorCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll); // 0x00413920
-//	0x004139A0:		TrapCollision
+void __cdecl TrapCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll); // 0x004139A0
 #define ItemPushLara ((void(__cdecl*)(ITEM_INFO*, ITEM_INFO*, COLL_INFO*, BOOL, BOOL)) 0x00413A10)
 #define TestBoundsCollide ((BOOL(__cdecl*)(ITEM_INFO*, ITEM_INFO*, int)) 0x00413D20)
 #define TestLaraPosition ((BOOL(__cdecl*)(__int16*, ITEM_INFO*, ITEM_INFO*)) 0x00413DF0)
