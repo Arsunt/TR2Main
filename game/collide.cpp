@@ -22,6 +22,7 @@
 #include "global/precompiled.h"
 #include "game/collide.h"
 #include "3dsystem/phd_math.h"
+#include "3dsystem/3d_gen.h"
 #include "game/draw.h"
 #include "game/items.h"
 #include "game/control.h"
@@ -490,6 +491,40 @@ BOOL __cdecl TestBoundsCollide(ITEM_INFO* item, ITEM_INFO* laraitem, int radius)
 	return FALSE;
 }
 
+BOOL __cdecl TestLaraPosition(__int16* bounds, ITEM_INFO* item, ITEM_INFO* laraitem) {
+	int x, y, z;
+	int xBound, yBound, zBound;
+	short yRot, xRot, zRot;
+
+	xRot = laraitem->pos.rotX - item->pos.rotX;
+	yRot = laraitem->pos.rotY - item->pos.rotY;
+	zRot = laraitem->pos.rotZ - item->pos.rotZ;
+
+	if (xRot < bounds[6] || xRot > bounds[7] ||
+		yRot < bounds[8] || yRot > bounds[9] ||
+		zRot < bounds[10] || zRot > bounds[11]) {
+		return 0;
+	}
+
+	x = laraitem->pos.x - item->pos.x;
+	y = laraitem->pos.y - item->pos.y;
+	z = laraitem->pos.z - item->pos.z;
+
+	phd_PushUnitMatrix();
+	phd_RotYXZ(item->pos.rotY, item->pos.rotX, item->pos.rotZ);
+	xBound = (x * PhdMatrixPtr->_00 + y * PhdMatrixPtr->_10 + z * PhdMatrixPtr->_20) >> W2V_SHIFT;
+	yBound = (x * PhdMatrixPtr->_01 + y * PhdMatrixPtr->_11 + z * PhdMatrixPtr->_21) >> W2V_SHIFT;
+	zBound = (x * PhdMatrixPtr->_02 + y * PhdMatrixPtr->_12 + z * PhdMatrixPtr->_22) >> W2V_SHIFT;
+	phd_PopMatrix();
+
+	return xBound >= bounds[0]
+		&& xBound <= bounds[1]
+		&& yBound >= bounds[2]
+		&& yBound <= bounds[3]
+		&& zBound >= bounds[4]
+		&& zBound <= bounds[5];
+}
+
 /*
  * Inject function
  */
@@ -512,7 +547,7 @@ void Inject_Collide() {
 	INJECT(0x004139A0, TrapCollision);
 	INJECT(0x00413A10, ItemPushLara);
 	INJECT(0x00413D20, TestBoundsCollide);
-//	INJECT(0x00413DF0, TestLaraPosition);
+	INJECT(0x00413DF0, TestLaraPosition);
 //	INJECT(0x00413F30, AlignLaraPosition);
 //	INJECT(0x00414070, MoveLaraPosition);
 //	INJECT(0x00414200, Move3DPosTo3DPos);
