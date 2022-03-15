@@ -233,8 +233,8 @@ void __cdecl UpdateLaraRoom(ITEM_INFO* item, int height) {
 	}
 }
 
-short __cdecl GetTiltType(FLOOR_INFO* floor, int x, int y, int z) {
-	short* data;
+__int16 __cdecl GetTiltType(FLOOR_INFO* floor, int x, int y, int z) {
+	__int16* data;
 	unsigned char i;
 
 	for (i = floor->pitRoom; i != 255; i = floor->pitRoom) {
