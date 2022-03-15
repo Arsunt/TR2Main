@@ -29,22 +29,16 @@
  */
 #define GetCollisionInfo ((void(__cdecl*)(COLL_INFO*, int, int, int, __int16, int)) 0x004128D0)
 int __cdecl FindGridShift(int src, int dest); // 0x00412F90
-
 int __cdecl CollideStaticObjects(COLL_INFO *coll, int x, int y, int z, __int16 roomID, int hite); // 0x00412FC0
 void __cdecl GetNearByRooms(int x, int y, int z, int r, int h, __int16 roomID); // 0x004133B0
 void __cdecl GetNewRoom(int x, int y, int z, __int16 roomID); // 0x00413480
-
 void __cdecl ShiftItem(ITEM_INFO* item, COLL_INFO* coll); // 0x004134E0
-
 void __cdecl UpdateLaraRoom(ITEM_INFO* item, int height); // 0x00413520
-
 __int16 __cdecl GetTiltType(FLOOR_INFO* floor, int x, int y, int z); // 0x00413580
 void __cdecl LaraBaddieCollision(ITEM_INFO* laraitem, COLL_INFO* coll); // 0x00413620
 void __cdecl EffectSpaz(ITEM_INFO* laraitem, COLL_INFO* coll); // 0x004137C0
-
 void __cdecl CreatureCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll); // 0x00413840
 void __cdecl ObjectCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll); // 0x004138C0
-
 void __cdecl DoorCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll); // 0x00413920
 void __cdecl TrapCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll); // 0x004139A0
 void __cdecl ItemPushLara(ITEM_INFO* item, ITEM_INFO* laraitem, COLL_INFO* coll, BOOL spazon, BOOL bigpush); // 0x00413A10

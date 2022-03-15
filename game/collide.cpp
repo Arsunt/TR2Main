@@ -593,7 +593,7 @@ BOOL __cdecl MoveLaraPosition(PHD_VECTOR* pos, ITEM_INFO* item, ITEM_INFO* larai
 
 BOOL __cdecl Move3DPosTo3DPos(PHD_3DPOS* src, PHD_3DPOS* dest, int velocity, __int16 angleAdder) {
 	int x, y, z, distance;
-	short xRot, yRot, zRot;
+	__int16 xRot, yRot, zRot;
 
 	x = dest->x - src->x;
 	y = dest->y - src->y;
@@ -653,11 +653,9 @@ BOOL __cdecl Move3DPosTo3DPos(PHD_3DPOS* src, PHD_3DPOS* dest, int velocity, __i
 void Inject_Collide() {
 //	INJECT(0x004128D0, GetCollisionInfo);
 	INJECT(0x00412F90, FindGridShift);
-
 	INJECT(0x00412FC0, CollideStaticObjects);
 	INJECT(0x004133B0, GetNearByRooms);
 	INJECT(0x00413480, GetNewRoom);
-
 	INJECT(0x004134E0, ShiftItem);
 	INJECT(0x00413520, UpdateLaraRoom);
 	INJECT(0x00413580, GetTiltType);
