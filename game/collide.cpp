@@ -24,6 +24,7 @@
 #include "3dsystem/phd_math.h"
 #include "game/items.h"
 #include "game/control.h"
+#include "game/sound.h"
 #include "global/vars.h"
 
 int __cdecl FindGridShift(int src, int dest) {
@@ -308,6 +309,17 @@ void __cdecl LaraBaddieCollision(ITEM_INFO* laraitem, COLL_INFO* coll) {
 	}
 }
 
+void __cdecl EffectSpaz(ITEM_INFO* laraitem, COLL_INFO* coll) {
+	Lara.hit_direction = (unsigned short)(laraitem->pos.rotY + 0x8000 - phd_atan(Lara.spaz_effect->pos.z - laraitem->pos.z, Lara.spaz_effect->pos.x - laraitem->pos.x) + 0x2000) >> W2V_SHIFT;
+	if (!Lara.hit_frame) {
+		PlaySoundEffect(31, &laraitem->pos, 0);
+	}
+	if (++Lara.hit_frame > 34) {
+		Lara.hit_frame = 34;
+	}
+	--Lara.spaz_effect_count;
+}
+
 /*
  * Inject function
  */
@@ -323,7 +335,7 @@ void Inject_Collide() {
 	INJECT(0x00413520, UpdateLaraRoom);
 	INJECT(0x00413580, GetTiltType);
 	INJECT(0x00413620, LaraBaddieCollision);
-//	INJECT(0x004137C0, EffectSpaz);
+	INJECT(0x004137C0, EffectSpaz);
 //	INJECT(0x00413840, CreatureCollision);
 //	INJECT(0x004138C0, ObjectCollision);
 //	INJECT(0x00413920, DoorCollision);
