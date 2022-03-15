@@ -213,7 +213,7 @@ void __cdecl GetNewRoom(int x, int y, int z, __int16 roomID) {
 }
 
 void __cdecl ShiftItem(ITEM_INFO* item, COLL_INFO* coll) {
-    item->pos.x += coll->shift.x;
+	item->pos.x += coll->shift.x;
 	item->pos.y += coll->shift.y;
 	item->pos.z += coll->shift.z;
 	coll->shift.z = 0;
@@ -222,7 +222,7 @@ void __cdecl ShiftItem(ITEM_INFO* item, COLL_INFO* coll) {
 }
 
 void __cdecl UpdateLaraRoom(ITEM_INFO* item, int height) {
-    FLOOR_INFO* floor;
+	FLOOR_INFO* floor;
 	int x, y, z;
 	short roomID;
 
@@ -245,13 +245,13 @@ __int16 __cdecl GetTiltType(FLOOR_INFO* floor, int x, int y, int z) {
 		floor = &RoomInfo[i].floor[((z - RoomInfo[i].z) >> WALL_SHIFT) + RoomInfo[i].xSize * ((x - RoomInfo[i].x) >> WALL_SHIFT)];
 	}
 	if (floor->index == 0) {
-        return 0;
+		return 0;
 	}
 	data = &FloorData[floor->index];
 	if (y + 512 >= floor->floor << 8 && *(BYTE*)data == 2) {
-        return data[1];
+		return data[1];
 	} else {
-	    return 0;
+		return 0;
 	}
 }
 
