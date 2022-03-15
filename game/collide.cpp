@@ -525,6 +525,35 @@ BOOL __cdecl TestLaraPosition(__int16* bounds, ITEM_INFO* item, ITEM_INFO* larai
 		&& zBound <= bounds[5];
 }
 
+void __cdecl AlignLaraPosition(PHD_VECTOR* vec, ITEM_INFO* item, ITEM_INFO* laraitem) {
+	FLOOR_INFO* floor;
+	int x, y, z;
+	int height, ceiling;
+	__int16 roomID;
+
+	laraitem->pos.rotX = item->pos.rotX;
+	laraitem->pos.rotY = item->pos.rotY;
+	laraitem->pos.rotZ = item->pos.rotZ;
+
+	phd_PushUnitMatrix();
+	phd_RotYXZ(item->pos.rotY, item->pos.rotX, item->pos.rotZ);
+	x = item->pos.x + ((vec->x * PhdMatrixPtr->_00 + vec->y * PhdMatrixPtr->_01 + vec->z * PhdMatrixPtr->_02) >> W2V_SHIFT);
+	y = item->pos.y + ((vec->x * PhdMatrixPtr->_10 + vec->y * PhdMatrixPtr->_11 + vec->z * PhdMatrixPtr->_12) >> W2V_SHIFT);
+	z = item->pos.z + ((vec->x * PhdMatrixPtr->_20 + vec->y * PhdMatrixPtr->_21 + vec->z * PhdMatrixPtr->_22) >> W2V_SHIFT);
+	phd_PopMatrix();
+
+	roomID = laraitem->roomNumber;
+	floor = GetFloor(x, y, z, &roomID);
+	height = GetHeight(floor, x, y, z);
+	ceiling = GetCeiling(floor, x, y, z);
+
+	if (ABS(height - laraitem->pos.y) <= 256 && ABS(ceiling - laraitem->pos.y) >= 762) {
+		laraitem->pos.x = x;
+		laraitem->pos.y = y;
+		laraitem->pos.z = z;
+	}
+}
+
 /*
  * Inject function
  */
@@ -548,7 +577,7 @@ void Inject_Collide() {
 	INJECT(0x00413A10, ItemPushLara);
 	INJECT(0x00413D20, TestBoundsCollide);
 	INJECT(0x00413DF0, TestLaraPosition);
-//	INJECT(0x00413F30, AlignLaraPosition);
+	INJECT(0x00413F30, AlignLaraPosition);
 //	INJECT(0x00414070, MoveLaraPosition);
 //	INJECT(0x00414200, Move3DPosTo3DPos);
 }

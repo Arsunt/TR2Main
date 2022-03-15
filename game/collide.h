@@ -50,7 +50,7 @@ void __cdecl TrapCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll)
 void __cdecl ItemPushLara(ITEM_INFO* item, ITEM_INFO* laraitem, COLL_INFO* coll, BOOL spazon, BOOL bigpush); // 0x00413A10
 BOOL __cdecl TestBoundsCollide(ITEM_INFO* item, ITEM_INFO* laraitem, int radius); // 0x00413D20
 BOOL __cdecl TestLaraPosition(__int16* bounds, ITEM_INFO* item, ITEM_INFO* laraitem); // 0x00413DF0
-#define AlignLaraPosition ((void(__cdecl*)(PHD_VECTOR*, ITEM_INFO*, ITEM_INFO*)) 0x00413F30)
+void __cdecl AlignLaraPosition(PHD_VECTOR* vec, ITEM_INFO* item, ITEM_INFO* laraitem); // 0x00413F30
 #define MoveLaraPosition ((BOOL(__cdecl*)(PHD_VECTOR*, ITEM_INFO*, ITEM_INFO*)) 0x00414070)
 #define Move3DPosTo3DPos ((BOOL(__cdecl*)(PHD_3DPOS*, PHD_3DPOS*, int, __int16)) 0x00414200)
 
