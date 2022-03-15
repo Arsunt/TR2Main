@@ -39,8 +39,8 @@ void __cdecl ShiftItem(ITEM_INFO* item, COLL_INFO* coll); // 0x004134E0
 void __cdecl UpdateLaraRoom(ITEM_INFO* item, int height); // 0x00413520
 
 __int16 __cdecl GetTiltType(FLOOR_INFO* floor, int x, int y, int z); // 0x00413580
-//	0x00413620:		LaraBaddieCollision
-//	0x004137C0:		EffectSpaz
+void __cdecl LaraBaddieCollision(ITEM_INFO* laraitem, COLL_INFO* coll); // 0x00413620
+#define EffectSpaz ((void(__cdecl*)(ITEM_INFO *, COLL_INFO *)) 0x004137C0)
 
 #define CreatureCollision ((void(__cdecl*)(__int16, ITEM_INFO *, COLL_INFO *)) 0x00413840)
 #define ObjectCollision ((void(__cdecl*)(__int16, ITEM_INFO *, COLL_INFO *)) 0x004138C0)

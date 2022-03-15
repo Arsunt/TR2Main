@@ -251,6 +251,63 @@ __int16 __cdecl GetTiltType(FLOOR_INFO* floor, int x, int y, int z) {
 	}
 }
 
+void __cdecl LaraBaddieCollision(ITEM_INFO* laraitem, COLL_INFO* coll) {
+    DOOR_INFOS* doors;
+	DOOR_INFO* door;
+	ITEM_INFO* item;
+	OBJECT_INFO* obj;
+	int x, y, z;
+	__int16 roomArray[20];
+	__int16 roomCount;
+	__int16 itemID;
+	__int16 i;
+
+	laraitem->hit_status = 0;
+	Lara.hit_direction = -1;
+
+	// NOTE: added some nullptr check just in case something want wrong.
+	if (laraitem->hitPoints > 0) {
+		roomArray[0] = laraitem->roomNumber;
+		roomCount = 1;
+		doors = RoomInfo[roomArray[0]].doors;
+		if (doors) {
+			for (i = doors->wCount; i > 0; i--) {
+				door = doors[i].door;
+				if (door) { // NOTE: this check was not there in the original game
+					roomArray[roomCount++] = door->room;
+				}
+			}
+		}
+		if (roomCount > 0) {
+			itemID = RoomInfo[roomArray[0]].itemNumber;
+			if (itemID != -1) {
+				for (i = roomCount; i > 0; i--) {
+					item = &Items[itemID];
+					if (item && item->collidable && item->status != ITEM_INVISIBLE) { // NOTE: "item" was not there in the original game
+						obj = &Objects[item->objectID];
+						if (obj && obj->collision) { // NOTE: "obj" was not there in the original game
+							x = laraitem->pos.x - item->pos.x;
+							y = laraitem->pos.y - item->pos.y;
+							z = laraitem->pos.z - item->pos.z;
+							if (x > -4096 && x < 4096 && z > -4096 && z < 4096 && y > -4096 && y < 4096) {
+								obj->collision(itemID, laraitem, coll);
+							}
+						}
+					}
+					itemID = item->nextItem;
+				}
+			}
+		}
+		if (Lara.spaz_effect_count != 0) {
+			EffectSpaz(laraitem, coll); // NOTE: coll is not used !
+		}
+		if (Lara.hit_direction == -1) {
+			Lara.hit_frame = 0;
+		}
+		InventoryChosen = -1;
+	}
+}
+
 /*
  * Inject function
  */
@@ -265,7 +322,7 @@ void Inject_Collide() {
     INJECT(0x004134E0, ShiftItem);
     INJECT(0x00413520, UpdateLaraRoom);
     INJECT(0x00413580, GetTiltType);
-//	INJECT(0x00413620, LaraBaddieCollision);
+    INJECT(0x00413620, LaraBaddieCollision);
 //	INJECT(0x004137C0, EffectSpaz);
 //	INJECT(0x00413840, CreatureCollision);
 //	INJECT(0x004138C0, ObjectCollision);
