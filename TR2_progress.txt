@@ -194,21 +194,21 @@ x function is unused / included in another function
 0x00412FC0:	+	CollideStaticObjects
 0x004133B0:	+	GetNearByRooms
 0x00413480:	+	GetNewRoom
-0x004134E0:		ShiftItem
-0x00413520:	 *	UpdateLaraRoom
-0x00413580:		GetTiltType
-0x00413620:		LaraBaddieCollision
-0x004137C0:		EffectSpaz
-0x00413840:	 *	CreatureCollision
-0x004138C0:	 *	ObjectCollision
-0x00413920:		DoorCollision
-0x004139A0:		TrapCollision
-0x00413A10:		ItemPushLara
-0x00413D20:		TestBoundsCollide
-0x00413DF0:		TestLaraPosition
-0x00413F30:		AlignLaraPosition
-0x00414070:		MoveLaraPosition
-0x00414200:		Move3DPosTo3DPos
+0x004134E0:	+	ShiftItem
+0x00413520:	+	UpdateLaraRoom
+0x00413580:	+	GetTiltType
+0x00413620:	+	LaraBaddieCollision
+0x004137C0:	+	EffectSpaz
+0x00413840:	+	CreatureCollision
+0x004138C0:	+	ObjectCollision
+0x00413920:	+	DoorCollision
+0x004139A0:	+	TrapCollision
+0x00413A10:	+	ItemPushLara
+0x00413D20:	+	TestBoundsCollide
+0x00413DF0:	+	TestLaraPosition
+0x00413F30:	+	AlignLaraPosition
+0x00414070:	+	MoveLaraPosition
+0x00414200:	+	Move3DPosTo3DPos
 
 	game/control.cpp
 0x00414370:	+	ControlPhase
@@ -894,7 +894,7 @@ x function is unused / included in another function
 0x0043FA30:	+	SOUND_Init
 
 	game/sphere.cpp
-0x0043FA60:		TestCollision
+0x0043FA60:	 *	TestCollision
 0x0043FB90:		GetSpheres
 0x0043FE70:	 *	GetJointAbsPosition
 0x00440010:	 *	BaddieBiteEffect
