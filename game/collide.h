@@ -52,6 +52,6 @@ BOOL __cdecl TestBoundsCollide(ITEM_INFO* item, ITEM_INFO* laraitem, int radius)
 BOOL __cdecl TestLaraPosition(__int16* bounds, ITEM_INFO* item, ITEM_INFO* laraitem); // 0x00413DF0
 void __cdecl AlignLaraPosition(PHD_VECTOR* pos, ITEM_INFO* item, ITEM_INFO* laraitem); // 0x00413F30
 BOOL __cdecl MoveLaraPosition(PHD_VECTOR* pos, ITEM_INFO* item, ITEM_INFO* laraitem); // 0x00414070
-#define Move3DPosTo3DPos ((BOOL(__cdecl*)(PHD_3DPOS*, PHD_3DPOS*, int, __int16)) 0x00414200)
+BOOL __cdecl Move3DPosTo3DPos(PHD_3DPOS* src, PHD_3DPOS* dest, int velocity, __int16 angleAdder); // 0x00414200
 
 #endif // COLLIDE_H_INCLUDED

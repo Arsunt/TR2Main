@@ -591,6 +591,62 @@ BOOL __cdecl MoveLaraPosition(PHD_VECTOR* pos, ITEM_INFO* item, ITEM_INFO* larai
 	return distance < 128 || Move3DPosTo3DPos(&laraitem->pos, &newpos, 16, 2 * PHD_DEGREE);
 }
 
+BOOL __cdecl Move3DPosTo3DPos(PHD_3DPOS* src, PHD_3DPOS* dest, int velocity, __int16 angleAdder) {
+	int x, y, z, distance;
+	short xRot, yRot, zRot;
+
+	x = dest->x - src->x;
+	y = dest->y - src->y;
+	z = dest->z - src->z;
+	distance = phd_sqrt(SQR(z) + SQR(y) + SQR(x));
+	if (velocity < distance) {
+		src->x += velocity * x / distance;
+		src->y += velocity * y / distance;
+		src->z += velocity * z / distance;
+	} else {
+		src->x = dest->x;
+		src->y = dest->y;
+		src->z = dest->z;
+	}
+
+	xRot = dest->rotX - src->rotX;
+	yRot = dest->rotY - src->rotY;
+	zRot = dest->rotZ - src->rotZ;
+	if (xRot <= angleAdder) {
+		if (xRot >= -angleAdder) {
+			src->rotX = dest->rotX;
+		} else {
+			src->rotX -= angleAdder;
+		}
+	} else {
+		src->rotX += angleAdder;
+	}
+	if (yRot <= angleAdder) {
+		if (yRot >= -angleAdder) {
+			src->rotY = dest->rotY;
+		} else {
+			src->rotY -= angleAdder;
+		}
+	} else {
+		src->rotY += angleAdder;
+	}
+	if (zRot <= angleAdder) {
+		if (zRot >= -angleAdder) {
+			src->rotZ = dest->rotZ;
+		} else {
+			src->rotZ -= angleAdder;
+		}
+	} else {
+		src->rotZ += angleAdder;
+	}
+	return src->x == dest->x
+		&& src->y == dest->y
+		&& src->z == dest->z
+		&& src->rotX == dest->rotX
+		&& src->rotY == dest->rotY
+		&& src->rotZ == dest->rotZ;
+}
+
 /*
  * Inject function
  */
@@ -616,5 +672,5 @@ void Inject_Collide() {
 	INJECT(0x00413DF0, TestLaraPosition);
 	INJECT(0x00413F30, AlignLaraPosition);
 	INJECT(0x00414070, MoveLaraPosition);
-//	INJECT(0x00414200, Move3DPosTo3DPos);
+	INJECT(0x00414200, Move3DPosTo3DPos);
 }
