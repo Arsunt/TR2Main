@@ -24,8 +24,7 @@
 #include "game/control.h"
 #include "global/vars.h"
 
-int __cdecl FindGridShift(int src, int dest)
-{
+int __cdecl FindGridShift(int src, int dest) {
     int srcShift, destShift;
 	srcShift = src >> WALL_SHIFT;
 	destShift = dest >> WALL_SHIFT;
@@ -205,6 +204,15 @@ void __cdecl GetNewRoom(int x, int y, int z, __int16 roomID) {
 	DrawRoomsArray[DrawRoomsCount++] = roomID;
 }
 
+void __cdecl ShiftItem(ITEM_INFO* item, COLL_INFO* coll) {
+    item->pos.x += coll->shift.x;
+	item->pos.y += coll->shift.y;
+	item->pos.z += coll->shift.z;
+	coll->shift.z = 0;
+	coll->shift.y = 0;
+	coll->shift.x = 0;
+}
+
 /*
  * Inject function
  */
@@ -216,7 +224,7 @@ void Inject_Collide() {
 	INJECT(0x004133B0, GetNearByRooms);
 	INJECT(0x00413480, GetNewRoom);
 
-//	INJECT(0x004134E0, ShiftItem);
+    INJECT(0x004134E0, ShiftItem);
 //	INJECT(0x00413520, UpdateLaraRoom);
 //	INJECT(0x00413580, GetTiltType);
 //	INJECT(0x00413620, LaraBaddieCollision);

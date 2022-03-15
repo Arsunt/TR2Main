@@ -34,7 +34,7 @@ int __cdecl CollideStaticObjects(COLL_INFO *coll, int x, int y, int z, __int16 r
 void __cdecl GetNearByRooms(int x, int y, int z, int r, int h, __int16 roomID); // 0x004133B0
 void __cdecl GetNewRoom(int x, int y, int z, __int16 roomID); // 0x00413480
 
-//	0x004134E0:		ShiftItem
+void __cdecl ShiftItem(ITEM_INFO* item, COLL_INFO* coll); // 0x004134E0
 
 #define UpdateLaraRoom ((void(__cdecl*)(ITEM_INFO*, int)) 0x00413520)
 
