@@ -24,6 +24,20 @@
 #include "game/control.h"
 #include "global/vars.h"
 
+int __cdecl FindGridShift(int src, int dest)
+{
+    int srcShift, destShift;
+	srcShift = src >> WALL_SHIFT;
+	destShift = dest >> WALL_SHIFT;
+	if (srcShift == destShift)
+		return 0;
+	src &= 1023;
+	if (destShift <= srcShift)
+		return -1 - src;
+	else
+		return 1025 - src;
+}
+
 int __cdecl CollideStaticObjects(COLL_INFO *coll, int x, int y, int z, __int16 roomID, int hite) {
 	int rxMin = x - coll->radius;
 	int rxMax = x + coll->radius;
@@ -196,7 +210,7 @@ void __cdecl GetNewRoom(int x, int y, int z, __int16 roomID) {
  */
 void Inject_Collide() {
 //	INJECT(0x004128D0, GetCollisionInfo);
-//	INJECT(0x00412F90, FindGridShift);
+    INJECT(0x00412F90, FindGridShift);
 
 	INJECT(0x00412FC0, CollideStaticObjects);
 	INJECT(0x004133B0, GetNearByRooms);
