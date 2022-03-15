@@ -21,6 +21,8 @@
 
 #include "global/precompiled.h"
 #include "game/collide.h"
+#include "3dsystem/phd_math.h"
+#include "game/items.h"
 #include "game/control.h"
 #include "global/vars.h"
 
@@ -213,6 +215,22 @@ void __cdecl ShiftItem(ITEM_INFO* item, COLL_INFO* coll) {
 	coll->shift.x = 0;
 }
 
+void __cdecl UpdateLaraRoom(ITEM_INFO* item, int height) {
+    FLOOR_INFO* floor;
+	int x, y, z;
+	short roomID;
+
+	x = item->pos.x;
+	y = item->pos.y + height;
+	z = item->pos.z;
+	roomID = item->roomNumber;
+	floor = GetFloor(x, y, z, &roomID);
+	item->floor = GetHeight(floor, x, y, z);
+	if (item->roomNumber != roomID) {
+		ItemNewRoom(Lara.item_number, roomID);
+	}
+}
+
 /*
  * Inject function
  */
@@ -225,7 +243,7 @@ void Inject_Collide() {
 	INJECT(0x00413480, GetNewRoom);
 
     INJECT(0x004134E0, ShiftItem);
-//	INJECT(0x00413520, UpdateLaraRoom);
+    INJECT(0x00413520, UpdateLaraRoom);
 //	INJECT(0x00413580, GetTiltType);
 //	INJECT(0x00413620, LaraBaddieCollision);
 //	INJECT(0x004137C0, EffectSpaz);

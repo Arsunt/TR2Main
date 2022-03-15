@@ -36,7 +36,7 @@ void __cdecl GetNewRoom(int x, int y, int z, __int16 roomID); // 0x00413480
 
 void __cdecl ShiftItem(ITEM_INFO* item, COLL_INFO* coll); // 0x004134E0
 
-#define UpdateLaraRoom ((void(__cdecl*)(ITEM_INFO*, int)) 0x00413520)
+void __cdecl UpdateLaraRoom(ITEM_INFO* item, int height); // 0x00413520
 
 //	0x00413580:		GetTiltType
 //	0x00413620:		LaraBaddieCollision
