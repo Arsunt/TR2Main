@@ -27,17 +27,17 @@
 #include "global/vars.h"
 
 int __cdecl FindGridShift(int src, int dest) {
-    int srcShift, destShift;
+	int srcShift, destShift;
 	srcShift = src >> WALL_SHIFT;
 	destShift = dest >> WALL_SHIFT;
 	if (srcShift == destShift) {
-        return 0;
+		return 0;
 	}
 	src &= 1023;
 	if (destShift <= srcShift) {
-        return -1 - src;
+		return -1 - src;
 	} else {
-        return 1025 - src;
+		return 1025 - src;
 	}
 }
 
@@ -252,7 +252,7 @@ __int16 __cdecl GetTiltType(FLOOR_INFO* floor, int x, int y, int z) {
 }
 
 void __cdecl LaraBaddieCollision(ITEM_INFO* laraitem, COLL_INFO* coll) {
-    DOOR_INFOS* doors;
+	DOOR_INFOS* doors;
 	DOOR_INFO* door;
 	ITEM_INFO* item;
 	OBJECT_INFO* obj;
@@ -313,16 +313,16 @@ void __cdecl LaraBaddieCollision(ITEM_INFO* laraitem, COLL_INFO* coll) {
  */
 void Inject_Collide() {
 //	INJECT(0x004128D0, GetCollisionInfo);
-    INJECT(0x00412F90, FindGridShift);
+	INJECT(0x00412F90, FindGridShift);
 
 	INJECT(0x00412FC0, CollideStaticObjects);
 	INJECT(0x004133B0, GetNearByRooms);
 	INJECT(0x00413480, GetNewRoom);
 
-    INJECT(0x004134E0, ShiftItem);
-    INJECT(0x00413520, UpdateLaraRoom);
-    INJECT(0x00413580, GetTiltType);
-    INJECT(0x00413620, LaraBaddieCollision);
+	INJECT(0x004134E0, ShiftItem);
+	INJECT(0x00413520, UpdateLaraRoom);
+	INJECT(0x00413580, GetTiltType);
+	INJECT(0x00413620, LaraBaddieCollision);
 //	INJECT(0x004137C0, EffectSpaz);
 //	INJECT(0x00413840, CreatureCollision);
 //	INJECT(0x004138C0, ObjectCollision);
