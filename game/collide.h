@@ -27,7 +27,7 @@
 /*
  * Function list
  */
-//	0x004128D0:		GetCollisionInfo
+#define GetCollisionInfo ((void(__cdecl*)(COLL_INFO*, int, int, int, __int16, int)) 0x004128D0)
 int __cdecl FindGridShift(int src, int dest); // 0x00412F90
 
 int __cdecl CollideStaticObjects(COLL_INFO *coll, int x, int y, int z, __int16 roomID, int hite); // 0x00412FC0
@@ -47,8 +47,8 @@ void __cdecl ObjectCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* col
 
 void __cdecl DoorCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll); // 0x00413920
 void __cdecl TrapCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll); // 0x004139A0
-#define ItemPushLara ((void(__cdecl*)(ITEM_INFO*, ITEM_INFO*, COLL_INFO*, BOOL, BOOL)) 0x00413A10)
-#define TestBoundsCollide ((BOOL(__cdecl*)(ITEM_INFO*, ITEM_INFO*, int)) 0x00413D20)
+void __cdecl ItemPushLara(ITEM_INFO* item, ITEM_INFO* laraitem, COLL_INFO* coll, BOOL spazon, BOOL bigpush); // 0x00413A10
+BOOL __cdecl TestBoundsCollide(ITEM_INFO* item, ITEM_INFO* laraitem, int radius); // 0x00413D20
 #define TestLaraPosition ((BOOL(__cdecl*)(__int16*, ITEM_INFO*, ITEM_INFO*)) 0x00413DF0)
 #define AlignLaraPosition ((void(__cdecl*)(PHD_VECTOR*, ITEM_INFO*, ITEM_INFO*)) 0x00413F30)
 #define MoveLaraPosition ((BOOL(__cdecl*)(PHD_VECTOR*, ITEM_INFO*, ITEM_INFO*)) 0x00414070)

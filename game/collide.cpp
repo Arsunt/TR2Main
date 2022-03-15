@@ -22,6 +22,7 @@
 #include "global/precompiled.h"
 #include "game/collide.h"
 #include "3dsystem/phd_math.h"
+#include "game/draw.h"
 #include "game/items.h"
 #include "game/control.h"
 #include "game/sound.h"
@@ -377,6 +378,118 @@ void __cdecl TrapCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll)
 	}
 }
 
+void __cdecl ItemPushLara(ITEM_INFO* item, ITEM_INFO* laraitem, COLL_INFO* coll, BOOL spazon, BOOL bigpush) {
+	int x, z, rx, rz;
+	int l, r, t, b;
+	int bndMin, bndMax;
+	int radius;
+	__int16* bounds;
+	__int16 c, s;
+	__int16 minx, maxx, minz, maxz;
+	__int16 oldFacing;
+
+	x = laraitem->pos.x - item->pos.x;
+	z = laraitem->pos.z - item->pos.z;
+	s = phd_sin(item->pos.rotY);
+	c = phd_cos(item->pos.rotY);
+	rx = (x * c - z * s) >> W2V_SHIFT;
+	rz = (x * s + z * c) >> W2V_SHIFT;
+	bounds = GetBestFrame(item);
+	minx = bounds[0];
+	maxx = bounds[1];
+	minz = bounds[4];
+	maxz = bounds[5];
+
+	if (bigpush) {
+		radius = coll->radius;
+		maxx += radius;
+		minz -= radius;
+		maxz += radius;
+		minx -= radius;
+	}
+
+	if (rx >= minx && rx <= maxx && rz >= minz && rz <= maxz) {
+		l = rx - minx;
+		r = maxx - rx;
+		t = maxz - rz;
+		b = rz - minz;
+
+		if (r <= l && r <= t && r <= b) {
+			rx += r;
+		} else if (l <= r && l <= t && l <= b) {
+			rx -= l;
+		} else if (t <= r && t <= l && t <= b) {
+			rz += t;
+		} else {
+			rz -= b;
+		}
+
+		laraitem->pos.x = item->pos.x + ((rz * s + rx * c) >> W2V_SHIFT);
+		laraitem->pos.z = item->pos.z + ((rz * c - rx * s) >> W2V_SHIFT);
+
+		bndMin = (bounds[1] + bounds[0]) / 2;
+		bndMax = (bounds[5] + bounds[4]) / 2;
+		rx -= (bndMax * s + bndMin * c) >> W2V_SHIFT;
+		rz -= (bndMax * c - bndMin * s) >> W2V_SHIFT;
+
+		if (spazon && bounds[3] - bounds[2] > 256) {
+			Lara.hit_direction = (unsigned __int16)(laraitem->pos.rotY + PHD_180 - phd_atan(rz, rx) + PHD_90) >> W2V_SHIFT;
+			if (!Lara.hit_frame) {
+				PlaySoundEffect(31, &laraitem->pos, 0);
+			}
+			if (++Lara.hit_frame > 34) {
+				Lara.hit_frame = 34;
+			}
+		}
+
+		x = coll->old.x;
+		z = coll->old.z;
+		oldFacing = coll->facing;
+		coll->badPos = -NO_HEIGHT;
+		coll->badNeg = -384;
+		coll->badCeiling = 0;
+		coll->facing = phd_atan(laraitem->pos.z - z, laraitem->pos.x - x);
+		GetCollisionInfo(coll, laraitem->pos.x, laraitem->pos.y, laraitem->pos.z, laraitem->roomNumber, 762);
+		coll->facing = oldFacing;
+		if (coll->collType == 0) {
+			coll->old.x = laraitem->pos.x;
+			coll->old.y = laraitem->pos.y;
+			coll->old.z = laraitem->pos.z;
+			UpdateLaraRoom(laraitem, -10);
+		} else {
+			laraitem->pos.x = coll->old.x;
+			laraitem->pos.z = coll->old.z;
+		}
+	}
+}
+
+BOOL __cdecl TestBoundsCollide(ITEM_INFO* item, ITEM_INFO* laraitem, int radius) {
+	__int16 *boundItem;
+	__int16 *boundLara;
+	int x, z, s, c;
+	int rx, rz;
+
+	boundItem = GetBestFrame(item);
+	boundLara = GetBestFrame(laraitem);
+
+	if (item->pos.y + boundItem[3] > item->pos.y + boundLara[2] && item->pos.y + boundItem[2] < item->pos.y + boundLara[3]) {
+		c = phd_cos(item->pos.rotY);
+		s = phd_sin(item->pos.rotY);
+		x = laraitem->pos.x - item->pos.x;
+		z = laraitem->pos.z - item->pos.z;
+		rx = (c * x - s * z) >> W2V_SHIFT;
+		rz = (s * x + c * z) >> W2V_SHIFT;
+		if (rx >= boundItem[0] - radius &&
+			rx <= radius + boundItem[1] &&
+			rz >= boundItem[4] - radius &&
+			rz <= radius + boundItem[5]) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 /*
  * Inject function
  */
@@ -397,8 +510,8 @@ void Inject_Collide() {
 	INJECT(0x004138C0, ObjectCollision);
 	INJECT(0x00413920, DoorCollision);
 	INJECT(0x004139A0, TrapCollision);
-//	INJECT(0x00413A10, ItemPushLara);
-//	INJECT(0x00413D20, TestBoundsCollide);
+	INJECT(0x00413A10, ItemPushLara);
+	INJECT(0x00413D20, TestBoundsCollide);
 //	INJECT(0x00413DF0, TestLaraPosition);
 //	INJECT(0x00413F30, AlignLaraPosition);
 //	INJECT(0x00414070, MoveLaraPosition);
