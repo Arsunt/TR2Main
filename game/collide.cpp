@@ -25,6 +25,7 @@
 #include "game/items.h"
 #include "game/control.h"
 #include "game/sound.h"
+#include "game/sphere.h"
 #include "global/vars.h"
 
 int __cdecl FindGridShift(int src, int dest) {
@@ -310,7 +311,7 @@ void __cdecl LaraBaddieCollision(ITEM_INFO* laraitem, COLL_INFO* coll) {
 }
 
 void __cdecl EffectSpaz(ITEM_INFO* laraitem, COLL_INFO* coll) {
-	Lara.hit_direction = (unsigned short)(laraitem->pos.rotY + 0x8000 - phd_atan(Lara.spaz_effect->pos.z - laraitem->pos.z, Lara.spaz_effect->pos.x - laraitem->pos.x) + 0x2000) >> W2V_SHIFT;
+	Lara.hit_direction = (unsigned __int16)(laraitem->pos.rotY + PHD_180 - phd_atan(Lara.spaz_effect->pos.z - laraitem->pos.z, Lara.spaz_effect->pos.x - laraitem->pos.x) + PHD_90) >> W2V_SHIFT;
 	if (!Lara.hit_frame) {
 		PlaySoundEffect(31, &laraitem->pos, 0);
 	}
@@ -318,6 +319,32 @@ void __cdecl EffectSpaz(ITEM_INFO* laraitem, COLL_INFO* coll) {
 		Lara.hit_frame = 34;
 	}
 	--Lara.spaz_effect_count;
+}
+
+void __cdecl CreatureCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll) {
+	ITEM_INFO* item;
+
+	item = &Items[itemID];
+	if (TestBoundsCollide(item, laraitem, coll->radius)) {
+		if (TestCollision(item, laraitem)) {
+			if (CHK_ANY(coll->flags, 0x8) && Lara.water_status != 1) { // NOTE: original checked "(Lara.water_status == 0) != 2" but it's always true !
+				ItemPushLara(item, laraitem, coll, CHK_ANY(coll->flags, 0x10), FALSE);
+			}
+		}
+	}
+}
+
+void __cdecl ObjectCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll) {
+	ITEM_INFO* item;
+
+	item = &Items[itemID];
+	if (TestBoundsCollide(item, laraitem, coll->radius)) {
+		if (TestCollision(item, laraitem)) {
+			if CHK_ANY(coll->flags, 0x8) {
+				ItemPushLara(item, laraitem, coll, FALSE, TRUE);
+			}
+		}
+	}
 }
 
 /*
@@ -336,8 +363,8 @@ void Inject_Collide() {
 	INJECT(0x00413580, GetTiltType);
 	INJECT(0x00413620, LaraBaddieCollision);
 	INJECT(0x004137C0, EffectSpaz);
-//	INJECT(0x00413840, CreatureCollision);
-//	INJECT(0x004138C0, ObjectCollision);
+	INJECT(0x00413840, CreatureCollision);
+	INJECT(0x004138C0, ObjectCollision);
 //	INJECT(0x00413920, DoorCollision);
 //	INJECT(0x004139A0, TrapCollision);
 //	INJECT(0x00413A10, ItemPushLara);

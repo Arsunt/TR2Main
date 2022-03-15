@@ -42,16 +42,16 @@ __int16 __cdecl GetTiltType(FLOOR_INFO* floor, int x, int y, int z); // 0x004135
 void __cdecl LaraBaddieCollision(ITEM_INFO* laraitem, COLL_INFO* coll); // 0x00413620
 void __cdecl EffectSpaz(ITEM_INFO* laraitem, COLL_INFO* coll); // 0x004137C0
 
-#define CreatureCollision ((void(__cdecl*)(__int16, ITEM_INFO *, COLL_INFO *)) 0x00413840)
-#define ObjectCollision ((void(__cdecl*)(__int16, ITEM_INFO *, COLL_INFO *)) 0x004138C0)
+void __cdecl CreatureCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll); // 0x00413840
+void __cdecl ObjectCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll); // 0x004138C0
 
 //	0x00413920:		DoorCollision
 //	0x004139A0:		TrapCollision
-//	0x00413A10:		ItemPushLara
-//	0x00413D20:		TestBoundsCollide
-//	0x00413DF0:		TestLaraPosition
-//	0x00413F30:		AlignLaraPosition
-//	0x00414070:		MoveLaraPosition
-//	0x00414200:		Move3DPosTo3DPos
+#define ItemPushLara ((void(__cdecl*)(ITEM_INFO*, ITEM_INFO*, COLL_INFO*, BOOL, BOOL)) 0x00413A10)
+#define TestBoundsCollide ((BOOL(__cdecl*)(ITEM_INFO*, ITEM_INFO*, int)) 0x00413D20)
+#define TestLaraPosition ((BOOL(__cdecl*)(__int16*, ITEM_INFO*, ITEM_INFO*)) 0x00413DF0)
+#define AlignLaraPosition ((void(__cdecl*)(PHD_VECTOR*, ITEM_INFO*, ITEM_INFO*)) 0x00413F30)
+#define MoveLaraPosition ((BOOL(__cdecl*)(PHD_VECTOR*, ITEM_INFO*, ITEM_INFO*)) 0x00414070)
+#define Move3DPosTo3DPos ((BOOL(__cdecl*)(PHD_3DPOS*, PHD_3DPOS*, int, __int16)) 0x00414200)
 
 #endif // COLLIDE_H_INCLUDED
