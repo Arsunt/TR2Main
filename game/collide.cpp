@@ -590,7 +590,7 @@ BOOL __cdecl MoveLaraPosition(PHD_VECTOR *pos, ITEM_INFO *item, ITEM_INFO *larai
 
 	zDist = SQR(newpos.z - laraitem->pos.z);
 	yDist = SQR(newpos.y - laraitem->pos.y);
-	xDist = SQR(newpos.x - laraitem->pos.z);
+	xDist = SQR(newpos.x - laraitem->pos.x);
 	distance = phd_sqrt(zDist + yDist + xDist);
 	return distance < 128 || Move3DPosTo3DPos(&laraitem->pos, &newpos, 16, 364);
 }
