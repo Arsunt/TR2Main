@@ -1835,9 +1835,9 @@ typedef struct DoorInfos_t {
 typedef struct FloorInfo_t {
 	__int16 index;
 	__int16 box;
-	unsigned char pitRoom;
+	BYTE pitRoom;
 	char floor;
-	unsigned char skyRoom;
+	BYTE skyRoom;
 	char ceiling;
 } FLOOR_INFO;
 

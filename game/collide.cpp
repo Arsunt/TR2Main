@@ -21,8 +21,8 @@
 
 #include "global/precompiled.h"
 #include "game/collide.h"
-#include "3dsystem/phd_math.h"
 #include "3dsystem/3d_gen.h"
+#include "3dsystem/phd_math.h"
 #include "game/draw.h"
 #include "game/items.h"
 #include "game/control.h"
@@ -31,9 +31,8 @@
 #include "global/vars.h"
 
 int __cdecl FindGridShift(int src, int dest) {
-	int srcShift, destShift;
-	srcShift = src >> WALL_SHIFT;
-	destShift = dest >> WALL_SHIFT;
+	int srcShift = src >> WALL_SHIFT;
+	int destShift = dest >> WALL_SHIFT;
 	if (srcShift == destShift) {
 		return 0;
 	}
@@ -212,7 +211,7 @@ void __cdecl GetNewRoom(int x, int y, int z, __int16 roomID) {
 	DrawRoomsArray[DrawRoomsCount++] = roomID;
 }
 
-void __cdecl ShiftItem(ITEM_INFO* item, COLL_INFO* coll) {
+void __cdecl ShiftItem(ITEM_INFO *item, COLL_INFO *coll) {
 	item->pos.x += coll->shift.x;
 	item->pos.y += coll->shift.y;
 	item->pos.z += coll->shift.z;
@@ -221,10 +220,10 @@ void __cdecl ShiftItem(ITEM_INFO* item, COLL_INFO* coll) {
 	coll->shift.x = 0;
 }
 
-void __cdecl UpdateLaraRoom(ITEM_INFO* item, int height) {
-	FLOOR_INFO* floor;
+void __cdecl UpdateLaraRoom(ITEM_INFO *item, int height) {
+	FLOOR_INFO *floor;
 	int x, y, z;
-	short roomID;
+	__int16 roomID;
 
 	x = item->pos.x;
 	y = item->pos.y + height;
@@ -237,9 +236,9 @@ void __cdecl UpdateLaraRoom(ITEM_INFO* item, int height) {
 	}
 }
 
-__int16 __cdecl GetTiltType(FLOOR_INFO* floor, int x, int y, int z) {
-	__int16* data;
-	unsigned char i;
+__int16 __cdecl GetTiltType(FLOOR_INFO *floor, int x, int y, int z) {
+	__int16 *data;
+	BYTE i;
 
 	for (i = floor->pitRoom; i != 255; i = floor->pitRoom) {
 		floor = &RoomInfo[i].floor[((z - RoomInfo[i].z) >> WALL_SHIFT) + RoomInfo[i].xSize * ((x - RoomInfo[i].x) >> WALL_SHIFT)];
@@ -255,11 +254,11 @@ __int16 __cdecl GetTiltType(FLOOR_INFO* floor, int x, int y, int z) {
 	}
 }
 
-void __cdecl LaraBaddieCollision(ITEM_INFO* laraitem, COLL_INFO* coll) {
-	DOOR_INFOS* doors;
-	DOOR_INFO* door;
-	ITEM_INFO* item;
-	OBJECT_INFO* obj;
+void __cdecl LaraBaddieCollision(ITEM_INFO *laraitem, COLL_INFO *coll) {
+	DOOR_INFOS *doors;
+	DOOR_INFO *door;
+	ITEM_INFO *item;
+	OBJECT_INFO *obj;
 	int x, y, z;
 	__int16 roomArray[20];
 	__int16 roomCount;
@@ -312,8 +311,8 @@ void __cdecl LaraBaddieCollision(ITEM_INFO* laraitem, COLL_INFO* coll) {
 	}
 }
 
-void __cdecl EffectSpaz(ITEM_INFO* laraitem, COLL_INFO* coll) {
-	Lara.hit_direction = (unsigned __int16)(laraitem->pos.rotY + PHD_180 - phd_atan(Lara.spaz_effect->pos.z - laraitem->pos.z, Lara.spaz_effect->pos.x - laraitem->pos.x) + PHD_90) >> W2V_SHIFT;
+void __cdecl EffectSpaz(ITEM_INFO *laraitem, COLL_INFO *coll) {
+	Lara.hit_direction = (UINT16)(laraitem->pos.rotY + PHD_180 - phd_atan(Lara.spaz_effect->pos.z - laraitem->pos.z, Lara.spaz_effect->pos.x - laraitem->pos.x) + PHD_90) >> W2V_SHIFT;
 	if (!Lara.hit_frame) {
 		PlaySoundEffect(31, &laraitem->pos, 0);
 	}
@@ -323,23 +322,19 @@ void __cdecl EffectSpaz(ITEM_INFO* laraitem, COLL_INFO* coll) {
 	--Lara.spaz_effect_count;
 }
 
-void __cdecl CreatureCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll) {
-	ITEM_INFO* item;
-
-	item = &Items[itemID];
+void __cdecl CreatureCollision(__int16 itemID, ITEM_INFO *laraitem, COLL_INFO *coll) {
+	ITEM_INFO *item = &Items[itemID];
 	if (TestBoundsCollide(item, laraitem, coll->radius)) {
 		if (TestCollision(item, laraitem)) {
-			if (CHK_ANY(coll->flags, 0x8) && Lara.water_status != 1) { // NOTE: original checked "(Lara.water_status == 0) != 2" but it's always true !
+			if (CHK_ANY(coll->flags, 0x8) && Lara.water_status != LWS_Underwater) { // NOTE: original checked "(Lara.water_status == 0) != 2" but it's always true !
 				ItemPushLara(item, laraitem, coll, CHK_ANY(coll->flags, 0x10), FALSE);
 			}
 		}
 	}
 }
 
-void __cdecl ObjectCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll) {
-	ITEM_INFO* item;
-
-	item = &Items[itemID];
+void __cdecl ObjectCollision(__int16 itemID, ITEM_INFO *laraitem, COLL_INFO *coll) {
+	ITEM_INFO *item = &Items[itemID];
 	if (TestBoundsCollide(item, laraitem, coll->radius)) {
 		if (TestCollision(item, laraitem)) {
 			if CHK_ANY(coll->flags, 0x8) {
@@ -349,10 +344,8 @@ void __cdecl ObjectCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* col
 	}
 }
 
-void __cdecl DoorCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll) {
-	ITEM_INFO* item;
-
-	item = &Items[itemID];
+void __cdecl DoorCollision(__int16 itemID, ITEM_INFO *laraitem, COLL_INFO *coll) {
+	ITEM_INFO *item = &Items[itemID];
 	if (TestBoundsCollide(item, laraitem, coll->radius)) {
 		if (TestCollision(item, laraitem)) {
 			if CHK_ANY(coll->flags, 0x8) {
@@ -366,10 +359,8 @@ void __cdecl DoorCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll)
 	}
 }
 
-void __cdecl TrapCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll) {
-	ITEM_INFO* item;
-
-	item = &Items[itemID];
+void __cdecl TrapCollision(__int16 itemID, ITEM_INFO *laraitem, COLL_INFO *coll) {
+	ITEM_INFO *item = &Items[itemID];
 	if (item->status == ITEM_ACTIVE) {
 		if (TestBoundsCollide(item, laraitem, coll->radius)) {
 			TestCollision(item, laraitem);
@@ -379,12 +370,12 @@ void __cdecl TrapCollision(__int16 itemID, ITEM_INFO* laraitem, COLL_INFO* coll)
 	}
 }
 
-void __cdecl ItemPushLara(ITEM_INFO* item, ITEM_INFO* laraitem, COLL_INFO* coll, BOOL spazon, BOOL bigpush) {
+void __cdecl ItemPushLara(ITEM_INFO *item, ITEM_INFO *laraitem, COLL_INFO *coll, BOOL spazon, BOOL bigpush) {
 	int x, z, rx, rz;
 	int l, r, t, b;
 	int bndMin, bndMax;
 	int radius;
-	__int16* bounds;
+	__int16 *bounds;
 	__int16 c, s;
 	__int16 minx, maxx, minz, maxz;
 	__int16 oldFacing;
@@ -434,7 +425,7 @@ void __cdecl ItemPushLara(ITEM_INFO* item, ITEM_INFO* laraitem, COLL_INFO* coll,
 		rz -= (bndMax * c - bndMin * s) >> W2V_SHIFT;
 
 		if (spazon && bounds[3] - bounds[2] > 256) {
-			Lara.hit_direction = (unsigned __int16)(laraitem->pos.rotY + PHD_180 - phd_atan(rz, rx) + PHD_90) >> W2V_SHIFT;
+			Lara.hit_direction = (UINT16)(laraitem->pos.rotY + PHD_180 - phd_atan(rz, rx) + PHD_90) >> W2V_SHIFT;
 			if (!Lara.hit_frame) {
 				PlaySoundEffect(31, &laraitem->pos, 0);
 			}
@@ -464,7 +455,7 @@ void __cdecl ItemPushLara(ITEM_INFO* item, ITEM_INFO* laraitem, COLL_INFO* coll,
 	}
 }
 
-BOOL __cdecl TestBoundsCollide(ITEM_INFO* item, ITEM_INFO* laraitem, int radius) {
+BOOL __cdecl TestBoundsCollide(ITEM_INFO *item, ITEM_INFO *laraitem, int radius) {
 	__int16 *boundItem;
 	__int16 *boundLara;
 	int x, z, s, c;
@@ -491,10 +482,10 @@ BOOL __cdecl TestBoundsCollide(ITEM_INFO* item, ITEM_INFO* laraitem, int radius)
 	return FALSE;
 }
 
-BOOL __cdecl TestLaraPosition(__int16* bounds, ITEM_INFO* item, ITEM_INFO* laraitem) {
+BOOL __cdecl TestLaraPosition(__int16 *bounds, ITEM_INFO *item, ITEM_INFO *laraitem) {
 	int x, y, z;
 	int xBound, yBound, zBound;
-	short yRot, xRot, zRot;
+	__int16 yRot, xRot, zRot;
 
 	xRot = laraitem->pos.rotX - item->pos.rotX;
 	yRot = laraitem->pos.rotY - item->pos.rotY;
@@ -525,8 +516,8 @@ BOOL __cdecl TestLaraPosition(__int16* bounds, ITEM_INFO* item, ITEM_INFO* larai
 		&& zBound <= bounds[5];
 }
 
-void __cdecl AlignLaraPosition(PHD_VECTOR* pos, ITEM_INFO* item, ITEM_INFO* laraitem) {
-	FLOOR_INFO* floor;
+void __cdecl AlignLaraPosition(PHD_VECTOR *pos, ITEM_INFO *item, ITEM_INFO *laraitem) {
+	FLOOR_INFO *floor;
 	int x, y, z;
 	int height, ceiling;
 	__int16 roomID;
@@ -554,9 +545,9 @@ void __cdecl AlignLaraPosition(PHD_VECTOR* pos, ITEM_INFO* item, ITEM_INFO* lara
 	}
 }
 
-BOOL __cdecl MoveLaraPosition(PHD_VECTOR* pos, ITEM_INFO* item, ITEM_INFO* laraitem) {
+BOOL __cdecl MoveLaraPosition(PHD_VECTOR *pos, ITEM_INFO *item, ITEM_INFO *laraitem) {
 	PHD_3DPOS newpos;
-	FLOOR_INFO* floor;
+	FLOOR_INFO *floor;
 	int height, distance;
 	int xDist, yDist, zDist;
 	__int16 roomID;
@@ -591,7 +582,7 @@ BOOL __cdecl MoveLaraPosition(PHD_VECTOR* pos, ITEM_INFO* item, ITEM_INFO* larai
 	return distance < 128 || Move3DPosTo3DPos(&laraitem->pos, &newpos, 16, 2 * PHD_DEGREE);
 }
 
-BOOL __cdecl Move3DPosTo3DPos(PHD_3DPOS* src, PHD_3DPOS* dest, int velocity, __int16 angleAdder) {
+BOOL __cdecl Move3DPosTo3DPos(PHD_3DPOS *src, PHD_3DPOS *dest, int velocity, __int16 angleAdder) {
 	int x, y, z, distance;
 	__int16 xRot, yRot, zRot;
 
