@@ -491,10 +491,23 @@ BOOL __cdecl TestLaraPosition(__int16 *bounds, ITEM_INFO *item, ITEM_INFO *larai
 	yRot = laraitem->pos.rotY - item->pos.rotY;
 	zRot = laraitem->pos.rotZ - item->pos.rotZ;
 
-	if (xRot < bounds[6] || xRot > bounds[7] ||
-		yRot < bounds[8] || yRot > bounds[9] ||
-		zRot < bounds[10] || zRot > bounds[11]) {
-		return 0;
+	if (xRot < bounds[6]) {
+		return FALSE;
+	}
+	if (xRot > bounds[7]) {
+		return FALSE;
+	}
+	if (yRot < bounds[8]) {
+		return FALSE;
+	}
+	if (yRot > bounds[9]) {
+		return FALSE;
+	}
+	if (zRot < bounds[10]) {
+		return FALSE;
+	}
+	if (zRot > bounds[11]) {
+		return FALSE;
 	}
 
 	x = laraitem->pos.x - item->pos.x;
@@ -564,7 +577,7 @@ BOOL __cdecl MoveLaraPosition(PHD_VECTOR *pos, ITEM_INFO *item, ITEM_INFO *larai
 	phd_PopMatrix();
 
 	if (item->objectID != ID_FLARE_ITEM) {
-		return Move3DPosTo3DPos(&laraitem->pos, &newpos, 16, 2 * PHD_DEGREE);
+		return Move3DPosTo3DPos(&laraitem->pos, &newpos, 16, 364);
 	}
 
 	roomID = laraitem->roomNumber;
@@ -578,8 +591,8 @@ BOOL __cdecl MoveLaraPosition(PHD_VECTOR *pos, ITEM_INFO *item, ITEM_INFO *larai
 	zDist = SQR(newpos.z - laraitem->pos.z);
 	yDist = SQR(newpos.y - laraitem->pos.y);
 	xDist = SQR(newpos.x - laraitem->pos.z);
-	distance = phd_sqrt(xDist + yDist + zDist);
-	return distance < 128 || Move3DPosTo3DPos(&laraitem->pos, &newpos, 16, 2 * PHD_DEGREE);
+	distance = phd_sqrt(zDist + yDist + xDist);
+	return distance < 128 || Move3DPosTo3DPos(&laraitem->pos, &newpos, 16, 364);
 }
 
 BOOL __cdecl Move3DPosTo3DPos(PHD_3DPOS *src, PHD_3DPOS *dest, int velocity, __int16 angleAdder) {
