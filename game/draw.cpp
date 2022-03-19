@@ -966,9 +966,9 @@ void __cdecl DrawLara(ITEM_INFO *laraitem) {
 		default:
 			break;
 		}
+		phd_PopMatrix();
 	}
 
-	phd_PopMatrix();
 	phd_PopMatrix();
 	PhdWinBottom = oldBottom;
 	PhdWinTop = oldTop;
