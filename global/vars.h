@@ -412,6 +412,10 @@ extern APP_SETTINGS SavedAppSettings;
 #define Overlaps					VAR_U_(0x005263C8, UINT16*)
 #define Boxes						VAR_U_(0x005263CC, BOX_INFO*)
 #define BoxesCount					VAR_U_(0x005263D0, DWORD)
+#define IMRate						VAR_U_(0x00526184, int)
+#define IMFrac						VAR_U_(0x005258F0, int)
+#define IMPtr						VAR_U_(0x00526188, PHD_MATRIX*)
+#define IMStack						ARRAY_(0x005252C0, PHD_MATRIX, [32])
 
 // Initialized arrays
 #define TrackIDs					ARRAY_(0x004642F0, __int16, [16]) /* = {2, 0}; */

@@ -45,7 +45,7 @@ void __cdecl DrawLara(ITEM_INFO *laraitem); // 0x00419DD0
 
 void __cdecl DrawLaraInt(ITEM_INFO *item, __int16 *frame1, __int16 *frame2, int frac, int rate);
 
-#define InitInterpolate ((void(__cdecl*)(int, int)) 0x0041B6F0)
+void __cdecl InitInterpolate(int frac, int rate); // 0x0041B6F0
 #define phd_PopMatrix_I ((void(__cdecl*)(void)) 0x0041B730)
 #define phd_PushMatrix_I ((void(__cdecl*)(void)) 0x0041B760)
 #define phd_RotY_I ((void(__cdecl*)(__int16)) 0x0041B790)
