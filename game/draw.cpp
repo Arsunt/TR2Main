@@ -1260,6 +1260,15 @@ void __cdecl phd_RotZ_I(__int16 angle) {
 	PhdMatrixPtr = oldMatrix;
 }
 
+void __cdecl phd_TranslateRel_I(int x, int y, int z) {
+	PHD_MATRIX *oldMatrix;
+	phd_TranslateRel(x, y, z);
+	oldMatrix = PhdMatrixPtr;
+	PhdMatrixPtr = IMPtr;
+	phd_TranslateRel(x, y, z);
+	PhdMatrixPtr = oldMatrix;
+}
+
 void __cdecl phd_RotYXZsuperpack(UINT16 **pptr, int index) {
 	for( int i = 0; i < index; ++i ) {
 		if( (**pptr >> 14) == 0 )
@@ -1398,7 +1407,7 @@ void Inject_Draw() {
 	INJECT(0x0041B790, phd_RotY_I);
 	INJECT(0x0041B7D0, phd_RotX_I);
 	INJECT(0x0041B810, phd_RotZ_I);
-//	INJECT(0x0041B850, phd_TranslateRel_I);
+	INJECT(0x0041B850, phd_TranslateRel_I);
 //	INJECT(0x0041B8A0, phd_TranslateRel_ID);
 //	INJECT(0x0041B8F0, phd_RotYXZ_I);
 //	INJECT(0x0041B940, phd_RotYXZsuperpack_I);
