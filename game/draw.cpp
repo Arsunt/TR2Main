@@ -1365,6 +1365,28 @@ void __cdecl InterpolateMatrix() {
 	}
 }
 
+void __cdecl InterpolateArmMatrix() {
+	PhdMatrixPtr->_00 = PhdMatrixPtr[-2]._00;
+	PhdMatrixPtr->_01 = PhdMatrixPtr[-2]._01;
+	PhdMatrixPtr->_02 = PhdMatrixPtr[-2]._02;
+	PhdMatrixPtr->_10 = PhdMatrixPtr[-2]._10;
+	PhdMatrixPtr->_11 = PhdMatrixPtr[-2]._11;
+	PhdMatrixPtr->_12 = PhdMatrixPtr[-2]._12;
+	PhdMatrixPtr->_20 = PhdMatrixPtr[-2]._20;
+	PhdMatrixPtr->_21 = PhdMatrixPtr[-2]._21;
+	PhdMatrixPtr->_22 = PhdMatrixPtr[-2]._22;
+
+	if (IMRate == 2) {
+		PhdMatrixPtr->_03 = (IMPtr->_03 + PhdMatrixPtr->_03) / 2;
+		PhdMatrixPtr->_13 = (IMPtr->_13 + PhdMatrixPtr->_13) / 2;
+		PhdMatrixPtr->_23 = (IMPtr->_23 + PhdMatrixPtr->_23) / 2;
+	} else {
+		PhdMatrixPtr->_03 += IMFrac * (IMPtr->_03 - PhdMatrixPtr->_03) / IMRate;
+		PhdMatrixPtr->_13 += IMFrac * (IMPtr->_13 - PhdMatrixPtr->_13) / IMRate;
+		PhdMatrixPtr->_23 += IMFrac * (IMPtr->_23 - PhdMatrixPtr->_23) / IMRate;
+	}
+}
+
 void __cdecl DrawGunFlash(int weapon, int clip) {
 	__int16 light;
 	int len;
@@ -1477,7 +1499,7 @@ void Inject_Draw() {
 	INJECT(0x0041BA30, phd_PutPolygons_I);
 
 	INJECT(0x0041BA60, InterpolateMatrix);
-//	INJECT(0x0041BC10, InterpolateArmMatrix);
+	INJECT(0x0041BC10, InterpolateArmMatrix);
 
 	INJECT(0x0041BD10, DrawGunFlash);
 
