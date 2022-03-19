@@ -58,7 +58,7 @@ void __cdecl phd_RotYXZsuperpack_I(UINT16 **pptr1, UINT16 **pptr2, int index); /
 void __cdecl phd_RotYXZsuperpack(UINT16 **pptr, int index); // 0x0041B980
 void __cdecl phd_PutPolygons_I(__int16 *ptrObj, int clip); // 0x0041BA30
 
-#define InterpolateMatrix ((void(__cdecl*)(void)) 0x0041BA60)
+void __cdecl InterpolateMatrix(); // 0x0041BA60
 #define InterpolateArmMatrix ((void(__cdecl*)(void)) 0x0041BC10)
 
 void __cdecl DrawGunFlash(int weapon, int clip);

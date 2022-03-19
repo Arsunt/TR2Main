@@ -1331,6 +1331,40 @@ void __cdecl phd_PutPolygons_I(__int16 *ptrObj, int clip) {
 	phd_PopMatrix();
 }
 
+void __cdecl InterpolateMatrix() {
+	if (IMRate == 2) {
+		PhdMatrixPtr->_00 = (PhdMatrixPtr->_00 + IMPtr->_00) >> 1;
+		PhdMatrixPtr->_01 = (PhdMatrixPtr->_01 + IMPtr->_01) >> 1;
+		PhdMatrixPtr->_02 = (PhdMatrixPtr->_02 + IMPtr->_02) >> 1;
+		PhdMatrixPtr->_03 = (PhdMatrixPtr->_03 + IMPtr->_03) >> 1;
+
+		PhdMatrixPtr->_10 = (PhdMatrixPtr->_10 + IMPtr->_10) >> 1;
+		PhdMatrixPtr->_11 = (PhdMatrixPtr->_11 + IMPtr->_11) >> 1;
+		PhdMatrixPtr->_12 = (PhdMatrixPtr->_12 + IMPtr->_12) >> 1;
+		PhdMatrixPtr->_13 = (PhdMatrixPtr->_13 + IMPtr->_13) >> 1;
+
+		PhdMatrixPtr->_20 = (PhdMatrixPtr->_20 + IMPtr->_20) >> 1;
+		PhdMatrixPtr->_21 = (PhdMatrixPtr->_21 + IMPtr->_21) >> 1;
+		PhdMatrixPtr->_22 = (PhdMatrixPtr->_22 + IMPtr->_22) >> 1;
+		PhdMatrixPtr->_23 = (PhdMatrixPtr->_23 + IMPtr->_23) >> 1;
+	} else {
+		PhdMatrixPtr->_00 += IMFrac * (IMPtr->_00 - PhdMatrixPtr->_00) / IMRate;
+		PhdMatrixPtr->_01 += IMFrac * (IMPtr->_01 - PhdMatrixPtr->_01) / IMRate;
+		PhdMatrixPtr->_02 += IMFrac * (IMPtr->_02 - PhdMatrixPtr->_02) / IMRate;
+		PhdMatrixPtr->_03 += IMFrac * (IMPtr->_03 - PhdMatrixPtr->_03) / IMRate;
+
+		PhdMatrixPtr->_10 += IMFrac * (IMPtr->_10 - PhdMatrixPtr->_10) / IMRate;
+		PhdMatrixPtr->_11 += IMFrac * (IMPtr->_11 - PhdMatrixPtr->_11) / IMRate;
+		PhdMatrixPtr->_12 += IMFrac * (IMPtr->_12 - PhdMatrixPtr->_12) / IMRate;
+		PhdMatrixPtr->_13 += IMFrac * (IMPtr->_13 - PhdMatrixPtr->_13) / IMRate;
+
+		PhdMatrixPtr->_20 += IMFrac * (IMPtr->_20 - PhdMatrixPtr->_20) / IMRate;
+		PhdMatrixPtr->_21 += IMFrac * (IMPtr->_21 - PhdMatrixPtr->_21) / IMRate;
+		PhdMatrixPtr->_22 += IMFrac * (IMPtr->_22 - PhdMatrixPtr->_22) / IMRate;
+		PhdMatrixPtr->_23 += IMFrac * (IMPtr->_23 - PhdMatrixPtr->_23) / IMRate;
+	}
+}
+
 void __cdecl DrawGunFlash(int weapon, int clip) {
 	__int16 light;
 	int len;
@@ -1442,7 +1476,7 @@ void Inject_Draw() {
 	INJECT(0x0041B980, phd_RotYXZsuperpack);
 	INJECT(0x0041BA30, phd_PutPolygons_I);
 
-//	INJECT(0x0041BA60, InterpolateMatrix);
+	INJECT(0x0041BA60, InterpolateMatrix);
 //	INJECT(0x0041BC10, InterpolateArmMatrix);
 
 	INJECT(0x0041BD10, DrawGunFlash);
