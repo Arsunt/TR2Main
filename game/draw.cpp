@@ -24,6 +24,7 @@
 #include "3dsystem/3d_gen.h"
 #include "3dsystem/scalespr.h"
 #include "game/hair.h"
+#include "game/health.h"
 #include "specific/game.h"
 #include "specific/output.h"
 #include "global/vars.h"
@@ -43,6 +44,24 @@ void ResetGoldenLaraAlpha() {
 	GoldenLaraAlpha = ( Lara.water_status == LWS_Cheat ) ? 0xFF : 0;
 }
 #endif // FEATURE_VIDEOFX_IMPROVED
+
+int __cdecl DrawPhaseCinematic() {
+	UnderwaterCamera = FALSE;
+	DrawRooms(Camera.pos.roomNumber);
+	S_OutputPolyList();
+	Camera.numberFrames = S_DumpScreen();
+	S_AnimateTextures(Camera.numberFrames);
+	return Camera.numberFrames;
+}
+
+int __cdecl DrawPhaseGame() {
+	DrawRooms(Camera.pos.roomNumber);
+	DrawGameInfo(TRUE);
+	S_OutputPolyList();
+	Camera.numberFrames = S_DumpScreen();
+	S_AnimateTextures(Camera.numberFrames);
+	return Camera.numberFrames;
+}
 
 void __cdecl DrawRooms(__int16 currentRoom) {
 	ROOM_INFO *room = &RoomInfo[currentRoom];
@@ -1309,8 +1328,8 @@ void __cdecl AddDynamicLight(int x, int y, int z, int intensity, int falloff) {
  * Inject function
  */
 void Inject_Draw() {
-//	INJECT(0x00418920, DrawPhaseCinematic);
-//	INJECT(0x00418960, DrawPhaseGame);
+	INJECT(0x00418920, DrawPhaseCinematic);
+	INJECT(0x00418960, DrawPhaseGame);
 
 	INJECT(0x004189A0, DrawRooms);
 	INJECT(0x00418C50, GetRoomBounds);

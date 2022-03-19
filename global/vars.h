@@ -394,7 +394,7 @@ extern APP_SETTINGS SavedAppSettings;
 #define AnimChanges					VAR_U_(0x0052617C, CHANGE_STRUCT*)
 #define RoomCount					VAR_U_(0x00526180, __int16)
 #define RoomInfo					VAR_U_(0x0052618C, ROOM_INFO*)
-#define UnderwaterCamera			VAR_U_(0x00526190, int)
+#define UnderwaterCamera			VAR_U_(0x00526190, BOOL)
 #define SunsetTimer					VAR_U_(0x00526194, DWORD)
 #define OutsideRight				VAR_U_(0x00526198, int)
 #define OutsideTop					VAR_U_(0x005261AC, int)

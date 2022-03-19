@@ -27,8 +27,8 @@
 /*
  * Function list
  */
-#define DrawPhaseCinematic ((int(__cdecl*)(void)) 0x00418920)
-#define DrawPhaseGame ((int(__cdecl*)(void)) 0x00418960)
+int __cdecl DrawPhaseCinematic(); // 0x00418920
+int __cdecl DrawPhaseGame(); // 0x00418960
 
 void __cdecl DrawRooms(__int16 currentRoom); // 0x004189A0
 void __cdecl GetRoomBounds(); // 0x00418C50
