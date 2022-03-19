@@ -1222,6 +1222,17 @@ void __cdecl InitInterpolate(int frac, int rate) {
 	memcpy(IMStack, PhdMatrixPtr, sizeof(PHD_MATRIX));
 }
 
+void __cdecl phd_PopMatrix_I() {
+	phd_PopMatrix();
+	--IMPtr;
+}
+
+void __cdecl phd_PushMatrix_I() {
+	phd_PushMatrix();
+	memcpy(&IMPtr[1], &IMPtr[0], sizeof(PHD_MATRIX));
+	++IMPtr;
+}
+
 void __cdecl phd_RotYXZsuperpack(UINT16 **pptr, int index) {
 	for( int i = 0; i < index; ++i ) {
 		if( (**pptr >> 14) == 0 )
@@ -1355,8 +1366,8 @@ void Inject_Draw() {
 	INJECT(0x0041AB00, DrawLaraInt);
 
 	INJECT(0x0041B6F0, InitInterpolate);
-//	INJECT(0x0041B730, phd_PopMatrix_I);
-//	INJECT(0x0041B760, phd_PushMatrix_I);
+	INJECT(0x0041B730, phd_PopMatrix_I);
+	INJECT(0x0041B760, phd_PushMatrix_I);
 //	INJECT(0x0041B790, phd_RotY_I);
 //	INJECT(0x0041B7D0, phd_RotX_I);
 //	INJECT(0x0041B810, phd_RotZ_I);
