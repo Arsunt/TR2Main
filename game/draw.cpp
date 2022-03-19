@@ -655,6 +655,308 @@ void __cdecl DrawAnimatingItem(ITEM_INFO *item) {
 	phd_PopMatrix();
 }
 
+void __cdecl DrawLara(ITEM_INFO *laraitem) {
+	PHD_MATRIX hairMatrix, weaponMatrix;
+	OBJECT_INFO *obj;
+	int gunType;
+	int frac, rate, clip;
+	int currentState;
+	int oldBottom, oldTop, oldLeft, oldRight;
+	int interpolation;
+	int *bones;
+	UINT16 *rot1, *rot2, *rot1copy;
+	__int16 *framesPtr[2];
+	__int16 *animFramePtr;
+	__int16 *frame;
+
+	oldBottom = PhdWinBottom;
+	oldTop = PhdWinTop;
+	oldLeft = PhdWinLeft;
+	oldRight = PhdWinRight;
+	PhdWinBottom = PhdWinMaxY;
+	PhdWinTop = 0;
+	PhdWinLeft = 0;
+	PhdWinRight = PhdWinMaxX;
+
+	if (Lara.hit_direction < 0) {
+		frac = GetFrames(laraitem, framesPtr, &rate);
+		if (frac) {
+			DrawLaraInt(laraitem, framesPtr[0], framesPtr[1], frac, rate);
+			PhdWinBottom = oldBottom;
+			PhdWinTop = oldTop;
+			PhdWinLeft = oldLeft;
+			PhdWinRight = oldRight;
+			return;
+		}
+	}
+
+	if (Lara.hit_direction < 0) {
+		frame = framesPtr[0];
+	} else {
+		switch (Lara.hit_direction) {
+		case 1:
+			animFramePtr = Anims[127].framePtr;
+			interpolation = Anims[127].interpolation;
+			break;
+		case 2:
+			animFramePtr = Anims[126].framePtr;
+			interpolation = Anims[126].interpolation;
+			break;
+		case 3:
+			animFramePtr = Anims[128].framePtr;
+			interpolation = Anims[128].interpolation;
+			break;
+		default:
+			animFramePtr = Anims[125].framePtr;
+			interpolation = Anims[125].interpolation;
+			break;
+		}
+		frame = &animFramePtr[Lara.hit_frame * (interpolation >> 8)];
+	}
+
+	obj = &Objects[laraitem->objectID];
+	if (Lara.skidoo == -1) {
+		S_PrintShadow(obj->shadowSize, frame, laraitem);
+	}
+
+	// save hair matrix position
+	memcpy(&hairMatrix, PhdMatrixPtr, sizeof(hairMatrix));
+
+	phd_PushMatrix();
+	phd_TranslateAbs(laraitem->pos.x, laraitem->pos.y, laraitem->pos.z);
+	phd_RotYXZ(laraitem->pos.rotY, laraitem->pos.rotX, laraitem->pos.rotZ);
+	clip = S_GetObjectBounds(frame);
+	if (clip) {
+		bones = &AnimBones[obj->boneIndex];
+		rot1 = (UINT16 *)frame + 9;
+		rot1copy = rot1;
+
+		phd_PushMatrix();
+		CalculateObjectLighting(laraitem, frame);
+		phd_TranslateRel(frame[6], frame[7], frame[8]);
+		phd_RotYXZsuperpack(&rot1, 0);
+		phd_PutPolygons(Lara.mesh_ptrs[0], clip);
+
+		phd_PushMatrix();
+		phd_TranslateRel(bones[1], bones[2], bones[3]);
+		phd_RotYXZsuperpack(&rot1, 0);
+		phd_PutPolygons(Lara.mesh_ptrs[1], clip);
+		phd_TranslateRel(bones[5], bones[6], bones[7]);
+		phd_RotYXZsuperpack(&rot1, 0);
+		phd_PutPolygons(Lara.mesh_ptrs[2], clip);
+		phd_TranslateRel(bones[9], bones[10], bones[11]);
+		phd_RotYXZsuperpack(&rot1, 0);
+		phd_PutPolygons(Lara.mesh_ptrs[3], clip);
+		phd_PopMatrix();
+
+		phd_PushMatrix();
+		phd_TranslateRel(bones[13], bones[14], bones[15]);
+		phd_RotYXZsuperpack(&rot1, 0);
+		phd_PutPolygons(Lara.mesh_ptrs[4], clip);
+		phd_TranslateRel(bones[17], bones[18], bones[19]);
+		phd_RotYXZsuperpack(&rot1, 0);
+		phd_PutPolygons(Lara.mesh_ptrs[5], clip);
+		phd_TranslateRel(bones[21], bones[22], bones[23]);
+		phd_RotYXZsuperpack(&rot1, 0);
+		phd_PutPolygons(Lara.mesh_ptrs[6], clip);
+		phd_PopMatrix();
+
+		phd_TranslateRel(bones[25], bones[26], bones[27]);
+		currentState = Items[Lara.weapon_item].currentAnimState;
+		if (Lara.weapon_item != -1 && Lara.gun_type == LGT_M16 && currentState == 0 && currentState == 2 && currentState == 4) {
+			rot1copy = (UINT16*)Lara.right_arm.frame_base + Lara.right_arm.frame_number * (Anims[Lara.right_arm.anim_number].interpolation >> 8) + 9;
+			phd_RotYXZsuperpack(&rot1copy, 7);
+		} else {
+			phd_RotYXZsuperpack(&rot1, 0);
+		}
+		phd_RotYXZ(Lara.torso_y_rot, Lara.torso_x_rot, Lara.torso_z_rot);
+		phd_PutPolygons(Lara.mesh_ptrs[7], clip);
+
+		phd_PushMatrix();
+		phd_TranslateRel(bones[53], bones[54], bones[55]);
+		rot1copy = rot1;
+		phd_RotYXZsuperpack(&rot1, 6);
+		rot1 = rot1copy;
+		phd_RotYXZ(Lara.head_y_rot, Lara.head_x_rot, Lara.head_z_rot);
+		phd_PutPolygons(Lara.mesh_ptrs[14], clip);
+		// restore hair matrix position
+		memcpy(PhdMatrixPtr, &hairMatrix, sizeof(PHD_MATRIX));
+		DrawHair();
+		phd_PopMatrix();
+
+		if (Lara.back_gun) {
+			phd_PushMatrix();
+			obj = &Objects[Lara.back_gun];
+			phd_TranslateRel(AnimBones[obj->boneIndex + 53], AnimBones[obj->boneIndex + 54], AnimBones[obj->boneIndex + 55]);
+			rot2 = (UINT16*)Objects[Lara.back_gun].frameBase + 9;
+			phd_RotYXZsuperpack(&rot2, 14);
+			phd_PutPolygons(MeshPtr[obj->meshIndex + 14], clip);
+			phd_PopMatrix();
+		}
+
+		if (Lara.gun_status == LGS_Ready || Lara.gun_status == LGS_Special || Lara.gun_status == LGS_Draw || Lara.gun_status == LGS_Undraw) {
+			gunType = Lara.gun_type;
+		} else {
+			gunType = LGT_Unarmed;
+		}
+
+		switch (gunType) {
+		case LGT_Unarmed:
+		case LGT_Flare:
+			phd_PushMatrix();
+			phd_TranslateRel(bones[29], bones[30], bones[31]);
+			phd_RotYXZsuperpack(&rot1, 0);
+			phd_PutPolygons(Lara.mesh_ptrs[8], clip);
+
+			phd_TranslateRel(bones[33], bones[34], bones[35]);
+			phd_RotYXZsuperpack(&rot1, 0);
+			phd_PutPolygons(Lara.mesh_ptrs[9], clip);
+
+			phd_TranslateRel(bones[37], bones[38], bones[39]);
+			phd_RotYXZsuperpack(&rot1, 0);
+			phd_PutPolygons(Lara.mesh_ptrs[10], clip);
+			phd_PopMatrix();
+
+			phd_PushMatrix();
+			phd_TranslateRel(bones[41], bones[42], bones[43]);
+			if (Lara.flare_control_left) {
+				rot1 = (UINT16*)Lara.left_arm.frame_base + (Lara.left_arm.frame_number - Anims[Lara.left_arm.anim_number].frameBase) * (Anims[Lara.left_arm.anim_number].interpolation >> 8) + 9;
+				phd_RotYXZsuperpack(&rot1, 11);
+			} else {
+				phd_RotYXZsuperpack(&rot1, 0);
+			}
+			phd_PutPolygons(Lara.mesh_ptrs[11], clip);
+
+			phd_TranslateRel(bones[45], bones[46], bones[47]);
+			phd_RotYXZsuperpack(&rot1, 0);
+			phd_PutPolygons(Lara.mesh_ptrs[12], clip);
+
+			phd_TranslateRel(bones[49], bones[50], bones[51]);
+			phd_RotYXZsuperpack(&rot1, 0);
+			phd_PutPolygons(Lara.mesh_ptrs[13], clip);
+			if (Lara.gun_type == LGT_Flare && Lara.left_arm.flash_gun) {
+				DrawGunFlash(LGT_Flare, clip);
+			}
+			phd_PopMatrix();
+			break;
+		case LGT_Pistols:
+		case LGT_Magnums:
+		case LGT_Uzis:
+			phd_PushMatrix();
+			phd_TranslateRel(bones[29], bones[30], bones[31]);
+			PhdMatrixPtr->_00 = PhdMatrixPtr[-2]._00;
+			PhdMatrixPtr->_01 = PhdMatrixPtr[-2]._01;
+			PhdMatrixPtr->_02 = PhdMatrixPtr[-2]._02;
+			PhdMatrixPtr->_10 = PhdMatrixPtr[-2]._10;
+			PhdMatrixPtr->_11 = PhdMatrixPtr[-2]._11;
+			PhdMatrixPtr->_12 = PhdMatrixPtr[-2]._12;
+			PhdMatrixPtr->_20 = PhdMatrixPtr[-2]._20;
+			PhdMatrixPtr->_21 = PhdMatrixPtr[-2]._21;
+			PhdMatrixPtr->_22 = PhdMatrixPtr[-2]._22;
+			phd_RotYXZ(Lara.right_arm.y_rot, Lara.right_arm.x_rot, Lara.right_arm.z_rot);
+			rot1 = (UINT16*)Lara.right_arm.frame_base + (Lara.right_arm.frame_number - Anims[Lara.right_arm.anim_number].frameBase) * (Anims[Lara.right_arm.anim_number].interpolation >> 8) + 9;
+			phd_RotYXZsuperpack(&rot1, 8);
+			phd_PutPolygons(Lara.mesh_ptrs[8], clip);
+
+			phd_TranslateRel(bones[33], bones[34], bones[35]);
+			phd_RotYXZsuperpack(&rot1, 0);
+			phd_PutPolygons(Lara.mesh_ptrs[9], clip);
+
+			phd_TranslateRel(bones[37], bones[38], bones[39]);
+			phd_RotYXZsuperpack(&rot1, 0);
+			phd_PutPolygons(Lara.mesh_ptrs[10], clip);
+			if (Lara.right_arm.flash_gun) {
+				memcpy(&weaponMatrix, PhdMatrixPtr, sizeof(PHD_MATRIX));
+			}
+			phd_PopMatrix();
+
+			phd_PushMatrix();
+			phd_TranslateRel(bones[41], bones[42], bones[43]);
+			PhdMatrixPtr->_00 = PhdMatrixPtr[-2]._00;
+			PhdMatrixPtr->_01 = PhdMatrixPtr[-2]._01;
+			PhdMatrixPtr->_02 = PhdMatrixPtr[-2]._02;
+			PhdMatrixPtr->_10 = PhdMatrixPtr[-2]._10;
+			PhdMatrixPtr->_11 = PhdMatrixPtr[-2]._11;
+			PhdMatrixPtr->_12 = PhdMatrixPtr[-2]._12;
+			PhdMatrixPtr->_20 = PhdMatrixPtr[-2]._20;
+			PhdMatrixPtr->_21 = PhdMatrixPtr[-2]._21;
+			PhdMatrixPtr->_22 = PhdMatrixPtr[-2]._22;
+			phd_RotYXZ(Lara.left_arm.y_rot, Lara.left_arm.x_rot, Lara.left_arm.z_rot);
+			rot1 = (UINT16*)Lara.left_arm.frame_base + (Lara.left_arm.frame_number - Anims[Lara.left_arm.anim_number].frameBase) * (Anims[Lara.left_arm.anim_number].interpolation >> 8) + 9;
+			phd_RotYXZsuperpack(&rot1, 11);
+			phd_PutPolygons(Lara.mesh_ptrs[11], clip);
+
+			phd_TranslateRel(bones[45], bones[46], bones[47]);
+			phd_RotYXZsuperpack(&rot1, 0);
+			phd_PutPolygons(Lara.mesh_ptrs[12], clip);
+
+			phd_TranslateRel(bones[49], bones[50], bones[51]);
+			phd_RotYXZsuperpack(&rot1, 0);
+			phd_PutPolygons(Lara.mesh_ptrs[13], clip);
+
+			if (Lara.left_arm.flash_gun) {
+				DrawGunFlash(gunType, 0);
+			}
+			if (Lara.right_arm.flash_gun) {
+				memcpy(PhdMatrixPtr, &weaponMatrix, sizeof(PHD_MATRIX));
+				DrawGunFlash(gunType, clip);
+			}
+			phd_PopMatrix();
+			break;
+		case LGT_Shotgun:
+		case LGT_M16:
+		case LGT_Grenade:
+		case LGT_Harpoon:
+			phd_PushMatrix();
+			phd_TranslateRel(bones[29], bones[30], bones[31]);
+			rot1 = (UINT16*)Lara.right_arm.frame_base + Lara.right_arm.frame_number * (Anims[Lara.right_arm.anim_number].interpolation >> 8) + 9;
+			phd_RotYXZsuperpack(&rot1, 8);
+			phd_PutPolygons(Lara.mesh_ptrs[8], clip);
+
+			phd_TranslateRel(bones[33], bones[34], bones[35]);
+			phd_RotYXZsuperpack(&rot1, 0);
+			phd_PutPolygons(Lara.mesh_ptrs[9], clip);
+
+			phd_TranslateRel(bones[37], bones[38], bones[39]);
+			phd_RotYXZsuperpack(&rot1, 0);
+			phd_PutPolygons(Lara.mesh_ptrs[10], clip);
+			if (Lara.right_arm.flash_gun) {
+				memcpy(&weaponMatrix, PhdMatrixPtr, sizeof(PHD_MATRIX));
+			}
+			phd_PopMatrix();
+
+			phd_PushMatrix();
+			phd_TranslateRel(bones[41], bones[42], bones[43]);
+			phd_RotYXZsuperpack(&rot1, 0);
+			phd_PutPolygons(Lara.mesh_ptrs[11], clip);
+
+			phd_TranslateRel(bones[45], bones[46], bones[47]);
+			phd_RotYXZsuperpack(&rot1, 0);
+			phd_PutPolygons(Lara.mesh_ptrs[12], clip);
+
+			phd_TranslateRel(bones[49], bones[50], bones[51]);
+			phd_RotYXZsuperpack(&rot1, 0);
+			phd_PutPolygons(Lara.mesh_ptrs[13], clip);
+
+			if (Lara.right_arm.flash_gun) {
+				memcpy(PhdMatrixPtr, &weaponMatrix, sizeof(PHD_MATRIX));
+				DrawGunFlash(gunType, clip);
+			}
+			phd_PopMatrix();
+			break;
+		default:
+			break;
+		}
+	}
+
+	phd_PopMatrix();
+	phd_PopMatrix();
+	PhdWinBottom = oldBottom;
+	PhdWinTop = oldTop;
+	PhdWinLeft = oldLeft;
+	PhdWinRight = oldRight;
+}
+
 void __cdecl DrawLaraInt(ITEM_INFO *item, __int16 *frame1, __int16 *frame2, int frac, int rate) {
 	PHD_MATRIX matrix;
 	UINT16 *rot1, *rot2, *rot1copy, *rot2copy;
@@ -1022,7 +1324,7 @@ void Inject_Draw() {
 //	INJECT(----------, DrawDummyItem);
 	INJECT(0x00419A50, DrawAnimatingItem);
 
-//	INJECT(0x00419DD0, DrawLara);
+	INJECT(0x00419DD0, DrawLara);
 
 	INJECT(0x0041AB00, DrawLaraInt);
 

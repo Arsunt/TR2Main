@@ -41,7 +41,7 @@ void __cdecl DrawSpriteItem(ITEM_INFO *item); // 0x004199C0
 void __cdecl DrawDummyItem(ITEM_INFO *item);
 void __cdecl DrawAnimatingItem(ITEM_INFO *item); // 0x00419A50
 
-#define DrawLara ((void(__cdecl*)(ITEM_INFO*)) 0x00419DD0)
+void __cdecl DrawLara(ITEM_INFO *laraitem); // 0x00419DD0
 
 void __cdecl DrawLaraInt(ITEM_INFO *item, __int16 *frame1, __int16 *frame2, int frac, int rate);
 
