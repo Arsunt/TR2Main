@@ -1287,6 +1287,15 @@ void __cdecl phd_RotYXZ_I(__int16 y, __int16 x, __int16 z) {
 	PhdMatrixPtr = oldMatrix;
 }
 
+void __cdecl phd_RotYXZsuperpack_I(UINT16 **pptr1, UINT16 **pptr2, int index) {
+	PHD_MATRIX *oldMatrix;
+	phd_RotYXZsuperpack(pptr1, index);
+	oldMatrix = PhdMatrixPtr;
+	PhdMatrixPtr = IMPtr;
+	phd_RotYXZsuperpack(pptr2, index);
+	PhdMatrixPtr = oldMatrix;
+}
+
 void __cdecl phd_RotYXZsuperpack(UINT16 **pptr, int index) {
 	for( int i = 0; i < index; ++i ) {
 		if( (**pptr >> 14) == 0 )
@@ -1428,7 +1437,7 @@ void Inject_Draw() {
 	INJECT(0x0041B850, phd_TranslateRel_I);
 	INJECT(0x0041B8A0, phd_TranslateRel_ID);
 	INJECT(0x0041B8F0, phd_RotYXZ_I);
-//	INJECT(0x0041B940, phd_RotYXZsuperpack_I);
+	INJECT(0x0041B940, phd_RotYXZsuperpack_I);
 
 	INJECT(0x0041B980, phd_RotYXZsuperpack);
 	INJECT(0x0041BA30, phd_PutPolygons_I);

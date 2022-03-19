@@ -54,8 +54,7 @@ void __cdecl phd_RotZ_I(__int16 angle); // 0x0041B810
 void __cdecl phd_TranslateRel_I(int x, int y, int z); // 0x0041B850
 void __cdecl phd_TranslateRel_ID(int x1, int y1, int z1, int x2, int y2, int z2); // 0x0041B8A0
 void __cdecl phd_RotYXZ_I(__int16 y, __int16 x, __int16 z); // 0x0041B8F0
-#define phd_RotYXZsuperpack_I ((void(__cdecl*)(UINT16**, UINT16**, int)) 0x0041B940)
-
+void __cdecl phd_RotYXZsuperpack_I(UINT16 **pptr1, UINT16 **pptr2, int index); // 0x0041B940
 void __cdecl phd_RotYXZsuperpack(UINT16 **pptr, int index); // 0x0041B980
 void __cdecl phd_PutPolygons_I(__int16 *ptrObj, int clip); // 0x0041BA30
 
