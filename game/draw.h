@@ -27,8 +27,8 @@
 /*
  * Function list
  */
-#define DrawPhaseCinematic ((int(__cdecl*)(void)) 0x00418920)
-#define DrawPhaseGame ((int(__cdecl*)(void)) 0x00418960)
+int __cdecl DrawPhaseCinematic(); // 0x00418920
+int __cdecl DrawPhaseGame(); // 0x00418960
 
 void __cdecl DrawRooms(__int16 currentRoom); // 0x004189A0
 void __cdecl GetRoomBounds(); // 0x00418C50
@@ -41,33 +41,32 @@ void __cdecl DrawSpriteItem(ITEM_INFO *item); // 0x004199C0
 void __cdecl DrawDummyItem(ITEM_INFO *item);
 void __cdecl DrawAnimatingItem(ITEM_INFO *item); // 0x00419A50
 
-#define DrawLara ((void(__cdecl*)(ITEM_INFO*)) 0x00419DD0)
+void __cdecl DrawLara(ITEM_INFO *laraitem); // 0x00419DD0
 
 void __cdecl DrawLaraInt(ITEM_INFO *item, __int16 *frame1, __int16 *frame2, int frac, int rate);
 
-#define InitInterpolate ((void(__cdecl*)(int, int)) 0x0041B6F0)
-#define phd_PopMatrix_I ((void(__cdecl*)(void)) 0x0041B730)
-#define phd_PushMatrix_I ((void(__cdecl*)(void)) 0x0041B760)
-#define phd_RotY_I ((void(__cdecl*)(__int16)) 0x0041B790)
-#define phd_RotX_I ((void(__cdecl*)(__int16)) 0x0041B7D0)
-#define phd_RotZ_I ((void(__cdecl*)(__int16)) 0x0041B810)
-#define phd_TranslateRel_I ((void(__cdecl*)(int, int, int)) 0x0041B850)
-#define phd_TranslateRel_ID ((void(__cdecl*)(int, int, int, int, int, int)) 0x0041B8A0)
-#define phd_RotYXZ_I ((void(__cdecl*)(int, int, int)) 0x0041B8F0)
-#define phd_RotYXZsuperpack_I ((void(__cdecl*)(UINT16**, UINT16**, int)) 0x0041B940)
-
+void __cdecl InitInterpolate(int frac, int rate); // 0x0041B6F0
+void __cdecl phd_PopMatrix_I(); // 0x0041B730
+void __cdecl phd_PushMatrix_I(); // 0x0041B760
+void __cdecl phd_RotY_I(__int16 angle); // 0x0041B790
+void __cdecl phd_RotX_I(__int16 angle); // 0x0041B7D0
+void __cdecl phd_RotZ_I(__int16 angle); // 0x0041B810
+void __cdecl phd_TranslateRel_I(int x, int y, int z); // 0x0041B850
+void __cdecl phd_TranslateRel_ID(int x1, int y1, int z1, int x2, int y2, int z2); // 0x0041B8A0
+void __cdecl phd_RotYXZ_I(__int16 y, __int16 x, __int16 z); // 0x0041B8F0
+void __cdecl phd_RotYXZsuperpack_I(UINT16 **pptr1, UINT16 **pptr2, int index); // 0x0041B940
 void __cdecl phd_RotYXZsuperpack(UINT16 **pptr, int index); // 0x0041B980
 void __cdecl phd_PutPolygons_I(__int16 *ptrObj, int clip); // 0x0041BA30
 
-#define InterpolateMatrix ((void(__cdecl*)(void)) 0x0041BA60)
-#define InterpolateArmMatrix ((void(__cdecl*)(void)) 0x0041BC10)
+void __cdecl InterpolateMatrix(); // 0x0041BA60
+void __cdecl InterpolateArmMatrix(); // 0x0041BC10
 
 void __cdecl DrawGunFlash(int weapon, int clip);
 
 #define CalculateObjectLighting ((void(__cdecl*)(ITEM_INFO*, __int16*)) 0x0041BE80)
-#define GetFrames ((int(__cdecl*)(ITEM_INFO*, __int16**, int*)) 0x0041BF70)
-#define GetBoundsAccurate ((__int16*(__cdecl*)(ITEM_INFO*)) 0x0041C010)
-#define GetBestFrame ((__int16*(__cdecl*)(ITEM_INFO*)) 0x0041C090)
+int __cdecl GetFrames(ITEM_INFO *item, __int16 **frames, int *rate); // 0x0041BF70
+__int16 *__cdecl GetBoundsAccurate(ITEM_INFO *item); // 0x0041C010
+__int16 *__cdecl GetBestFrame(ITEM_INFO *item); // 0x0041C090
 
 void __cdecl AddDynamicLight(int x, int y, int z, int intensity, int falloff); // 0x0041C0D0
 
