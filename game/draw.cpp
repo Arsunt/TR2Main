@@ -1452,6 +1452,29 @@ void __cdecl DrawGunFlash(int weapon, int clip) {
 #endif // FEATURE_VIDEOFX_IMPROVED
 }
 
+int __cdecl GetFrames(ITEM_INFO *item, __int16** frames, int* rate) {
+	ANIM_STRUCT *anim;
+	int interopLow, interop;
+	int frameCurrent;
+	int frameEnd;
+
+	anim = &Anims[item->animNumber];
+	frames[0] = frames[1] = anim->framePtr;
+	interopLow = LOBYTE(anim->interpolation);
+	*rate = interopLow;
+	frameCurrent = item->frameNumber - anim->frameBase;
+	frames[0] += frameCurrent / interopLow * (anim->interpolation >> 8);
+	frames[1] = &frames[0][anim->interpolation >> 8];
+	if (!(frameCurrent % interopLow)) {
+		return 0;
+	}
+	interop = interopLow * (frameCurrent / interopLow + 1);
+	if (interop > anim->frameEnd) {
+		*rate = anim->frameEnd + interopLow - interop;
+	}
+	return frameCurrent % interopLow;
+}
+
 void __cdecl AddDynamicLight(int x, int y, int z, int intensity, int falloff) {
 	int idx = ( DynamicLightCount < ARRAY_SIZE(DynamicLights) ) ? DynamicLightCount++ : 0;
 	DynamicLights[idx].x = x;
@@ -1504,7 +1527,7 @@ void Inject_Draw() {
 	INJECT(0x0041BD10, DrawGunFlash);
 
 //	INJECT(0x0041BE80, CalculateObjectLighting);
-//	INJECT(0x0041BF70, GetFrames);
+	INJECT(0x0041BF70, GetFrames);
 //	INJECT(0x0041C010, GetBoundsAccurate);
 //	INJECT(0x0041C090, GetBestFrame);
 
