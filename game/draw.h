@@ -64,9 +64,9 @@ void __cdecl InterpolateArmMatrix(); // 0x0041BC10
 void __cdecl DrawGunFlash(int weapon, int clip);
 
 #define CalculateObjectLighting ((void(__cdecl*)(ITEM_INFO*, __int16*)) 0x0041BE80)
-int __cdecl GetFrames(ITEM_INFO *item, __int16** frames, int* rate); // 0x0041BF70
-__int16* __cdecl GetBoundsAccurate(ITEM_INFO* item); // 0x0041C010
-#define GetBestFrame ((__int16*(__cdecl*)(ITEM_INFO*)) 0x0041C090)
+int __cdecl GetFrames(ITEM_INFO *item, __int16 **frames, int *rate); // 0x0041BF70
+__int16 *__cdecl GetBoundsAccurate(ITEM_INFO *item); // 0x0041C010
+__int16 *__cdecl GetBestFrame(ITEM_INFO *item); // 0x0041C090
 
 void __cdecl AddDynamicLight(int x, int y, int z, int intensity, int falloff); // 0x0041C0D0
 
