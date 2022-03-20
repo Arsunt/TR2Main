@@ -416,6 +416,7 @@ extern APP_SETTINGS SavedAppSettings;
 #define IMFrac						VAR_U_(0x005258F0, int)
 #define IMPtr						VAR_U_(0x00526188, PHD_MATRIX*)
 #define IMStack						ARRAY_(0x005252C0, PHD_MATRIX, [32])
+#define InterpolateBounds			ARRAY_(0x005261A0, __int16, [6])
 
 // Initialized arrays
 #define TrackIDs					ARRAY_(0x004642F0, __int16, [16]) /* = {2, 0}; */
