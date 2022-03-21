@@ -31,8 +31,8 @@ int __cdecl ControlPhase(int nTicks, BOOL demoMode);
 
 #define AnimateItem ((void(__cdecl*)(ITEM_INFO*)) 0x004146C0)
 
-// 0x00414A30:		GetChange
-// 0x00414AE0:		TranslateItem
+#define GetChange ((int(__cdecl*)(ITEM_INFO*,ANIM_STRUCT*)) 0x00414A30)
+#define TranslateItem ((void(__cdecl*)(ITEM_INFO*,int,int,int)) 0x00414AE0)
 
 #define GetFloor ((FLOOR_INFO*(__cdecl*)(int, int, int, __int16*)) 0x00414B40)
 #define GetWaterHeight ((int(__cdecl*)(int, int, int, __int16)) 0x00414CE0)

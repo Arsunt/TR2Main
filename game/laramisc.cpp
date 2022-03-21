@@ -320,6 +320,109 @@ void __cdecl LaraControl(__int16 itemID) {
 	Lara.last_pos.z = item->pos.z;
 }
 
+void __cdecl AnimateLara(ITEM_INFO* item) {
+	ANIM_STRUCT *anim;
+	int waterSurfDist;
+	int velocity;
+	short *command, soundType;
+	bool notLand, notWater;
+
+	++item->frameNumber;
+	anim = &Anims[item->animNumber];
+	if (anim->numberChanges > 0 && GetChange(item, anim)) {
+		anim = &Anims[item->animNumber];
+		item->currentAnimState = anim->currentAnimState;
+	}
+
+	if (item->frameNumber > anim->frameEnd) {
+		command = &AnimCommands[anim->commandIndex];
+		for (short i = anim->numberCommands; i > 0; i--) {
+			switch (*command++) {
+			case 1:
+				TranslateItem(item, command[0], command[1], command[2]);
+				command += 3;
+				break;
+			case 2:
+				item->fallSpeed = command[0];
+				item->speed = command[1];
+				item->gravity = TRUE;
+				if (Lara.calc_fallspeed) {
+					item->fallSpeed = Lara.calc_fallspeed;
+					Lara.calc_fallspeed = 0;
+				}
+				command += 2;
+				break;
+			case 3:
+				if (Lara.gun_status != LGS_Special)
+					Lara.gun_status = LGS_Armless;
+				break;
+			case 5:
+			case 6:
+				command += 2;
+				break;
+			}
+		}
+		item->animNumber = anim->jumpAnimNum;
+		item->frameNumber = anim->jumpFrameNum;
+		anim = &Anims[item->animNumber];
+		item->currentAnimState = anim->currentAnimState;
+	}
+
+	if (anim->numberCommands > 0) {
+		command = &AnimCommands[anim->commandIndex];
+		for (short i = anim->numberCommands; i > 0; i--) {
+			switch (*command++) {
+			case 1:
+				command += 3;
+				continue;
+			case 5:
+				if (item->frameNumber != command[0]) {
+					break;
+				}
+				waterSurfDist = Lara.water_surface_dist;
+				soundType = command[1] & 0xC000; // LAND or WATER
+				notLand = soundType != 0x4000 || (waterSurfDist < 0 && waterSurfDist != NO_HEIGHT);
+				notWater = soundType != 0x8000 || (waterSurfDist >= 0 || waterSurfDist == NO_HEIGHT);
+				if (soundType != 0 && notLand && notWater) {
+					break;
+				}
+				PlaySoundEffect(command[1] & 0x3FFF, &item->pos, SFX_ALWAYS);
+				break;
+			case 6:
+				if (item->frameNumber != command[0]) {
+					break;
+				}
+				waterSurfDist = Lara.water_surface_dist;
+				soundType = command[1] & 0xC000; // LAND or WATER
+				notLand = soundType != 0x4000 || (waterSurfDist < 0 && waterSurfDist != NO_HEIGHT);
+				notWater = soundType != 0x8000 || (waterSurfDist >= 0 || waterSurfDist == NO_HEIGHT);
+				if (soundType != 0 && notLand && notWater) {
+					break;
+				}
+				EffectFunctions[command[1] & 0x3FFF](item);
+				break;
+			}
+			command += 2;
+		}
+	}
+
+	if (item->gravity) {
+		velocity = anim->velocity + anim->acceleration * (item->frameNumber - anim->frameBase - 1);
+		item->speed -= velocity >> 16;
+		item->speed += (anim->acceleration + velocity) >> 16;
+		item->fallSpeed += item->fallSpeed >= 128 ? 1 : 6;
+		item->pos.y += item->fallSpeed;
+	} else {
+		velocity = anim->velocity;
+		if (anim->acceleration)
+			velocity += anim->acceleration * (item->frameNumber - anim->frameBase);
+		item->speed = velocity >> 16;
+	}
+
+	item->pos.x += (item->speed * phd_sin(Lara.move_angle)) >> W2V_SHIFT;
+	item->pos.z += (item->speed * phd_cos(Lara.move_angle)) >> W2V_SHIFT;
+}
+
 void __cdecl UseItem(__int16 itemID) {
 	if( itemID <= ID_NONE || itemID >= ID_NUMBER_OBJECTS )
 		return;
@@ -493,8 +596,8 @@ void __cdecl InitialiseLaraLoad(__int16 itemID) {
 }
 
 void __cdecl InitialiseLara(GF_LEVEL_TYPE type) {
-	ITEM_INFO* item = LaraItem;
-	LARA_INFO* lara = &Lara;
+	ITEM_INFO *item = LaraItem;
+	LARA_INFO *lara = &Lara;
 
 	item->data = lara;
 	item->collidable = FALSE;
@@ -842,17 +945,12 @@ void __cdecl LaraInitialiseMeshes(int levelID) {
  */
 void Inject_LaraMisc() {
 	INJECT(0x00430380, LaraControl);
-
-//	INJECT(0x00430A10, AnimateLara);
-
+	INJECT(0x00430A10, AnimateLara);
 	INJECT(0x00430D10, UseItem);
 	INJECT(0x00430ED0, LaraCheatGetStuff);
 	INJECT(0x00430F90, ControlLaraExtra);
 	INJECT(0x00430FB0, InitialiseLaraLoad);
-
 	INJECT(0x00430FE0, InitialiseLara);
-
 	INJECT(0x004312A0, InitialiseLaraInventory);
-
 	INJECT(0x00431610, LaraInitialiseMeshes);
 }
