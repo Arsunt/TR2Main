@@ -45,10 +45,10 @@
 
 //	0x00434F80:		WindowControl
 //	0x00435020:		SmashIceControl
-//	0x00435100:		ShutThatDoor
-//	0x00435150:		OpenThatDoor
-//	0x00435190:		InitialiseDoor
-//	0x00435570:		DoorControl
+void __cdecl ShutThatDoor(DOORPOS_DATA* door); // 0x00435100
+void __cdecl OpenThatDoor(DOORPOS_DATA* door); // 0x00435150
+#define InitialiseDoor ((void(__cdecl*)(__int16 itemID)) 0x00435190)
+void __cdecl DoorControl(__int16 itemID); // 0x00435570
 //	0x00435640:		OnDrawBridge
 //	0x00435700:		DrawBridgeFloor
 //	0x00435740:		DrawBridgeCeiling

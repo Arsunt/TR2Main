@@ -27,7 +27,7 @@
 /*
  * Function list
  */
-#define LaraUnderWater ((void(__cdecl*)(ITEM_INFO*, COLL_INFO*)) 0x00432000)
+void __cdecl LaraUnderWater(ITEM_INFO *item, COLL_INFO *coll); // 0x00432000
 
 void __cdecl SwimTurn(ITEM_INFO *item); // 0x00432230
 void __cdecl lara_as_swim(ITEM_INFO *item, COLL_INFO *coll); // 0x004322C0
@@ -48,6 +48,6 @@ void __cdecl lara_as_swim(ITEM_INFO *item, COLL_INFO *coll); // 0x004322C0
 
 //	0x004326F0:		LaraTestWaterDepth
 //	0x004327C0:		LaraSwimCollision
-//	0x00432920:		LaraWaterCurrent
+#define LaraWaterCurrent ((void(__cdecl*)(COLL_INFO*)) 0x00432920)
 
 #endif // LARA_SWIM_H_INCLUDED

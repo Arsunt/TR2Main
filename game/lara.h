@@ -29,9 +29,9 @@
  */
 #define LaraAboveWater ((void(__cdecl*)(ITEM_INFO*, COLL_INFO*)) 0x00427560)
 
-// 0x00427700:		LookUpDown
-// 0x00427770:		LookLeftRight
-// 0x004277F0:		ResetLook
+#define LookUpDown ((void(__cdecl*)(void)) 0x00427700)
+#define LookLeftRight ((void(__cdecl*)(void)) 0x00427770)
+#define ResetLook ((void(__cdecl*)(void)) 0x004277F0)
 // 0x00427880:		lara_as_walk
 // 0x00427910:		lara_as_run
 // 0x00427A60:		lara_as_stop

@@ -1861,6 +1861,19 @@ typedef struct MeshInfo_t {
 	__int16 staticNumber;
 } MESH_INFO;
 
+typedef struct DoorPosData_t {
+	FLOOR_INFO* floor;
+	FLOOR_INFO data;
+	__int16 box;
+} DOORPOS_DATA;
+
+typedef struct DoorData_t {
+	DOORPOS_DATA d1;
+	DOORPOS_DATA d1flip;
+	DOORPOS_DATA d2;
+	DOORPOS_DATA d2flip;
+} DOOR_DATA;
+
 typedef struct RoomInfo_t {
 	__int16 *data;
 	DOOR_INFOS *doors;
