@@ -35,36 +35,34 @@
 static int OpenDoorsCheatCooldown = 0;
 // NOTE: this come from Tomb1Main (Door Cheat)
 void DoorOpenNearest(ITEM_INFO *lara_item) {
-    int max_dist = SQR((1024 * 2) >> 8);
-    for (int itemID = 0; itemID < LevelItemCount; itemID++) {
-        ITEM_INFO *item = &Items[itemID];
-        int dx = (item->pos.x - lara_item->pos.x) >> 8;
-        int dy = (item->pos.y - lara_item->pos.y) >> 8;
-        int dz = (item->pos.z - lara_item->pos.z) >> 8;
-        int dist = SQR(dx) + SQR(dy) + SQR(dz);
-        if (dist > max_dist) {
-            continue;
-        }
-
-        if ((item->objectID < ID_DOOR_TYPE1
+	int max_dist = SQR((1024 * 2) >> 8);
+	for (int itemID = 0; itemID < LevelItemCount; itemID++) {
+		ITEM_INFO *item = &Items[itemID];
+		if ((item->objectID < ID_DOOR_TYPE1
 		||   item->objectID > ID_DOOR_TYPE8)
 		&&   item->objectID != ID_TRAPDOOR_TYPE1
 		&&   item->objectID != ID_TRAPDOOR_TYPE2
 		&&   item->objectID != ID_TRAPDOOR_TYPE3) {
-            continue;
-        }
-
-        if (!item->active) {
-            AddActiveItem(itemID);
-            item->flags |= IFL_CODEBITS;
-        } else if CHK_ANY(item->flags, IFL_CODEBITS) {
-            item->flags &= ~IFL_CODEBITS;
-        } else {
-            item->flags |= IFL_CODEBITS;
-        }
-        item->timer = 0;
-        item->touchBits = 0;
-    }
+			continue;
+		}
+		int dx = (item->pos.x - lara_item->pos.x) >> 8;
+		int dy = (item->pos.y - lara_item->pos.y) >> 8;
+		int dz = (item->pos.z - lara_item->pos.z) >> 8;
+		int dist = SQR(dx) + SQR(dy) + SQR(dz);
+		if (dist > max_dist) {
+			continue;
+		}
+		if (!item->active) {
+			AddActiveItem(itemID);
+			item->flags |= IFL_CODEBITS;
+		} else if CHK_ANY(item->flags, IFL_CODEBITS) {
+			item->flags &= ~IFL_CODEBITS;
+		} else {
+			item->flags |= IFL_CODEBITS;
+		}
+		item->timer = 0;
+		item->touchBits = 0;
+	}
 }
 #endif
 
@@ -143,11 +141,11 @@ void __cdecl LaraUnderWater(ITEM_INFO *item, COLL_INFO *coll) {
 	// Press Draw key to open any near door !
 	if (Lara.water_status == LWS_Cheat) {
 		if (OpenDoorsCheatCooldown) {
-            OpenDoorsCheatCooldown--;
-        } else if CHK_ANY(InputStatus, IN_DRAW) {
-            OpenDoorsCheatCooldown = FRAMES_PER_SECOND;
-            DoorOpenNearest(LaraItem);
-        }
+			OpenDoorsCheatCooldown--;
+		} else if CHK_ANY(InputStatus, IN_DRAW) {
+			OpenDoorsCheatCooldown = FRAMES_PER_SECOND;
+			DoorOpenNearest(LaraItem);
+		}
 	}
 #endif // FEATURE_CHEAT
 
