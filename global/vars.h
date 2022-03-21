@@ -406,6 +406,7 @@ extern APP_SETTINGS SavedAppSettings;
 #define IsCinematicLoaded			VAR_U_(0x005262F4, __int16)
 #define CineFramesCount				VAR_U_(0x005262F6, __int16)
 #define CineFrames					VAR_U_(0x005262F8, CINE_FRAME_INFO*)
+#define CinematicPos				VAR_U_(0x00526300, PHD_3DPOS)
 #define CineLevelID					VAR_U_(0x00526312, __int16)
 #define CineFrameIdx				VAR_U_(0x00526314, __int16)
 #define Camera						VAR_U_(0x00526320, CAMERA_INFO)

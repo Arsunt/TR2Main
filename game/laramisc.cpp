@@ -492,6 +492,93 @@ void __cdecl InitialiseLaraLoad(__int16 itemID) {
 	LaraItem = &Items[itemID];
 }
 
+void __cdecl InitialiseLara(GF_LEVEL_TYPE type) {
+	ITEM_INFO* item = LaraItem;
+	LARA_INFO* lara = &Lara;
+
+	item->data = lara;
+	item->collidable = FALSE;
+	item->hitPoints = 1000;
+
+	lara->hit_direction = -1;
+	lara->skidoo = -1;
+	lara->weapon_item = -1;
+	lara->calc_fallspeed = 0;
+	lara->climb_status = 0;
+	lara->pose_count = 0;
+	lara->hit_frame = 0;
+	lara->air = 1800;
+	lara->dive_count = 0;
+	lara->death_count = 0;
+	lara->current_active = 0;
+	lara->spaz_effect_count = 0;
+	lara->flare_age = 0;
+	lara->flare_frame = 0;
+	lara->flare_control_left = FALSE;
+	lara->flare_control_right = FALSE;
+	lara->burn = FALSE;
+	lara->CanMonkeySwing = FALSE;
+	lara->extra_anim = 0;
+	lara->keep_ducked = FALSE;
+	lara->look = TRUE;
+	lara->back_gun = ID_LARA;
+	lara->last_pos.x = item->pos.x;
+	lara->last_pos.y = item->pos.y;
+	lara->last_pos.z = item->pos.z;
+	lara->spaz_effect = 0;
+	lara->mesh_effects = 0;
+	lara->target = 0;
+	lara->turn_rate = 0;
+	lara->move_angle = 0;
+	lara->head_z_rot = 0;
+	lara->head_y_rot = 0;
+	lara->head_x_rot = 0;
+	lara->torso_z_rot = 0;
+	lara->torso_y_rot = 0;
+	lara->torso_x_rot = 0;
+	lara->right_arm.flash_gun = 0;
+	lara->left_arm.flash_gun = 0;
+	lara->right_arm.lock = FALSE;
+	lara->left_arm.lock = FALSE;
+	lara->creature = NULL;
+
+	if (type == GFL_NORMAL && GF_LaraStartAnim) {
+		lara->gun_status = LGS_HandBusy;
+		lara->water_status = LWS_AboveWater;
+		item->animNumber = Objects[ID_LARA_EXTRA].animIndex;
+		item->frameNumber = Anims[item->animNumber].frameBase;
+		item->goalAnimState = GF_LaraStartAnim;
+		AnimateLara(item);
+		Camera.type = CAM_Cinematic;
+		CineCurrentFrame = 0;
+		CinematicPos = item->pos;
+	} else if CHK_ANY(RoomInfo[item->roomNumber].flags, ROOM_UNDERWATER) {
+		lara->gun_status = LGS_Armless;
+		item->animNumber = 108;
+		item->frameNumber = Anims[108].frameBase;
+		item->goalAnimState = AS_TREAD;
+		item->currentAnimState = AS_TREAD;
+		item->fallSpeed = 0;
+	} else {
+		lara->gun_status = LGS_Armless;
+		item->animNumber = 11;
+		item->frameNumber = Anims[11].frameBase;
+		item->goalAnimState = AS_STOP;
+		item->currentAnimState = AS_STOP;
+	}
+
+	if (type == GFL_CUTSCENE) {
+		lara->gun_status = LGS_Armless;
+		for (UINT32 i = 0; i < ARRAY_SIZE(lara->mesh_ptrs); i++) {
+			lara->mesh_ptrs[i] = MeshPtr[Objects[ID_LARA].meshIndex + i];
+		}
+		lara->mesh_ptrs[1] = MeshPtr[Objects[ID_LARA_PISTOLS].meshIndex + 1];
+		lara->mesh_ptrs[4] = MeshPtr[Objects[ID_LARA_PISTOLS].meshIndex + 4];
+	} else {
+		InitialiseLaraInventory(CurrentLevel);
+	}
+}
+
 void __cdecl InitialiseLaraInventory(int levelID) {
 	int i;
 	START_INFO *start = &SaveGame.start[levelID];
@@ -694,7 +781,7 @@ void __cdecl InitialiseLaraInventory(int levelID) {
 void __cdecl LaraInitialiseMeshes(int levelID) {
 	START_INFO *start = &SaveGame.start[levelID];
 
-	for (int i = 0; i < ARRAY_SIZE(Lara.mesh_ptrs); i++) {
+	for (UINT32 i = 0; i < ARRAY_SIZE(Lara.mesh_ptrs); i++) {
 		Lara.mesh_ptrs[i] = MeshPtr[Objects[ID_LARA].meshIndex + i];
 	}
 
@@ -763,7 +850,7 @@ void Inject_LaraMisc() {
 	INJECT(0x00430F90, ControlLaraExtra);
 	INJECT(0x00430FB0, InitialiseLaraLoad);
 
-//	INJECT(0x00430FE0, InitialiseLara);
+	INJECT(0x00430FE0, InitialiseLara);
 
 	INJECT(0x004312A0, InitialiseLaraInventory);
 
