@@ -34,22 +34,22 @@
 #ifdef FEATURE_CHEAT
 static int OpenDoorsCheatCooldown = 0;
 // NOTE: this come from Tomb1Main (Door Cheat)
-void DoorOpenNearest(ITEM_INFO *lara_item) {
-	int max_dist = SQR((1024 * 2) >> 8);
+void DoorOpenNearest(int rangeClick) {
+	int max_dist = SQR((1024 * rangeClick) >> 8);
 	for (int itemID = 0; itemID < LevelItemCount; itemID++) {
 		ITEM_INFO *item = &Items[itemID];
+		int dx = (item->pos.x - LaraItem->pos.x) >> 8;
+		int dy = (item->pos.y - LaraItem->pos.y) >> 8;
+		int dz = (item->pos.z - LaraItem->pos.z) >> 8;
+		int dist = SQR(dx) + SQR(dy) + SQR(dz);
+		if (dist > max_dist) {
+			continue;
+		}
 		if ((item->objectID < ID_DOOR_TYPE1
 		||   item->objectID > ID_DOOR_TYPE8)
 		&&   item->objectID != ID_TRAPDOOR_TYPE1
 		&&   item->objectID != ID_TRAPDOOR_TYPE2
 		&&   item->objectID != ID_TRAPDOOR_TYPE3) {
-			continue;
-		}
-		int dx = (item->pos.x - lara_item->pos.x) >> 8;
-		int dy = (item->pos.y - lara_item->pos.y) >> 8;
-		int dz = (item->pos.z - lara_item->pos.z) >> 8;
-		int dist = SQR(dx) + SQR(dy) + SQR(dz);
-		if (dist > max_dist) {
 			continue;
 		}
 		if (!item->active) {
@@ -144,7 +144,7 @@ void __cdecl LaraUnderWater(ITEM_INFO *item, COLL_INFO *coll) {
 			OpenDoorsCheatCooldown--;
 		} else if CHK_ANY(InputStatus, IN_DRAW) {
 			OpenDoorsCheatCooldown = FRAMES_PER_SECOND;
-			DoorOpenNearest(LaraItem);
+			DoorOpenNearest(5);
 		}
 	}
 #endif // FEATURE_CHEAT

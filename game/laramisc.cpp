@@ -624,7 +624,8 @@ void __cdecl InitialiseLara(GF_LEVEL_TYPE type) {
 	lara->extra_anim = 0;
 	lara->keep_ducked = FALSE;
 	lara->look = TRUE;
-	lara->back_gun = ID_LARA;
+	lara->back_gun = 0;
+	lara->water_surface_dist = 100;
 	lara->last_pos.x = item->pos.x;
 	lara->last_pos.y = item->pos.y;
 	lara->last_pos.z = item->pos.z;
@@ -648,12 +649,14 @@ void __cdecl InitialiseLara(GF_LEVEL_TYPE type) {
 	if (type == GFL_NORMAL && GF_LaraStartAnim) {
 		lara->gun_status = LGS_HandBusy;
 		lara->water_status = LWS_AboveWater;
+		lara->extra_anim = TRUE;
 		item->animNumber = Objects[ID_LARA_EXTRA].animIndex;
 		item->frameNumber = Anims[item->animNumber].frameBase;
+		item->currentAnimState = EXTRA_BREATH;
 		item->goalAnimState = GF_LaraStartAnim;
 		AnimateLara(item);
 		Camera.type = CAM_Cinematic;
-		CineCurrentFrame = 0;
+		CineFrameIdx = 0;
 		CinematicPos = item->pos;
 	} else if CHK_ANY(RoomInfo[item->roomNumber].flags, ROOM_UNDERWATER) {
 		lara->gun_status = LGS_Armless;
