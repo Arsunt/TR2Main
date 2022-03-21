@@ -324,7 +324,7 @@ void __cdecl AnimateLara(ITEM_INFO* item) {
 	ANIM_STRUCT *anim;
 	int waterSurfDist;
 	int velocity;
-	short *command, soundType;
+	__int16 *command, soundType;
 	bool notLand, notWater;
 
 	++item->frameNumber;
@@ -336,7 +336,7 @@ void __cdecl AnimateLara(ITEM_INFO* item) {
 
 	if (item->frameNumber > anim->frameEnd) {
 		command = &AnimCommands[anim->commandIndex];
-		for (short i = anim->numberCommands; i > 0; i--) {
+		for (__int16 i = anim->numberCommands; i > 0; i--) {
 			switch (*command++) {
 			case 1:
 				TranslateItem(item, command[0], command[1], command[2]);
@@ -370,7 +370,7 @@ void __cdecl AnimateLara(ITEM_INFO* item) {
 
 	if (anim->numberCommands > 0) {
 		command = &AnimCommands[anim->commandIndex];
-		for (short i = anim->numberCommands; i > 0; i--) {
+		for (__int16 i = anim->numberCommands; i > 0; i--) {
 			switch (*command++) {
 			case 1:
 				command += 3;
@@ -381,8 +381,8 @@ void __cdecl AnimateLara(ITEM_INFO* item) {
 				}
 				waterSurfDist = Lara.water_surface_dist;
 				soundType = command[1] & 0xC000; // LAND or WATER
-				notLand = soundType != 0x4000 || (waterSurfDist < 0 && waterSurfDist != NO_HEIGHT);
-				notWater = soundType != 0x8000 || (waterSurfDist >= 0 || waterSurfDist == NO_HEIGHT);
+				notLand = soundType != (__int16)0x4000 || (waterSurfDist < 0 && waterSurfDist != NO_HEIGHT);
+				notWater = soundType != (__int16)0x8000 || (waterSurfDist >= 0 || waterSurfDist == NO_HEIGHT);
 				if (soundType != 0 && notLand && notWater) {
 					break;
 				}
@@ -394,8 +394,8 @@ void __cdecl AnimateLara(ITEM_INFO* item) {
 				}
 				waterSurfDist = Lara.water_surface_dist;
 				soundType = command[1] & 0xC000; // LAND or WATER
-				notLand = soundType != 0x4000 || (waterSurfDist < 0 && waterSurfDist != NO_HEIGHT);
-				notWater = soundType != 0x8000 || (waterSurfDist >= 0 || waterSurfDist == NO_HEIGHT);
+				notLand = soundType != (__int16)0x4000 || (waterSurfDist < 0 && waterSurfDist != NO_HEIGHT);
+				notWater = soundType != (__int16)0x8000 || (waterSurfDist >= 0 || waterSurfDist == NO_HEIGHT);
 				if (soundType != 0 && notLand && notWater) {
 					break;
 				}
