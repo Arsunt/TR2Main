@@ -691,6 +691,65 @@ void __cdecl InitialiseLaraInventory(int levelID) {
 	InitialiseNewWeapon();
 }
 
+void __cdecl LaraInitialiseMeshes(int levelID) {
+	START_INFO *start = &SaveGame.start[levelID];
+
+	for (int i = 0; i < ARRAY_SIZE(Lara.mesh_ptrs); i++) {
+		Lara.mesh_ptrs[i] = MeshPtr[Objects[ID_LARA].meshIndex + i];
+	}
+
+	// fill the weapon holster
+	switch (start->gunType) {
+	case LGT_Pistols:
+		Lara.mesh_ptrs[1] = MeshPtr[Objects[ID_LARA_PISTOLS].meshIndex + 1];
+		Lara.mesh_ptrs[4] = MeshPtr[Objects[ID_LARA_PISTOLS].meshIndex + 4];
+		break;
+	case LGT_Uzis:
+		Lara.mesh_ptrs[1] = MeshPtr[Objects[ID_LARA_UZIS].meshIndex + 1];
+		Lara.mesh_ptrs[4] = MeshPtr[Objects[ID_LARA_UZIS].meshIndex + 4];
+		break;
+	case LGT_Magnums:
+		Lara.mesh_ptrs[1] = MeshPtr[Objects[ID_LARA_MAGNUMS].meshIndex + 1];
+		Lara.mesh_ptrs[4] = MeshPtr[Objects[ID_LARA_MAGNUMS].meshIndex + 4];
+		break;
+	case LGT_Unarmed:
+	default:
+		break;
+	}
+
+	// if you start with the flare, assign the mesh in the hand
+	if (start->gunType == LGT_Flare) {
+		Lara.mesh_ptrs[13] = MeshPtr[Objects[ID_LARA_FLARE].meshIndex + 13];
+	}
+
+	// check for back gun now !
+	switch (start->gunType) {
+	case LGT_M16:
+		Lara.back_gun = ID_LARA_M16;
+		return;
+	case LGT_Shotgun:
+		Lara.back_gun = ID_LARA_SHOTGUN;
+		return;
+	case LGT_Grenade:
+		Lara.back_gun = ID_LARA_GRENADE;
+		return;
+	case LGT_Harpoon:
+		Lara.back_gun = ID_LARA_HARPOON;
+		return;
+	}
+
+	// if there is no back gun on start and if there is one in inventory, assign it !
+	if (start->has_shotgun) {
+		Lara.back_gun = ID_LARA_SHOTGUN;
+	} else if (start->has_m16) {
+		Lara.back_gun = ID_LARA_M16;
+	} else if (start->has_grenade) {
+		Lara.back_gun = ID_LARA_GRENADE;
+	} else if (start->has_harpoon) {
+		Lara.back_gun = ID_LARA_HARPOON;
+	}
+}
+
 /*
  * Inject function
  */
@@ -708,5 +767,5 @@ void Inject_LaraMisc() {
 
 	INJECT(0x004312A0, InitialiseLaraInventory);
 
-//	INJECT(0x00431610, LaraInitialiseMeshes);
+	INJECT(0x00431610, LaraInitialiseMeshes);
 }

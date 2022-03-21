@@ -40,6 +40,6 @@ void __cdecl InitialiseLaraLoad(__int16 itemID); // 0x00430FB0
 
 void __cdecl InitialiseLaraInventory(int levelID); // 0x004312A0
 
-#define LaraInitialiseMeshes ((void(__cdecl*)(int)) 0x00431610)
+void __cdecl LaraInitialiseMeshes(int levelID); // 0x00431610
 
 #endif // LARAMISC_H_INCLUDED
