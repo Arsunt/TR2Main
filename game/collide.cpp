@@ -255,11 +255,12 @@ __int16 __cdecl GetTiltType(FLOOR_INFO *floor, int x, int y, int z) {
 }
 
 void __cdecl LaraBaddieCollision(ITEM_INFO *laraitem, COLL_INFO *coll) {
+#define ROOM_ARRAY_COUNT 20
 	DOOR_INFOS *doors;
 	ITEM_INFO *item;
 	OBJECT_INFO *obj;
 	int x, y, z;
-	__int16 roomArray[20];
+	__int16 roomArray[ROOM_ARRAY_COUNT];
 	__int16 roomCount;
 	__int16 itemID;
 	__int16 i;
@@ -275,6 +276,9 @@ void __cdecl LaraBaddieCollision(ITEM_INFO *laraitem, COLL_INFO *coll) {
 	doors = RoomInfo[laraitem->roomNumber].doors;
 	if (doors) {
 		for (i = 0; i < doors->wCount; i++) {
+			if (i > (ROOM_ARRAY_COUNT - 1)) { // check if i > roomArray size, to avoid overflow !
+				break;
+			}
 			roomArray[roomCount++] = doors->door[i].room;
 		}
 	}
