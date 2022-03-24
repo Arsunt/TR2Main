@@ -364,46 +364,49 @@ void __cdecl AnimateLara(ITEM_INFO* item) {
 		}
 		item->animNumber = anim->jumpAnimNum;
 		item->frameNumber = anim->jumpFrameNum;
-		anim = &Anims[item->animNumber];
+		anim = &Anims[anim->jumpAnimNum];
 		item->currentAnimState = anim->currentAnimState;
 	}
 
-	if (anim->numberCommands > 0) {
-		command = &AnimCommands[anim->commandIndex];
-		for (__int16 i = anim->numberCommands; i > 0; i--) {
-			switch (*command++) {
-			case 1:
-				command += 3;
-				continue;
-			case 5:
-				if (item->frameNumber != command[0]) {
-					break;
-				}
-				waterSurfDist = Lara.water_surface_dist;
-				soundType = command[1] & 0xC000; // LAND or WATER
-				notLand = soundType != (__int16)0x4000 || (waterSurfDist < 0 && waterSurfDist != NO_HEIGHT);
-				notWater = soundType != (__int16)0x8000 || (waterSurfDist >= 0 || waterSurfDist == NO_HEIGHT);
-				if (soundType != 0 && notLand && notWater) {
-					break;
-				}
-				PlaySoundEffect(command[1] & 0x3FFF, &item->pos, SFX_ALWAYS);
-				break;
-			case 6:
-				if (item->frameNumber != command[0]) {
-					break;
-				}
-				waterSurfDist = Lara.water_surface_dist;
-				soundType = command[1] & 0xC000; // LAND or WATER
-				notLand = soundType != (__int16)0x4000 || (waterSurfDist < 0 && waterSurfDist != NO_HEIGHT);
-				notWater = soundType != (__int16)0x8000 || (waterSurfDist >= 0 || waterSurfDist == NO_HEIGHT);
-				if (soundType != 0 && notLand && notWater) {
-					break;
-				}
-				EffectFunctions[command[1] & 0x3FFF](item);
+	command = &AnimCommands[anim->commandIndex];
+	for (__int16 i = anim->numberCommands; i > 0; i--) {
+		switch (*command++) {
+		case 1:
+			command += 3;
+			continue;
+		case 2:
+			command += 2;
+			break;
+		case 5:
+			if (item->frameNumber != command[0]) {
 				break;
 			}
-			command += 2;
+			waterSurfDist = Lara.water_surface_dist;
+			soundType = command[1] & 0xC000; // LAND or WATER
+			notLand = soundType != 0x4000 || (waterSurfDist < 0 && waterSurfDist != NO_HEIGHT);
+			notWater = soundType != (__int16)0x8000 || waterSurfDist >= 0 || waterSurfDist == NO_HEIGHT;
+			if (soundType && notLand && notWater) {
+				break;
+			}
+			PlaySoundEffect(command[1] & 0x3FFF, &item->pos, SFX_ALWAYS);
+			break;
+		case 6:
+			if (item->frameNumber != command[0]) {
+				break;
+			}
+			waterSurfDist = Lara.water_surface_dist;
+			soundType = command[1] & 0xC000; // LAND or WATER
+			notLand = soundType != 0x4000 || (waterSurfDist < 0 && waterSurfDist != NO_HEIGHT);
+			notWater = soundType != (__int16)0x8000 || (waterSurfDist >= 0 || waterSurfDist == NO_HEIGHT);
+			if (soundType != 0 && notLand && notWater) {
+				break;
+			}
+			EffectFunctions[command[1] & 0x3FFF](item);
+			break;
+		default:
+			continue;
 		}
+		command += 2;
 	}
 
 	if (item->gravity) {
