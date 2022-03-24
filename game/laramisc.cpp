@@ -375,7 +375,6 @@ void __cdecl AnimateLara(ITEM_INFO* item) {
 			command += 3;
 			continue;
 		case 2:
-			command += 2;
 			break;
 		case 5:
 			if (item->frameNumber != command[0]) {
