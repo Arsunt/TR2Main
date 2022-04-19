@@ -782,9 +782,9 @@ void __cdecl DrawLara(ITEM_INFO *laraitem) {
 
 		phd_TranslateRel(bones[25], bones[26], bones[27]);
 		currentState = Items[Lara.weapon_item].currentAnimState;
-		if (Lara.weapon_item != -1 && Lara.gun_type == LGT_M16 && currentState == 0 && currentState == 2 && currentState == 4) {
-			rot1copy = (UINT16*)Lara.right_arm.frame_base + Lara.right_arm.frame_number * (Anims[Lara.right_arm.anim_number].interpolation >> 8) + 9;
-			phd_RotYXZsuperpack(&rot1copy, 7);
+		if (Lara.weapon_item != -1 && Lara.gun_type == LGT_M16 && (currentState == 0 || currentState == 2 || currentState == 4)) {
+			rot1 = (UINT16*)Lara.right_arm.frame_base + Lara.right_arm.frame_number * (Anims[Lara.right_arm.anim_number].interpolation >> 8) + 9;
+			phd_RotYXZsuperpack(&rot1, 7);
 		} else {
 			phd_RotYXZsuperpack(&rot1, 0);
 		}
