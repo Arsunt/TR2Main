@@ -31,6 +31,10 @@
         "   boots. It is used for alternative sound effects of Lara's steps.  ",
         "   The parameter can be true or false. Default value is false.       ",
         "                                                                     ",
+        " - 'bridgelightfix' is used to fix the drawbridge that create a      ",
+        "   dynamic light when triggered. (minisub is not affected)           ",
+        "   Default is true.                                                  ",
+        "                                                                     ",
         " - 'semitransparent' is used for semitransparency parameters.        ",
         "   It can contain: 'animtex', 'objects', 'statics', 'rooms'          ",
         "                                                                     ",
@@ -91,6 +95,7 @@
     "default": {
         "comment": "Default settings for all levels",
         "watercolor": "80FFFF",
+        "bridgelightfix": true,
         "semitransparent": {
             "animtex": "auto",
             "objects": [{

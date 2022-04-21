@@ -66,7 +66,7 @@ void __cdecl DoorControl(__int16 itemID); // 0x00435570
 //	0x00435BC0:		BridgeTilt2Floor
 //	0x00435BF0:		BridgeTilt2Ceiling
 //	0x00435C30:		CopterControl
-//	0x00435D40:		GeneralControl
+void __cdecl GeneralControl(__int16 itemID); // 0x00435D40
 //	0x00435E20:		DetonatorControl
 
 #endif // OBJECTS_H_INCLUDED

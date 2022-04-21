@@ -22,7 +22,14 @@
 #include "global/precompiled.h"
 #include "game/objects.h"
 #include "game/control.h"
+#include "game/draw.h"
+#include "game/items.h"
+#include "game/sphere.h"
 #include "global/vars.h"
+
+#if defined(FEATURE_MOD_CONFIG)
+#include "modding/mod_utils.h"
+#endif // !FEATURE_MOD_CONFIG
 
 void __cdecl ShutThatDoor(DOORPOS_DATA *door) {
 	FLOOR_INFO* floor = door->floor;
@@ -73,6 +80,40 @@ void __cdecl DoorControl(__int16 itemID) {
 	AnimateItem(item);
 }
 
+void __cdecl GeneralControl(__int16 itemID) {
+	ITEM_INFO *item;
+	PHD_VECTOR pos;
+	__int16 roomID;
+
+	item = &Items[itemID];
+	if (TriggerActive(item)) {
+		item->goalAnimState = 1; // NOTE: open
+	} else {
+		item->goalAnimState = 0; // NOTE: close
+	}
+
+	AnimateItem(item);
+
+	roomID = item->roomNumber;
+	GetFloor(item->pos.x, item->pos.y, item->pos.z, &roomID);
+	if (roomID != item->roomNumber) {
+		ItemNewRoom(item->roomNumber, roomID);
+	}
+
+	if (item->status == ITEM_DISABLED) {
+		RemoveActiveItem(itemID);
+		item->flags |= IFL_INVISIBLE;
+	}
+#if defined(FEATURE_MOD_CONFIG)
+	if (IsModBridgeLightFix() && item->objectID != ID_GENERAL) return;
+#endif // !FEATURE_MOD_CONFIG
+	pos.x = 3000;
+	pos.y = 720;
+	pos.z = 0;
+	GetJointAbsPosition(item, &pos, 0);
+	AddDynamicLight(pos.x, pos.y, pos.z, 14, 11);
+}
+
 /*
  * Inject function
  */
@@ -114,6 +155,6 @@ void Inject_Objects() {
 //	INJECT(0x00435BC0, BridgeTilt2Floor);
 //	INJECT(0x00435BF0, BridgeTilt2Ceiling);
 //	INJECT(0x00435C30, CopterControl);
-//	INJECT(0x00435D40, GeneralControl);
+	INJECT(0x00435D40, GeneralControl);
 //	INJECT(0x00435E20, DetonatorControl);
 }
