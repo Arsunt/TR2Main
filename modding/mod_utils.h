@@ -57,6 +57,8 @@ bool EnumeratePolys(__int16 *ptrObj, bool isRoomMesh, ENUM_POLYS_CB callback, PO
 bool IsModConfigLoaded();
 bool IsModBarefoot();
 bool IsModBridgeLightFix();
+bool IsModBonusLevel();
+DWORD GetModBonusLevelID();
 const char *GetModLoadingPix();
 DWORD GetModWaterColor();
 bool IsModSemitransConfigLoaded();
