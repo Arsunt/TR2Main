@@ -24,7 +24,6 @@
 #include "game/camera.h"
 #include "game/control.h"
 #include "game/draw.h"
-#include "game/gameflow.h"
 #include "game/inventory.h"
 #include "game/invtext.h"
 #include "game/savegame.h"
@@ -46,12 +45,6 @@
 #include "modding/background_new.h"
 extern DWORD StatsBackgroundMode;
 #endif // FEATURE_BACKGROUND_IMPROVED
-
-#ifdef FEATURE_MOD_CONFIG
-#include "modding/mod_utils.h"
-extern int GF_GetNumSecrets(DWORD levelID);
-GF_LEVEL_TYPE CurrentLevelType = GFL_NOLEVEL;
-#endif // FEATURE_MOD_CONFIG
 
 #ifdef FEATURE_INPUT_IMPROVED
 #include "modding/joy_output.h"
@@ -92,10 +85,10 @@ DWORD SavegameSlots = 16;
 __int16 __cdecl StartGame(int levelID, GF_LEVEL_TYPE levelType) {
 	if( levelType == GFL_NORMAL || levelType == GFL_SAVED || levelType == GFL_DEMO )
 		CurrentLevel = levelID;
+
 	if( levelType != GFL_SAVED )
 		ModifyStartInfo(levelID);
 
-	CurrentLevelType = levelType; // NOTE: need it for the GameStats()
 	IsTitleLoaded = FALSE;
 
 	if( levelType != GFL_SAVED )
@@ -325,37 +318,11 @@ int __cdecl GameStats(int levelID) {
 	RemoveJoystickHintText(false, true, false);
 #endif // FEATURE_HUD_IMPROVED
 
-	int totalLevels = (GF_GameFlow.num_Levels - GF_GameFlow.num_Demos) - 1;
 	// NOTE: in the original game, there is slightly different bonusFlag activation.
 	// Here removed bonuses initialization, and added the check that the level is final
-	if( CurrentLevel == totalLevels ) {
+	if( CurrentLevel == GF_GameFlow.num_Levels-GF_GameFlow.num_Demos-1 ) {
 		SaveGame.bonusFlag = true;
 	}
-
-#ifdef FEATURE_MOD_CONFIG
-	if (!IsResetFlag && CurrentLevelType != GFL_STORY) {
-		if (IsModBonusLevel()) {
-			int bonusLevelID = GetModBonusLevelID();
-			if (levelID < bonusLevelID) {
-				int numSecretTotal = 0, numSecretGame = 0;
-				for ( int i = 0; i < totalLevels; i++ ) {
-					BYTE flags = SaveGame.start[i].statistics.secrets;
-					// check for secret 1, 2 or 3
-					numSecretTotal += CHK_ANY(flags, 0x1) + CHK_ANY(flags, 0x2) + CHK_ANY(flags, 0x4);
-					numSecretGame += GF_GetNumSecrets(i);
-				}
-				if (numSecretTotal >= numSecretGame) {
-					if (bonusLevelID != -1 && bonusLevelID <= totalLevels) {
-						SaveGame.start[bonusLevelID].available = 1;
-						SaveGame.currentLevel = bonusLevelID;
-						S_SaveGame(&SaveGame, sizeof(SAVEGAME_INFO), 0);
-						return 1;
-					}
-				}
-			}
-		}
-	}
-#endif
 
 #ifdef FEATURE_BACKGROUND_IMPROVED
 	BGND2_ShowPicture(0, 0, 10, 2, FALSE);

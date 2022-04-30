@@ -179,7 +179,10 @@ BOOL __cdecl GF_DoFrontEndSequence() {
 int __cdecl GF_DoLevelSequence(DWORD levelID, GF_LEVEL_TYPE levelType) {
 	for( DWORD i = levelID; i < GF_GameFlow.num_Levels; ++i ) {
 		int direction = GF_InterpretSequence(GF_ScriptTable[i], levelType, 0);
-		if( GF_GameFlow.singleLevel >= 0 || (direction & ~0xFFu) != GF_LEVEL_COMPLETE ) {
+
+		if( GF_GameFlow.singleLevel >= 0 ||
+			(direction & ~0xFFu) != GF_LEVEL_COMPLETE )
+		{
 			return direction;
 		}
 	}
@@ -291,7 +294,7 @@ int __cdecl GF_InterpretSequence(__int16 *seq, GF_LEVEL_TYPE levelType, int seqT
 				break;
 
 			case GFE_GAMECOMPLETE :
-				//DisplayCredits();
+				DisplayCredits();
 				if( GameStats(CurrentLevel) ) {
 					return GF_EXIT_TO_TITLE;
 				}

@@ -45,9 +45,7 @@ typedef struct {
 	bool isLoaded;
 	bool isBarefoot;
 	bool isBridgeLightFix;
-	bool isBonusLevel;
 	char loadingPix[256];
-	DWORD bonusLevelID;
 	DWORD waterColor;
 	SEMITRANS_CONFIG semitrans;
 	REFLECT_CONFIG reflect;
@@ -173,14 +171,6 @@ bool IsModBarefoot() {
 
 bool IsModBridgeLightFix() {
 	return ModConfig.isBridgeLightFix;
-}
-
-bool IsModBonusLevel() {
-	return ModConfig.isBonusLevel;
-}
-
-DWORD GetModBonusLevelID() {
-	return ModConfig.bonusLevelID;
 }
 
 const char *GetModLoadingPix() {
@@ -428,14 +418,6 @@ static bool ParseLevelConfiguration(json_value *root) {
 	field = GetJsonField(root, json_boolean, "barefoot", NULL);
 	if( field ) {
 		ModConfig.isBarefoot = field->u.boolean;
-	}
-	field = GetJsonField(root, json_boolean, "bonuslevel", NULL);
-	if( field ) {
-		ModConfig.isBonusLevel = field->u.boolean;
-	}
-	field = GetJsonField(root, json_integer, "bonuslevelid", NULL);
-	if( field ) {
-		ModConfig.bonusLevelID = field->u.integer;
 	}
 	field = GetJsonField(root, json_boolean, "bridgelightfix", NULL);
 	if( field ) {
