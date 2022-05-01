@@ -67,7 +67,7 @@ void DoorOpenNearest(int rangeClick) {
 #endif
 
 void __cdecl LaraUnderWater(ITEM_INFO *item, COLL_INFO *coll) {
-	int s, s2, c;
+	int s, c;
 
 	coll->badPos = -NO_HEIGHT;
 	coll->badNeg = -400;
@@ -77,8 +77,11 @@ void __cdecl LaraUnderWater(ITEM_INFO *item, COLL_INFO *coll) {
 	coll->old.z = item->pos.z;
 	coll->radius = 300;
 	coll->trigger = 0;
-	coll->flags &= ~0x17;
-	coll->flags |= 0x18;
+	coll->slopesAreWalls = 0;
+	coll->slopesArePits = 0;
+	coll->lavaIsPit = 0;
+	coll->enableSpaz = 0;
+	coll->enableBaddiePush = 1;
 
 	if (CHK_ANY(InputStatus, IN_LOOK) && Lara.look) {
 		LookLeftRight();
@@ -88,9 +91,9 @@ void __cdecl LaraUnderWater(ITEM_INFO *item, COLL_INFO *coll) {
 
 	Lara.look = TRUE;
 	if (Lara.extra_anim) {
-		ExtraFunctions[item->currentAnimState](item);
+		ExtraFunctions[item->currentAnimState](item, coll);
 	} else {
-		LaraControlFunctions[item->currentAnimState](item);
+		LaraControlFunctions[item->currentAnimState](item, coll);
 	}
 
 	if (item->pos.rotZ < -364 || item->pos.rotZ > 364) {
@@ -122,17 +125,17 @@ void __cdecl LaraUnderWater(ITEM_INFO *item, COLL_INFO *coll) {
 	}
 	AnimateLara(item);
 
-	s = (item->fallSpeed * phd_sin(item->pos.rotY)) >> 16;
-	s2 = (item->fallSpeed * phd_sin(item->pos.rotX)) >> 16;
 	c = (item->fallSpeed * phd_cos(item->pos.rotY)) >> 16;
+	s = (item->fallSpeed * phd_sin(item->pos.rotY)) >> 16;
+	item->pos.y -= (item->fallSpeed * phd_sin(item->pos.rotX)) >> 16;
 	item->pos.x += (phd_cos(item->pos.rotX) * s) >> W2V_SHIFT;
-	item->pos.y -= s2;
 	item->pos.z += (phd_cos(item->pos.rotX) * c) >> W2V_SHIFT;
 
+	if (Lara.water_status != LWS_Cheat && Lara.extra_anim == 0) {
+		LaraBaddieCollision(item, coll);
+	}
+
 	if (Lara.extra_anim == 0) {
-		if (Lara.water_status != LWS_Cheat) {
-			LaraBaddieCollision(item, coll);
-		}
 		LaraCollisionFunctions[item->currentAnimState](item, coll);
 	}
 

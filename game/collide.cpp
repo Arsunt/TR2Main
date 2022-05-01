@@ -329,8 +329,8 @@ void __cdecl CreatureCollision(__int16 itemID, ITEM_INFO *laraitem, COLL_INFO *c
 	ITEM_INFO *item = &Items[itemID];
 	if (TestBoundsCollide(item, laraitem, coll->radius)) {
 		if (TestCollision(item, laraitem)) {
-			if (CHK_ANY(coll->flags, 0x8) && Lara.water_status != LWS_Underwater) { // NOTE: original checked "(Lara.water_status == 0) != 2" but it's always true !
-				ItemPushLara(item, laraitem, coll, CHK_ANY(coll->flags, 0x10), FALSE);
+			if (coll->enableBaddiePush && Lara.water_status != LWS_Underwater) { // NOTE: original checked "(Lara.water_status == 0) != 2" but it's always true !
+				ItemPushLara(item, laraitem, coll, coll->enableSpaz, FALSE);
 			}
 		}
 	}
@@ -340,7 +340,7 @@ void __cdecl ObjectCollision(__int16 itemID, ITEM_INFO *laraitem, COLL_INFO *col
 	ITEM_INFO *item = &Items[itemID];
 	if (TestBoundsCollide(item, laraitem, coll->radius)) {
 		if (TestCollision(item, laraitem)) {
-			if CHK_ANY(coll->flags, 0x8) {
+			if (coll->enableBaddiePush) {
 				ItemPushLara(item, laraitem, coll, FALSE, TRUE);
 			}
 		}
@@ -351,11 +351,11 @@ void __cdecl DoorCollision(__int16 itemID, ITEM_INFO *laraitem, COLL_INFO *coll)
 	ITEM_INFO *item = &Items[itemID];
 	if (TestBoundsCollide(item, laraitem, coll->radius)) {
 		if (TestCollision(item, laraitem)) {
-			if CHK_ANY(coll->flags, 0x8) {
+			if (coll->enableBaddiePush) {
 				if (item->currentAnimState == item->goalAnimState) {
 					ItemPushLara(item, laraitem, coll, FALSE, TRUE);
 				} else {
-					ItemPushLara(item, laraitem, coll, CHK_ANY(coll->flags, 0x10), TRUE);
+					ItemPushLara(item, laraitem, coll, coll->enableSpaz, TRUE);
 				}
 			}
 		}
