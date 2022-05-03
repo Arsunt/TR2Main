@@ -27,46 +27,44 @@
 /*
  * Function list
  */
-//	0x004342C0:		EarthQuake
-//	0x004343A0:		ControlCutShotgun
-//	0x004343E0:		InitialiseFinalLevel
-//	0x004344B0:		FinalLevelCounter
-//	0x004346C0:		MiniCopterControl
-//	0x004347A0:		InitialiseDyingMonk
-//	0x00434820:		DyingMonk
-//	0x004348B0:		ControlGongBonger
-//	0x00434970:		DeathSlideCollision
-//	0x00434A30:		ControlDeathSlide
-//	0x00434CC0:		BigBowlControl
-//	0x00434DB0:		BellControl
-//	0x00434E30:		InitialiseWindow
-
+#define EarthQuake ((void(__cdecl*)(__int16)) 0x004342C0)
+#define ControlCutShotgun ((void(__cdecl*)(__int16)) 0x004343A0)
+#define InitialiseFinalLevel ((void(__cdecl*)(__int16)) 0x004343E0)
+#define FinalLevelCounter ((void(__cdecl*)(__int16)) 0x004344B0)
+#define MiniCopterControl ((void(__cdecl*)(__int16)) 0x004346C0)
+#define InitialiseDyingMonk ((void(__cdecl*)(__int16)) 0x004347A0)
+#define DyingMonk ((void(__cdecl*)(__int16)) 0x00434820)
+#define ControlGongBonger ((void(__cdecl*)(__int16)) 0x004348B0)
+#define DeathSlideCollision ((void(__cdecl*)(__int16,ITEM_INFO*,COLL_INFO*)) 0x00434970)
+#define ControlDeathSlide ((void(__cdecl*)(__int16)) 0x00434A30)
+#define BigBowlControl ((void(__cdecl*)(__int16)) 0x00434CC0)
+#define BellControl ((void(__cdecl*)(__int16)) 0x00434DB0)
+#define InitialiseWindow ((void(__cdecl*)(__int16)) 0x00434E30)
 #define SmashWindow ((void(__cdecl*)(__int16)) 0x00434EB0)
-
-//	0x00434F80:		WindowControl
-//	0x00435020:		SmashIceControl
+#define WindowControl ((void(__cdecl*)(__int16)) 0x00434F80)
+#define SmashIceControl ((void(__cdecl*)(__int16)) 0x00435020)
 void __cdecl ShutThatDoor(DOORPOS_DATA* door); // 0x00435100
 void __cdecl OpenThatDoor(DOORPOS_DATA* door); // 0x00435150
-#define InitialiseDoor ((void(__cdecl*)(__int16 itemID)) 0x00435190)
+#define InitialiseDoor ((void(__cdecl*)(__int16)) 0x00435190)
 void __cdecl DoorControl(__int16 itemID); // 0x00435570
-//	0x00435640:		OnDrawBridge
-//	0x00435700:		DrawBridgeFloor
-//	0x00435740:		DrawBridgeCeiling
-//	0x00435780:		DrawBridgeCollision
-//	0x004357B0:		InitialiseLift
-//	0x004357F0:		LiftControl
-//	0x004358D0:		LiftFloorCeiling
-//	0x00435A50:		LiftFloor
-//	0x00435A90:		LiftCeiling
-//	0x00435AD0:		BridgeFlatFloor
-//	0x00435AF0:		BridgeFlatCeiling
-//	0x00435B10:		GetOffset
-//	0x00435B50:		BridgeTilt1Floor
-//	0x00435B80:		BridgeTilt1Ceiling
-//	0x00435BC0:		BridgeTilt2Floor
-//	0x00435BF0:		BridgeTilt2Ceiling
-//	0x00435C30:		CopterControl
+#define OnDrawBridge ((BOOL(__cdecl*)(ITEM_INFO*,int,int)) 0x00435640)
+#define DrawBridgeFloor ((void(__cdecl*)(ITEM_INFO*,int,int,int,__int16*)) 0x00435700)
+#define DrawBridgeCeiling ((void(__cdecl*)(ITEM_INFO*,int,int,int,__int16*)) 0x00435740)
+#define DrawBridgeCollision ((void(__cdecl*)(__int16,ITEM_INFO*,COLL_INFO*)) 0x00435780)
+#define InitialiseLift ((void(__cdecl*)(__int16)) 0x004357B0)
+#define LiftControl ((void(__cdecl*)(__int16)) 0x004357F0)
+#define LiftFloorCeiling ((void(__cdecl*)(ITEM_INFO*,int,int,int,int*,int*)) 0x004358D0)
+#define LiftFloor ((void(__cdecl*)(ITEM_INFO*,int,int,int,__int16*)) 0x00435A50)
+#define LiftCeiling ((void(__cdecl*)(ITEM_INFO*,int,int,int,__int16*)) 0x00435A90)
+#define BridgeFlatFloor ((void(__cdecl*)(ITEM_INFO*,int,int,int,__int16*)) 0x00435AD0)
+#define BridgeFlatCeiling ((void(__cdecl*)(ITEM_INFO*,int,int,int,__int16*)) 0x00435AF0)
+#define GetOffset ((int(__cdecl*)(ITEM_INFO*,int,int)) 0x00435B10)
+#define BridgeTilt1Floor ((void(__cdecl*)(ITEM_INFO*,int,int,int,__int16*)) 0x00435B50)
+#define BridgeTilt1Ceiling ((void(__cdecl*)(ITEM_INFO*,int,int,int,__int16*)) 0x00435B80)
+#define BridgeTilt2Floor ((void(__cdecl*)(ITEM_INFO*,int,int,int,__int16*)) 0x00435BC0)
+#define BridgeTilt2Ceiling ((void(__cdecl*)(ITEM_INFO*,int,int,int,__int16*)) 0x00435BF0)
+#define CopterControl ((void(__cdecl*)(__int16)) 0x00435C30)
 void __cdecl GeneralControl(__int16 itemID); // 0x00435D40
-//	0x00435E20:		DetonatorControl
+#define DetonatorControl ((void(__cdecl*)(__int16)) 0x00435E20)
 
 #endif // OBJECTS_H_INCLUDED

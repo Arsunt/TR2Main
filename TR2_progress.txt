@@ -691,14 +691,14 @@ x function is unused / included in another function
 
 	game/laramisc.cpp
 0x00430380:	+	LaraControl
-0x00430A10:	 *	AnimateLara
+0x00430A10:	+	AnimateLara
 0x00430D10:	+	UseItem
 0x00430ED0:	+	LaraCheatGetStuff
 0x00430F90:	+	ControlLaraExtra
 0x00430FB0:	+	InitialiseLaraLoad
-0x00430FE0:	 *	InitialiseLara
+0x00430FE0:	+	InitialiseLara
 0x004312A0:	+	InitialiseLaraInventory
-0x00431610:	 *	LaraInitialiseMeshes
+0x00431610:	+	LaraInitialiseMeshes
 
 	game/larasurf.cpp
 0x00431710:	 *	LaraSurface
@@ -847,14 +847,14 @@ x function is unused / included in another function
 0x0043A2F0:	+	ReadSG
 
 	game/setup.cpp
-0x0043A330:	 *	InitialiseLevel
-0x0043A490:		InitialiseGameFlags
+0x0043A330:	+	InitialiseLevel
+0x0043A490:	 *	InitialiseGameFlags
 0x0043A500:	+	InitialiseLevelFlags
 0x0043A530:	+	BaddyObjects
 0x0043B570:	 *	TrapObjects
 0x0043BB70:	 *	ObjectObjects
 0x0043C7C0:	+	InitialiseObjects
-0x0043C830:		GetCarriedItems
+0x0043C830:	 *	GetCarriedItems
 
 	game/shark.cpp
 0x0043C900:	 *	JellyControl

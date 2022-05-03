@@ -23,6 +23,7 @@
 #include "game/setup.h"
 #include "game/bear.h"
 #include "game/bird.h"
+#include "game/boat.h"
 #include "game/collide.h"
 #include "game/diver.h"
 #include "game/dog.h"
@@ -30,22 +31,112 @@
 #include "game/draw.h"
 #include "game/eel.h"
 #include "game/enemies.h"
+#include "game/gameflow.h"
 #include "game/hair.h"
+#include "game/health.h"
+#include "game/items.h"
+#include "game/invfunc.h"
 #include "game/laramisc.h"
+#include "game/lot.h"
 #include "game/moveblock.h"
+#include "game/objects.h"
 #include "game/people.h"
 #include "game/rat.h"
+#include "game/savegame.h"
 #include "game/shark.h"
 #include "game/skidoo.h"
 #include "game/spider.h"
+#include "game/sound.h"
+#include "game/traps.h"
+#include "game/text.h"
 #include "game/wolf.h"
 #include "game/yeti.h"
+#include "specific/file.h"
+#include "specific/init.h"
+#include "specific/output.h"
+#include "specific/sndpc.h"
 #include "specific/winmain.h"
 #include "global/vars.h"
 
 #ifdef FEATURE_GOLD
 extern bool IsGold();
 #endif
+
+BOOL __cdecl InitialiseLevel(int levelID, GF_LEVEL_TYPE levelType) {
+	BOOL isLoaded = FALSE;
+
+	if (levelType != GFL_TITLE && levelType != GFL_CUTSCENE) {
+		CurrentLevel = levelID;
+	}
+	IsDemoLevelType = levelType == GFL_DEMO;
+	Lara.item_number = -1;
+	IsTitleLoaded = FALSE;
+	if (levelType != GFL_TITLE) {
+		if (levelType == GFL_SAVED || levelType != GFL_CUTSCENE) {
+			isLoaded = S_LoadLevelFile(GF_LevelFilesStringTable[levelID], levelID, levelType);
+		} else {
+			isLoaded = S_LoadLevelFile(GF_CutsFilesStringTable[levelID], levelID, GFL_CUTSCENE);
+		}
+	} else {
+		isLoaded = S_LoadLevelFile(GF_TitleFilesStringTable[0], levelID, GFL_TITLE);
+	}
+
+	if (isLoaded) {
+		if (Lara.item_number != -1) {
+			InitialiseLara(levelType);
+		}
+		if (levelType == GFL_NORMAL || levelType == GFL_SAVED || levelType == GFL_DEMO) {
+			GetCarriedItems();
+		}
+		Effects = (FX_INFO*)game_malloc(3600, GBUF_EffectsArray);
+		InitialiseFXArray();
+		InitialiseLOTarray();
+		InitColours();
+		T_InitPrint();
+		InitialisePickUpDisplay();
+		S_InitialiseScreen(levelType);
+		HealthBarTimer = 100;
+		SOUND_Stop();
+
+		if (levelType == GFL_SAVED) {
+			ExtractSaveGameInfo();
+		} else if (levelType == GFL_NORMAL) {
+			GF_ModifyInventory(CurrentLevel, FALSE);
+		}
+
+		if (Objects[ID_FINAL_LEVEL_COUNTER].loaded) {
+			InitialiseFinalLevel();
+		}
+
+		if (levelType == GFL_NORMAL || levelType == GFL_SAVED || levelType == GFL_DEMO) {
+			if (TrackIDs[0] != 0) {
+				S_CDPlay(TrackIDs[0], TRUE);
+			}
+		}
+
+		IsAssaultTimerActive = FALSE;
+		IsAssaultTimerDisplay = FALSE;
+		Camera.underwater = FALSE;
+		isLoaded = TRUE;
+	}
+
+	return isLoaded;
+}
+
+void __cdecl InitialiseGameFlags() {
+	FlipStatus = 0;
+	ZeroMemory(FlipMaps, sizeof(FlipMaps));
+	ZeroMemory(CD_Flags, sizeof(CD_Flags));
+	for (int i = 0; i < ID_NUMBER_OBJECTS; i++) {
+		Objects[i].loaded = FALSE;
+	}
+	SunsetTimer = 0;
+	AmmoTextInfo = NULL;
+	IsLevelComplete = FALSE;
+	FlipEffect = -1;
+	MinesDetonated = FALSE;
+	IsMonkAngry = FALSE;
+}
 
 void __cdecl InitialiseLevelFlags() {
 	memset(&SaveGame.statistics, 0, sizeof(STATISTICS_INFO));
@@ -701,20 +792,90 @@ void __cdecl BaddyObjects() {
 	}
 }
 
+void __cdecl TrapObjects() {
+	OBJECT_INFO* obj;
+	obj = &Objects[ID_GONDOLA];
+	if (obj->loaded) {
+		obj->collision = ObjectCollision;
+		obj->control = GondolaControl;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_CEILING_SPIKES];
+	if (obj->loaded) {
+		obj->collision = TrapCollision;
+		obj->control = ControlCeilingSpikes;
+		obj->save_position = TRUE;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_COPTER];
+	if (obj->loaded) {
+		obj->control = CopterControl;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_MINI_COPTER];
+	if (obj->loaded) {
+		obj->control = MiniCopterControl;
+		obj->save_flags = TRUE;
+		obj->save_position = TRUE;
+	}
+	obj = &Objects[ID_HOOK];
+	if (obj->loaded) {
+		obj->collision = CreatureCollision;
+		obj->control = HookControl;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_GENERAL];
+	if (obj->loaded) {
+		obj->collision = ObjectCollision;
+		obj->control = GeneralControl;
+		obj->water_creature = TRUE;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_DYING_MONK];
+	if (obj->loaded) {
+		obj->initialise = InitialiseDyingMonk;
+		obj->collision = ObjectCollision;
+		obj->control = DyingMonk;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_MINE];
+	if (obj->loaded) {
+		obj->collision = ObjectCollision;
+		obj->control = MineControl;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_DEATH_SLIDE];
+	if (obj->loaded) {
+		obj->initialise = InitialiseRollingBall;
+		obj->collision = DeathSlideCollision;
+		obj->control = ControlDeathSlide;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+		obj->save_position = TRUE;
+	}
+	obj = &Objects[ID_PROPELLER2];
+	if (obj->loaded) {
+		obj->collision = ObjectCollision;
+		obj->control = PropellerControl;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
+}
+
 /*
  * Inject function
  */
 void Inject_Setup() {
-//	INJECT(0x0043A330, InitialiseLevel);
-//	INJECT(0x0043A490, InitialiseGameFlags);
-
+	INJECT(0x0043A330, InitialiseLevel);
+	INJECT(0x0043A490, InitialiseGameFlags);
 	INJECT(0x0043A500, InitialiseLevelFlags);
 	INJECT(0x0043A530, BaddyObjects);
-
-//	INJECT(0x0043B570, TrapObjects);
+	INJECT(0x0043B570, TrapObjects);
 //	INJECT(0x0043BB70, ObjectObjects);
-
 	INJECT(0x0043C7C0, InitialiseObjects);
-
 //	INJECT(0x0043C830, GetCarriedItems);
 }

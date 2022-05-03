@@ -32,32 +32,26 @@ void __cdecl MineControl(__int16 mineID); // 0x00440FC0
 void __cdecl ControlSpikeWall(__int16 itemID); // 0x004411C0
 void __cdecl ControlCeilingSpikes(__int16 itemID); // 0x00441300
 void __cdecl HookControl(__int16 itemID); // 0x00441420
-
-//	0x004414B0:		PropellerControl
-
+#define PropellerControl ((void(__cdecl*)(__int16)) 0x004414B0)
 void __cdecl SpinningBlade(__int16 itemID); // 0x00441640
 void __cdecl IcicleControl(__int16 itemID); // 0x004417C0
 void __cdecl InitialiseBlade(__int16 itemID); // 0x004418C0
 void __cdecl BladeControl(__int16 itemID); // 0x00441900
 void __cdecl InitialiseKillerStatue(__int16 itemID); // 0x004419A0
 void __cdecl KillerStatueControl(__int16 itemID); // 0x004419F0
-
-//	0x00441B00:		SpringBoardControl
-//	0x00441BE0:		InitialiseRollingBall
-//	0x00441C20:		RollingBallControl
-//	0x00441F70:		RollingBallCollision
-//	0x004421C0:		SpikeCollision
-//	0x00442320:		TrapDoorControl
-//	0x00442370:		TrapDoorFloor
-//	0x004423B0:		TrapDoorCeiling
-//	0x004423F0:		OnTrapDoor
-
+#define SpringBoardControl ((void(__cdecl*)(__int16)) 0x00441B00)
+#define InitialiseRollingBall ((void(__cdecl*)(__int16)) 0x00441BE0)
+#define RollingBallControl ((void(__cdecl*)(__int16)) 0x00441C20)
+#define RollingBallCollision ((void(__cdecl*)(__int16,ITEM_INFO*,COLL_INFO*)) 0x00441F70)
+#define SpikeCollision ((void(__cdecl*)(__int16,ITEM_INFO*,COLL_INFO*)) 0x004421C0)
+#define TrapDoorControl ((void(__cdecl*)(__int16)) 0x00442320)
+#define TrapDoorFloor ((void(__cdecl*)(ITEM_INFO*,int,int,int,__int16*)) 0x00442370)
+#define TrapDoorCeiling ((void(__cdecl*)(ITEM_INFO*,int,int,int,__int16*)) 0x004423B0)
+#define OnTrapDoor ((int(__cdecl*)(ITEM_INFO*,int,int)) 0x004423F0)
 void __cdecl Pendulum(__int16 itemID); // 0x004424A0
-
-//	0x004425B0:		FallingBlock
-//	0x004426C0:		FallingBlockFloor
-//	0x00442700:		FallingBlockCeiling
-
+#define FallingBlock ((void(__cdecl*)(__int16)) 0x004425B0)
+#define FallingBlockFloor ((void(__cdecl*)(ITEM_INFO*,int,int,int,__int16*)) 0x004426C0)
+#define FallingBlockCeiling ((void(__cdecl*)(ITEM_INFO*,int,int,int,__int16*)) 0x00442700)
 void __cdecl TeethTrap(__int16 itemID); // 0x00442750
 void __cdecl FallingCeiling(__int16 itemID); // 0x00442810
 void __cdecl DartEmitterControl(__int16 itemID); // 0x004428F0
@@ -67,8 +61,7 @@ void __cdecl FlameEmitterControl(__int16 item_id); // 0x00442BE0
 void __cdecl FlameControl(__int16 fx_id); // 0x00442C70
 void __cdecl LaraBurn(); // 0x00442DE0
 void __cdecl LavaBurn(ITEM_INFO *item); // 0x00442E30
-
-//	0x00442F20:		LavaSpray
-//	0x00442FF0:		ControlLavaBlob
+#define LavaSpray ((void(__cdecl*)(__int16)) 0x00442F20)
+#define ControlLavaBlob ((void(__cdecl*)(__int16)) 0x00442FF0)
 
 #endif // TRAPS_H_INCLUDED
