@@ -189,7 +189,7 @@ x function is unused / included in another function
 0x00412680:	 *	InGameCinematicCamera
 
 	game/collide.cpp
-0x004128D0:		GetCollisionInfo
+0x004128D0:	 *	GetCollisionInfo
 0x00412F90:	+	FindGridShift
 0x00412FC0:	+	CollideStaticObjects
 0x004133B0:	+	GetNearByRooms
@@ -751,56 +751,56 @@ x function is unused / included in another function
 0x004337A0:		ControlBodyPart
 
 	game/moveblock.cpp
-0x004339A0:		InitialiseMovingBlock
+0x004339A0:	 *	InitialiseMovingBlock
 0x004339D0:	 *	MovableBlock
-0x00433B20:		MovableBlockCollision
+0x00433B20:	 *	MovableBlockCollision
 0x00433D80:		TestBlockMovable
 0x00433DD0:		TestBlockPush
 0x00433F20:		TestBlockPull
 0x00434160:	 *	AlterFloorHeight
-0x00434220:		DrawMovableBlock
+0x00434220:	 *	DrawMovableBlock
 0x00434250:	 *	DrawUnclippedItem
 
 	game/objects.cpp
-0x004342C0:		EarthQuake
-0x004343A0:		ControlCutShotgun
-0x004343E0:		InitialiseFinalLevel
-0x004344B0:		FinalLevelCounter
-0x004346C0:		MiniCopterControl
-0x004347A0:		InitialiseDyingMonk
-0x00434820:		DyingMonk
-0x004348B0:		ControlGongBonger
-0x00434970:		DeathSlideCollision
-0x00434A30:		ControlDeathSlide
-0x00434CC0:		BigBowlControl
-0x00434DB0:		BellControl
-0x00434E30:		InitialiseWindow
+0x004342C0:	 *	EarthQuake
+0x004343A0:	 *	ControlCutShotgun
+0x004343E0:	 *	InitialiseFinalLevel
+0x004344B0:	 *	FinalLevelCounter
+0x004346C0:	 *	MiniCopterControl
+0x004347A0:	 *	InitialiseDyingMonk
+0x00434820:	 *	DyingMonk
+0x004348B0:	 *	ControlGongBonger
+0x00434970:	 *	DeathSlideCollision
+0x00434A30:	 *	ControlDeathSlide
+0x00434CC0:	 *	BigBowlControl
+0x00434DB0:	 *	BellControl
+0x00434E30:	 *	InitialiseWindow
 0x00434EB0:	 *	SmashWindow
-0x00434F80:		WindowControl
-0x00435020:		SmashIceControl
+0x00434F80:	 *	WindowControl
+0x00435020:	 *	SmashIceControl
 0x00435100:	+	ShutThatDoor
 0x00435150:	+	OpenThatDoor
-0x00435190:		InitialiseDoor
+0x00435190:	 *	InitialiseDoor
 0x00435570:	+	DoorControl
-0x00435640:		OnDrawBridge
-0x00435700:		DrawBridgeFloor
-0x00435740:		DrawBridgeCeiling
-0x00435780:		DrawBridgeCollision
-0x004357B0:		InitialiseLift
-0x004357F0:		LiftControl
-0x004358D0:		LiftFloorCeiling
-0x00435A50:		LiftFloor
-0x00435A90:		LiftCeiling
-0x00435AD0:		BridgeFlatFloor
-0x00435AF0:		BridgeFlatCeiling
-0x00435B10:		GetOffset
-0x00435B50:		BridgeTilt1Floor
-0x00435B80:		BridgeTilt1Ceiling
-0x00435BC0:		BridgeTilt2Floor
-0x00435BF0:		BridgeTilt2Ceiling
-0x00435C30:		CopterControl
+0x00435640:	 *	OnDrawBridge
+0x00435700:	 *	DrawBridgeFloor
+0x00435740:	 *	DrawBridgeCeiling
+0x00435780:	 *	DrawBridgeCollision
+0x004357B0:	 *	InitialiseLift
+0x004357F0:	 *	LiftControl
+0x004358D0:	 *	LiftFloorCeiling
+0x00435A50:	 *	LiftFloor
+0x00435A90:	 *	LiftCeiling
+0x00435AD0:	 *	BridgeFlatFloor
+0x00435AF0:	 *	BridgeFlatCeiling
+0x00435B10:	 *	GetOffset
+0x00435B50:	 *	BridgeTilt1Floor
+0x00435B80:	 *	BridgeTilt1Ceiling
+0x00435BC0:	 *	BridgeTilt2Floor
+0x00435BF0:	 *	BridgeTilt2Ceiling
+0x00435C30:	 *	CopterControl
 0x00435D40:	+	GeneralControl
-0x00435E20:		DetonatorControl
+0x00435E20:	 *	DetonatorControl
 
 	game/people.cpp
 0x00435EB0:		Targetable
@@ -851,7 +851,7 @@ x function is unused / included in another function
 0x0043A490:	 *	InitialiseGameFlags
 0x0043A500:	+	InitialiseLevelFlags
 0x0043A530:	+	BaddyObjects
-0x0043B570:	 *	TrapObjects
+0x0043B570:	+	TrapObjects
 0x0043BB70:	 *	ObjectObjects
 0x0043C7C0:	+	InitialiseObjects
 0x0043C830:	 *	GetCarriedItems
@@ -932,26 +932,26 @@ x function is unused / included in another function
 0x004411C0:	+	ControlSpikeWall
 0x00441300:	+	ControlCeilingSpikes
 0x00441420:	+	HookControl
-0x004414B0:		PropellerControl
+0x004414B0:	 *	PropellerControl
 0x00441640:	+	SpinningBlade
 0x004417C0:	+	IcicleControl
 0x004418C0:	+	InitialiseBlade
 0x00441900:	+	BladeControl
 0x004419A0:	+	InitialiseKillerStatue
 0x004419F0:	+	KillerStatueControl
-0x00441B00:		SpringBoardControl
-0x00441BE0:		InitialiseRollingBall
-0x00441C20:		RollingBallControl
-0x00441F70:		RollingBallCollision
-0x004421C0:		SpikeCollision
-0x00442320:		TrapDoorControl
-0x00442370:		TrapDoorFloor
-0x004423B0:		TrapDoorCeiling
-0x004423F0:		OnTrapDoor
+0x00441B00:	 *	SpringBoardControl
+0x00441BE0:	 *	InitialiseRollingBall
+0x00441C20:	 *	RollingBallControl
+0x00441F70:	 *	RollingBallCollision
+0x004421C0:	 *	SpikeCollision
+0x00442320:	 *	TrapDoorControl
+0x00442370:	 *	TrapDoorFloor
+0x004423B0:	 *	TrapDoorCeiling
+0x004423F0:	 *	OnTrapDoor
 0x004424A0:	+	Pendulum
-0x004425B0:		FallingBlock
-0x004426C0:		FallingBlockFloor
-0x00442700:		FallingBlockCeiling
+0x004425B0:	 *	FallingBlock
+0x004426C0:	 *	FallingBlockFloor
+0x00442700:	 *	FallingBlockCeiling
 0x00442750:	+	TeethTrap
 0x00442810:	+	FallingCeiling
 0x004428F0:	+	DartEmitterControl
@@ -961,8 +961,8 @@ x function is unused / included in another function
 0x00442C70:	+	FlameControl
 0x00442DE0:	+	LaraBurn
 0x00442E30:	+	LavaBurn
-0x00442F20:		LavaSpray
-0x00442FF0:		ControlLavaBlob
+0x00442F20:	 *	LavaSpray
+0x00442FF0:	 *	ControlLavaBlob
 
 	game/yeti.cpp
 0x00443100:	 *	GiantYetiControl
@@ -1406,7 +1406,7 @@ x function is unused / included in another function
 0x00456680:	+	UpdateTicks
 0x004566C0:	+	TIME_Init
 0x00456720:	+	Sync
-0x00456780:	+	LoadResource
+0x00456780:	+	UT_LoadResource // NOTE: Previous name was LoadResource but utils.h have UT_ in front.
 0x004567C0:	+	UT_InitAccurateTimer
 0x00456820:	+	UT_Microseconds
 0x00456870:	+	UT_CenterWindow

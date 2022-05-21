@@ -29,7 +29,7 @@
  */
 #define EarthQuake ((void(__cdecl*)(__int16)) 0x004342C0)
 #define ControlCutShotgun ((void(__cdecl*)(__int16)) 0x004343A0)
-#define InitialiseFinalLevel ((void(__cdecl*)(__int16)) 0x004343E0)
+#define InitialiseFinalLevel ((void(__cdecl*)()) 0x004343E0)
 #define FinalLevelCounter ((void(__cdecl*)(__int16)) 0x004344B0)
 #define MiniCopterControl ((void(__cdecl*)(__int16)) 0x004346C0)
 #define InitialiseDyingMonk ((void(__cdecl*)(__int16)) 0x004347A0)

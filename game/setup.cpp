@@ -144,12 +144,12 @@ void __cdecl InitialiseLevelFlags() {
 
 void __cdecl InitialiseObjects() {
 	for( int i = 0; i < ID_NUMBER_OBJECTS; ++i ) {
-		Objects[i].intelligent = 0;
-		Objects[i].save_position = 0;
-		Objects[i].save_hitpoints = 0;
-		Objects[i].save_flags = 0;
-		Objects[i].save_anim = 0;
-		Objects[i].water_creature = 0;
+		Objects[i].intelligent = FALSE;
+		Objects[i].save_position = FALSE;
+		Objects[i].save_hitpoints = FALSE;
+		Objects[i].save_flags = FALSE;
+		Objects[i].save_anim = FALSE;
+		Objects[i].water_creature = FALSE;
 		Objects[i].initialise = NULL;
 		Objects[i].collision = NULL;
 		Objects[i].control = NULL;
@@ -793,8 +793,7 @@ void __cdecl BaddyObjects() {
 }
 
 void __cdecl TrapObjects() {
-	OBJECT_INFO* obj;
-	obj = &Objects[ID_GONDOLA];
+	OBJECT_INFO* obj = &Objects[ID_GONDOLA];
 	if (obj->loaded) {
 		obj->collision = ObjectCollision;
 		obj->control = GondolaControl;
@@ -857,11 +856,215 @@ void __cdecl TrapObjects() {
 		obj->save_flags = TRUE;
 		obj->save_position = TRUE;
 	}
+	obj = &Objects[ID_PROPELLER1];
+	if (obj->loaded) {
+		obj->collision = TrapCollision;
+		obj->control = PropellerControl;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
 	obj = &Objects[ID_PROPELLER2];
 	if (obj->loaded) {
 		obj->collision = ObjectCollision;
 		obj->control = PropellerControl;
 		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
+    obj = &Objects[ID_PROPELLER3];
+	if (obj->loaded) {
+		obj->collision = TrapCollision;
+		obj->control = PropellerControl;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+		obj->water_creature = TRUE;
+	}
+	obj = &Objects[ID_PROPELLER4];
+	if (obj->loaded) {
+		obj->collision = ObjectCollision;
+		obj->control = PropellerControl;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_SPINNING_BLADE];
+	if (obj->loaded) {
+		obj->initialise = InitialiseKillerStatue;
+		obj->control = SpinningBlade;
+		obj->collision = ObjectCollision;
+		obj->save_position = TRUE;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_KILLER_STATUE];
+	if (obj->loaded) {
+		obj->initialise = InitialiseKillerStatue;
+		obj->control = KillerStatueControl;
+		obj->collision = TrapCollision;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_FALLING_BLOCK1];
+	if (obj->loaded) {
+		obj->control = FallingBlock;
+		obj->ceiling = FallingBlockCeiling;
+		obj->floor = FallingBlockFloor;
+		obj->save_position = TRUE;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_FALLING_BLOCK2];
+	if (obj->loaded) {
+		obj->control = FallingBlock;
+		obj->ceiling = FallingBlockCeiling;
+		obj->floor = FallingBlockFloor;
+		obj->save_position = TRUE;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_FALLING_BLOCK3];
+	if (obj->loaded) {
+		obj->control = FallingBlock;
+		obj->ceiling = FallingBlockCeiling;
+		obj->floor = FallingBlockFloor;
+		obj->save_position = TRUE;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_ICICLE];
+	if (obj->loaded) {
+		obj->collision = TrapCollision;
+		obj->control = IcicleControl;
+		obj->save_position = TRUE;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_BLADE];
+	if (obj->loaded) {
+		obj->initialise = InitialiseBlade;
+		obj->control = BladeControl;
+		obj->collision = TrapCollision;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_SPRING_BOARD];
+	if (obj->loaded) {
+		obj->control = SpringBoardControl;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_PENDULUM1];
+	if (obj->loaded) {
+		obj->collision = ObjectCollision;
+		obj->control = Pendulum;
+		obj->shadowSize = 128;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_PENDULUM2];
+	if (obj->loaded) {
+		obj->collision = ObjectCollision;
+		obj->control = Pendulum;
+		obj->shadowSize = 128;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_TEETH_TRAP];
+	if (obj->loaded) {
+		obj->collision = TrapCollision;
+		obj->control = TeethTrap;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_FALLING_CEILING];
+	if (obj->loaded) {
+		obj->collision = TrapCollision;
+		obj->control = FallingCeiling;
+		obj->save_position = TRUE;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_ROLLING_BALL1];
+	if (obj->loaded) {
+		obj->initialise = InitialiseRollingBall;
+		obj->collision = RollingBallCollision;
+		obj->control = RollingBallControl;
+		obj->save_position = TRUE;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_ROLLING_BALL2];
+	if (obj->loaded) {
+		obj->initialise = InitialiseRollingBall;
+		obj->collision = RollingBallCollision;
+		obj->control = RollingBallControl;
+		obj->save_position = TRUE;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_ROLLING_BALL3];
+	if (obj->loaded) {
+		obj->initialise = InitialiseRollingBall;
+		obj->collision = RollingBallCollision;
+		obj->control = RollingBallControl;
+		obj->save_position = TRUE;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
+	}
+
+	for (int i = 0; i < 4; i++) {
+		obj = &Objects[ID_MOVABLE_BLOCK1 + i];
+		if (obj->loaded) {
+			obj->initialise = InitialiseMovingBlock;
+			obj->collision = MovableBlockCollision;
+			obj->control = MovableBlock;
+			obj->drawRoutine = DrawMovableBlock;
+			obj->save_position = TRUE;
+			obj->save_anim = TRUE;
+			obj->save_flags = TRUE;
+		}
+	}
+
+	obj = &Objects[ID_SPIKES];
+	if (obj->loaded) {
+		obj->collision = SpikeCollision;
+	}
+	obj = &Objects[ID_DARTS];
+	if (obj->loaded) {
+		obj->control = DartsControl;
+		obj->collision = ObjectCollision;
+		obj->shadowSize = 128;
+	}
+	obj = &Objects[ID_DART_EMITTER];
+	if (obj->loaded) {
+		obj->control = DartEmitterControl;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_DART_EFFECT];
+	if (obj->loaded) {
+		obj->control = DartEffectControl;
+		obj->drawRoutine = DrawSpriteItem;
+		obj->semi_transparent = TRUE;
+	}
+	obj = &Objects[ID_FLAME];
+	if (obj->loaded) {
+		obj->control = FlameControl;
+		obj->semi_transparent = TRUE;
+	}
+	obj = &Objects[ID_FLAME_EMITTER];
+	if (obj->loaded) {
+		obj->control = FlameEmitterControl;
+		obj->drawRoutine = DrawDummyItem;
+		obj->save_flags = TRUE;
+	}
+	obj = &Objects[ID_LAVA];
+	if (obj->loaded) {
+		obj->control = ControlLavaBlob;
+		obj->semi_transparent = TRUE;
+	}
+	obj = &Objects[ID_LAVA_EMITTER];
+	if (obj->loaded) {
+		obj->control = LavaSpray;
+		obj->collision = ObjectCollision;
+		obj->drawRoutine = DrawDummyItem;
 		obj->save_flags = TRUE;
 	}
 }
