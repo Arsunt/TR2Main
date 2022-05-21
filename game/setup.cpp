@@ -793,117 +793,111 @@ void __cdecl BaddyObjects() {
 }
 
 void __cdecl TrapObjects() {
-	OBJECT_INFO* obj = &Objects[ID_GONDOLA];
-	if (obj->loaded) {
-		obj->collision = ObjectCollision;
-		obj->control = GondolaControl;
-		obj->save_anim = TRUE;
-		obj->save_flags = TRUE;
-	}
+	OBJECT_INFO* obj;
+	int i;
+
+	obj = &Objects[ID_GONDOLA];
+	obj->collision = ObjectCollision;
+	obj->control = GondolaControl;
+	obj->save_anim = TRUE;
+	obj->save_flags = TRUE;
+
+	obj = &Objects[ID_SPIKE_WALL];
+	obj->collision = ObjectCollision;
+	obj->control = ControlSpikeWall;
+	obj->save_position = TRUE;
+	obj->save_flags = TRUE;
+
 	obj = &Objects[ID_CEILING_SPIKES];
-	if (obj->loaded) {
-		obj->collision = TrapCollision;
-		obj->control = ControlCeilingSpikes;
-		obj->save_position = TRUE;
-		obj->save_flags = TRUE;
-	}
+	obj->collision = TrapCollision;
+	obj->control = ControlCeilingSpikes;
+	obj->save_position = TRUE;
+	obj->save_flags = TRUE;
+
 	obj = &Objects[ID_COPTER];
-	if (obj->loaded) {
-		obj->control = CopterControl;
-		obj->save_anim = TRUE;
-		obj->save_flags = TRUE;
-	}
+	obj->control = CopterControl;
+	obj->save_anim = TRUE;
+	obj->save_flags = TRUE;
+
 	obj = &Objects[ID_MINI_COPTER];
-	if (obj->loaded) {
-		obj->control = MiniCopterControl;
-		obj->save_flags = TRUE;
-		obj->save_position = TRUE;
-	}
+	obj->control = MiniCopterControl;
+	obj->save_flags = TRUE;
+	obj->save_position = TRUE;
+
 	obj = &Objects[ID_HOOK];
-	if (obj->loaded) {
-		obj->collision = CreatureCollision;
-		obj->control = HookControl;
-		obj->save_anim = TRUE;
-		obj->save_flags = TRUE;
-	}
+	obj->collision = CreatureCollision;
+	obj->control = HookControl;
+	obj->save_anim = TRUE;
+	obj->save_flags = TRUE;
+
 	obj = &Objects[ID_GENERAL];
-	if (obj->loaded) {
-		obj->collision = ObjectCollision;
-		obj->control = GeneralControl;
-		obj->water_creature = TRUE;
-		obj->save_anim = TRUE;
-		obj->save_flags = TRUE;
-	}
+	obj->collision = ObjectCollision;
+	obj->control = GeneralControl;
+	obj->water_creature = TRUE;
+	obj->save_anim = TRUE;
+	obj->save_flags = TRUE;
+
 	obj = &Objects[ID_DYING_MONK];
-	if (obj->loaded) {
-		obj->initialise = InitialiseDyingMonk;
-		obj->collision = ObjectCollision;
-		obj->control = DyingMonk;
-		obj->save_flags = TRUE;
-	}
+	obj->initialise = InitialiseDyingMonk;
+	obj->collision = ObjectCollision;
+	obj->control = DyingMonk;
+	obj->save_flags = TRUE;
+
 	obj = &Objects[ID_MINE];
-	if (obj->loaded) {
-		obj->collision = ObjectCollision;
-		obj->control = MineControl;
-		obj->save_flags = TRUE;
-	}
+	obj->collision = ObjectCollision;
+	obj->control = MineControl;
+	obj->save_flags = TRUE;
+
 	obj = &Objects[ID_DEATH_SLIDE];
-	if (obj->loaded) {
-		obj->initialise = InitialiseRollingBall;
-		obj->collision = DeathSlideCollision;
-		obj->control = ControlDeathSlide;
-		obj->save_anim = TRUE;
-		obj->save_flags = TRUE;
-		obj->save_position = TRUE;
-	}
+	obj->initialise = InitialiseRollingBall;
+	obj->collision = DeathSlideCollision;
+	obj->control = ControlDeathSlide;
+	obj->save_anim = TRUE;
+	obj->save_flags = TRUE;
+	obj->save_position = TRUE;
+
 	obj = &Objects[ID_PROPELLER1];
-	if (obj->loaded) {
-		obj->collision = TrapCollision;
-		obj->control = PropellerControl;
-		obj->save_anim = TRUE;
-		obj->save_flags = TRUE;
-	}
+	obj->collision = TrapCollision;
+	obj->control = PropellerControl;
+	obj->save_anim = TRUE;
+	obj->save_flags = TRUE;
+
 	obj = &Objects[ID_PROPELLER2];
-	if (obj->loaded) {
-		obj->collision = ObjectCollision;
-		obj->control = PropellerControl;
-		obj->save_anim = TRUE;
-		obj->save_flags = TRUE;
-	}
+	obj->collision = ObjectCollision;
+	obj->control = PropellerControl;
+	obj->save_anim = TRUE;
+	obj->save_flags = TRUE;
+
     obj = &Objects[ID_PROPELLER3];
-	if (obj->loaded) {
-		obj->collision = TrapCollision;
-		obj->control = PropellerControl;
-		obj->save_anim = TRUE;
-		obj->save_flags = TRUE;
-		obj->water_creature = TRUE;
-	}
+	obj->collision = TrapCollision;
+	obj->control = PropellerControl;
+	obj->save_anim = TRUE;
+	obj->save_flags = TRUE;
+	obj->water_creature = TRUE;
+
 	obj = &Objects[ID_PROPELLER4];
-	if (obj->loaded) {
-		obj->collision = ObjectCollision;
-		obj->control = PropellerControl;
-		obj->save_anim = TRUE;
-		obj->save_flags = TRUE;
-	}
+	obj->collision = ObjectCollision;
+	obj->control = PropellerControl;
+	obj->save_anim = TRUE;
+	obj->save_flags = TRUE;
+
 	obj = &Objects[ID_SPINNING_BLADE];
-	if (obj->loaded) {
-		obj->initialise = InitialiseKillerStatue;
-		obj->control = SpinningBlade;
-		obj->collision = ObjectCollision;
-		obj->save_position = TRUE;
-		obj->save_anim = TRUE;
-		obj->save_flags = TRUE;
-	}
+	obj->initialise = InitialiseKillerStatue;
+	obj->control = SpinningBlade;
+	obj->collision = ObjectCollision;
+	obj->save_position = TRUE;
+	obj->save_anim = TRUE;
+	obj->save_flags = TRUE;
+
 	obj = &Objects[ID_KILLER_STATUE];
-	if (obj->loaded) {
-		obj->initialise = InitialiseKillerStatue;
-		obj->control = KillerStatueControl;
-		obj->collision = TrapCollision;
-		obj->save_anim = TRUE;
-		obj->save_flags = TRUE;
-	}
-	obj = &Objects[ID_FALLING_BLOCK1];
-	if (obj->loaded) {
+	obj->initialise = InitialiseKillerStatue;
+	obj->control = KillerStatueControl;
+	obj->collision = TrapCollision;
+	obj->save_anim = TRUE;
+	obj->save_flags = TRUE;
+
+	for (i = 0; i < 3; i++) {
+		obj = &Objects[ID_FALLING_BLOCK1 + i];
 		obj->control = FallingBlock;
 		obj->ceiling = FallingBlockCeiling;
 		obj->floor = FallingBlockFloor;
@@ -911,97 +905,55 @@ void __cdecl TrapObjects() {
 		obj->save_anim = TRUE;
 		obj->save_flags = TRUE;
 	}
-	obj = &Objects[ID_FALLING_BLOCK2];
-	if (obj->loaded) {
-		obj->control = FallingBlock;
-		obj->ceiling = FallingBlockCeiling;
-		obj->floor = FallingBlockFloor;
-		obj->save_position = TRUE;
-		obj->save_anim = TRUE;
-		obj->save_flags = TRUE;
-	}
-	obj = &Objects[ID_FALLING_BLOCK3];
-	if (obj->loaded) {
-		obj->control = FallingBlock;
-		obj->ceiling = FallingBlockCeiling;
-		obj->floor = FallingBlockFloor;
-		obj->save_position = TRUE;
-		obj->save_anim = TRUE;
-		obj->save_flags = TRUE;
-	}
+
 	obj = &Objects[ID_ICICLE];
-	if (obj->loaded) {
-		obj->collision = TrapCollision;
-		obj->control = IcicleControl;
-		obj->save_position = TRUE;
-		obj->save_anim = TRUE;
-		obj->save_flags = TRUE;
-	}
+	obj->collision = TrapCollision;
+	obj->control = IcicleControl;
+	obj->save_position = TRUE;
+	obj->save_anim = TRUE;
+	obj->save_flags = TRUE;
+
 	obj = &Objects[ID_BLADE];
-	if (obj->loaded) {
-		obj->initialise = InitialiseBlade;
-		obj->control = BladeControl;
-		obj->collision = TrapCollision;
-		obj->save_anim = TRUE;
-		obj->save_flags = TRUE;
-	}
+	obj->initialise = InitialiseBlade;
+	obj->control = BladeControl;
+	obj->collision = TrapCollision;
+	obj->save_anim = TRUE;
+	obj->save_flags = TRUE;
+
 	obj = &Objects[ID_SPRING_BOARD];
-	if (obj->loaded) {
-		obj->control = SpringBoardControl;
-		obj->save_anim = TRUE;
-		obj->save_flags = TRUE;
-	}
+	obj->control = SpringBoardControl;
+	obj->save_anim = TRUE;
+	obj->save_flags = TRUE;
+
 	obj = &Objects[ID_PENDULUM1];
-	if (obj->loaded) {
-		obj->collision = ObjectCollision;
-		obj->control = Pendulum;
-		obj->shadowSize = 128;
-		obj->save_anim = TRUE;
-		obj->save_flags = TRUE;
-	}
+	obj->collision = ObjectCollision;
+	obj->control = Pendulum;
+	obj->shadowSize = 128;
+	obj->save_anim = TRUE;
+	obj->save_flags = TRUE;
+
 	obj = &Objects[ID_PENDULUM2];
-	if (obj->loaded) {
-		obj->collision = ObjectCollision;
-		obj->control = Pendulum;
-		obj->shadowSize = 128;
-		obj->save_anim = TRUE;
-		obj->save_flags = TRUE;
-	}
+	obj->collision = ObjectCollision;
+	obj->control = Pendulum;
+	obj->shadowSize = 128;
+	obj->save_anim = TRUE;
+	obj->save_flags = TRUE;
+
 	obj = &Objects[ID_TEETH_TRAP];
-	if (obj->loaded) {
-		obj->collision = TrapCollision;
-		obj->control = TeethTrap;
-		obj->save_anim = TRUE;
-		obj->save_flags = TRUE;
-	}
+	obj->collision = TrapCollision;
+	obj->control = TeethTrap;
+	obj->save_anim = TRUE;
+	obj->save_flags = TRUE;
+
 	obj = &Objects[ID_FALLING_CEILING];
-	if (obj->loaded) {
-		obj->collision = TrapCollision;
-		obj->control = FallingCeiling;
-		obj->save_position = TRUE;
-		obj->save_anim = TRUE;
-		obj->save_flags = TRUE;
-	}
-	obj = &Objects[ID_ROLLING_BALL1];
-	if (obj->loaded) {
-		obj->initialise = InitialiseRollingBall;
-		obj->collision = RollingBallCollision;
-		obj->control = RollingBallControl;
-		obj->save_position = TRUE;
-		obj->save_anim = TRUE;
-		obj->save_flags = TRUE;
-	}
-	obj = &Objects[ID_ROLLING_BALL2];
-	if (obj->loaded) {
-		obj->initialise = InitialiseRollingBall;
-		obj->collision = RollingBallCollision;
-		obj->control = RollingBallControl;
-		obj->save_position = TRUE;
-		obj->save_anim = TRUE;
-		obj->save_flags = TRUE;
-	}
-	obj = &Objects[ID_ROLLING_BALL3];
-	if (obj->loaded) {
+	obj->collision = TrapCollision;
+	obj->control = FallingCeiling;
+	obj->save_position = TRUE;
+	obj->save_anim = TRUE;
+	obj->save_flags = TRUE;
+
+	for (i = 0; i < 3; i++) {
+		obj = &Objects[ID_ROLLING_BALL1 + i];
 		obj->initialise = InitialiseRollingBall;
 		obj->collision = RollingBallCollision;
 		obj->control = RollingBallControl;
@@ -1010,63 +962,52 @@ void __cdecl TrapObjects() {
 		obj->save_flags = TRUE;
 	}
 
-	for (int i = 0; i < 4; i++) {
+	for (i = 0; i < 4; i++) {
 		obj = &Objects[ID_MOVABLE_BLOCK1 + i];
-		if (obj->loaded) {
-			obj->initialise = InitialiseMovingBlock;
-			obj->collision = MovableBlockCollision;
-			obj->control = MovableBlock;
-			obj->drawRoutine = DrawMovableBlock;
-			obj->save_position = TRUE;
-			obj->save_anim = TRUE;
-			obj->save_flags = TRUE;
-		}
+		obj->initialise = InitialiseMovingBlock;
+		obj->collision = MovableBlockCollision;
+		obj->control = MovableBlock;
+		obj->drawRoutine = DrawMovableBlock;
+		obj->save_position = TRUE;
+		obj->save_anim = TRUE;
+		obj->save_flags = TRUE;
 	}
 
 	obj = &Objects[ID_SPIKES];
-	if (obj->loaded) {
-		obj->collision = SpikeCollision;
-	}
+	obj->collision = SpikeCollision;
+
 	obj = &Objects[ID_DARTS];
-	if (obj->loaded) {
-		obj->control = DartsControl;
-		obj->collision = ObjectCollision;
-		obj->shadowSize = 128;
-	}
+	obj->control = DartsControl;
+	obj->collision = ObjectCollision;
+	obj->shadowSize = 128;
+
 	obj = &Objects[ID_DART_EMITTER];
-	if (obj->loaded) {
-		obj->control = DartEmitterControl;
-		obj->save_flags = TRUE;
-	}
+	obj->control = DartEmitterControl;
+	obj->save_flags = TRUE;
+
 	obj = &Objects[ID_DART_EFFECT];
-	if (obj->loaded) {
-		obj->control = DartEffectControl;
-		obj->drawRoutine = DrawSpriteItem;
-		obj->semi_transparent = TRUE;
-	}
+	obj->control = DartEffectControl;
+	obj->drawRoutine = DrawSpriteItem;
+	obj->semi_transparent = TRUE;
+
 	obj = &Objects[ID_FLAME];
-	if (obj->loaded) {
-		obj->control = FlameControl;
-		obj->semi_transparent = TRUE;
-	}
+	obj->control = FlameControl;
+	obj->semi_transparent = TRUE;
+
 	obj = &Objects[ID_FLAME_EMITTER];
-	if (obj->loaded) {
-		obj->control = FlameEmitterControl;
-		obj->drawRoutine = DrawDummyItem;
-		obj->save_flags = TRUE;
-	}
+	obj->control = FlameEmitterControl;
+	obj->drawRoutine = DrawDummyItem;
+	obj->save_flags = TRUE;
+
 	obj = &Objects[ID_LAVA];
-	if (obj->loaded) {
-		obj->control = ControlLavaBlob;
-		obj->semi_transparent = TRUE;
-	}
+	obj->control = ControlLavaBlob;
+	obj->semi_transparent = TRUE;
+
 	obj = &Objects[ID_LAVA_EMITTER];
-	if (obj->loaded) {
-		obj->control = LavaSpray;
-		obj->collision = ObjectCollision;
-		obj->drawRoutine = DrawDummyItem;
-		obj->save_flags = TRUE;
-	}
+	obj->control = LavaSpray;
+	obj->collision = ObjectCollision;
+	obj->drawRoutine = DrawDummyItem;
+	obj->save_flags = TRUE;
 }
 
 /*
