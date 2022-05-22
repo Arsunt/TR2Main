@@ -27,9 +27,9 @@
 /*
  * Function list
  */
-//	0x0040CB10:		InitialiseBoat
+#define InitialiseBoat ((void(__cdecl*)(__int16)) 0x0040CB10)
 //	0x0040CB50:		BoatCheckGeton
-//	0x0040CCC0:		BoatCollision
+#define BoatCollision ((void(__cdecl*)(__int16,ITEM_INFO*,COLL_INFO*)) 0x0040CCC0)
 //	0x0040CE20:		TestWaterHeight
 //	0x0040CF20:		DoBoatShift
 
@@ -39,7 +39,7 @@ void __cdecl DoWakeEffect(ITEM_INFO *item); // 0x0040D0F0
 //	0x0040D2C0:		BoatDynamics
 //	0x0040D7A0:		BoatUserControl
 //	0x0040D930:		BoatAnimation
-//	0x0040DAA0:		BoatControl
+#define BoatControl ((void(__cdecl*)(__int16)) 0x0040DAA0)
 
 void __cdecl GondolaControl(__int16 itemID); // 0x0040E0D0
 
