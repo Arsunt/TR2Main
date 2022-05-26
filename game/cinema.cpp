@@ -51,6 +51,16 @@ int __cdecl StartCinematic(int levelID) {
 		return 2;
 	}
 
+	// NOTE: fix lara hair waving in air,
+	// Caused by the cheat fly mode being not reset when cutscene is played !
+	if (Lara.water_status == LWS_Cheat) {
+		Lara.water_status = LWS_AboveWater;
+		LaraItem->currentAnimState = AS_STOP;
+		LaraItem->goalAnimState = AS_STOP;
+		LaraItem->animNumber = 11;
+		LaraItem->frameNumber = Anims[LaraItem->animNumber].frameBase;
+	}
+
 	InitCinematicRooms();
 	InitialisePlayer1(Lara.item_number);
 	Camera.targetAngle = CineTargetAngle;

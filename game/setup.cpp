@@ -87,6 +87,7 @@ BOOL __cdecl InitialiseLevel(int levelID, GF_LEVEL_TYPE levelType) {
 		CurrentLevel = levelID;
 	}
 	IsDemoLevelType = levelType == GFL_DEMO;
+	InitialiseGameFlags();
 	Lara.item_number = -1;
 	IsTitleLoaded = FALSE;
 	if (levelType != GFL_TITLE) {
