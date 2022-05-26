@@ -121,7 +121,7 @@ x function is unused / included in another function
 0x0040C8F0:	 *	EagleControl
 
 	game/boat.cpp
-0x0040CB10:		InitialiseBoat
+0x0040CB10:	 *	InitialiseBoat
 0x0040CB50:		BoatCheckGeton
 0x0040CCC0:		BoatCollision
 0x0040CE20:		TestWaterHeight
@@ -131,7 +131,7 @@ x function is unused / included in another function
 0x0040D2C0:		BoatDynamics
 0x0040D7A0:		BoatUserControl
 0x0040D930:		BoatAnimation
-0x0040DAA0:		BoatControl
+0x0040DAA0:	 *	BoatControl
 0x0040E0D0:	+	GondolaControl
 
 	game/box.cpp
@@ -213,24 +213,24 @@ x function is unused / included in another function
 	game/control.cpp
 0x00414370:	+	ControlPhase
 0x004146C0:	 *	AnimateItem
-0x00414A30:		GetChange
-0x00414AE0:		TranslateItem
+0x00414A30:	 *	GetChange
+0x00414AE0:	 *	TranslateItem
 0x00414B40:	 *	GetFloor
 0x00414CE0:	 *	GetWaterHeight
 0x00414E50:	 *	GetHeight
-0x004150D0:		RefreshCamera
+0x004150D0:	 *	RefreshCamera
 0x004151C0:	 *	TestTriggers
 0x004158A0:	 *	TriggerActive
 0x00415900:	 *	GetCeiling
-0x00415B60:		GetDoor
+0x00415B60:	 *	GetDoor
 0x00415BB0:	 *	LOS
-0x00415C50:		zLOS
-0x00415F40:		xLOS
-0x00416230:		ClipTarget
-0x00416310:		ObjectOnLOS
+0x00415C50:	 *	zLOS
+0x00415F40:	 *	xLOS
+0x00416230:	 *	ClipTarget
+0x00416310:	 *	ObjectOnLOS
 0x00416610:	 *	FlipMap
-0x004166D0:		RemoveRoomFlipItems
-0x00416770:		AddRoomFlipItems
+0x004166D0:	 *	RemoveRoomFlipItems
+0x00416770:	 *	AddRoomFlipItems
 0x004167D0:	+	TriggerCDTrack
 0x00416800:	+	TriggerNormalCDTrack
 
@@ -250,7 +250,7 @@ x function is unused / included in another function
 0x004174E0:	 *	TigerControl
 
 	game/dragon.cpp
-0x00417780:		ControlTwinkle
+0x00417780:	 *	ControlTwinkle
 0x00417900:		CreateBartoliLight
 0x004179E0:		DragonFire
 0x00417A90:	 *	DragonCollision
@@ -737,7 +737,7 @@ x function is unused / included in another function
 0x00432920:		LaraWaterCurrent
 
 	game/lot.cpp
-0x00432B10:		InitialiseLOTarray
+0x00432B10:	 *	InitialiseLOTarray
 0x00432B70:	 *	DisableBaddieAI
 0x00432BC0:	 *	EnableBaddieAI
 0x00432D70:		InitialiseSlot
@@ -748,7 +748,7 @@ x function is unused / included in another function
 0x00433090:	+	ControlMissile
 0x00433360:		ShootAtLara
 0x00433410:	 *	ExplodingDeath
-0x004337A0:		ControlBodyPart
+0x004337A0:	 *	ControlBodyPart
 
 	game/moveblock.cpp
 0x004339A0:	 *	InitialiseMovingBlock
@@ -804,8 +804,8 @@ x function is unused / included in another function
 
 	game/people.cpp
 0x00435EB0:		Targetable
-0x00435F40:		ControlGlow
-0x00435F80:		ControlGunShot
+0x00435F40:	 *	ControlGlow
+0x00435F80:	 *	ControlGunShot
 0x00435FD0:	+	GunShot
 0x00436040:	+	GunHit
 0x00436100:		GunMiss
@@ -822,16 +822,16 @@ x function is unused / included in another function
 
 	game/pickup.cpp
 0x00437F20:	 *	PickUpCollision
-0x004383A0:		SwitchCollision
-0x004385B0:		SwitchCollision2
-0x004386B0:		DetonatorCollision
-0x004388F0:		KeyHoleCollision
+0x004383A0:	 *	SwitchCollision
+0x004385B0:	 *	SwitchCollision2
+0x004386B0:	 *	DetonatorCollision
+0x004388F0:	 *	KeyHoleCollision
 0x00438B30:	 *	PuzzleHoleCollision
-0x00438DF0:		SwitchControl
+0x00438DF0:	 *	SwitchControl
 0x00438E30:		SwitchTrigger
 0x00438EF0:		KeyTrigger
 0x00438F30:		PickupTrigger
-0x00438F70:		SecretControl
+0x00438F70:	 *	SecretControl
 
 	game/rat.cpp
 0x00438FA0:	 *	MouseControl
@@ -864,7 +864,7 @@ x function is unused / included in another function
 	game/skidoo.cpp
 0x0043CEE0:	 *	InitialiseSkidoo
 0x0043CF20:		SkidooCheckGeton
-0x0043D010:		SkidooCollision
+0x0043D010:	 *	SkidooCollision
 0x0043D110:		SkidooBaddieCollision
 0x0043D310:		TestHeight
 0x0043D3D0:		DoShift
@@ -878,7 +878,7 @@ x function is unused / included in another function
 0x0043E2D0:	+	SkidooExplode
 0x0043E350:		SkidooCheckGetOff
 0x0043E590:	+	SkidooGuns
-0x0043E6B0:		SkidooControl
+0x0043E6B0:	 *	SkidooControl
 0x0043EB10:	+	DrawSkidoo
 0x0043EDF0:	 *	InitialiseSkidman
 0x0043EE80:	 *	SkidManControl
@@ -895,7 +895,7 @@ x function is unused / included in another function
 
 	game/sphere.cpp
 0x0043FA60:	 *	TestCollision
-0x0043FB90:		GetSpheres
+0x0043FB90:	 *	GetSpheres
 0x0043FE70:	 +	GetJointAbsPosition
 0x00440010:	 +	BaddieBiteEffect
 
