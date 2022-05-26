@@ -27,7 +27,7 @@
 
 // Imports from xinput*.dll
 static HMODULE hXInput = NULL;
-static void (WINAPI *_XInputEnable)(WINBOOL) = NULL;
+static void (WINAPI *_XInputEnable)(BOOL) = NULL;
 static DWORD (WINAPI *_XInputGetCapabilities)(DWORD, DWORD, XINPUT_CAPABILITIES*) = NULL;
 static DWORD (WINAPI *_XInputSetState)(DWORD, XINPUT_VIBRATION*) = NULL;
 static DWORD (WINAPI *_XInputGetState)(DWORD, XINPUT_STATE*) = NULL;

@@ -71,10 +71,8 @@ void __cdecl lara_hands_free(ITEM_INFO *item); // 0x0041D760
 void __cdecl flip_map_effect(ITEM_INFO *item); // 0x0041D770
 void __cdecl draw_right_gun(ITEM_INFO *item); // 0x0041D780
 void __cdecl draw_left_gun(ITEM_INFO *item); // 0x0041D7D0
-
 //	----------:		shoot_right_gun
 //	----------:		shoot_left_gun
-
 void __cdecl swap_meshes_with_meshswap1(ITEM_INFO *item); // 0x0041D820
 void __cdecl swap_meshes_with_meshswap2(ITEM_INFO *item); // 0x0041D890
 void __cdecl swap_meshes_with_meshswap3(ITEM_INFO *item); // 0x0041D900
