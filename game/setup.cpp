@@ -1330,6 +1330,32 @@ void __cdecl InitialiseObjects() {
 	InitialiseHair();
 }
 
+void __cdecl GetCarriedItems() {
+	ITEM_INFO *item, *pickup;
+	int i;
+
+	for (i = 0, item = Items; i < LevelItemCount; i++, item++) {
+		if (Objects[item->objectID].intelligent) {
+			item->carriedItem = -1;
+			__int16 pickupID = RoomInfo[item->roomNumber].itemNumber;
+			while (pickupID != -1)
+			{
+				pickup = &Items[pickupID];
+				if (pickup->pos.x == item->pos.x
+				&&  pickup->pos.y == item->pos.y
+				&&  pickup->pos.z == item->pos.z
+				&&  Objects[pickup->objectID].collision == PickUpCollision) {
+					pickup->carriedItem = item->carriedItem;
+					item->carriedItem = pickupID;
+					RemoveDrawnItem(pickupID);
+					pickup->roomNumber = 255;
+				}
+				pickupID = pickup->nextItem;
+			}
+		}
+	}
+}
+
 /*
  * Inject function
  */
@@ -1341,5 +1367,5 @@ void Inject_Setup() {
 	INJECT(0x0043B570, TrapObjects);
 	INJECT(0x0043BB70, ObjectObjects);
 	INJECT(0x0043C7C0, InitialiseObjects);
-//	INJECT(0x0043C830, GetCarriedItems);
+	INJECT(0x0043C830, GetCarriedItems);
 }
