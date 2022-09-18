@@ -254,6 +254,7 @@ class RawHidDevice {
 		bool Send(LPCVOID lpBuffer, DWORD nSize);
 		bool Receive(LPVOID lpBuffer, DWORD nSize);
 		bool Calibrate();
+		bool SonyDualSenseRumbleAdjust(int *pLeftMotor, int *pRightMotor, int *pIntensity);
 		bool SonyControllerReport(LPBYTE buf, DWORD bufLen, DWORD productId, RAW_REPORT *pReport);
 		bool ParseRawInputStandard(LPBYTE buf, DWORD bufLen, RAW_STATE *pState);
 		bool ParseRawInputSonyDualShock4(LPBYTE buf, DWORD bufLen, RAW_STATE *pState);
@@ -411,6 +412,62 @@ bool RawHidDevice::Calibrate() {
 	return result;
 }
 
+bool RawHidDevice::SonyDualSenseRumbleAdjust(int *pLeftMotor, int *pRightMotor, int *pIntensity) {
+	// Sony DualSense uses haptics instead of regular vibration motors.
+	// For legacy rumble emulation it scales rumble intensity very very bad,
+	// so you feel no difference between weak and strong vibrations.
+	// But there is a workaround with global intensity parameter which affects
+	// both motors, so this function decides how to scale every motor force
+	// and overall intensity.
+	if( pLeftMotor == NULL || pRightMotor == NULL || pIntensity == NULL ) {
+		return false;
+	}
+	int lrange = 0, lforce = 0;
+	int rrange = 0, rforce = 0;
+	if( *pLeftMotor ) {
+		int grade = (1<<16)/7;
+		lrange = *pLeftMotor / grade;
+		CLAMPG(lrange, 5);
+		lforce = ((*pLeftMotor - grade*lrange) << 7) / grade;
+		CLAMP(lforce, 1, 255);
+	}
+	if( *pRightMotor ) {
+		int grade = (1<<16)/3;
+		rrange = 4 + *pRightMotor / grade;
+		CLAMPG(rrange, 5);
+		rforce = ((*pRightMotor - grade*rrange) << 7) / grade;
+		CLAMP(rforce, 1, 255);
+	}
+	if( lforce && rforce ) {
+		// don't use 'else if' here, it is supposed to be sequential 'if'
+		if( rrange > lrange && rforce < 128 ) {
+			rrange--;
+			rforce += 128;
+		}
+		if( lrange < rrange && lforce >= 128 ) {
+			lrange++;
+			lforce -= 127;
+		}
+		if( lrange > rrange && lforce < 128 ) {
+			lrange--;
+			lforce += 128;
+		}
+		if( rrange < lrange && rforce >= 128 ) {
+			rrange++;
+			rforce -= 127;
+		}
+		if( rrange > lrange ) {
+			// left (heavy) motor is leading
+			// fit the right (light) motor
+			rforce = 1;
+		}
+	}
+	*pLeftMotor = lforce;
+	*pRightMotor = rforce;
+	*pIntensity = 5 - MAX(lrange, rrange);
+	return true;
+}
+
 bool RawHidDevice::SonyControllerReport(LPBYTE buf, DWORD bufLen, DWORD productId, RAW_REPORT *pReport) {
 	LPBYTE data = NULL;
 	memset(buf, 0, bufLen);
@@ -454,14 +511,22 @@ bool RawHidDevice::SonyControllerReport(LPBYTE buf, DWORD bufLen, DWORD productI
 		if( pReport == NULL ) {
 			data[1] = 0x15;
 		} else {
+			int leftMotor = pReport->leftMotor;
+			int rightMotor = pReport->rightMotor;
+			int intensity = 0;
+			if( !SonyDualSenseRumbleAdjust(&leftMotor, &rightMotor, &intensity) ) {
+				leftMotor = pReport->leftMotor>>8;
+				rightMotor = pReport->rightMotor>>8;
+				intensity = 2;
+			};
 			data[0] = 0x0F;
 			data[1] = 0x55;
-			data[2] = (BYTE)(pReport->rightMotor>>8);
-			data[3] = (BYTE)(pReport->leftMotor>>8);
+			data[2] = (BYTE)rightMotor;
+			data[3] = (BYTE)leftMotor;
 			data[8] = 0x00; // Mute LED: [Off]=0, [On]=1, [Pulse]=2
 			// 10 - 19: right trigger feedback
 			// 21 - 30: left trigger feedback
-			data[36] = 0x02; // Haptic intensity: [High]=0, [Medium]=2, [Low]=5
+			data[36] = (BYTE)intensity; // Haptic intensity: [High]=0, [Medium]=2, [Low]=5
 			data[38] = 0x02; // LED mode: [LED static brightness in 42]=1,  [Blue LED fade in 41]=2
 			data[41] = 0x02; // LED fade: [Fade in]=1, [Fade out]=2
 			data[42] = 0x02; // LED brightness: [High]=0, [Medium]=1, [Low]=2
