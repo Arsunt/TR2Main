@@ -137,8 +137,12 @@ void __cdecl ModifyStartInfo(int levelIdx) {
 			break;
 	}
 
-	// Bonus game activated and level is not Assault
+	// Bonus game activated and level is not Assault give all weapons or else if cheat enabled, give it by default.
+#ifdef _DEBUG
+	if( (SaveGame.bonusFlag && levelIdx != 0) || CHK_ANY(GF_GameFlow.flags, GFF_DozyCheatEnabled) ) {
+#else
 	if( SaveGame.bonusFlag && levelIdx != 0 ) {
+#endif // !_DEBUG
 		start->available = 1; // make level available
 		start->has_pistols = 1; // Lara has all weapons
 		start->has_magnums = 1;
@@ -156,6 +160,8 @@ void __cdecl ModifyStartInfo(int levelIdx) {
 		start->grenadeAmmo	= 10001;
 		start->harpoonAmmo	= 10001;
 
+		start->smallMedipacks = 255;
+		start->largeMedipacks = 255;
 		start->flares = 255;
 	}
 }

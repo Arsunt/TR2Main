@@ -27,6 +27,13 @@
 #include "game/missile.h"
 #include "global/vars.h"
 
+void __cdecl InitialiseCreature(__int16 itemID) {
+	ITEM_INFO *item = &Items[itemID];
+	item->pos.rotY += (GetRandomControl() - 16384) >> 1;
+	item->collidable = 1;
+	item->data = NULL;
+}
+
 void __cdecl CreatureDie(__int16 itemID, BOOL explode) {
 	ITEM_INFO *item = &Items[itemID];
 	item->collidable = 0;
@@ -98,7 +105,7 @@ void __cdecl CreatureKill(ITEM_INFO *item, int killAnim, int killState, int lara
  * Inject function
  */
 void Inject_Box() {
-//	INJECT(0x0040E190, InitialiseCreature);
+	INJECT(0x0040E190, InitialiseCreature);
 //	INJECT(0x0040E1C0, CreatureActive);
 //	INJECT(0x0040E210, CreatureAIInfo);
 //	INJECT(0x0040E470, SearchLOT);

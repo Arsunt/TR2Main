@@ -27,7 +27,7 @@
 /*
  * Function list
  */
-#define InitialiseCreature ((void(__cdecl*)(__int16)) 0x0040E190)
+void __cdecl InitialiseCreature(__int16 itemID); // 0x0040E190
 
 //	0x0040E1C0:		CreatureActive
 
