@@ -25,6 +25,7 @@
 #include "game/items.h"
 #include "game/lot.h"
 #include "game/missile.h"
+#include "specific/game.h"
 #include "global/vars.h"
 
 void __cdecl InitialiseCreature(__int16 itemID) {
@@ -32,6 +33,20 @@ void __cdecl InitialiseCreature(__int16 itemID) {
 	item->pos.rotY += (GetRandomControl() - 16384) >> 1;
 	item->collidable = 1;
 	item->data = NULL;
+}
+
+BOOL __cdecl CreatureActive(__int16 itemID) {
+	ITEM_INFO *item = &Items[itemID];
+
+	if (CHK_ANY(item->status, ITEM_INVISIBLE)) {
+		BOOL isActive = EnableBaddieAI(itemID, FALSE);
+		if (isActive) {
+			item->status = ITEM_ACTIVE;
+			return TRUE;
+		}
+	}
+
+	return CHK_ANY(item->status, ITEM_ACTIVE);
 }
 
 void __cdecl CreatureDie(__int16 itemID, BOOL explode) {
@@ -106,7 +121,7 @@ void __cdecl CreatureKill(ITEM_INFO *item, int killAnim, int killState, int lara
  */
 void Inject_Box() {
 	INJECT(0x0040E190, InitialiseCreature);
-//	INJECT(0x0040E1C0, CreatureActive);
+	INJECT(0x0040E1C0, CreatureActive);
 //	INJECT(0x0040E210, CreatureAIInfo);
 //	INJECT(0x0040E470, SearchLOT);
 //	INJECT(0x0040E670, UpdateLOT);

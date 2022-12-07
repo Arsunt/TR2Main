@@ -29,7 +29,7 @@
  */
 void __cdecl InitialiseCreature(__int16 itemID); // 0x0040E190
 
-//	0x0040E1C0:		CreatureActive
+BOOL __cdecl CreatureActive(__int16 itemID); // 0x0040E1C0
 
 #define CreatureAIInfo ((void(__cdecl*)(ITEM_INFO *, AI_INFO *)) 0x0040E210)
 
