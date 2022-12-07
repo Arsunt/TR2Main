@@ -21,6 +21,7 @@
 
 #include "global/precompiled.h"
 #include "game/box.h"
+#include "3dsystem/phd_math.h"
 #include "game/control.h"
 #include "game/items.h"
 #include "game/lot.h"
@@ -30,7 +31,7 @@
 
 void __cdecl InitialiseCreature(__int16 itemID) {
 	ITEM_INFO *item = &Items[itemID];
-	item->pos.rotY += (GetRandomControl() - 16384) >> 1;
+	item->pos.rotY += (GetRandomControl() - PHD_90) >> 1;
 	item->collidable = 1;
 	item->data = NULL;
 }
@@ -47,6 +48,71 @@ BOOL __cdecl CreatureActive(__int16 itemID) {
 	}
 
 	return CHK_ANY(item->status, ITEM_ACTIVE);
+}
+
+void __cdecl CreatureAIInfo(ITEM_INFO *item, AI_INFO *ai) {
+	CREATURE_INFO *creature = (CREATURE_INFO*)item->data;
+	if (creature == NULL) {
+		return;
+	}
+
+	ITEM_INFO *enemy = NULL;
+	__int16 *zone = NULL;
+
+	switch (item->objectID) {
+	case ID_BANDIT1:
+	case ID_BANDIT2:
+		GetBaddieTarget(creature->item_num, 0);
+		break;
+	case ID_MONK1:
+	case ID_MONK2:
+		GetBaddieTarget(creature->item_num, 1);
+		break;
+	default:
+		creature->enemy = LaraItem;
+		break;
+	}
+
+	enemy = creature->enemy;
+	if (enemy == NULL) {
+		enemy = LaraItem;
+	}
+
+	if (creature->LOT.fly != 0) {
+		zone = FlyZones[FlipStatus];
+	} else {
+		zone = GroundZones[2 * (creature->LOT.step >> 8) + FlipStatus];
+	}
+
+	ROOM_INFO *roomSource = &RoomInfo[item->roomNumber];
+	item->boxNumber = roomSource->floor[((item->pos.z - roomSource->z) >> WALL_SHIFT) + roomSource->xSize * ((item->pos.x - roomSource->x) >> WALL_SHIFT)].box;
+	ai->zone_number = zone[item->boxNumber];
+
+	ROOM_INFO *roomTarget = &RoomInfo[enemy->roomNumber];
+	enemy->boxNumber = roomTarget->floor[((enemy->pos.z - roomTarget->z) >> WALL_SHIFT) + roomTarget->xSize * ((enemy->pos.x - roomTarget->x) >> WALL_SHIFT)].box;
+	ai->enemy_zone = zone[enemy->boxNumber];
+
+	if ( CHK_ANY(Boxes[enemy->boxNumber].overlapIndex, creature->LOT.block_mask) || creature->LOT.node[item->boxNumber].search_number == (creature->LOT.search_number | 0x8000) ) {
+		ai->enemy_zone |= 0x4000;
+	}
+
+	OBJECT_INFO *obj = &Objects[item->objectID];
+	int x = enemy->pos.x - ((obj->pivotLength * phd_cos(item->pos.rotY)) >> W2V_SHIFT) - item->pos.x;
+	int z = enemy->pos.z - ((obj->pivotLength * phd_sin(item->pos.rotY)) >> W2V_SHIFT) - item->pos.z;
+	int angle = phd_atan(z, x);
+	if (creature->enemy != NULL) {
+		ai->distance = SQR(x) + SQR(z);
+	} else {
+		ai->distance = 0x7FFFFFFF;
+	}
+	ai->angle = angle - item->pos.rotY;
+	ai->enemy_facing = angle - enemy->pos.rotY + PHD_180;
+	ai->ahead = angle > -PHD_90 && angle < PHD_90;
+	if (ai->ahead && enemy->hitPoints >= 0 && ABS(item->pos.y - enemy->pos.y) < 384) {
+		ai->bite = 1;
+	} else {
+		ai->bite = 0;
+	}
 }
 
 void __cdecl CreatureDie(__int16 itemID, BOOL explode) {
@@ -122,7 +188,7 @@ void __cdecl CreatureKill(ITEM_INFO *item, int killAnim, int killState, int lara
 void Inject_Box() {
 	INJECT(0x0040E190, InitialiseCreature);
 	INJECT(0x0040E1C0, CreatureActive);
-//	INJECT(0x0040E210, CreatureAIInfo);
+	INJECT(0x0040E210, CreatureAIInfo);
 //	INJECT(0x0040E470, SearchLOT);
 //	INJECT(0x0040E670, UpdateLOT);
 //	INJECT(0x0040E6E0, TargetBox);
