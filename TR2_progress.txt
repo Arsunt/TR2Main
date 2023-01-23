@@ -136,7 +136,7 @@ x function is unused / included in another function
 
 	game/box.cpp
 0x0040E190:	 *	InitialiseCreature
-0x0040E1C0:		CreatureActive
+0x0040E1C0:	 *	CreatureActive
 0x0040E210:	 *	CreatureAIInfo
 0x0040E470:		SearchLOT
 0x0040E670:		UpdateLOT
@@ -159,7 +159,7 @@ x function is unused / included in another function
 0x00410090:	 *	CreatureEffect
 0x004100F0:		CreatureVault
 0x00410230:	+	CreatureKill
-0x004103A0:		GetBaddieTarget
+0x004103A0:	+	GetBaddieTarget
 
 	game/camera.cpp
 0x00410580:	+	InitialiseCamera
@@ -668,7 +668,7 @@ x function is unused / included in another function
 0x0042ECB0:	 *	CheckForHoldingState
 0x0042ECF0:	 *	InitialiseNewWeapon
 0x0042EE30:	 *	LaraTargetInfo
-0x0042EFD0:	 *	LaraGetNewTarget
+0x0042EFD0:	+	LaraGetNewTarget
 0x0042F1F0:	 *	find_target_point
 0x0042F2A0:	 *	AimWeapon
 0x0042F370:	 *	FireWeapon
@@ -737,12 +737,12 @@ x function is unused / included in another function
 0x00432920:		LaraWaterCurrent
 
 	game/lot.cpp
-0x00432B10:	 *	InitialiseLOTarray
-0x00432B70:	 *	DisableBaddieAI
-0x00432BC0:	 *	EnableBaddieAI
-0x00432D70:		InitialiseSlot
-0x00432F80:		CreateZone
-0x00433040:		ClearLOT
+0x00432B10:	+	InitialiseLOTarray
+0x00432B70:	+	DisableBaddieAI
+0x00432BC0:	+	EnableBaddieAI
+0x00432D70:	+	InitialiseSlot
+0x00432F80:	 *	CreateZone
+0x00433040:	 *	ClearLOT
 
 	game/missile.cpp
 0x00433090:	+	ControlMissile

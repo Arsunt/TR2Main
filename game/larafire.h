@@ -31,7 +31,7 @@
 #define CheckForHoldingState ((int(__cdecl*)(int)) 0x0042ECB0)
 #define InitialiseNewWeapon ((void(__cdecl*)(void)) 0x0042ECF0)
 #define LaraTargetInfo ((void(__cdecl*)(WEAPON_INFO*)) 0x0042EE30)
-#define LaraGetNewTarget ((void(__cdecl*)(WEAPON_INFO*)) 0x0042EFD0)
+void __cdecl LaraGetNewTarget(WEAPON_INFO* weapon); // 0x0042EFD0
 #define find_target_point ((void(__cdecl*)(ITEM_INFO*,GAME_VECTOR*)) 0x0042F1F0)
 #define AimWeapon ((void(__cdecl*)(WEAPON_INFO*,LARA_ARM*)) 0x0042F2A0)
 #define FireWeapon ((int(__cdecl*)(int,ITEM_INFO*,ITEM_INFO*,__int16*)) 0x0042F370)

@@ -422,6 +422,9 @@ extern APP_SETTINGS SavedAppSettings;
 #define IMPtr						VAR_U_(0x00526188, PHD_MATRIX*)
 #define IMStack						ARRAY_(0x005252C0, PHD_MATRIX, [32])
 #define InterpolateBounds			ARRAY_(0x005261A0, __int16, [6])
+#define ActiveCreatures				VAR_U_(0x005206C0, CREATURE_INFO*)
+#define ActiveCreaturesUsed			VAR_U_(0x004D7C40, int)
+#define MonksAttackLara				VAR_U_(0x004D77D8, BOOL)
 
 // Initialized arrays
 #define TrackIDs					ARRAY_(0x004642F0, __int16, [16]) /* = {2, 0}; */

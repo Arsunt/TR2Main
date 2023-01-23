@@ -21,9 +21,68 @@
 
 #include "global/precompiled.h"
 #include "game/larafire.h"
+#include "3dsystem/3d_gen.h"
+#include "game/control.h"
+#include "game/lot.h"
 #include "global/vars.h"
 
+void __cdecl LaraGetNewTarget(WEAPON_INFO* weapon) {
+	GAME_VECTOR start, target;
+	CREATURE_INFO *creature = NULL;
+	ITEM_INFO *bestItem = NULL, *item = NULL;
+	int distance;
+	int bestDistance = 0x7FFFFFFF;
+	int maxDistance = weapon->targetDist;
+	int sqrMaxDistance = SQR(maxDistance);
+	int x, y, z;
+	VECTOR_ANGLES angles;
+	__int16 bestYRot = 0x7FFF, yRot;
 
+	start.x = LaraItem->pos.x;
+	start.y = LaraItem->pos.y - 650;
+	start.z = LaraItem->pos.z;
+	start.roomNumber = LaraItem->roomNumber;
+
+	for (int i = 0; i < MAXIMUM_CREATURE_SLOTS; i++) {
+		creature = &ActiveCreatures[i];
+		if (creature->item_num != -1 && creature->item_num != Lara.item_number) {
+			item = &Items[creature->item_num];
+			if (item->hitPoints <= 0)
+				continue;
+			x = item->pos.x - start.x;
+			y = item->pos.y - start.y;
+			z = item->pos.z - start.z;
+			if ((ABS(x) > maxDistance) ||
+				(ABS(y) > maxDistance) ||
+				(ABS(z) > maxDistance))
+				continue;
+			distance = SQR(z) + SQR(y) + SQR(x);
+			if (distance < sqrMaxDistance) {
+				find_target_point(item, &target);
+
+				if (LOS(&start, &target)) {
+					phd_GetVectorAngles(target.x - start.x, target.y - start.y, target.z - start.z, &angles);
+					angles.yaw -= LaraItem->pos.rotY + Lara.torso_y_rot;
+					angles.pitch -= LaraItem->pos.rotX + Lara.torso_x_rot;
+					if (angles.yaw >= weapon->lockAngles[0] &&
+						angles.yaw <= weapon->lockAngles[1] &&
+						angles.pitch >= weapon->lockAngles[2] &&
+						angles.pitch <= weapon->lockAngles[3]) {
+						yRot = ABS(angles.yaw);
+						if (yRot < (bestYRot + 2730) && distance < bestDistance) {
+							bestDistance = distance;
+							bestYRot = yRot;
+							bestItem = item;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	Lara.target = bestItem;
+	LaraTargetInfo(weapon);
+}
 
 /*
  * Inject function
@@ -33,7 +92,7 @@ void Inject_LaraFire() {
 //	INJECT(0x0042ECB0, CheckForHoldingState);
 //	INJECT(0x0042ECF0, InitialiseNewWeapon);
 //	INJECT(0x0042EE30, LaraTargetInfo);
-//	INJECT(0x0042EFD0, LaraGetNewTarget);
+	INJECT(0x0042EFD0, LaraGetNewTarget);
 //	INJECT(0x0042F1F0, find_target_point);
 //	INJECT(0x0042F2A0, AimWeapon);
 //	INJECT(0x0042F370, FireWeapon);
