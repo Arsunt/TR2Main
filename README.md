@@ -8,6 +8,8 @@ The goal of the project is to make 1:1 clone of the original PC game, to fix all
 
 You may download patched Tomb2.exe, TR2Main.dll from [releases](https://github.com/Arsunt/TR2Main/releases), put them in your game folder and just launch. Also you may build TR2Main.dll yourself and use it with patched Tomb2.exe from [here](/binaries).
 
+The Golden Mask game is included into a [release pack](https://github.com/Arsunt/TR2Main/releases), since it's freeware. The original game level files must be officially obtained via Steam/GOG/CD/whatever.
+
 ## Changelog
 
 Learn about [the latest improvements](CHANGELOG.md).
@@ -24,6 +26,7 @@ Learn about [the latest improvements](CHANGELOG.md).
 * [**ChocolateFan**](https://github.com/asasas9500). Decompilation.
 * [**TokyoSU**](https://github.com/TokyoSU). Decompilation and features development.
 * **PaulD**. Author of [CD audio solution](modding/cd_pauld.cpp) used now by Steam.
+* [**Lito Perezito**](https://litoperezito.com). The artist who created loading screens for The Golden Mask.
 
 ## License
 
