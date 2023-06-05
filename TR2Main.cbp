@@ -131,6 +131,7 @@
 			<Add option="-DFEATURE_BACKGROUND_IMPROVED" />
 			<Add option="-DFEATURE_CHEAT" />
 			<Add option="-DFEATURE_EXTENDED_LIMITS" />
+			<Add option="-DFEATURE_FFPLAY" />
 			<Add option="-DFEATURE_GAMEPLAY_FIXES" />
 			<Add option="-DFEATURE_GOLD" />
 			<Add option="-DFEATURE_HUD_IMPROVED" />

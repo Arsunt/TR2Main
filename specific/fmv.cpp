@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
+ * Copyright (c) 2017-2023 Michael Chaban. All rights reserved.
  * Original game is created by Core Design Ltd. in 1997.
  * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
  *
@@ -68,7 +68,68 @@ static int (__cdecl *Player_StartTimer)(LPVOID);
 static int (__cdecl *Player_StopTimer)(LPVOID);
 #endif // (DIRECT3D_VERSION <= 0x500)
 
+#ifdef FEATURE_FFPLAY
+#define FFPLAY_DLL_NAME "ffplay.dll"
+static HMODULE hFFplay = NULL;
+
+// Imports from ffplay.dll
+static int (__stdcall *ffplay_init)(HWND, int, const char*);
+static int (__stdcall *ffplay_play_video)(const char*, int, int, int, int);
+static int (__stdcall *ffplay_cleanup)(void);
+
+static const char videoExts[][4] = {
+	"MP4",
+	"BIK",
+	"RPL",
+};
+
+static bool FFplayInit() {
+	if( hFFplay != NULL ) {
+		return true;
+	}
+
+	hFFplay = LoadLibrary(FFPLAY_DLL_NAME);
+	if( hFFplay == NULL ) {
+		// failed to load DLL
+		return false;
+	}
+
+	try {
+		GET_DLL_PROC(hFFplay, ffplay_init);
+		GET_DLL_PROC(hFFplay, ffplay_play_video);
+		GET_DLL_PROC(hFFplay, ffplay_cleanup);
+	} catch (LPCTSTR procName) {
+		// failed to load one of the procs
+		FreeLibrary(hFFplay);
+		hFFplay = NULL;
+		return false;
+	}
+
+	if( 0 != ffplay_init(HGameWindow, 2, "winmm") ) {
+		// failed to init FFplay
+		FreeLibrary(hFFplay);
+		hFFplay = NULL;
+		return false;
+	}
+
+	return true;
+}
+
+void __cdecl FFplayCleanup() {
+	if( hFFplay != NULL ) {
+		ffplay_cleanup();
+		FreeLibrary(hFFplay);
+		hFFplay = NULL;
+	}
+}
+#endif // FEATURE_FFPLAY
+
 bool __cdecl FMV_Init() {
+#ifdef FEATURE_FFPLAY
+	if( FFplayInit() ) {
+		return true;
+	}
+#endif // FEATURE_FFPLAY
 #if (DIRECT3D_VERSION > 0x500)
 	return false;
 #else // (DIRECT3D_VERSION > 0x500)
@@ -121,6 +182,9 @@ bool __cdecl FMV_Init() {
 }
 
 void __cdecl FMV_Cleanup() {
+#ifdef FEATURE_FFPLAY
+	FFplayCleanup();
+#endif // FEATURE_FFPLAY
 #if (DIRECT3D_VERSION <= 0x500)
 	if( hEscapePlay != NULL ) {
 		FreeLibrary(hEscapePlay);
@@ -153,6 +217,28 @@ bool __cdecl PlayFMV(LPCTSTR fileName) {
 }
 
 void __cdecl WinPlayFMV(LPCTSTR fileName, bool isPlayback) {
+#ifdef FEATURE_FFPLAY
+	if( hFFplay != NULL ) {
+		char extFileName[256] = {0};
+		char *extension;
+
+		strncpy(extFileName, fileName, sizeof(extFileName)-1);
+		extension = PathFindExtension(extFileName);
+		if( extension == NULL ) {
+			extension = strchr(extFileName, 0);
+			*extension = '.';
+		}
+		for( unsigned int i = 0; i < sizeof(videoExts)/4; ++i ) {
+			memcpy(extension + 1, videoExts[i], 4);
+			if( INVALID_FILE_ATTRIBUTES != GetFileAttributes(extFileName) ) {
+				ffplay_play_video(extFileName, 0, 0, 0, 100);
+				return;
+			}
+		}
+		ffplay_play_video(fileName, 0, 0, 0, 100);
+		return;
+	}
+#endif // FEATURE_FFPLAY
 #if (DIRECT3D_VERSION <= 0x500)
 	int xSize, ySize, xOffset, yOffset;
 	int soundPrecision, soundRate, soundChannels, soundFormat;
