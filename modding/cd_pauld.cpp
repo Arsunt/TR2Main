@@ -2,7 +2,7 @@
  * Copyright (c) 2017-2018 Michael Chaban. All rights reserved.
  * CD Audio solution in this file was designed by PaulD.
  * Original game is created by Core Design Ltd. in 1997.
- * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
+ * Lara Croft and Tomb Raider are trademarks of Embracer Group AB.
  *
  * This file is part of TR2Main.
  *
