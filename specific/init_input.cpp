@@ -164,7 +164,7 @@ bool IsJoyVibrationSupported() {
 		return true;
 	}
 	if( XInputIndex >= 0 ) {
-		return( XInputCaps.Vibration.wLeftMotorSpeed || XInputCaps.Vibration.wLeftMotorSpeed );
+		return( XInputCaps.Vibration.wLeftMotorSpeed || XInputCaps.Vibration.wRightMotorSpeed );
 	}
 	return false;
 }
@@ -459,7 +459,11 @@ bool __cdecl DInputEnumDevices(JOYSTICK_LIST *joystickList) {
 	}
 	RawInputEnumerate(RawInputCallBack, (LPVOID)joystickList);
 #endif // FEATURE_INPUT_IMPROVED
+#if DIRECTINPUT_VERSION >= 0x800
+	return SUCCEEDED(DInput->EnumDevices(DI8DEVTYPE_JOYSTICK, DInputEnumDevicesCallback, (LPVOID)joystickList, DIEDFL_ATTACHEDONLY));
+#else
 	return SUCCEEDED(DInput->EnumDevices(DIDEVTYPE_JOYSTICK, DInputEnumDevicesCallback, (LPVOID)joystickList, DIEDFL_ATTACHEDONLY));
+#endif
 }
 
 BOOL CALLBACK DInputEnumDevicesCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef) {

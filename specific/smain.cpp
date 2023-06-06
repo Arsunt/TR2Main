@@ -288,7 +288,7 @@ __int16 __cdecl TitleSequence() {
 	NoInputCounter = 0;
 
 	if( !IsTitleLoaded ) {
-		if( !InitialiseLevel(0, 0) )
+		if( !InitialiseLevel(0, GFL_TITLE) )
 			return GF_EXIT_GAME;
 		IsTitleLoaded = TRUE;
 	}

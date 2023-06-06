@@ -27,11 +27,10 @@
 /*
  * Function list
  */
+
 #define InitialiseCreature ((void(__cdecl*)(__int16)) 0x0040E190)
-
-//	0x0040E1C0:		CreatureActive
-
-#define CreatureAIInfo ((void(__cdecl*)(ITEM_INFO *, AI_INFO *)) 0x0040E210)
+#define CreatureActive ((BOOL(__cdecl*)(__int16)) 0x0040E1C0)
+#define CreatureAIInfo ((void(__cdecl*)(ITEM_INFO*,AI_INFO*)) 0x0040E210)
 
 //	0x0040E470:		SearchLOT
 //	0x0040E670:		UpdateLOT
@@ -40,7 +39,7 @@
 //	0x0040E880:		EscapeBox
 //	0x0040E930:		ValidBox
 
-#define CreatureMood ((void(__cdecl*)(ITEM_INFO *, AI_INFO *, BOOL)) 0x0040E9E0)
+#define CreatureMood ((void(__cdecl*)(ITEM_INFO*, AI_INFO*, BOOL)) 0x0040E9E0)
 
 //	0x0040EE50:		CalculateTarget
 //	0x0040F2B0:		CreatureCreature
@@ -62,7 +61,7 @@ void __cdecl CreatureDie(__int16 itemID, BOOL explode); // 0x0040F440
 //	0x004100F0:		CreatureVault
 
 void __cdecl CreatureKill(ITEM_INFO *item, int killAnim, int killState, int laraKillState); // 0x00410230
-
-//	0x004103A0:		GetBaddieTarget
+// NOTE: 1 = Monk, 0 = Bandit
+void __cdecl GetBaddieTarget(__int16 itemNum, int flags); // 0x004103A0
 
 #endif // BOX_H_INCLUDED

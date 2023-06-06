@@ -57,7 +57,11 @@
 #define ins_objectG4		(*(__int16*(__cdecl **)(__int16*,int,SORTTYPE))			0x004BCAF8)
 #define ins_objectG3		(*(__int16*(__cdecl **)(__int16*,int,SORTTYPE))			0x004BCB40)
 
-#define SfxFunctions		(*(void(__cdecl *(*)[32])(ITEM_INFO*))		0x004641F8)
+#define SfxFunctions			(*(void(__cdecl *(*)[32])(ITEM_INFO*))				0x004641F8)
+#define EffectFunctions			(*(void(__cdecl *(*)[32])(ITEM_INFO*))				0x004641F8)
+#define ExtraFunctions			(*(void(__cdecl *(*)[11])(ITEM_INFO*,COLL_INFO*))	0x00465DF0)
+#define LaraControlFunctions	(*(void(__cdecl *(*)[71])(ITEM_INFO*,COLL_INFO*))	0x00465CD0)
+#define LaraCollisionFunctions	(*(void(__cdecl *(*)[71])(ITEM_INFO*,COLL_INFO*))	0x00465E20)
 
 // Initialized variables
 #define PerspectiveDistance			VAR_I_(0x00464060, DWORD,			0x3000000)
@@ -394,7 +398,7 @@ extern APP_SETTINGS SavedAppSettings;
 #define AnimChanges					VAR_U_(0x0052617C, CHANGE_STRUCT*)
 #define RoomCount					VAR_U_(0x00526180, __int16)
 #define RoomInfo					VAR_U_(0x0052618C, ROOM_INFO*)
-#define UnderwaterCamera			VAR_U_(0x00526190, int)
+#define UnderwaterCamera			VAR_U_(0x00526190, BOOL)
 #define SunsetTimer					VAR_U_(0x00526194, DWORD)
 #define OutsideRight				VAR_U_(0x00526198, int)
 #define OutsideTop					VAR_U_(0x005261AC, int)
@@ -406,12 +410,21 @@ extern APP_SETTINGS SavedAppSettings;
 #define IsCinematicLoaded			VAR_U_(0x005262F4, __int16)
 #define CineFramesCount				VAR_U_(0x005262F6, __int16)
 #define CineFrames					VAR_U_(0x005262F8, CINE_FRAME_INFO*)
+#define CinematicPos				VAR_U_(0x00526300, PHD_3DPOS)
 #define CineLevelID					VAR_U_(0x00526312, __int16)
 #define CineFrameIdx				VAR_U_(0x00526314, __int16)
 #define Camera						VAR_U_(0x00526320, CAMERA_INFO)
 #define Overlaps					VAR_U_(0x005263C8, UINT16*)
 #define Boxes						VAR_U_(0x005263CC, BOX_INFO*)
 #define BoxesCount					VAR_U_(0x005263D0, DWORD)
+#define IMRate						VAR_U_(0x00526184, int)
+#define IMFrac						VAR_U_(0x005258F0, int)
+#define IMPtr						VAR_U_(0x00526188, PHD_MATRIX*)
+#define IMStack						ARRAY_(0x005252C0, PHD_MATRIX, [32])
+#define InterpolateBounds			ARRAY_(0x005261A0, __int16, [6])
+#define ActiveCreatures				VAR_U_(0x005206C0, CREATURE_INFO*)
+#define ActiveCreaturesUsed			VAR_U_(0x004D7C40, int)
+#define MonksAttackLara				VAR_U_(0x004D77D8, BOOL)
 
 // Initialized arrays
 #define TrackIDs					ARRAY_(0x004642F0, __int16, [16]) /* = {2, 0}; */

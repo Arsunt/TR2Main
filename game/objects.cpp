@@ -21,9 +21,98 @@
 
 #include "global/precompiled.h"
 #include "game/objects.h"
+#include "game/control.h"
+#include "game/draw.h"
+#include "game/items.h"
+#include "game/sphere.h"
 #include "global/vars.h"
 
+#if defined(FEATURE_MOD_CONFIG)
+#include "modding/mod_utils.h"
+#endif // !FEATURE_MOD_CONFIG
 
+void __cdecl ShutThatDoor(DOORPOS_DATA *door) {
+	FLOOR_INFO* floor = door->floor;
+	if (floor != NULL) {
+		floor->index = 0;
+		floor->ceiling = -127;
+		floor->floor = -127;
+		floor->box = -1;
+		floor->skyRoom = -1;
+		floor->pitRoom = -1;
+		if (door->box != -1) {
+			Boxes[door->box].overlapIndex |= 0x40; // BLOCKED
+		}
+	}
+}
+
+void __cdecl OpenThatDoor(DOORPOS_DATA *door) {
+	if (door->floor) {
+		*door->floor = door->data;
+		if (door->box != -1) {
+			Boxes[door->box].overlapIndex &= ~0x40; // UNBLOCKED
+		}
+	}
+}
+
+void __cdecl DoorControl(__int16 itemID) {
+	ITEM_INFO *item = &Items[itemID];
+	DOOR_DATA *data = (DOOR_DATA*)item->data;
+
+	if (TriggerActive(item)) {
+		if (item->currentAnimState) {
+			OpenThatDoor(&data->d1);
+			OpenThatDoor(&data->d2);
+			OpenThatDoor(&data->d1flip);
+			OpenThatDoor(&data->d2flip);
+		} else {
+			item->goalAnimState = 1;
+		}
+	}
+	else if (item->currentAnimState == 1) {
+		item->goalAnimState = 0;
+	} else {
+		ShutThatDoor(&data->d1);
+		ShutThatDoor(&data->d2);
+		ShutThatDoor(&data->d1flip);
+		ShutThatDoor(&data->d2flip);
+	}
+	AnimateItem(item);
+}
+
+void __cdecl GeneralControl(__int16 itemID) {
+	ITEM_INFO *item;
+	PHD_VECTOR pos;
+	__int16 roomID;
+
+	item = &Items[itemID];
+	if (TriggerActive(item)) {
+		item->goalAnimState = 1; // NOTE: open
+	} else {
+		item->goalAnimState = 0; // NOTE: close
+	}
+
+	AnimateItem(item);
+
+	roomID = item->roomNumber;
+	GetFloor(item->pos.x, item->pos.y, item->pos.z, &roomID);
+	if (roomID != item->roomNumber) {
+		ItemNewRoom(item->roomNumber, roomID);
+	}
+
+	if (item->status == ITEM_DISABLED) {
+		RemoveActiveItem(itemID);
+		item->flags |= IFL_INVISIBLE;
+	}
+#if defined(FEATURE_MOD_CONFIG)
+	if (IsModBridgeLightFix() && item->objectID != ID_GENERAL) return;
+#endif // !FEATURE_MOD_CONFIG
+	pos.x = 3000;
+	pos.y = 720;
+	pos.z = 0;
+	GetJointAbsPosition(item, &pos, 0);
+	AddDynamicLight(pos.x, pos.y, pos.z, 14, 11);
+}
 
 /*
  * Inject function
@@ -45,10 +134,10 @@ void Inject_Objects() {
 //	INJECT(0x00434EB0, SmashWindow);
 //	INJECT(0x00434F80, WindowControl);
 //	INJECT(0x00435020, SmashIceControl);
-//	INJECT(0x00435100, ShutThatDoor);
-//	INJECT(0x00435150, OpenThatDoor);
+	INJECT(0x00435100, ShutThatDoor);
+	INJECT(0x00435150, OpenThatDoor);
 //	INJECT(0x00435190, InitialiseDoor);
-//	INJECT(0x00435570, DoorControl);
+	INJECT(0x00435570, DoorControl);
 //	INJECT(0x00435640, OnDrawBridge);
 //	INJECT(0x00435700, DrawBridgeFloor);
 //	INJECT(0x00435740, DrawBridgeCeiling);
@@ -66,6 +155,6 @@ void Inject_Objects() {
 //	INJECT(0x00435BC0, BridgeTilt2Floor);
 //	INJECT(0x00435BF0, BridgeTilt2Ceiling);
 //	INJECT(0x00435C30, CopterControl);
-//	INJECT(0x00435D40, GeneralControl);
+	INJECT(0x00435D40, GeneralControl);
 //	INJECT(0x00435E20, DetonatorControl);
 }

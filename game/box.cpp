@@ -21,11 +21,99 @@
 
 #include "global/precompiled.h"
 #include "game/box.h"
+#include "3dsystem/phd_math.h"
 #include "game/control.h"
 #include "game/items.h"
 #include "game/lot.h"
 #include "game/missile.h"
+#include "specific/game.h"
 #include "global/vars.h"
+
+/*void __cdecl InitialiseCreature(__int16 itemID) {
+	ITEM_INFO *item = &Items[itemID];
+	item->pos.rotY += (GetRandomControl() - PHD_90) >> 1;
+	item->collidable = 1;
+	item->data = NULL;
+}
+
+BOOL __cdecl CreatureActive(__int16 itemID) {
+	ITEM_INFO *item = &Items[itemID];
+
+	if (CHK_ANY(item->status, ITEM_INVISIBLE)) {
+		BOOL isActive = EnableBaddieAI(itemID, FALSE);
+		if (isActive) {
+			item->status = ITEM_ACTIVE;
+			return TRUE;
+		}
+	}
+
+	return CHK_ANY(item->status, ITEM_ACTIVE);
+}
+
+void __cdecl CreatureAIInfo(ITEM_INFO *item, AI_INFO *ai) {
+	CREATURE_INFO *creature = (CREATURE_INFO*)item->data;
+	if (creature == NULL) {
+		return;
+	}
+
+	ITEM_INFO *enemy = NULL;
+	__int16 *zone = NULL;
+
+	switch (item->objectID) {
+	case ID_BANDIT1:
+	case ID_BANDIT2:
+		GetBaddieTarget(creature->item_num, 0);
+		break;
+	case ID_MONK1:
+	case ID_MONK2:
+		GetBaddieTarget(creature->item_num, 1);
+		break;
+	default:
+		creature->enemy = LaraItem;
+		break;
+	}
+
+	enemy = creature->enemy;
+	if (enemy == NULL) {
+		enemy = LaraItem;
+	}
+
+	if (creature->LOT.fly != 0) {
+		zone = FlyZones[FlipStatus];
+	} else {
+		zone = GroundZones[2 * (creature->LOT.step >> 8) + FlipStatus];
+	}
+
+	ROOM_INFO *roomSource = &RoomInfo[item->roomNumber];
+	item->boxNumber = roomSource->floor[((item->pos.z - roomSource->z) >> WALL_SHIFT) + roomSource->xSize * ((item->pos.x - roomSource->x) >> WALL_SHIFT)].box;
+	ai->zone_number = zone[item->boxNumber];
+
+	ROOM_INFO *roomTarget = &RoomInfo[enemy->roomNumber];
+	enemy->boxNumber = roomTarget->floor[((enemy->pos.z - roomTarget->z) >> WALL_SHIFT) + roomTarget->xSize * ((enemy->pos.x - roomTarget->x) >> WALL_SHIFT)].box;
+	ai->enemy_zone = zone[enemy->boxNumber];
+
+	if ( CHK_ANY(Boxes[enemy->boxNumber].overlapIndex, creature->LOT.block_mask) || creature->LOT.node[item->boxNumber].search_number == (creature->LOT.search_number | 0x8000) ) {
+		ai->enemy_zone |= 0x4000;
+	}
+
+	OBJECT_INFO *obj = &Objects[item->objectID];
+	int x = enemy->pos.x - ((obj->pivotLength * phd_cos(item->pos.rotY)) >> W2V_SHIFT) - item->pos.x;
+	int z = enemy->pos.z - ((obj->pivotLength * phd_sin(item->pos.rotY)) >> W2V_SHIFT) - item->pos.z;
+	int angle = phd_atan(z, x);
+	if (creature->enemy != NULL) {
+		ai->distance = SQR(x) + SQR(z);
+	} else {
+		ai->distance = 0x7FFFFFFF;
+	}
+	ai->angle = angle - item->pos.rotY;
+	ai->enemy_facing = angle - enemy->pos.rotY + PHD_180;
+	ai->ahead = angle > -PHD_90 && angle < PHD_90;
+	if (ai->ahead && enemy->hitPoints >= 0 && ABS(item->pos.y - enemy->pos.y) < 384) {
+		ai->bite = 1;
+	} else {
+		ai->bite = 0;
+	}
+}*/
 
 void __cdecl CreatureDie(__int16 itemID, BOOL explode) {
 	ITEM_INFO *item = &Items[itemID];
@@ -94,6 +182,73 @@ void __cdecl CreatureKill(ITEM_INFO *item, int killAnim, int killState, int lara
 	Camera.pos.roomNumber = LaraItem->roomNumber;
 }
 
+void __cdecl GetBaddieTarget(__int16 itemNum, int flags) {
+	ITEM_INFO *item = &Items[itemNum], *target = NULL, *bestItem = NULL;
+	CREATURE_INFO *creature = (CREATURE_INFO*)item->data, *creatureFound = NULL;
+	int bestDistance = 0x7FFFFFFF, distance = 0;
+	int x, y, z;
+
+	for (int i = 0; i < MAXIMUM_CREATURE_SLOTS; i++) {
+		creatureFound = &ActiveCreatures[i];
+		if (creatureFound->item_num == -1 || creatureFound->item_num == itemNum)
+			continue;
+		target = &Items[creatureFound->item_num];
+		switch (flags) {
+		case 1: // MONK
+			if (target->objectID != ID_BANDIT1 && target->objectID != ID_BANDIT2)
+				continue;
+			break;
+		case 0: // BANDIT (Mercenary)
+			if (target->objectID != ID_MONK1 && target->objectID != ID_MONK2)
+				continue;
+			break;
+		default:
+			continue;
+		}
+		x = (target->pos.x - item->pos.x) >> 6;
+		y = (target->pos.y - item->pos.y) >> 6;
+		z = (target->pos.z - item->pos.z) >> 6;
+		distance = SQR(z) + SQR(y) + SQR(x);
+		if (distance < bestDistance) {
+			bestItem = target;
+			bestDistance = distance;
+		}
+	}
+
+	if (bestItem == NULL) {
+		if (flags == 0 || MonksAttackLara) {
+			creature->enemy = LaraItem;
+		} else {
+			creature->enemy = NULL;
+		}
+		return;
+	}
+
+	if (flags == 0 || MonksAttackLara) {
+		x = (LaraItem->pos.x - item->pos.x) >> 6;
+		y = (LaraItem->pos.y - item->pos.y) >> 6;
+		z = (LaraItem->pos.z - item->pos.z) >> 6;
+		distance = SQR(z) + SQR(y) + SQR(x);
+		if (distance < bestDistance) {
+			bestItem = LaraItem;
+			bestDistance = distance;
+		}
+	}
+
+	target = creature->enemy;
+	if (target != NULL && target->status == ITEM_ACTIVE) {
+		x = (target->pos.x - item->pos.x) >> 6;
+		y = (target->pos.y - item->pos.y) >> 6;
+		z = (target->pos.z - item->pos.z) >> 6;
+		distance = SQR(z) + SQR(y) + SQR(x);
+		if (distance < (bestDistance + 0x400000)) {
+			creature->enemy = bestItem;
+		}
+	} else {
+		creature->enemy = bestItem;
+	}
+}
+
 /*
  * Inject function
  */
@@ -125,6 +280,5 @@ void Inject_Box() {
 //	INJECT(0x004100F0, CreatureVault);
 
 	INJECT(0x00410230, CreatureKill);
-
-//	INJECT(0x004103A0, GetBaddieTarget);
+	INJECT(0x004103A0, GetBaddieTarget);
 }

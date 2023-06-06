@@ -27,18 +27,13 @@
 /*
  * Function list
  */
-#define InitialiseLevel ((BOOL(__cdecl*)(int,int)) 0x0043A330)
-
-// 0x0043A490:		InitialiseGameFlags
-
+BOOL __cdecl InitialiseLevel(int levelID, GF_LEVEL_TYPE levelType); // 0x0043A330
+void __cdecl InitialiseGameFlags(); // 0x0043A490
 void __cdecl InitialiseLevelFlags(); // 0x0043A500
 void __cdecl BaddyObjects(); // 0x0043A530
-
-#define TrapObjects ((void(__cdecl*)(void)) 0x0043B570)
-#define ObjectObjects ((void(__cdecl*)(void)) 0x0043BB70)
-
+void __cdecl TrapObjects(); // 0x0043B570
+void __cdecl ObjectObjects(); // 0x0043BB70
 void __cdecl InitialiseObjects(); // 0x0043C7C0
-
-// 0x0043C830:		GetCarriedItems
+void __cdecl GetCarriedItems(); // 0x0043C830
 
 #endif // SETUP_H_INCLUDED

@@ -28,18 +28,13 @@
  * Function list
  */
 void __cdecl LaraControl(__int16 itemID);
-
-#define AnimateLara ((void(__cdecl*)(ITEM_INFO*)) 0x00430A10)
-
+void __cdecl AnimateLara(ITEM_INFO* item); // 0x00430A10
 void __cdecl UseItem(__int16 itemID); // 0x00430D10
 void __cdecl LaraCheatGetStuff(); // 0x00430ED0
 void __cdecl ControlLaraExtra(__int16 itemID); // 0x00430F90
 void __cdecl InitialiseLaraLoad(__int16 itemID); // 0x00430FB0
-
-#define InitialiseLara ((void(__cdecl*)(int)) 0x00430FE0)
-
+void __cdecl InitialiseLara(GF_LEVEL_TYPE type); // 0x00430FE0
 void __cdecl InitialiseLaraInventory(int levelID); // 0x004312A0
-
-#define LaraInitialiseMeshes ((void(__cdecl*)(int)) 0x00431610)
+void __cdecl LaraInitialiseMeshes(int levelID); // 0x00431610
 
 #endif // LARAMISC_H_INCLUDED

@@ -28,36 +28,25 @@
  * Function list
  */
 int __cdecl ControlPhase(int nTicks, BOOL demoMode);
-
 #define AnimateItem ((void(__cdecl*)(ITEM_INFO*)) 0x004146C0)
-
-// 0x00414A30:		GetChange
-// 0x00414AE0:		TranslateItem
-
+#define GetChange ((int(__cdecl*)(ITEM_INFO*,ANIM_STRUCT*)) 0x00414A30)
+#define TranslateItem ((void(__cdecl*)(ITEM_INFO*,int,int,int)) 0x00414AE0)
 #define GetFloor ((FLOOR_INFO*(__cdecl*)(int, int, int, __int16*)) 0x00414B40)
 #define GetWaterHeight ((int(__cdecl*)(int, int, int, __int16)) 0x00414CE0)
 #define GetHeight ((int(__cdecl*)(FLOOR_INFO*, int, int, int)) 0x00414E50)
-
-// 0x004150D0:		RefreshCamera
-
+#define RefreshCamera ((void(__cdecl*)(int,__int16*)) 0x004150D0)
 #define TestTriggers ((void(__cdecl*)(__int16*, BOOL)) 0x004151C0)
 #define TriggerActive ((int(__cdecl*)(ITEM_INFO*)) 0x004158A0)
 #define GetCeiling ((int(__cdecl*)(FLOOR_INFO*, int, int, int)) 0x00415900)
-
-// 0x00415B60:		GetDoor
-
+#define GetDoor ((__int16(__cdecl*)(FLOOR_INFO*)) 0x00415B60)
 #define LOS ((int(__cdecl*)(GAME_VECTOR*, GAME_VECTOR*)) 0x00415BB0)
-
-// 0x00415C50:		zLOS
-// 0x00415F40:		xLOS
-// 0x00416230:		ClipTarget
-// 0x00416310:		ObjectOnLOS
-
+#define zLOS ((int(__cdecl*)(GAME_VECTOR*, GAME_VECTOR*)) 0x00415C50)
+#define xLOS ((int(__cdecl*)(GAME_VECTOR*, GAME_VECTOR*)) 0x00415F40)
+#define ClipTarget ((int(__cdecl*)(GAME_VECTOR*, GAME_VECTOR*, FLOOR_INFO*)) 0x00416230)
+#define ObjectOnLOS ((int(__cdecl*)(GAME_VECTOR*, GAME_VECTOR*)) 0x00416310)
 #define FlipMap ((void(__cdecl*)(void)) 0x00416610)
-
-// 0x004166D0:		RemoveRoomFlipItems
-// 0x00416770:		AddRoomFlipItems
-
+#define RemoveRoomFlipItems ((void(__cdecl*)(ROOM_INFO*)) 0x004166D0)
+#define AddRoomFlipItems ((void(__cdecl*)(ROOM_INFO*)) 0x00416770)
 void __cdecl TriggerCDTrack(__int16 value, UINT16 flags, __int16 type); // 0x004167D0
 void __cdecl TriggerNormalCDTrack(__int16 value, UINT16 flags, __int16 type); // 0x00416800;
 

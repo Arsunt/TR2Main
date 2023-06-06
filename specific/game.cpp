@@ -402,7 +402,7 @@ void __cdecl DisplayCredits() {
 	S_UnloadLevelFile();
 	TempVideoAdjust(HiRes, 1.0); // NOTE: this line was not in the original code
 
-	if( !InitialiseLevel(0, 0) ) // init title level
+	if( !InitialiseLevel(0, GFL_TITLE) ) // init title level
 		return;
 
 	memcpy(palette, GamePalette8, sizeof(GamePalette8));

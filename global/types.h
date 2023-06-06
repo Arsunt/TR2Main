@@ -1783,7 +1783,12 @@ typedef struct CollInfo_t {
 	char zTilt;
 	char hitByBaddie;
 	char hitStatic;
-	UINT16 flags;
+	UINT16 slopesAreWalls : 2;
+	UINT16 slopesArePits : 1;
+	UINT16 lavaIsPit : 1;
+	UINT16 enableBaddiePush : 1;
+	UINT16 enableSpaz : 1;
+	UINT16 hitCeiling : 1;
 } COLL_INFO;
 
 typedef struct ObjectInfo_t {
@@ -1835,9 +1840,9 @@ typedef struct DoorInfos_t {
 typedef struct FloorInfo_t {
 	__int16 index;
 	__int16 box;
-	char pitRoom;
+	BYTE pitRoom;
 	char floor;
-	char skyRoom;
+	BYTE skyRoom;
 	char ceiling;
 } FLOOR_INFO;
 
@@ -1860,6 +1865,19 @@ typedef struct MeshInfo_t {
 	__int16 shade2;
 	__int16 staticNumber;
 } MESH_INFO;
+
+typedef struct DoorPosData_t {
+	FLOOR_INFO* floor;
+	FLOOR_INFO data;
+	__int16 box;
+} DOORPOS_DATA;
+
+typedef struct DoorData_t {
+	DOORPOS_DATA d1;
+	DOORPOS_DATA d1flip;
+	DOORPOS_DATA d2;
+	DOORPOS_DATA d2flip;
+} DOOR_DATA;
 
 typedef struct RoomInfo_t {
 	__int16 *data;

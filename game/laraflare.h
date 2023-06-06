@@ -39,6 +39,6 @@ void __cdecl DrawFlareInAir(ITEM_INFO *item);
 //	0x00430090:		draw_flare_meshes
 //	0x004300B0:		undraw_flare_meshes
 //	0x004300D0:		ready_flare
-//	0x00430110:		FlareControl
+#define FlareControl ((void(__cdecl*)(__int16)) 0x00430110)
 
 #endif // LARA_FLARE_H_INCLUDED

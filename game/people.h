@@ -28,8 +28,8 @@
  * Function list
  */
 //	0x00435EB0:		Targetable
-//	0x00435F40:		ControlGlow
-//	0x00435F80:		ControlGunShot
+#define ControlGlow ((void(__cdecl*)(__int16)) 0x00435F40)
+#define ControlGunShot ((void(__cdecl*)(__int16)) 0x00435F80)
 
 __int16 __cdecl GunShot(int x, int y, int z, __int16 speed, __int16 rotY, __int16 roomNumber); // 0x00435FD0
 __int16 __cdecl GunHit(int x, int y, int z, __int16 speed, __int16 rotY, __int16 roomNumber); // 0x00436040

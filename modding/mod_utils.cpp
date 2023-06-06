@@ -44,6 +44,7 @@ typedef struct {
 typedef struct {
 	bool isLoaded;
 	bool isBarefoot;
+	bool isBridgeLightFix;
 	char loadingPix[256];
 	DWORD waterColor;
 	SEMITRANS_CONFIG semitrans;
@@ -166,6 +167,10 @@ bool IsModConfigLoaded() {
 
 bool IsModBarefoot() {
 	return ModConfig.isBarefoot;
+}
+
+bool IsModBridgeLightFix() {
+	return ModConfig.isBridgeLightFix;
 }
 
 const char *GetModLoadingPix() {
@@ -413,6 +418,10 @@ static bool ParseLevelConfiguration(json_value *root) {
 	field = GetJsonField(root, json_boolean, "barefoot", NULL);
 	if( field ) {
 		ModConfig.isBarefoot = field->u.boolean;
+	}
+	field = GetJsonField(root, json_boolean, "bridgelightfix", NULL);
+	if( field ) {
+		ModConfig.isBridgeLightFix = field->u.boolean;
 	}
 	ParseSemitransConfiguration(GetJsonField(root, json_object, "semitransparent", NULL));
 	ParseReflectConfiguration(GetJsonField(root, json_object, "reflective", NULL));
