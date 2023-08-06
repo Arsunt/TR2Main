@@ -173,6 +173,200 @@ int __cdecl ControlPhase(int nTicks, BOOL demoMode) {
 	return 0;
 }
 
+int __cdecl LOS(GAME_VECTOR *start, GAME_VECTOR *target) {
+	int beginning, ending;
+
+	if (ABS(target->z - start->z) > ABS(target->x - start->x)) {
+		beginning = xLOS(start, target);
+		ending = zLOS(start, target);
+	} else {
+		beginning = zLOS(start, target);
+		ending = xLOS(start, target);
+	}
+	return ending && ClipTarget(start, target, GetFloor(target->x, target->y, target->z, &target->roomNumber)) && beginning == 1 && ending == 1;
+}
+
+int __cdecl zLOS(GAME_VECTOR *start, GAME_VECTOR *target) {
+	int dx, dy, dz, x, y, z;
+	__int16 previousID, roomID;
+	FLOOR_INFO *floor;
+
+	dz = target->z - start->z;
+	if (!dz)
+		return 1;
+	dx = ((target->x - start->x) << WALL_SHIFT) / dz;
+	previousID = start->roomNumber;
+	roomID = start->roomNumber;
+	LosRooms[0] = start->roomNumber;
+	LosRoomsCount = 1;
+	dy = ((target->y - start->y) << WALL_SHIFT) / dz;
+	if (dz < 0) {
+		z = start->z & -0x400;
+		x = start->x + ((z - start->z) * dx >> WALL_SHIFT);
+		y = start->y + ((z - start->z) * dy >> WALL_SHIFT);
+		while (z > target->z) {
+			floor = GetFloor(x, y, z, &roomID);
+			if (y > GetHeight(floor, x, y, z) || y < GetCeiling(floor, x, y, z)) {
+				target->x = x;
+				target->y = y;
+				target->z = z;
+				target->roomNumber = roomID;
+				return -1;
+			}
+			if (roomID != previousID) {
+				previousID = roomID;
+				LosRooms[LosRoomsCount] = roomID;
+				++LosRoomsCount;
+			}
+			floor = GetFloor(x, y, z - 1, &roomID);
+			if (y > GetHeight(floor, x, y, z - 1) || y < GetCeiling(floor, x, y, z - 1)) {
+				target->x = x;
+				target->roomNumber = previousID;
+				target->y = y;
+				target->z = z;
+				return 0;
+			}
+			z -= 1024;
+			x -= dx;
+			y -= dy;
+		}
+	} else {
+		z = start->z | 0x3FF;
+		x = start->x + ((z - start->z) * dx >> WALL_SHIFT);
+		y = start->y + ((z - start->z) * dy >> WALL_SHIFT);
+		while (z < target->z) {
+			floor = GetFloor(x, y, z, &roomID);
+			if (y > GetHeight(floor, x, y, z) || y < GetCeiling(floor, x, y, z)) {
+				target->x = x;
+				target->y = y;
+				target->z = z;
+				target->roomNumber = roomID;
+				return -1;
+			}
+			if (roomID != previousID) {
+				previousID = roomID;
+				LosRooms[LosRoomsCount] = roomID;
+				++LosRoomsCount;
+			}
+			floor = GetFloor(x, y, z + 1, &roomID);
+			if (y > GetHeight(floor, x, y, z + 1) || y < GetCeiling(floor, x, y, z + 1)) {
+				target->x = x;
+				target->y = y;
+				target->z = z;
+				target->roomNumber = previousID;
+				return 0;
+			}
+			z += 1024;
+			x += dx;
+			y += dy;
+		}
+	}
+	target->roomNumber = roomID;
+	return 1;
+}
+
+int __cdecl xLOS(GAME_VECTOR *start, GAME_VECTOR *target) {
+	int dx, dy, dz, x, y, z;
+	__int16 previousID, roomID;
+	FLOOR_INFO *floor;
+
+	dx = target->x - start->x;
+	if (!dx)
+		return 1;
+	dy = ((target->y - start->y) << WALL_SHIFT) / dx;
+	previousID = start->roomNumber;
+	roomID = start->roomNumber;
+	LosRooms[0] = start->roomNumber;
+	LosRoomsCount = 1;
+	dz = ((target->z - start->z) << WALL_SHIFT) / dx;
+	if (dx < 0) {
+		x = start->x & -0x400;
+		y = start->y + ((x - start->x) * dy >> WALL_SHIFT);
+		z = start->z + ((x - start->x) * dz >> WALL_SHIFT);
+		while (x > target->x) {
+			floor = GetFloor(x, y, z, &roomID);
+			if (y > GetHeight(floor, x, y, z) || y < GetCeiling(floor, x, y, z)) {
+				target->x = x;
+				target->y = y;
+				target->z = z;
+				target->roomNumber = roomID;
+				return -1;
+			}
+			if (roomID != previousID) {
+				previousID = roomID;
+				LosRooms[LosRoomsCount] = roomID;
+				++LosRoomsCount;
+			}
+			floor = GetFloor(x - 1, y, z, &roomID);
+			if (y > GetHeight(floor, x - 1, y, z) || y < GetCeiling(floor, x - 1, y, z)) {
+				target->x = x;
+				target->roomNumber = previousID;
+				target->y = y;
+				target->z = z;
+				return 0;
+			}
+			x -= 1024;
+			y -= dy;
+			z -= dz;
+		}
+	} else {
+		x = start->x | 0x3FF;
+		y = start->y + ((x - start->x) * dy >> WALL_SHIFT);
+		z = start->z + ((x - start->x) * dz >> WALL_SHIFT);
+		while (x < target->x) {
+			floor = GetFloor(x, y, z, &roomID);
+			if (y > GetHeight(floor, x, y, z) || y < GetCeiling(floor, x, y, z)) {
+				target->z = z;
+				target->y = y;
+				target->x = x;
+				target->roomNumber = roomID;
+				return -1;
+			}
+			if (roomID != previousID) {
+				previousID = roomID;
+				LosRooms[LosRoomsCount] = roomID;
+				++LosRoomsCount;
+			}
+			floor = GetFloor(x + 1, y, z, &roomID);
+			if (y > GetHeight(floor, x + 1, y, z) || y < GetCeiling(floor, x + 1, y, z)) {
+				target->x = x;
+				target->y = y;
+				target->z = z;
+				target->roomNumber = previousID;
+				return 0;
+			}
+			x += 1024;
+			y += dy;
+			z += dz;
+		}
+	}
+	target->roomNumber = roomID;
+	return 1;
+}
+
+int __cdecl ClipTarget(GAME_VECTOR *start, GAME_VECTOR *target, FLOOR_INFO *floor) {
+	int dx, dy, dz, height, ceiling;
+
+	dx = target->x - start->x;
+	dy = target->y - start->y;
+	dz = target->z - start->z;
+	height = GetHeight(floor, target->x, target->y, target->z);
+	if (target->y > height && start->y < height) {
+		target->y = height;
+		target->x = start->x + (target->y - start->y) * dx / dy;
+		target->z = start->z + (target->y - start->y) * dz / dy;
+		return 0;
+	}
+	ceiling = GetCeiling(floor, target->x, target->y, target->z);
+	if (target->y < ceiling && start->y > ceiling) {
+		target->y = ceiling;
+		target->x = start->x + (target->y - start->y) * dx / dy;
+		target->z = start->z + (target->y - start->y) * dz / dy;
+		return 0;
+	}
+	return 1;
+}
+
 void __cdecl TriggerCDTrack(__int16 value, UINT16 flags, __int16 type) {
 	if( value > 1 && value < 64 ) {
 		TriggerNormalCDTrack(value, flags, type);
@@ -226,10 +420,12 @@ void Inject_Control() {
 //	INJECT(0x004158A0, TriggerActive);
 //	INJECT(0x00415900, GetCeiling);
 //	INJECT(0x00415B60, GetDoor);
-//	INJECT(0x00415BB0, LOS);
-//	INJECT(0x00415C50, zLOS);
-//	INJECT(0x00415F40, xLOS);
-//	INJECT(0x00416230, ClipTarget);
+
+	INJECT(0x00415BB0, LOS);
+	INJECT(0x00415C50, zLOS);
+	INJECT(0x00415F40, xLOS);
+	INJECT(0x00416230, ClipTarget);
+
 //	INJECT(0x00416310, ObjectOnLOS);
 //	INJECT(0x00416610, FlipMap);
 //	INJECT(0x004166D0, RemoveRoomFlipItems);

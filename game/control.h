@@ -46,13 +46,12 @@ int __cdecl ControlPhase(int nTicks, BOOL demoMode);
 
 // 0x00415B60:		GetDoor
 
-#define LOS ((int(__cdecl*)(GAME_VECTOR*, GAME_VECTOR*)) 0x00415BB0)
+int __cdecl LOS(GAME_VECTOR *start, GAME_VECTOR *target); // 0x00415BB0
+int __cdecl zLOS(GAME_VECTOR *start, GAME_VECTOR *target); // 0x00415C50
+int __cdecl xLOS(GAME_VECTOR *start, GAME_VECTOR *target); // 0x00415F40
+int __cdecl ClipTarget(GAME_VECTOR *start, GAME_VECTOR *target, FLOOR_INFO *floor); // 0x00416230
 
-// 0x00415C50:		zLOS
-// 0x00415F40:		xLOS
-// 0x00416230:		ClipTarget
-// 0x00416310:		ObjectOnLOS
-
+#define ObjectOnLOS ((int(__cdecl*)(GAME_VECTOR*, GAME_VECTOR*)) 0x00416310)
 #define FlipMap ((void(__cdecl*)(void)) 0x00416610)
 
 // 0x004166D0:		RemoveRoomFlipItems

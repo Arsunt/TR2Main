@@ -291,6 +291,130 @@ void __cdecl ControlRocket(__int16 itemID) {
 	}
 }
 
+void __cdecl AnimateShotgun(int gunType) {
+	ITEM_INFO *item;
+	BOOL change;
+	static BOOL IsFireM16 = FALSE;
+	static BOOL IsFireHarpoon = FALSE;
+
+	item = &Items[Lara.weapon_item];
+	if (gunType == LGT_M16 && LaraItem->speed) {
+		change = TRUE;
+	} else {
+		change = FALSE;
+	}
+	switch (item->currentAnimState) {
+		case 0:
+			IsFireM16 = FALSE;
+			if (IsFireHarpoon) {
+				item->goalAnimState = 5;
+				IsFireHarpoon = FALSE;
+			} else {
+				if (Lara.water_status != LWS_Underwater && !change) {
+					if ((CHK_ANY(InputStatus, IN_ACTION) && !Lara.target) || Lara.left_arm.lock) {
+						item->goalAnimState = 2;
+					} else {
+						item->goalAnimState = 4;
+					}
+				} else {
+					item->goalAnimState = 6;
+				}
+			}
+			break;
+		case 2:
+			if (item->frameNumber == Anims[item->animNumber].frameBase) {
+				item->goalAnimState = 4;
+				if (Lara.water_status != LWS_Underwater && !change && !IsFireHarpoon) {
+					if (CHK_ANY(InputStatus, IN_ACTION)) {
+						if (!Lara.target || Lara.left_arm.lock) {
+							if (gunType == LGT_Harpoon) {
+								FireHarpoon();
+								if (!CHK_ANY(Lara.harpoon_ammo, 3))
+									IsFireHarpoon = TRUE;
+							} else {
+								if (gunType == LGT_Grenade) {
+									FireRocket();
+								} else {
+									if (gunType == LGT_M16) {
+										FireM16(FALSE);
+										PlaySoundEffect(78, &LaraItem->pos, 0);
+										IsFireM16 = TRUE;
+									} else {
+										FireShotgun();
+									}
+								}
+							}
+							item->goalAnimState = 2;
+						}
+					} else {
+						if (Lara.left_arm.lock)
+							item->goalAnimState = 0;
+					}
+				}
+				if (item->goalAnimState != 2 && IsFireM16) {
+					PlaySoundEffect(104, &LaraItem->pos, 0);
+					IsFireM16 = FALSE;
+				}
+			} else {
+				if (IsFireM16) {
+					PlaySoundEffect(78, &LaraItem->pos, 0);
+				} else {
+					if (gunType == LGT_Shotgun && !CHK_ANY(InputStatus, IN_ACTION) && !Lara.left_arm.lock)
+						item->goalAnimState = 4;
+				}
+			}
+			break;
+		case 6:
+			IsFireM16 = FALSE;
+			if (IsFireHarpoon) {
+				item->goalAnimState = 5;
+				IsFireHarpoon = FALSE;
+			} else {
+				if (Lara.water_status != LWS_Underwater && !change) {
+					item->goalAnimState = 0;
+				} else {
+					if ((CHK_ANY(InputStatus, IN_ACTION) && !Lara.target) || Lara.left_arm.lock) {
+						item->goalAnimState = 8;
+					} else {
+						item->goalAnimState = 7;
+					}
+				}
+			}
+			break;
+		case 8:
+			if (item->frameNumber == Anims[item->animNumber].frameBase) {
+				item->goalAnimState = 7;
+				if ((Lara.water_status == LWS_Underwater || change) && !IsFireHarpoon) {
+					if (CHK_ANY(InputStatus, IN_ACTION)) {
+						if (!Lara.target || Lara.left_arm.lock) {
+							if (gunType == LGT_Harpoon) {
+								FireHarpoon();
+								if (!CHK_ANY(Lara.harpoon_ammo, 3))
+									IsFireHarpoon = TRUE;
+							} else {
+								FireM16(TRUE);
+							}
+							item->goalAnimState = 8;
+						}
+					} else {
+						if (Lara.left_arm.lock)
+							item->goalAnimState = 6;
+					}
+				}
+			}
+			if (gunType == LGT_M16 && item->goalAnimState == 8)
+				PlaySoundEffect(78, &LaraItem->pos, 0);
+			break;
+	}
+	AnimateItem(item);
+	Lara.right_arm.frame_base = Anims[item->animNumber].framePtr;
+	Lara.left_arm.frame_base = Lara.right_arm.frame_base;
+	Lara.right_arm.frame_number = item->frameNumber - Anims[item->animNumber].frameBase;
+	Lara.left_arm.frame_number = Lara.right_arm.frame_number;
+	Lara.right_arm.anim_number = item->animNumber;
+	Lara.left_arm.anim_number = Lara.right_arm.anim_number;
+}
+
 /*
  * Inject function
  */
@@ -311,5 +435,6 @@ void Inject_Lara1Gun() {
 
 //	INJECT(0x0042C9D0, draw_shotgun);
 //	INJECT(0x0042CB40, undraw_shotgun);
-//	INJECT(0x0042CC50, AnimateShotgun);
+
+	INJECT(0x0042CC50, AnimateShotgun);
 }

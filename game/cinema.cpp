@@ -21,9 +21,15 @@
 
 #include "global/precompiled.h"
 #include "game/cinema.h"
+#include "3dsystem/3d_gen.h"
+#include "3dsystem/phd_math.h"
+#include "game/control.h"
 #include "game/draw.h"
 #include "game/hair.h"
+#include "game/items.h"
+#include "game/laramisc.h"
 #include "game/setup.h"
+#include "game/sphere.h"
 #include "specific/frontend.h"
 #include "specific/input.h"
 #include "specific/output.h"
@@ -148,6 +154,158 @@ int __cdecl DoCinematic(int nTicks) {
 	return 0;
 }
 
+void __cdecl CalculateCinematicCamera() {
+	CINE_FRAME_INFO *frame;
+	int c, s, sourceX, sourceY, sourceZ, targetX, targetY, targetZ;
+	__int16 roomID;
+
+	frame = &CineFrames[CineFrameIdx];
+	c = phd_cos(Camera.targetAngle);
+	s = phd_sin(Camera.targetAngle);
+	targetX = LaraItem->pos.x + ((s * frame->zTarget + c * frame->xTarget) >> W2V_SHIFT);
+	targetY = LaraItem->pos.y + frame->yTarget;
+	targetZ = LaraItem->pos.z + ((c * frame->zTarget - s * frame->xTarget) >> W2V_SHIFT);
+	sourceX = LaraItem->pos.x + ((s * frame->xPos + c * frame->zPos) >> W2V_SHIFT);
+	sourceZ = LaraItem->pos.z + ((c * frame->xPos - s * frame->zPos) >> W2V_SHIFT);
+	sourceY = LaraItem->pos.y + frame->yPos;
+	roomID = GetCinematicRoom(sourceX, sourceY, sourceZ);
+	if (roomID >= 0)
+		Camera.pos.roomNumber = roomID;
+	AlterFOV(frame->fov);
+	phd_LookAt(sourceX, sourceY, sourceZ, targetX, targetY, targetZ, frame->roll);
+}
+
+int __cdecl GetCinematicRoom(int x, int y, int z) {
+	__int16 roomID;
+	int i;
+	ROOM_INFO *room;
+
+	roomID = -1;
+	for (i = 0; i < RoomCount; ++i) {
+		room = &RoomInfo[i];
+		if (x >= room->x + 1024 &&
+			x < room->x + (room->ySize << WALL_SHIFT) - 1024 &&
+			y >= room->maxCeiling &&
+			y <= room->minFloor &&
+			z >= room->z + 1024 &&
+			z < room->z + (room->xSize << WALL_SHIFT) - 1024)
+		{
+			roomID = i;
+			break;
+		}
+	}
+	return roomID;
+}
+
+void __cdecl ControlCinematicPlayer(__int16 itemID) {
+	ITEM_INFO *item;
+	PHD_VECTOR pos;
+	__int16 roomID;
+
+	item = &Items[itemID];
+	item->pos.rotY = Camera.targetAngle;
+	item->pos.x = Camera.pos.x;
+	item->pos.y = Camera.pos.y;
+	item->pos.z = Camera.pos.z;
+	pos.x = 0;
+	pos.y = 0;
+	pos.z = 0;
+	GetJointAbsPosition(item, &pos, 0);
+	roomID = GetCinematicRoom(pos.x, pos.y, pos.z);
+	if (roomID != -1 && item->roomNumber != roomID)
+		ItemNewRoom(itemID, roomID);
+	if (item->dynamic_light && item->status != ITEM_INVISIBLE) {
+		pos.x = 0;
+		pos.y = 0;
+		pos.z = 0;
+		GetJointAbsPosition(item, &pos, 0);
+		AddDynamicLight(pos.x, pos.y, pos.z, 12, 11);
+	}
+	AnimateItem(item);
+}
+
+void __cdecl LaraControlCinematic(__int16 itemID) {
+	ITEM_INFO *item;
+	PHD_VECTOR pos;
+	__int16 roomID;
+
+	item = &Items[itemID];
+	item->pos.rotY = Camera.targetAngle;
+	item->pos.x = Camera.pos.x;
+	item->pos.y = Camera.pos.y;
+	item->pos.z = Camera.pos.z;
+	pos.x = 0;
+	pos.y = 0;
+	pos.z = 0;
+	GetJointAbsPosition(item, &pos, 0);
+	roomID = GetCinematicRoom(pos.x, pos.y, pos.z);
+	if (roomID != -1 && item->roomNumber != roomID)
+		ItemNewRoom(itemID, roomID);
+	AnimateLara(item);
+}
+
+void __cdecl InitialisePlayer1(__int16 itemID) {
+	ITEM_INFO *item;
+
+	Objects[ID_LARA].drawRoutine = DrawLara;
+	Objects[ID_LARA].control = LaraControlCinematic;
+	AddActiveItem(itemID);
+	item = &Items[itemID];
+	Camera.pos.x = item->pos.x;
+	Camera.pos.y = item->pos.y;
+	Camera.pos.z = item->pos.z;
+	item->pos.rotY = 0;
+	Camera.targetAngle = 0;
+	Camera.pos.roomNumber = item->roomNumber;
+	item->dynamic_light = 0;
+	item->goalAnimState = AS_WALK;
+	item->currentAnimState = AS_WALK;
+	item->frameNumber = 0;
+	item->animNumber = 0;
+	Lara.hit_direction = -1;
+}
+
+void __cdecl InitialiseGenPlayer(__int16 itemID) {
+	ITEM_INFO *item;
+
+	AddActiveItem(itemID);
+	item = &Items[itemID];
+	item->pos.rotY = 0;
+	item->dynamic_light = 0;
+}
+
+void __cdecl InGameCinematicCamera() {
+	CINE_FRAME_INFO *frame;
+	int c, s;
+
+	++CineFrameIdx;
+	if (CineFrameIdx >= CineFramesCount)
+		CineFrameIdx = CineFramesCount - 1;
+	frame = &CineFrames[CineFrameIdx];
+	c = phd_cos(CinematicPos.rotY);
+	s = phd_sin(CinematicPos.rotY);
+	Camera.target.x = CinematicPos.x + ((s * frame->zTarget + c * frame->xTarget) >> W2V_SHIFT);
+	Camera.target.y = CinematicPos.y + frame->yTarget;
+	Camera.target.z = CinematicPos.z + ((c * frame->zTarget - s * frame->xTarget) >> W2V_SHIFT);
+	Camera.pos.x = CinematicPos.x + ((s * frame->xPos + c * frame->zPos) >> W2V_SHIFT);
+	Camera.pos.y = CinematicPos.y + frame->yPos;
+	Camera.pos.z = CinematicPos.z + ((c * frame->xPos - s * frame->zPos) >> W2V_SHIFT);
+	AlterFOV(frame->fov);
+	phd_LookAt(Camera.pos.x, Camera.pos.y, Camera.pos.z, Camera.target.x, Camera.target.y, Camera.target.z, frame->roll);
+	GetFloor(Camera.pos.x, Camera.pos.y, Camera.pos.z, &Camera.pos.roomNumber);
+	if (Camera.isLaraMic) {
+		Camera.actualAngle = LaraItem->pos.rotY + Lara.head_y_rot + Lara.torso_y_rot;
+		Camera.micPos.x = LaraItem->pos.x;
+		Camera.micPos.y = LaraItem->pos.y;
+		Camera.micPos.z = LaraItem->pos.z;
+	} else {
+		Camera.actualAngle = phd_atan(Camera.target.z - Camera.pos.z, Camera.target.x - Camera.pos.x);
+		Camera.micPos.x = Camera.pos.x + (phd_sin(Camera.actualAngle) * PhdPersp >> W2V_SHIFT);
+		Camera.micPos.z = Camera.pos.z + (phd_cos(Camera.actualAngle) * PhdPersp >> W2V_SHIFT);
+		Camera.micPos.y = Camera.pos.y;
+	}
+}
+
 /*
  * Inject function
  */
@@ -156,12 +314,11 @@ void Inject_Cinema() {
 	INJECT(0x00411F40, StartCinematic);
 	INJECT(0x00412060, InitCinematicRooms);
 	INJECT(0x00412100, DoCinematic);
-
-//	INJECT(0x00412270, CalculateCinematicCamera);
-//	INJECT(0x004123B0, GetCinematicRoom);
-//	INJECT(0x00412430, ControlCinematicPlayer);
-//	INJECT(0x00412510, LaraControlCinematic);
-//	INJECT(0x004125B0, InitialisePlayer1);
-//	INJECT(0x00412640, InitialiseGenPlayer);
-//	INJECT(0x00412680, InGameCinematicCamera);
+	INJECT(0x00412270, CalculateCinematicCamera);
+	INJECT(0x004123B0, GetCinematicRoom);
+	INJECT(0x00412430, ControlCinematicPlayer);
+	INJECT(0x00412510, LaraControlCinematic);
+	INJECT(0x004125B0, InitialisePlayer1);
+	INJECT(0x00412640, InitialiseGenPlayer);
+	INJECT(0x00412680, InGameCinematicCamera);
 }

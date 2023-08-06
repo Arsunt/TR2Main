@@ -27,8 +27,9 @@
 /*
  * Function list
  */
-#define InitialiseHair ((void(__cdecl*)(void)) 0x00420E80)
-#define HairControl ((void(__cdecl*)(int)) 0x00420F00)
-#define DrawHair ((void(__cdecl*)(void)) 0x00421900)
+
+void __cdecl InitialiseHair(); // 0x00420E80
+void __cdecl HairControl(BOOL isCutscene); // 0x00420F00
+void __cdecl DrawHair(); // 0x00421900
 
 #endif // HAIR_H_INCLUDED

@@ -31,8 +31,8 @@
 //	0x0040CB50:		BoatCheckGeton
 //	0x0040CCC0:		BoatCollision
 //	0x0040CE20:		TestWaterHeight
-//	0x0040CF20:		DoBoatShift
 
+void __cdecl DoBoatShift(int itemID); // 0x0040CF20
 void __cdecl DoWakeEffect(ITEM_INFO *item); // 0x0040D0F0
 
 //	0x0040D270:		DoBoatDynamics

@@ -151,9 +151,11 @@ extern __int16 InvOptionObjectsCount;
 #define IsShadeEffect				VAR_U_(0x004D6F68, bool)
 #define CineCurrentFrame			VAR_U_(0x004D7770, int)
 #define IsChunkyCamera				VAR_U_(0x004D777C, BOOL)
+#define HeightType					VAR_U_(0x004D7780, HEIGHT_TYPE)
 #define NoInputCounter				VAR_U_(0x004D7784, int)
 #define IsResetFlag					VAR_U_(0x004D7788, BOOL)
 #define FlipTimer					VAR_U_(0x004D778C, int)
+#define LosRoomsCount				VAR_U_(0x004D7790, int)
 #define StopInventory				VAR_U_(0x004D7794, BOOL)
 #define IsDemoLevelType				VAR_U_(0x004D779C, BOOL)
 #define IsDemoLoaded				VAR_U_(0x004D77A0, BOOL)
@@ -378,6 +380,7 @@ extern APP_SETTINGS SavedAppSettings;
 #define NextItemActive				VAR_U_(0x005207C8, __int16)
 #define NextEffectActive			VAR_U_(0x005207CA, __int16)
 #define PrevItemActive				VAR_U_(0x005207CC, __int16)
+#define SkipHairPhysics				VAR_U_(0x00521CD0, BOOL)
 #define SoundFxCount				VAR_U_(0x00521FDC, DWORD)
 #define SoundFx						VAR_U_(0x00521FE0, OBJECT_VECTOR*)
 #define AnimFrames					VAR_U_(0x005251B0, __int16*)
@@ -406,6 +409,7 @@ extern APP_SETTINGS SavedAppSettings;
 #define IsCinematicLoaded			VAR_U_(0x005262F4, __int16)
 #define CineFramesCount				VAR_U_(0x005262F6, __int16)
 #define CineFrames					VAR_U_(0x005262F8, CINE_FRAME_INFO*)
+#define CinematicPos				VAR_U_(0x00526300, PHD_3DPOS)
 #define CineLevelID					VAR_U_(0x00526312, __int16)
 #define CineFrameIdx				VAR_U_(0x00526314, __int16)
 #define Camera						VAR_U_(0x00526320, CAMERA_INFO)
@@ -646,6 +650,8 @@ extern bool ConflictLayout[ARRAY_SIZE(Layout->key)];
 #define SaveGameItemFlags2			ARRAY_(0x00521BE0, DWORD, [24])
 #define SaveGameItemFlags1			ARRAY_(0x00521C40, DWORD, [24])
 #define PickupInfos					ARRAY_(0x00521CA0, PICKUP_INFO, [12])
+#define HairVelocity				ARRAY_(0x00521CE0, PHD_VECTOR, [7])
+#define HairPos						ARRAY_(0x00521D40, PHD_3DPOS, [7])
 #define Objects						ARRAY_(0x00522000, OBJECT_INFO, [265])
 #ifdef FEATURE_EXTENDED_LIMITS
 extern LIGHT_INFO DynamicLights[64];
@@ -660,6 +666,7 @@ extern STATIC_INFO StaticObjects[256];
 #endif // FEATURE_EXTENDED_LIMITS
 #define CD_Flags					ARRAY_(0x005261C0, __int16, [64])
 #define FlipMaps					ARRAY_(0x00526260, int, [10])
+#define LosRooms					ARRAY_(0x005262A0, int, [20])
 #define GroundZones					ARRAY_(0x005263A0, __int16*, [8])
 #define FlyZones					ARRAY_(0x005263C0, __int16*, [2])
 

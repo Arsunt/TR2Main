@@ -27,16 +27,17 @@
 /*
  * Function list
  */
-//	0x0042D000:		set_pistol_arm
-//	0x0042D050:		draw_pistols
-//	0x0042D0D0:		undraw_pistols
+void __cdecl set_pistol_arm(LARA_ARM *arm, int frame); // 0x0042D000
+
+#define draw_pistols ((void(__cdecl*)(int)) 0x0042D050)
+#define undraw_pistols ((void(__cdecl*)(int)) 0x0042D0D0)
+
 //	0x0042D300:		ready_pistols
 //	0x0042D360:		draw_pistol_meshes
 //	0x0042D3B0:		undraw_pistol_mesh_left
 //	0x0042D3F0:		undraw_pistol_mesh_right
 
 void __cdecl PistolHandler(int weaponType); // 0x0042D430
-
-#define AnimatePistols ((void(__cdecl*)(int)) 0x0042D5C0)
+void __cdecl AnimatePistols(int gunType); // 0x0042D5C0
 
 #endif // LARA2GUN_H_INCLUDED

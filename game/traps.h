@@ -41,11 +41,11 @@ void __cdecl InitialiseBlade(__int16 itemID); // 0x004418C0
 void __cdecl BladeControl(__int16 itemID); // 0x00441900
 void __cdecl InitialiseKillerStatue(__int16 itemID); // 0x004419A0
 void __cdecl KillerStatueControl(__int16 itemID); // 0x004419F0
+void __cdecl SpringBoardControl(__int16 itemID); // 0x00441B00
+void __cdecl InitialiseRollingBall(__int16 itemID); // 0x00441BE0
+void __cdecl RollingBallControl(__int16 itemID); // 0x00441C20
+void __cdecl RollingBallCollision(__int16 itemID, ITEM_INFO *laraItem, COLL_INFO *coll); // 0x00441F70
 
-//	0x00441B00:		SpringBoardControl
-//	0x00441BE0:		InitialiseRollingBall
-//	0x00441C20:		RollingBallControl
-//	0x00441F70:		RollingBallCollision
 //	0x004421C0:		SpikeCollision
 //	0x00442320:		TrapDoorControl
 //	0x00442370:		TrapDoorFloor

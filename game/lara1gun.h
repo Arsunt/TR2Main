@@ -41,9 +41,9 @@ void __cdecl FireHarpoon(); // 0x0042BFF0
 void __cdecl FireRocket(); // 0x0042C4D0
 void __cdecl ControlRocket(__int16 itemID); // 0x0042C5C0
 
-//	0x0042C9D0:		draw_shotgun
-//	0x0042CB40:		undraw_shotgun
+#define draw_shotgun ((void(__cdecl*)(int)) 0x0042C9D0)
+#define undraw_shotgun ((void(__cdecl*)(int)) 0x0042CB40)
 
-#define AnimateShotgun ((void(__cdecl*)(int)) 0x0042CC50)
+void __cdecl AnimateShotgun(int gunType); // 0x0042CC50
 
 #endif // LARA1GUN_H_INCLUDED

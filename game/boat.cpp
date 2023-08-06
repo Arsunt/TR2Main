@@ -25,9 +25,47 @@
 #include "game/control.h"
 #include "game/items.h"
 #include "game/missile.h"
+#include "game/sound.h"
 #include "specific/game.h"
 #include "specific/output.h"
 #include "global/vars.h"
+
+void __cdecl DoBoatShift(int itemID) {
+	ITEM_INFO *item, *link;
+	__int16 linkID;
+	int x, z, dx, dz;
+
+	item = &Items[itemID];
+	for (linkID = RoomInfo[item->roomNumber].itemNumber; linkID != -1; linkID = link->nextItem) {
+		link = &Items[linkID];
+		if (link->objectID == ID_BOAT && linkID != itemID && Lara.skidoo != linkID) {
+			dz = link->pos.z - item->pos.z;
+			dx = link->pos.x - item->pos.x;
+			if (SQR(dx) + SQR(dz) < SQR(1000)) {
+				item->pos.x = link->pos.x - SQR(1000) * dx / (SQR(dx) + SQR(dz));
+				item->pos.z = link->pos.z - SQR(1000) * dz / (SQR(dx) + SQR(dz));
+			}
+		} else {
+			if (link->objectID == ID_GONDOLA && link->currentAnimState == 1) {
+				x = link->pos.x - (512 * phd_sin(link->pos.rotY) >> W2V_SHIFT);
+				z = link->pos.z - (512 * phd_cos(link->pos.rotY) >> W2V_SHIFT);
+				dx = x - item->pos.x;
+				dz = z - item->pos.z;
+				if (SQR(dx) + SQR(dz) < SQR(1000)) {
+					if (item->speed < 80) {
+						item->pos.x = x - SQR(1000) * dx / (SQR(dx) + SQR(dz));
+						item->pos.z = z - SQR(1000) * dz / (SQR(dx) + SQR(dz));
+					} else {
+						if (link->pos.y - item->pos.y < 2048) {
+							PlaySoundEffect(337, &link->pos, 0);
+							link->goalAnimState = 2;
+						}
+					}
+				}
+			}
+		}
+	}
+}
 
 void __cdecl DoWakeEffect(ITEM_INFO *item) {
 	__int16 frame_number, fxID;
@@ -96,8 +134,8 @@ void Inject_Boat() {
 //	INJECT(0x0040CB50, BoatCheckGeton);
 //	INJECT(0x0040CCC0, BoatCollision);
 //	INJECT(0x0040CE20, TestWaterHeight);
-//	INJECT(0x0040CF20, DoBoatShift);
 
+	INJECT(0x0040CF20, DoBoatShift);
 	INJECT(0x0040D0F0, DoWakeEffect);
 
 //	INJECT(0x0040D270, DoBoatDynamics);

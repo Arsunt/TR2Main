@@ -27,15 +27,15 @@
 /*
  * Function list
  */
-//	0x00435EB0:		Targetable
+int __cdecl Targetable(ITEM_INFO *item, AI_INFO *info); // 0x00435EB0
+
 //	0x00435F40:		ControlGlow
 //	0x00435F80:		ControlGunShot
 
 __int16 __cdecl GunShot(int x, int y, int z, __int16 speed, __int16 rotY, __int16 roomNumber); // 0x00435FD0
 __int16 __cdecl GunHit(int x, int y, int z, __int16 speed, __int16 rotY, __int16 roomNumber); // 0x00436040
 __int16 __cdecl GunMiss(int x, int y, int z, __int16 speed, __int16 rotY, __int16 roomNumber); // 0x00436100
-
-//	0x004361B0:		ShotLara
+int __cdecl ShotLara(ITEM_INFO *item, AI_INFO *info, BITE_INFO *bite, __int16 rotation, int damage); // 0x004361B0
 
 #define InitialiseCult1 ((void(__cdecl*)(__int16)) 0x00436380)
 #define Cult1Control ((void(__cdecl*)(__int16)) 0x004363D0)
@@ -45,6 +45,7 @@ __int16 __cdecl GunMiss(int x, int y, int z, __int16 speed, __int16 rotY, __int1
 #define Worker2Control ((void(__cdecl*)(__int16)) 0x004371C0)
 #define BanditControl ((void(__cdecl*)(__int16)) 0x00437620)
 #define Bandit2Control ((void(__cdecl*)(__int16)) 0x00437960)
-#define WinstonControl ((void(__cdecl*)(__int16)) 0x00437DA0)
+
+void __cdecl WinstonControl(__int16 itemID); // 0x00437DA0
 
 #endif // PEOPLE_H_INCLUDED

@@ -31,13 +31,12 @@ void __cdecl SetCutsceneTrack(int track); // 0x00411F30
 int __cdecl StartCinematic(int levelID); // 0x00411F40
 void __cdecl InitCinematicRooms(); // 0x00412060
 int __cdecl DoCinematic(int nTicks); // 0x00412100
-
-#define CalculateCinematicCamera ((void(__cdecl*)(void)) 0x00412270)
-#define GetCinematicRoom ((int(__cdecl*)(int, int, int)) 0x004123B0)
-#define ControlCinematicPlayer ((void(__cdecl*)(__int16)) 0x00412430)
-#define LaraControlCinematic ((void(__cdecl*)(__int16)) 0x00412510)
-#define InitialisePlayer1 ((void(__cdecl*)(__int16)) 0x004125B0)
-#define InitialiseGenPlayer ((void(__cdecl*)(__int16)) 0x00412640)
-#define InGameCinematicCamera ((void(__cdecl*)(void)) 0x00412680)
+void __cdecl CalculateCinematicCamera(); // 0x00412270
+int __cdecl GetCinematicRoom(int x, int y, int z); // 0x004123B0
+void __cdecl ControlCinematicPlayer(__int16 itemID); // 0x00412430
+void __cdecl LaraControlCinematic(__int16 itemID); // 0x00412510
+void __cdecl InitialisePlayer1(__int16 itemID); // 0x004125B0
+void __cdecl InitialiseGenPlayer(__int16 itemID); // 0x00412640
+void __cdecl InGameCinematicCamera(); // 0x00412680
 
 #endif // CINEMA_H_INCLUDED
