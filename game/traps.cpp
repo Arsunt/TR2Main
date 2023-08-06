@@ -440,7 +440,7 @@ void __cdecl RollingBallControl(__int16 itemID) {
 			item->frameNumber = Anims[item->animNumber].frameBase;
 			item->requiredAnimState = 0;
 			item->goalAnimState = Anims[item->animNumber].currentAnimState;
-			item->currentAnimState = Anims[item->animNumber].currentAnimState;
+			item->currentAnimState = item->goalAnimState;
 			RemoveActiveItem(itemID);
 		}
 	}
@@ -460,7 +460,7 @@ void __cdecl RollingBallCollision(__int16 itemID, ITEM_INFO *laraItem, COLL_INFO
 				dx = laraItem->pos.x - item->pos.x;
 				dy = laraItem->pos.y - item->pos.y + 162;
 				dz = laraItem->pos.z - item->pos.z;
-				distance = phd_sqrt(SQR(dx) + SQR(dy) + SQR(dz));
+				distance = (__int16) phd_sqrt(SQR(dx) + SQR(dy) + SQR(dz));
 				if (distance < 512)
 					distance = 512;
 				DoBloodSplat(item->pos.x + (dx << WALL_SHIFT) / 2 / distance,
