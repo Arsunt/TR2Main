@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
- * Original game is written by Core Design Ltd. in 1997.
- * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
+ * Copyright (c) 2017-2023 Michael Chaban. All rights reserved.
+ * Original game is created by Core Design Ltd. in 1997.
+ * Lara Croft and Tomb Raider are trademarks of Embracer Group AB.
  *
  * This file is part of TR2Main.
  *
@@ -254,6 +254,7 @@ class RawHidDevice {
 		bool Send(LPCVOID lpBuffer, DWORD nSize);
 		bool Receive(LPVOID lpBuffer, DWORD nSize);
 		bool Calibrate();
+		bool SonyDualSenseRumbleAdjust(int *pLeftMotor, int *pRightMotor, int *pIntensity);
 		bool SonyControllerReport(LPBYTE buf, DWORD bufLen, DWORD productId, RAW_REPORT *pReport);
 		bool ParseRawInputStandard(LPBYTE buf, DWORD bufLen, RAW_STATE *pState);
 		bool ParseRawInputSonyDualShock4(LPBYTE buf, DWORD bufLen, RAW_STATE *pState);
@@ -411,6 +412,66 @@ bool RawHidDevice::Calibrate() {
 	return result;
 }
 
+bool RawHidDevice::SonyDualSenseRumbleAdjust(int *pLeftMotor, int *pRightMotor, int *pIntensity) {
+	// Sony DualSense uses haptics instead of regular vibration motors.
+	// For legacy rumble emulation it scales rumble intensity very very bad,
+	// so you feel no difference between weak and strong vibrations.
+	// But there is a workaround with global intensity parameter which affects
+	// both motors, so this function decides how to scale every motor force
+	// and overall intensity.
+	if( pLeftMotor == NULL || pRightMotor == NULL || pIntensity == NULL ) {
+		return false;
+	}
+	int lrange = 0, lforce = 0;
+	int rrange = 0, rforce = 0;
+	if( *pLeftMotor ) {
+		// make left motor to be fully scaled
+		int motor = *pLeftMotor * 4;
+		lrange = (motor - 1) / 128;
+		CLAMPG(lrange, 6);
+		lforce = motor - lrange * 128;
+		CLAMP(lforce, 1, 255);
+	}
+	if( *pRightMotor ) {
+		// make right motor to be 3/4 scaled (minimum range is 2)
+		int motor = *pRightMotor * 3;
+		rrange = (motor - 1) / 128;
+		CLAMPG(rrange, 4);
+		rforce = motor - rrange * 128;
+		CLAMP(rforce, 1, 255);
+		rrange += 2;
+	}
+	if( lforce && rforce ) {
+		// don't use 'else if' here, it is supposed to be sequential 'if'
+		if( rrange > lrange && rforce < 128 ) {
+			rrange--;
+			rforce += 128;
+		}
+		if( lrange < rrange && lforce >= 128 ) {
+			lrange++;
+			lforce -= 127;
+		}
+		if( lrange > rrange && lforce < 128 ) {
+			lrange--;
+			lforce += 128;
+		}
+		if( rrange < lrange && rforce >= 128 ) {
+			rrange++;
+			rforce -= 127;
+		}
+		if( rrange != lrange ) {
+			// left (heavy) motor is leading
+			// fit the right (light) motor
+			rforce = rrange < lrange ? 1 : 255;
+			rrange = lrange;
+		}
+	}
+	*pLeftMotor = lforce;
+	*pRightMotor = rforce;
+	*pIntensity = 6 - (lforce > 0 ? lrange : rrange);
+	return true;
+}
+
 bool RawHidDevice::SonyControllerReport(LPBYTE buf, DWORD bufLen, DWORD productId, RAW_REPORT *pReport) {
 	LPBYTE data = NULL;
 	memset(buf, 0, bufLen);
@@ -454,14 +515,18 @@ bool RawHidDevice::SonyControllerReport(LPBYTE buf, DWORD bufLen, DWORD productI
 		if( pReport == NULL ) {
 			data[1] = 0x15;
 		} else {
+			int leftMotor = pReport->leftMotor>>8;
+			int rightMotor = pReport->rightMotor>>8;
+			int intensity = 2;
+			SonyDualSenseRumbleAdjust(&leftMotor, &rightMotor, &intensity);
 			data[0] = 0x0F;
 			data[1] = 0x55;
-			data[2] = (BYTE)(pReport->rightMotor>>8);
-			data[3] = (BYTE)(pReport->leftMotor>>8);
+			data[2] = (BYTE)rightMotor;
+			data[3] = (BYTE)leftMotor;
 			data[8] = 0x00; // Mute LED: [Off]=0, [On]=1, [Pulse]=2
 			// 10 - 19: right trigger feedback
 			// 21 - 30: left trigger feedback
-			data[36] = 0x02; // Haptic intensity: [High]=0, [Medium]=2, [Low]=5
+			data[36] = (BYTE)intensity; // Haptic intensity: [High]=0, [Medium]=2, [Low]=5, [Tiny]=7
 			data[38] = 0x02; // LED mode: [LED static brightness in 42]=1,  [Blue LED fade in 41]=2
 			data[41] = 0x02; // LED fade: [Fade in]=1, [Fade out]=2
 			data[42] = 0x02; // LED brightness: [High]=0, [Medium]=1, [Low]=2

@@ -355,19 +355,24 @@
         "filename": "CUT4"
     }, {
         "comment": "The Cold War",
-        "filename": "LEVEL1"
+        "filename": "LEVEL1",
+        "picture": "LEVEL1"
     }, {
         "comment": "Fool's Gold",
-        "filename": "LEVEL2"
+        "filename": "LEVEL2",
+        "picture": "LEVEL2"
     }, {
         "comment": "Furnace of the Gods",
-        "filename": "LEVEL3"
+        "filename": "LEVEL3",
+        "picture": "LEVEL3"
     }, {
         "comment": "Kingdom",
-        "filename": "LEVEL4"
+        "filename": "LEVEL4",
+        "picture": "LEVEL4"
     }, {
         "comment": "Nightmare in Vegas",
         "filename": "LEVEL5",
+        "picture": "LEVEL5",
         "semitransparent": {
             "statics": [{
                 "comment": "Glass on the sink in the bathroom",

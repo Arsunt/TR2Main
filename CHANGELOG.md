@@ -6,7 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.9.0] - 2023-06-05
 ### New features
+- The Golden Mask game is included into a release pack, since it's freeware. The original game level files must be officially obtained via Steam/GOG/CD/whatever.
 - Added DirectX 9 support. However, TR2Main can be compiled for DirectX 5 too.
 - Into TR2Main.dll added information about the current version. Now it will be easier to find out which DLL is which version.
 - The number of secrets in the script is taken into account when calculating the total number of secrets in the final statistics. Now it is calculated correctly, regardless of the total number of levels, bonus levels, and even mod levels.
@@ -81,6 +84,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The inventory pattern (both static and animated) is seamless now for Bilinear Filter.
 - Added external HD textures support (DirectX 9 only).
 - Added iOS/Android texture pack full support (DirectX 9 only).
+- Added ffmpeg based FMV player.
+- Added loading screens by Lito Perezito for The Golden Mask.
 
 ### The original game bugfixes
 - Fixed a bug that prevented the display of the save counter until the game relaunch, if the game was saved in an empty slot.
@@ -254,7 +259,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed unsafe memory management in the screenshot function, which caused the game to crash at higher screen resolutions.
 - Fixed incorrect TGA screenshot creation. In the original game, the bottom line of pixels is filled with junk.
 
-[Unreleased]: https://github.com/Arsunt/TR2Main/compare/v0.8.2...HEAD
+[Unreleased]: https://github.com/Arsunt/TR2Main/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/Arsunt/TR2Main/compare/v0.8.2...v0.9.0
 [0.8.2]: https://github.com/Arsunt/TR2Main/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/Arsunt/TR2Main/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/Arsunt/TR2Main/compare/v0.7.0...v0.8.0

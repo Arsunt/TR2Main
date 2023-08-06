@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2017-2020 Michael Chaban. All rights reserved.
- * Original game is written by Core Design Ltd. in 1997.
- * Lara Croft and Tomb Raider are trademarks of Square Enix Ltd.
+ * Copyright (c) 2017-2021 Michael Chaban. All rights reserved.
+ * Original game is created by Core Design Ltd. in 1997.
+ * Lara Croft and Tomb Raider are trademarks of Embracer Group AB.
  *
  * This file is part of TR2Main.
  *
@@ -26,6 +26,14 @@
 #ifdef FEATURE_INPUT_IMPROVED
 #define NUM_MOTORS (2)
 #define NUM_VIBS (16)
+
+#define HP_100 (1000)
+#define HP_50 (HP_100/2)
+
+#define AIR_100 (1800)
+#define AIR_75 (AIR_100*3/4)
+#define AIR_50 (AIR_100/2)
+#define AIR_25 (AIR_100/4)
 
 extern void SetJoystickOutput(WORD leftMotor, WORD rightMotor, DWORD ledColor);
 extern bool IsJoyVibrationEnabled();
@@ -143,7 +151,6 @@ void UpdateJoyOutput(bool isInGame) {
 		}
 	}
 
-
 	int r=0, g=0, b=0;
 	bool isInjured = false;
 	if( !IsJoyLedColorEnabled() || !isInGame || LaraItem == NULL ) {
@@ -156,33 +163,33 @@ void UpdateJoyOutput(bool isInGame) {
 		hitPoints = LaraItem->hitPoints;
 		if( isInjured ) {
 			r = 255;
-			if( hitPoints > 500 ) {
-				g = 255 * (hitPoints - 500) / 500;
+			if( hitPoints > HP_50 ) {
+				g = 255 * (hitPoints - HP_50) / HP_50;
 			}
 		} else {
 			if( Lara.water_status == LWS_Underwater ) {
 				if( hitPoints > 0 && Lara.air > 0 ) {
-					if( Lara.air > 1350 ) {
+					if( Lara.air > AIR_75 ) {
 						g = 255;
-						b = 128 + 127 * (1800 - Lara.air) / 450;
-					} else if( Lara.air > 450 ) {
-						g = 255 * (Lara.air - 450) / 900;
+						b = 128 + 127 * (AIR_100 - Lara.air) / AIR_25;
+					} else if( Lara.air > AIR_25 ) {
+						g = 255 * (Lara.air - AIR_25) / AIR_50;
 						b = 255;
 					} else {
-						r = 127 * (450 - Lara.air) / 450;
+						r = 127 * (AIR_25 - Lara.air) / AIR_25;
 						b = 255;
 					}
 				} else {
-					r = 128 + 127 * (1000 - hitPoints) / 1000;
-					b = 255 * hitPoints / 1000;
+					r = 128 + 127 * (HP_100 - hitPoints) / HP_100;
+					b = 255 * hitPoints / HP_100;
 				}
 			} else {
-				if( hitPoints > 500 ) {
-					r = 255 * (1000 - hitPoints) / 500;
+				if( hitPoints > HP_50 ) {
+					r = 255 * (HP_100 - hitPoints) / HP_50;
 					g = 255;
 				} else {
 					r = 255;
-					g = 255 * hitPoints / 500;
+					g = 255 * hitPoints / HP_50;
 				}
 			}
 			if( hitPoints > 0 && Lara.air > 0 && Lara.gun_status != LGS_Ready ) {
